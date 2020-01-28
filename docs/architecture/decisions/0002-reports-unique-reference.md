@@ -20,4 +20,5 @@ Sirius Public API will expose a UUID for each report that is created via the Dep
 
 ## Consequences
 
-The Deputy Reporting Integration will have the unique ID it requires.
+* The Deputy Reporting Integration will have the unique ID it requires.
+* UUID's also allow us to decouple reports services from Sirius if needed at a future date.
