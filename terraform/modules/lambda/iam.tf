@@ -1,5 +1,5 @@
-resource "aws_iam_role" "lambda_sirius_healthcheck" {
-  name_prefix        = "lambda-${local.environment}-"
+resource "aws_iam_role" "lambda_deputy_reporting" {
+  name_prefix        = "lambda-${var.environment}-"
   assume_role_policy = data.aws_iam_policy_document.lambda_assume.json
   lifecycle {
     create_before_destroy = true
@@ -18,8 +18,8 @@ data "aws_iam_policy_document" "lambda_assume" {
 }
 
 resource "aws_iam_role_policy" "lambda" {
-  name   = "lambda-${local.environment}"
-  role   = aws_iam_role.lambda_sirius_healthcheck.id
+  name   = "lambda-${var.environment}"
+  role   = aws_iam_role.lambda_deputy_reporting.id
   policy = data.aws_iam_policy_document.lambda_logging.json
 }
 
@@ -37,6 +37,6 @@ data "aws_iam_policy_document" "lambda_logging" {
 }
 
 resource "aws_iam_role_policy_attachment" "vpc_access_execution_role" {
-  role       = aws_iam_role.lambda_sirius_healthcheck.name
+  role       = aws_iam_role.lambda_deputy_reporting.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
 }

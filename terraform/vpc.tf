@@ -6,3 +6,5 @@ data "aws_subnet_ids" "private" {
     values = ["private-*"]
   }
 }
+
+data "aws_region" "region" {}

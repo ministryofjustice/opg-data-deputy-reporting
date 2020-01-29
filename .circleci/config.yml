@@ -10,11 +10,10 @@ workflows:
       - terraform_pre_checks:
           name: terraform development preflight checks
           filters: {branches:{ignore:[master]}}
-          requires: [python requirements]
       - terraform_action:
           filters: {branches:{ignore:[master]}}
           name: plan development environment
-          requires: [terraform development preflight checks]
+          requires: [python requirements, terraform development preflight checks]
           tf_command: plan
 # commit_to_master:
 #   jobs:
@@ -48,7 +47,6 @@ workflows:
 #     tf_command: apply
 #     tf_workspace: production
 
-
 orbs:
   digideps-data:
     executors:
@@ -63,7 +61,9 @@ orbs:
           TF_CLI_ARGS_destroy: -input=false -auto-approve
           TF_CLI_ARGS_init: -input=false -upgrade=true -reconfigure
           TF_VAR_default_role: sirius-ci
-          TF_VAR_management_role: sirius-ci
+      python:
+        docker:
+          - image: circleci/python:3.8.1
     commands:
       terraform_install:
         steps:
@@ -82,20 +82,20 @@ orbs:
 
 jobs:
   build_lambda:
-    executor: digideps-data/python_with_tfvars
+    executor: digideps-data/python
     steps:
       - checkout
       - run:
-          name: check yaml formatting
+          name: install python validation packages
           command: |
-            pip3 install yamllint
-            yamllint -d "{extends: default, rules: {line-length: {max: 150}}}" .
+            pip3 install flake8 yamllint pycodestyle
       - run:
-          name: check python formatting
+          name: validate python packages
           command: |
-            pip3 install pycodestyle
             cd ./lambda
+            yamllint -d "{extends: default, rules: {line-length: {max: 150}}}" .
             pycodestyle .
+            flake8 .
       - run: pip3 install -r ./lambda/requirements.txt  --target ./lambda
       - run: chmod -R 755 ./lambda
       - run: zip -r9 /tmp/opg-data-deputy-reporting.zip .
@@ -112,12 +112,8 @@ jobs:
         default: ""
     working_directory: ~/project
     steps:
-      - attach_workspace:
-          at: ~/project
+      - checkout
       - digideps-data/terraform_install
-      - run:
-          name: unzip artifact
-          command: unzip ./opg-data-deputy-reporting.zip -d .
       - run:
           name: initialize
           command: cd ./terraform; terraform init
