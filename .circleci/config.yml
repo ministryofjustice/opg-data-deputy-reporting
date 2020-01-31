@@ -112,8 +112,12 @@ jobs:
         default: ""
     working_directory: ~/project
     steps:
-      - checkout
+      - attach_workspace:
+          at: ~/project
       - digideps-data/terraform_install
+      - run:
+          name: unzip artifact
+          command: unzip ./opg-data-deputy-reporting.zip -d .
       - run:
           name: initialize
           command: cd ./terraform; terraform init
@@ -145,18 +149,15 @@ jobs:
           name: unzip artifact
           command: unzip ./opg-data-deputy-reporting.zip -d .
       - run:
+          name: initialize
+          command: cd ./terraform; terraform init
+      - run:
           name: set environment
           command: ~/project/.circleci/set_env.sh >> $BASH_ENV
       - run:
-          name: switch to workspace
+          name: Set Environment variable
           command: |
             `cat $BASH_ENV | grep TF_WORKSPACE`
-            if [ `terraform workspace list | grep $TF_WORKSPACE | wc -l` == "0" ]
-            then terraform workspace new $TF_WORKSPACE
-            fi
-      - run:
-          name: initialize
-          command: cd ./terraform; terraform init
       - run:
           name: terraform << parameters.tf_command >>
           command: cd ./terraform; terraform << parameters.tf_command >>
