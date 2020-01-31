@@ -21,3 +21,9 @@ variable "deputy_reporting_api_gateway_allowed_roles" {
 variable "lambda_arn" {
   type = string
 }
+
+variable "lambda_invoke_arn" {
+  type = string
+}
+
+variable "deputy_reporting_api_gateway" {}

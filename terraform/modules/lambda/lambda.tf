@@ -15,11 +15,8 @@ resource "aws_lambda_function" "lambda_function" {
   runtime          = "python3.7"
   depends_on       = [aws_cloudwatch_log_group.healthcheck_log_group]
   vpc_config {
-    subnet_ids = var.aws_subnet_ids
-    security_group_ids = [
-      aws_security_group.lambda_egress.id,
-      data.aws_security_group.lambda_api_ingress.id
-    ]
+    subnet_ids         = var.aws_subnet_ids
+    security_group_ids = [data.aws_security_group.lambda_api_ingress.id]
   }
   environment {
     variables = {
