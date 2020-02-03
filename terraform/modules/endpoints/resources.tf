@@ -1,15 +1,26 @@
-resource "aws_api_gateway_resource" "gateway_resource_product" {
-  rest_api_id = var.deputy_reporting_api_gateway.id
-  parent_id   = var.deputy_reporting_api_gateway.root_resource_id
-
-  path_part = var.gateway_path_product
+locals {
+  resource_id = var.resource_part_3 != "" ? aws_api_gateway_resource.path_part_3[0].id : (var.resource_part_2 != "" ? aws_api_gateway_resource.path_part_2[0].id : aws_api_gateway_resource.path_part_1[0].id)
 }
 
-resource "aws_api_gateway_resource" "gateway_resource_collection" {
+resource "aws_api_gateway_resource" "path_part_1" {
   rest_api_id = var.deputy_reporting_api_gateway.id
-  parent_id   = aws_api_gateway_resource.gateway_resource_product.id
+  parent_id   = var.deputy_reporting_api_gateway.root_resource_id
+  count       = var.resource_part_1 == "" ? 0 : 1
+  path_part   = var.resource_part_1
+}
 
-  path_part = var.gateway_path_collection
+resource "aws_api_gateway_resource" "path_part_2" {
+  rest_api_id = var.deputy_reporting_api_gateway.id
+  parent_id   = aws_api_gateway_resource.path_part_1[0].id
+  count       = var.resource_part_2 == "" ? 0 : 1
+  path_part   = var.resource_part_2
+}
+
+resource "aws_api_gateway_resource" "path_part_3" {
+  rest_api_id = var.deputy_reporting_api_gateway.id
+  parent_id   = aws_api_gateway_resource.path_part_2[0].id
+  count       = var.resource_part_3 == "" ? 0 : 1
+  path_part   = var.resource_part_3
 }
 
 //-------------------------------------
@@ -17,19 +28,28 @@ resource "aws_api_gateway_resource" "gateway_resource_collection" {
 
 resource "aws_api_gateway_method" "gateway_resource_collection_get" {
   rest_api_id   = var.deputy_reporting_api_gateway.id
-  resource_id   = aws_api_gateway_resource.gateway_resource_collection.id
+  resource_id   = local.resource_id
+  count         = var.method == "GET" ? 1 : 0
   http_method   = "GET"
+  authorization = "AWS_IAM"
+}
+
+resource "aws_api_gateway_method" "gateway_resource_collection_post" {
+  rest_api_id   = var.deputy_reporting_api_gateway.id
+  resource_id   = local.resource_id
+  count         = var.method == "POST" ? 1 : 0
+  http_method   = "POST"
   authorization = "AWS_IAM"
 }
 
 resource "aws_api_gateway_integration" "gateway_deputy_reporting_collection_resource_get_integration" {
   rest_api_id             = var.deputy_reporting_api_gateway.id
-  resource_id             = aws_api_gateway_resource.gateway_resource_collection.id
-  http_method             = aws_api_gateway_method.gateway_resource_collection_get.http_method
+  resource_id             = local.resource_id
+  http_method             = var.method == "GET" ? aws_api_gateway_method.gateway_resource_collection_get[0].http_method : aws_api_gateway_method.gateway_resource_collection_post[0].http_method
   integration_http_method = "POST" # We POST to Lambda, even on a HTTP GET.
 
   type             = "AWS_PROXY"
   content_handling = "CONVERT_TO_TEXT"
 
-  uri = var.lambda_invoke_arn
+  uri = var.lambda.invoke_arn
 }

@@ -21,3 +21,7 @@ variable "lambda_prefix" {
 variable "handler" {
   type = string
 }
+
+variable "lambda_function_subdir" {
+  type = string
+}

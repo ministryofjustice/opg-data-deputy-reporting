@@ -9,6 +9,7 @@ workflows:
           filters: {branches:{ignore:[master]}}
       - terraform_pre_checks:
           name: terraform development preflight checks
+          requires: [python requirements]
           filters: {branches:{ignore:[master]}}
       - terraform_action:
           filters: {branches:{ignore:[master]}}
@@ -96,7 +97,7 @@ jobs:
             yamllint -d "{extends: default, rules: {line-length: {max: 150}}}" .
             pycodestyle .
             flake8 .
-      - run: pip3 install -r ./lambda/requirements.txt  --target ./lambda
+      - run: pip3 install -r ./lambda/healthcheck/requirements.txt  --target ./lambda/healthcheck
       - run: chmod -R 755 ./lambda
       - run: zip -r9 /tmp/opg-data-deputy-reporting.zip .
       - persist_to_workspace:
@@ -152,7 +153,7 @@ jobs:
           name: initialize
           command: cd ./terraform; terraform init
       - run:
-          name: set environment
+          name: Set BASH_ENV
           command: ~/project/.circleci/set_env.sh >> $BASH_ENV
       - run:
           name: Set Environment variable

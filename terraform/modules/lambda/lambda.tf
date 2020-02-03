@@ -7,8 +7,8 @@ resource "aws_cloudwatch_log_group" "healthcheck_log_group" {
 }
 
 resource "aws_lambda_function" "lambda_function" {
-  filename         = data.archive_file.lambda_archive_sirius_healthcheck.output_path
-  source_code_hash = data.archive_file.lambda_archive_sirius_healthcheck.output_base64sha256
+  filename         = data.archive_file.lambda_archive.output_path
+  source_code_hash = data.archive_file.lambda_archive.output_base64sha256
   function_name    = local.lambda
   role             = aws_iam_role.lambda_deputy_reporting.arn
   handler          = var.handler
@@ -25,8 +25,8 @@ resource "aws_lambda_function" "lambda_function" {
   }
 }
 
-data "archive_file" "lambda_archive_sirius_healthcheck" {
+data "archive_file" "lambda_archive" {
   type        = "zip"
-  source_dir  = "../lambda"
-  output_path = "./lambda.zip"
+  source_dir  = "../lambda/${var.lambda_function_subdir}"
+  output_path = "./lambda_${var.lambda_function_subdir}.zip"
 }
