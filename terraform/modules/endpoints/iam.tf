@@ -1,4 +1,4 @@
-//===============Related to data_deputy_reporting role===================
+//===============Related to Task Execution Role===================
 
 //This is the role that gets assumed from ECS task with assume_role attached
 resource "aws_iam_role" "data_deputy_reporting" {
@@ -45,11 +45,8 @@ resource "aws_iam_policy" "deputy_reporting_access_policy" {
   policy = data.aws_iam_policy_document.gateway_resource_execution_policy.json
 }
 
-//THIS GETS CALLED FROM OUTSIDE
-//resource "aws_iam_role_policy_attachment" "deputy_reporting_access_policy_attachment" {
-//  role       = aws_iam_role.data_deputy_reporting.name
-//  policy_arn = aws_iam_policy.deputy_reporting_access_policy.arn  //api collections gateway
-//}
+//aws_iam_role_policy_attachment.deputy_reporting_access_policy_attachment gets called from outside
+//to make act as a depedency for deployment
 
 //==================================
 
@@ -62,8 +59,6 @@ resource "aws_lambda_permission" "gateway_lambda_permission" {
   function_name = var.lambda_name
   principal     = "apigateway.amazonaws.com"
 
-  # The /*/*/* part allows invocation from any stage, method and resource path within API Gateway REST API.
-  //LOCK THIS DOWN
   source_arn = "${var.deputy_reporting_api_gateway.execution_arn}/*/${aws_api_gateway_method.gateway_resource_collection_get.http_method}${aws_api_gateway_resource.gateway_resource_collection.path}"
 }
 

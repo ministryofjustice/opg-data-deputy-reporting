@@ -1,15 +1,15 @@
 data "aws_route53_zone" "sirius" {
-  name = "${local.sirius_hosted_zone}."
+  name = "${local.account["sirius_hosted_zone"]}."
 }
 
 data "aws_acm_certificate" "sirius" {
-  domain      = "*.${local.sirius_hosted_zone}"
+  domain      = "*.${local.account["sirius_hosted_zone"]}"
   types       = ["AMAZON_ISSUED"]
   most_recent = true
 }
 
 resource "aws_route53_record" "sirius" {
-  name    = "api-deputy-reporting.${local.sirius_hosted_zone}"
+  name    = "api-integrations.${local.account["sirius_hosted_zone"]}"
   type    = "A"
   zone_id = data.aws_route53_zone.sirius.id
 

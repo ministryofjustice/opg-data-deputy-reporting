@@ -9,6 +9,7 @@ workflows:
           filters: {branches:{ignore:[master]}}
       - terraform_pre_checks:
           name: terraform development preflight checks
+          requires: [python requirements]
           filters: {branches:{ignore:[master]}}
       - terraform_action:
           filters: {branches:{ignore:[master]}}
@@ -114,7 +115,13 @@ jobs:
     steps:
       - attach_workspace:
           at: ~/project
+      - run:
+          name: check some stuff
+          command: pwd; ls -alt ~/project;
       - digideps-data/terraform_install
+      - run:
+          name: check some stuff
+          command: pwd; ls -alt ~/project;
       - run:
           name: unzip artifact
           command: unzip ./opg-data-deputy-reporting.zip -d .

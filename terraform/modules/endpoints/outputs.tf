@@ -4,6 +4,6 @@ output data_deputy_reporting {
 }
 
 output deputy_reporting_access_policy {
-  description = ""
+  description = "The access policy to attach"
   value       = aws_iam_policy.deputy_reporting_access_policy
 }

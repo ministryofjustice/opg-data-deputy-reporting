@@ -10,7 +10,7 @@ variable "accounts" {
       is_production      = string
       target_environment = string
       vpc_id             = string
+      sirius_hosted_zone = string
     })
   )
 }
-
