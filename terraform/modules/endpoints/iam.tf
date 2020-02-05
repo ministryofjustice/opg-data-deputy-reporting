@@ -3,11 +3,11 @@
 //This is the role that gets assumed from ECS task with assume_role attached
 resource "aws_iam_role" "data_deputy_reporting" {
   name               = "digital-deputy-api-gateway-access"
-  assume_role_policy = data.aws_iam_policy_document.deputy_reporting_role_cross_account_api.json
+  assume_role_policy = data.aws_iam_policy_document.cross_account_api.json
 }
 
 // Access policy, defining who can assume this role
-data "aws_iam_policy_document" "deputy_reporting_role_cross_account_api" {
+data "aws_iam_policy_document" "cross_account_api" {
   statement {
     sid = "CrossAccountApiGatewayAccessPolicy"
 
@@ -38,14 +38,14 @@ data "aws_iam_policy_document" "gateway_resource_execution_policy" {
 }
 
 //Name of policies and the attachment
-resource "aws_iam_policy" "deputy_reporting_access_policy" {
-  depends_on = [aws_api_gateway_integration.gateway_deputy_reporting_collection_resource_get_integration]
+resource "aws_iam_policy" "access_policy" {
+  depends_on = [aws_api_gateway_integration.integration]
 
   name   = "${var.resource_part_1}_${var.resource_part_2}_access_policy"
   policy = data.aws_iam_policy_document.gateway_resource_execution_policy.json
 }
 
-//aws_iam_role_policy_attachment.deputy_reporting_access_policy_attachment gets called from outside
+//aws_iam_role_policy_attachment.access_policy_attachment gets called from outside
 //to make act as a depedency for deployment
 
 //==================================
@@ -58,5 +58,5 @@ resource "aws_lambda_permission" "gateway_lambda_permission" {
   function_name = var.lambda.function_name
   principal     = "apigateway.amazonaws.com"
 
-  source_arn = "${var.deputy_reporting_api_gateway.execution_arn}/*/${aws_api_gateway_method.gateway_resource_collection_get[0].http_method}/${var.resource_part_1}/*"
+  source_arn = "${var.deputy_reporting_api_gateway.execution_arn}/*/${aws_api_gateway_method.get[0].http_method}/${var.resource_part_1}/*"
 }

@@ -1,4 +1,4 @@
-resource "aws_iam_role" "lambda_deputy_reporting" {
+resource "aws_iam_role" "lambda_role" {
   name_prefix        = "lambda-${var.environment}-"
   assume_role_policy = data.aws_iam_policy_document.lambda_assume.json
   lifecycle {
@@ -19,7 +19,7 @@ data "aws_iam_policy_document" "lambda_assume" {
 
 resource "aws_iam_role_policy" "lambda" {
   name   = "lambda-${var.environment}"
-  role   = aws_iam_role.lambda_deputy_reporting.id
+  role   = aws_iam_role.lambda_role.id
   policy = data.aws_iam_policy_document.lambda_logging.json
 }
 
@@ -37,6 +37,6 @@ data "aws_iam_policy_document" "lambda_logging" {
 }
 
 resource "aws_iam_role_policy_attachment" "vpc_access_execution_role" {
-  role       = aws_iam_role.lambda_deputy_reporting.name
+  role       = aws_iam_role.lambda_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
 }

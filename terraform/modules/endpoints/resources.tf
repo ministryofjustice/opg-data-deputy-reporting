@@ -26,7 +26,7 @@ resource "aws_api_gateway_resource" "path_part_3" {
 //-------------------------------------
 // Setup the method
 
-resource "aws_api_gateway_method" "gateway_resource_collection_get" {
+resource "aws_api_gateway_method" "get" {
   rest_api_id   = var.deputy_reporting_api_gateway.id
   resource_id   = local.resource_id
   count         = var.method == "GET" ? 1 : 0
@@ -34,7 +34,7 @@ resource "aws_api_gateway_method" "gateway_resource_collection_get" {
   authorization = "AWS_IAM"
 }
 
-resource "aws_api_gateway_method" "gateway_resource_collection_post" {
+resource "aws_api_gateway_method" "post" {
   rest_api_id   = var.deputy_reporting_api_gateway.id
   resource_id   = local.resource_id
   count         = var.method == "POST" ? 1 : 0
@@ -42,10 +42,10 @@ resource "aws_api_gateway_method" "gateway_resource_collection_post" {
   authorization = "AWS_IAM"
 }
 
-resource "aws_api_gateway_integration" "gateway_deputy_reporting_collection_resource_get_integration" {
+resource "aws_api_gateway_integration" "integration" {
   rest_api_id             = var.deputy_reporting_api_gateway.id
   resource_id             = local.resource_id
-  http_method             = var.method == "GET" ? aws_api_gateway_method.gateway_resource_collection_get[0].http_method : aws_api_gateway_method.gateway_resource_collection_post[0].http_method
+  http_method             = var.method == "GET" ? aws_api_gateway_method.get[0].http_method : aws_api_gateway_method.post[0].http_method
   integration_http_method = "POST" # We POST to Lambda, even on a HTTP GET.
 
   type             = "AWS_PROXY"

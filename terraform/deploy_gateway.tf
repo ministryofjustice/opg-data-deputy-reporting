@@ -3,7 +3,7 @@ resource "aws_api_gateway_deployment" "deployment_v1" {
   stage_name  = "v1"
 
   // The policy is dependent on the module completing, so we can depend on that to mean everything is in place
-  depends_on = [aws_iam_role_policy_attachment.deputy_reporting_access_policy_attachment]
+  depends_on = [aws_iam_role_policy_attachment.access_policy_attachment]
 
   variables = {
     // Force a deploy on every apply.
