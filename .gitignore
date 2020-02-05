@@ -6,7 +6,7 @@
 .venv
 
 # lambda stuff
-lambda.zip
+lambda*.zip
 
 # Ruby
 *.lock

@@ -1,42 +1,17 @@
-resource "aws_iam_role" "lambda_sirius_healthcheck" {
-  name_prefix        = "lambda-${local.environment}-"
-  assume_role_policy = data.aws_iam_policy_document.lambda_assume.json
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
-data "aws_iam_policy_document" "lambda_assume" {
+//This gets attached on the deputy_reporting_api_gateway directly (api_rest.tf)
+data "aws_iam_policy_document" "resource_policy" {
   statement {
-    actions = ["sts:AssumeRole"]
+    sid    = "ApiAllowDigitalDeputyUsers"
+    effect = "Allow"
 
     principals {
-      type        = "Service"
-      identifiers = ["lambda.amazonaws.com"]
+      identifiers = local.deputy_reporting_api_gateway_allowed_roles
+      type        = "AWS"
     }
+
+    actions = ["execute-api:Invoke"]
+
+    // API Gateway will add all of the rest of the ARN details in for us. Provents a circular dependency.
+    resources = ["execute-api:/*/GET/digital-deputy/*"]
   }
-}
-
-resource "aws_iam_role_policy" "lambda" {
-  name   = "lambda-${local.environment}"
-  role   = aws_iam_role.lambda_sirius_healthcheck.id
-  policy = data.aws_iam_policy_document.lambda_logging.json
-}
-
-data "aws_iam_policy_document" "lambda_logging" {
-  statement {
-    sid       = "allowLogging"
-    effect    = "Allow"
-    resources = [aws_cloudwatch_log_group.healthcheck_log_group.arn]
-    actions = [
-      "logs:CreateLogStream",
-      "logs:PutLogEvents",
-      "logs:DescribeLogStreams"
-    ]
-  }
-}
-
-resource "aws_iam_role_policy_attachment" "vpc_access_execution_role" {
-  role       = aws_iam_role.lambda_sirius_healthcheck.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
 }
