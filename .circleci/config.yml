@@ -5,48 +5,75 @@ workflows:
   pull_request:
     jobs:
       - build_lambda:
-          name: python requirements
+          name: build and artifact
           filters: {branches:{ignore:[master]}}
       - terraform_pre_checks:
-          name: terraform development preflight checks
-          requires: [python requirements]
+          name: terraform branch preflight checks
+          requires: [build and artifact]
           filters: {branches:{ignore:[master]}}
       - terraform_action:
-          filters: {branches:{ignore:[master]}}
-          name: plan development environment
-          requires: [python requirements, terraform development preflight checks]
+          name: plan branch environment
+          requires: [terraform branch preflight checks]
           tf_command: plan
-# commit_to_master:
-#   jobs:
-#     - build_lambda:
-#         name: python requirements
-#         filters: { branches: { only: [ master ] } }
-#     - terraform_pre_checks:
-#         name: terraform preprod preflight checks
-#         filters: { branches: { only: [ master ] } }
-#         requires: [python requirements]
-#     - terraform_action:
-#         name: preprod apply
-#         filters: { branches: { only: [ master ] } }
-#         requires: [terraform preprod preflight checks]
-#         tf_command: apply --auto-approve
-#         tf_workspace: preproduction
-#     - approve:
-#         name: approve release to production
-#         type: approval
-#         requires: [ preprod apply ]
-#         filters: { branches: { only: [ master ] } }
-# - terraform_pre_checks:
-#     name: terraform prod preflight checks
-#     filters: { branches: { only: [ master ] } }
-#     requires: [approve release to production]
-#     tf_workspace: production
-# - terraform_action:
-#     name: production apply
-#     filters: { branches: { only: [ master ] } }
-#     requires: [terraform prod preflight checks]
-#     tf_command: apply
-#     tf_workspace: production
+          filters: {branches:{ignore:[master]}}
+      - terraform_action:
+          name: apply branch environment
+          requires: [plan branch environment]
+          tf_command: apply
+          filters: {branches:{ignore:[master]}}
+      - cleanup:
+          name: approve destroy environment
+          type: approval
+          requires: [apply branch environment]
+          filters: {branches:{ignore:[master]}}
+      - terraform_action:
+          name: destroy branch environment
+          requires: [approve destroy environment]
+          tf_command: destroy
+          filters: {branches:{ignore:[master]}}
+  commit_to_master:
+    jobs:
+      - build_lambda:
+          name: build and artifact
+          filters: {branches:{only:[master]}}
+      - terraform_pre_checks:
+         name: terraform dev preflight checks
+         requires: [build and artifact]
+         tf_workspace: development
+         filters: {branches:{only:[master]}}
+      - terraform_action:
+         name: development apply
+         requires: [terraform dev preflight checks]
+         tf_command: apply --auto-approve
+         tf_workspace: development
+         filters: {branches:{only:[master]}}
+      - terraform_pre_checks:
+         name: terraform preprod preflight checks
+         requires: [development apply]
+         tf_workspace: development
+         filters: {branches:{only:[master]}}
+      - terraform_action:
+         name: preprod apply
+         requires: [terraform preprod preflight checks]
+         tf_command: apply --auto-approve
+         tf_workspace: development
+         filters: {branches:{only:[master]}}
+      - approve:
+         name: approve release to production
+         type: approval
+         requires: [ preprod apply ]
+         filters: {branches:{only:[master]}}
+      - terraform_pre_checks:
+         name: terraform prod preflight checks
+         requires: [approve release to production]
+         tf_workspace: development
+         filters: {branches:{only:[master]}}
+      - terraform_action:
+         name: production apply
+         requires: [terraform prod preflight checks]
+         tf_command: apply --auto-approve
+         tf_workspace: development
+         filters: {branches:{only:[master]}}
 
 orbs:
   digideps-data:
@@ -55,8 +82,8 @@ orbs:
         docker:
           - image: circleci/python:3.8.1
         environment:
-          TF_VERSION: 0.12.19
-          TF_SHA256SUM: a549486112f5350075fb540cfd873deb970a9baf8a028a86ee7b4472fc91e167
+          TF_VERSION: 0.12.20
+          TF_SHA256SUM: 46bd906f8cb9bbb871905ecb23ae7344af8017d214d735fbb6d6c8e0feb20ff3
           TF_CLI_ARGS_plan: -input=false -lock=false
           TF_CLI_ARGS_apply: -input=false -auto-approve
           TF_CLI_ARGS_destroy: -input=false -auto-approve
@@ -97,7 +124,7 @@ jobs:
             yamllint -d "{extends: default, rules: {line-length: {max: 150}}}" .
             pycodestyle .
             flake8 .
-      - run: pip3 install -r ./lambda/healthcheck/requirements.txt  --target ./lambda/healthcheck
+      - run: for i in `ls -d ./lambda/* |awk -F"/" '{print $NF}'`; do pip3 install -r ./lambda/$i/requirements.txt --target ./lambda/$i; done
       - run: chmod -R 755 ./lambda
       - run: zip -r9 /tmp/opg-data-deputy-reporting.zip .
       - persist_to_workspace:

@@ -1,11 +1,11 @@
 module "endpoints_healthcheck" {
   source                                     = "./modules/endpoints"
   lambda                                     = module.lamdba_healthcheck.lambda
+  environment                                = local.environment
   region                                     = data.aws_region.region.name
-  deputy_reporting_api_gateway_allowed_roles = local.deputy_reporting_api_gateway_allowed_roles
+  deputy_reporting_api_gateway_allowed_roles = local.account["allowed_roles"] //local.deputy_reporting_api_gateway_allowed_roles
   deputy_reporting_api_gateway               = aws_api_gateway_rest_api.deputy_reporting_api_gateway
-  resource_part_1                            = "digital-deputy"
-  resource_part_2                            = "healthcheck"
+  resource_part_1                            = "healthcheck"
   method                                     = "GET"
 }
 
