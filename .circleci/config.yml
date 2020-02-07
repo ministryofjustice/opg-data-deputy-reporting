@@ -47,33 +47,33 @@ workflows:
          tf_command: apply --auto-approve
          tf_workspace: development
          filters: {branches:{only:[master]}}
-      - terraform_pre_checks:
-         name: terraform preprod preflight checks
-         requires: [development apply]
-         tf_workspace: development
-         filters: {branches:{only:[master]}}
-      - terraform_action:
-         name: preprod apply
-         requires: [terraform preprod preflight checks]
-         tf_command: apply --auto-approve
-         tf_workspace: development
-         filters: {branches:{only:[master]}}
-      - approve:
-         name: approve release to production
-         type: approval
-         requires: [ preprod apply ]
-         filters: {branches:{only:[master]}}
-      - terraform_pre_checks:
-         name: terraform prod preflight checks
-         requires: [approve release to production]
-         tf_workspace: development
-         filters: {branches:{only:[master]}}
-      - terraform_action:
-         name: production apply
-         requires: [terraform prod preflight checks]
-         tf_command: apply --auto-approve
-         tf_workspace: development
-         filters: {branches:{only:[master]}}
+#      - terraform_pre_checks:
+#         name: terraform preprod preflight checks
+#         requires: [development apply]
+#         tf_workspace: preproduction
+#         filters: {branches:{only:[master]}}
+#      - terraform_action:
+#         name: preprod apply
+#         requires: [terraform preprod preflight checks]
+#         tf_command: apply --auto-approve
+#         tf_workspace: preproduction
+#         filters: {branches:{only:[master]}}
+#      - approve:
+#         name: approve release to production
+#         type: approval
+#         requires: [ preprod apply ]
+#         filters: {branches:{only:[master]}}
+#      - terraform_pre_checks:
+#         name: terraform prod preflight checks
+#         requires: [approve release to production]
+#         tf_workspace: production
+#         filters: {branches:{only:[master]}}
+#      - terraform_action:
+#         name: production apply
+#         requires: [terraform prod preflight checks]
+#         tf_command: apply --auto-approve
+#         tf_workspace: production
+#         filters: {branches:{only:[master]}}
 
 orbs:
   digideps-data:

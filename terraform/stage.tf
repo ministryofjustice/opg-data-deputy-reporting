@@ -1,6 +1,6 @@
 locals {
-  certificate_arn = local.branch_build_flag ? data.aws_acm_certificate.opg_env_cert[0].arn : aws_acm_certificate.opg_env_cert[0].arn
-  certificate     = local.branch_build_flag ? data.aws_acm_certificate.opg_env_cert[0] : aws_acm_certificate.opg_env_cert[0]
+  certificate_arn = local.branch_build_flag ? data.aws_acm_certificate.environment_cert[0].arn : aws_acm_certificate.environment_cert[0].arn
+  certificate     = local.branch_build_flag ? data.aws_acm_certificate.environment_cert[0] : aws_acm_certificate.environment_cert[0]
 }
 
 resource "aws_api_gateway_method_settings" "global_gateway_settings" {

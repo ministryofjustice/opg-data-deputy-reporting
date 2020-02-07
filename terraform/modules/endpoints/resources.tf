@@ -3,23 +3,23 @@ locals {
 }
 
 resource "aws_api_gateway_resource" "path_part_1" {
+  count       = var.resource_part_1 == "" ? 0 : 1
   rest_api_id = var.deputy_reporting_api_gateway.id
   parent_id   = var.deputy_reporting_api_gateway.root_resource_id
-  count       = var.resource_part_1 == "" ? 0 : 1
   path_part   = var.resource_part_1
 }
 
 resource "aws_api_gateway_resource" "path_part_2" {
+  count       = var.resource_part_2 == "" ? 0 : 1
   rest_api_id = var.deputy_reporting_api_gateway.id
   parent_id   = aws_api_gateway_resource.path_part_1[0].id
-  count       = var.resource_part_2 == "" ? 0 : 1
   path_part   = var.resource_part_2
 }
 
 resource "aws_api_gateway_resource" "path_part_3" {
+  count       = var.resource_part_3 == "" ? 0 : 1
   rest_api_id = var.deputy_reporting_api_gateway.id
   parent_id   = aws_api_gateway_resource.path_part_2[0].id
-  count       = var.resource_part_3 == "" ? 0 : 1
   path_part   = var.resource_part_3
 }
 
@@ -27,17 +27,17 @@ resource "aws_api_gateway_resource" "path_part_3" {
 // Setup the method
 
 resource "aws_api_gateway_method" "get" {
+  count         = var.method == "GET" ? 1 : 0
   rest_api_id   = var.deputy_reporting_api_gateway.id
   resource_id   = local.resource_id
-  count         = var.method == "GET" ? 1 : 0
   http_method   = "GET"
   authorization = "AWS_IAM"
 }
 
 resource "aws_api_gateway_method" "post" {
+  count         = var.method == "POST" ? 1 : 0
   rest_api_id   = var.deputy_reporting_api_gateway.id
   resource_id   = local.resource_id
-  count         = var.method == "POST" ? 1 : 0
   http_method   = "POST"
   authorization = "AWS_IAM"
 }

@@ -5,7 +5,7 @@ data "aws_iam_policy_document" "resource_policy" {
     effect = "Allow"
 
     principals {
-      identifiers = local.account["allowed_roles"]
+      identifiers = local.account.allowed_roles
       type        = "AWS"
     }
 
