@@ -2,6 +2,10 @@ variable "default_role" {
   default = "sirius-ci"
 }
 
+variable "management_role" {
+  default = "sirius-ci"
+}
+
 variable "accounts" {
   type = map(
     object({
@@ -10,7 +14,8 @@ variable "accounts" {
       is_production      = string
       target_environment = string
       vpc_id             = string
-      sirius_hosted_zone = string
+      opg_hosted_zone    = string
+      allowed_roles      = list(string)
     })
   )
 }
