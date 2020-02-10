@@ -1,5 +1,5 @@
 data "aws_subnet_ids" "private" {
-  vpc_id = local.account["vpc_id"]
+  vpc_id = local.account.vpc_id
 
   filter {
     name   = "tag:Name"

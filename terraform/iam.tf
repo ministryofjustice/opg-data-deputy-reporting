@@ -5,13 +5,13 @@ data "aws_iam_policy_document" "resource_policy" {
     effect = "Allow"
 
     principals {
-      identifiers = local.deputy_reporting_api_gateway_allowed_roles
+      identifiers = local.account.allowed_roles
       type        = "AWS"
     }
 
     actions = ["execute-api:Invoke"]
 
     // API Gateway will add all of the rest of the ARN details in for us. Provents a circular dependency.
-    resources = ["execute-api:/*/GET/digital-deputy/*"]
+    resources = ["execute-api:/*/*/*"]
   }
 }
