@@ -114,18 +114,22 @@ jobs:
     steps:
       - checkout
       - run:
-          name: install python validation packages
+          name: run black - python code formatter
           command: |
-            pip3 install flake8 yamllint pycodestyle
+            pip3 install black
+            black lambda_functions
       - run:
-          name: validate python packages
+          name: run flake8 - python PEP8 linter, complexity checker
           command: |
-            cd ./lambda
-            yamllint -d "{extends: default, rules: {line-length: {max: 150}}}" .
-            pycodestyle .
-            flake8 .
-      - run: for i in `ls -d ./lambda/* |awk -F"/" '{print $NF}'`; do pip3 install -r ./lambda/$i/requirements.txt --target ./lambda/$i; done
-      - run: chmod -R 755 ./lambda
+            pip3 install flake8 flake8-quotes
+            flake8 lambda_functions
+      - run:
+          name: run unit tests (with pytest)
+          command: |
+            pip3 install pytest
+            python -m pytest
+      - run: for i in `ls -d ./lambda_functions/* |awk -F"/" '{print $NF}'`; do pip3 install -r ./lambda_functions/$i/requirements.txt --target ./lambda_functions/$i; done
+      - run: chmod -R 755 ./lambda_functions
       - run: zip -r9 /tmp/opg-data-deputy-reporting.zip .
       - persist_to_workspace:
           root: /tmp

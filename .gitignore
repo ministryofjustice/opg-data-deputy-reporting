@@ -23,4 +23,5 @@ __pycache__
 # Test environment
 *generated.postman_environment.json
 process.yml
+.pytest_cache/
 
