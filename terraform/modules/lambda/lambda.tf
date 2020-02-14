@@ -27,6 +27,6 @@ resource "aws_lambda_function" "lambda_function" {
 
 data "archive_file" "lambda_archive" {
   type        = "zip"
-  source_dir  = "../lambda/${var.lambda_function_subdir}"
+  source_dir  = "../lambda_functions/${var.lambda_function_subdir}"
   output_path = "./lambda_${var.lambda_function_subdir}.zip"
 }
