@@ -17,6 +17,15 @@ data "aws_iam_policy_document" "lambda_assume" {
   }
 }
 
+data "aws_iam_policy" "aws_xray_write_only_access" {
+  arn = "arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess"
+}
+
+resource "aws_iam_role_policy_attachment" "aws_xray_write_only_access" {
+  role       = aws_iam_role.lambda_role.name
+  policy_arn = data.aws_iam_policy.aws_xray_write_only_access.arn
+}
+
 resource "aws_iam_role_policy" "lambda" {
   name   = "lambda-${var.environment}"
   role   = aws_iam_role.lambda_role.id

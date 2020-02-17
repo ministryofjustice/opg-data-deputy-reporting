@@ -24,7 +24,7 @@ resource "aws_lambda_function" "lambda_function" {
     }
   }
   tracing_config {
-    mode = "Passthrough"
+    mode = "Active"
   }
 }
 
