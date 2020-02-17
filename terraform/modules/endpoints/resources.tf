@@ -1,5 +1,5 @@
 locals {
-  resource_id = coalesce(var.resource_part_3, var.resource_part_2, var.resource_part_1)
+  resource_id = var.resource_part_3 != "" ? aws_api_gateway_resource.path_part_3[0].id : (var.resource_part_2 != "" ? aws_api_gateway_resource.path_part_2[0].id : aws_api_gateway_resource.path_part_1[0].id)
 }
 
 resource "aws_api_gateway_resource" "path_part_1" {
