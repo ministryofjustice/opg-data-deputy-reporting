@@ -49,6 +49,6 @@ def mock_service_status(monkeypatch):
 
 def test_get_response_success(mock_service_status, mock_env_base_url):
 
-    response = healthcheck.lambda_handler()
+    response = healthcheck.lambda_handler("event", "context")
     assert response["statusCode"] == 200
     assert len(response["body"]) == 4

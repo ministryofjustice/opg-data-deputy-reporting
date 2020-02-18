@@ -23,6 +23,9 @@ resource "aws_lambda_function" "lambda_function" {
       BASE_URL = "http://api.${var.target_environment}.ecs"
     }
   }
+  tracing_config {
+    mode = "Active"
+  }
 }
 
 data "archive_file" "lambda_archive" {
