@@ -5,7 +5,7 @@ locals {
 
 resource "aws_api_gateway_method_settings" "global_gateway_settings" {
   rest_api_id = aws_api_gateway_rest_api.deputy_reporting_api_gateway.id
-  stage_name  = aws_api_gateway_deployment.deployment_v1.stage_name
+  stage_name  = aws_api_gateway_stage.version1.stage_name
   method_path = "*/*"
 
   settings {
@@ -22,6 +22,19 @@ resource "aws_api_gateway_domain_name" "sirius_deputy_reporting" {
   endpoint_configuration {
     types = ["REGIONAL"]
   }
+}
+
+resource "aws_api_gateway_stage" "version1" {
+  stage_name           = "v1"
+  depends_on           = [aws_cloudwatch_log_group.deputy_reporting]
+  rest_api_id          = aws_api_gateway_rest_api.deputy_reporting_api_gateway.id
+  deployment_id        = aws_api_gateway_deployment.deployment_v1.id
+  xray_tracing_enabled = true
+}
+
+resource "aws_cloudwatch_log_group" "deputy_reporting" {
+  name              = "API-Gateway-Execution-Logs_${aws_api_gateway_rest_api.deputy_reporting_api_gateway.id}/v1"
+  retention_in_days = 7
 }
 
 resource "aws_api_gateway_base_path_mapping" "mapping" {
