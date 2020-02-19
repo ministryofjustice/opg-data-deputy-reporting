@@ -1,0 +1,7 @@
+pytest
+flake8
+flake8-quotes
+requests
+aws-xray-sdk
+black
+yamllint
