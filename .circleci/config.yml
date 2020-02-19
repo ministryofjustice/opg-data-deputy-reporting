@@ -114,39 +114,34 @@ jobs:
     steps:
       - checkout
       - run:
+          name: install all requirements locally
+          command: |
+            pip3 install -r ./requirements/dev-requirements.txt
+      - run:
           name: run black - python code formatter
           command: |
-            pip3 install black
             black lambda_functions
+      - run:
+          name: run yamllint
+          command: yamllint -c ./.yamllint .
       - run:
           name: run flake8 - python PEP8 linter, complexity checker
           command: |
-            pip3 install flake8 flake8-quotes
             flake8 lambda_functions
-      - run:
-          name: install all requirements locally
-          command: |
-            for i in `ls -d ./lambda_functions/* | awk -F"/" '{print $NF}'`
-              do cat ./lambda_functions/$i/requirements.txt >> ./tests/requirements.txt
-            done
-            sort ./tests/requirements.txt | uniq | grep "\S" > ./tests/requirements_tmp.txt
-            mv ./tests/requirements_tmp.txt ./tests/requirements.txt
-            pip3 install -r ./tests/requirements.txt
       - run:
           name: run unit tests (with pytest)
           command: |
-            pip3 install pytest
             python -m pytest
       - run:
-          name: install requirements for all lambdas
+          name: install requirements for all lambda layers
           command: |
-            for i in `ls -d ./lambda_functions/* | awk -F"/" '{print $NF}'`
-              do pip3 install -r ./lambda_functions/$i/requirements.txt --target ./lambda_functions/$i
-            done
+           export LAYER_PATH=lambda_layers/python/lib/python3.7/site-packages
+            pip3 install -r ./requirements/requirements.txt --target ./$LAYER_PATH/
       - run:
-          name: create artifact
+          name: create artifact for future stages
           command: |
             chmod -R 755 ./lambda_functions
+            chmod -R 755 ./lambda_layers
             zip -r9 /tmp/opg-data-deputy-reporting.zip .
       - persist_to_workspace:
           root: /tmp
