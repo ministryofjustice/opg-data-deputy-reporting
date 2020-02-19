@@ -129,15 +129,6 @@ jobs:
           command: |
             flake8 lambda_functions
       - run:
-          name: install all requirements locally
-          command: |
-            for i in `ls -d ./lambda_functions/* | awk -F"/" '{print $NF}'`
-              do cat ./lambda_functions/$i/requirements.txt >> ./tests/requirements.txt
-            done
-            sort ./tests/requirements.txt | uniq | grep "\S" > ./tests/requirements_tmp.txt
-            mv ./tests/requirements_tmp.txt ./tests/requirements.txt
-            pip3 install -r ./tests/requirements.txt
-      - run:
           name: run unit tests (with pytest)
           command: |
             python -m pytest
