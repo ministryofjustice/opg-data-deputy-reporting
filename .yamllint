@@ -1,0 +1,13 @@
+---
+extends: default
+rules:
+    line-length:
+        max: 150
+        level: error
+    indentation:
+        spaces: consistent
+        indent-sequences: consistent
+        level: warning
+ignore: |
+    venv
+    process.yml
