@@ -3,9 +3,10 @@ import pytest
 import requests
 
 
-@pytest.fixture
-def mock_env_base_url(monkeypatch):
+@pytest.fixture(autouse=True)
+def mock_env_setup(monkeypatch):
     monkeypatch.setenv("BASE_URL", "http://localhost:8080")
+    monkeypatch.setenv("LOGGER_LEVEL", "DEBUG")
 
 
 @pytest.fixture
@@ -47,8 +48,8 @@ def mock_service_status(monkeypatch):
     monkeypatch.setattr(requests, "get", mock_get)
 
 
-def test_get_response_success(mock_service_status, mock_env_base_url):
+def test_get_response_success(mock_service_status):
 
-    response = healthcheck.lambda_handler("event", "context")
+    response = healthcheck.lambda_handler(event=None, context=None)
     assert response["statusCode"] == 200
     assert len(response["body"]) == 4
