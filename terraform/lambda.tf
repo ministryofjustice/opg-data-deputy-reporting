@@ -7,4 +7,5 @@ module "lamdba_healthcheck" {
   lambda_prefix          = "sirius-healthcheck"
   handler                = "healthcheck.lambda_handler"
   lambda_function_subdir = "healthcheck"
+  logger_level           = "INFO"
 }

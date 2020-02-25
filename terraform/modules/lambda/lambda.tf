@@ -21,7 +21,8 @@ resource "aws_lambda_function" "lambda_function" {
   }
   environment {
     variables = {
-      BASE_URL = "http://api.${var.target_environment}.ecs"
+      BASE_URL     = "http://api.${var.target_environment}.ecs"
+      LOGGER_LEVEL = "${var.logger_level}"
     }
   }
   tracing_config {

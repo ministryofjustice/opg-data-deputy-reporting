@@ -10,6 +10,10 @@ variable "target_environment" {
   type = string
 }
 
+variable "logger_level" {
+  type = string
+}
+
 variable "vpc_id" {
   type = string
 }
