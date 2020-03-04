@@ -1,9 +1,6 @@
-resource "aws_api_gateway_deployment" "deployment_v1" {
+resource "aws_api_gateway_deployment" "deploy" {
   rest_api_id = aws_api_gateway_rest_api.deputy_reporting_api_gateway.id
-
-  // The policy is dependent on the module completing, so we can depend on that to mean everything is in place
-  depends_on = [aws_iam_role_policy_attachment.access_policy_attachment]
-
+  depends_on  = [aws_api_gateway_domain_name.sirius_deputy_reporting]
   variables = {
     // Force a deploy on every apply.
     deployed_at = timestamp()

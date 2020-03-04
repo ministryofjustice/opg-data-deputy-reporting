@@ -20,6 +20,7 @@ workflows:
           name: apply branch environment
           requires: [plan branch environment]
           tf_command: apply
+          applycheck: true
           filters: {branches:{ignore:[master]}}
       - cleanup:
           name: approve destroy environment
@@ -37,16 +38,17 @@ workflows:
           name: build and artifact
           filters: {branches:{only:[master]}}
       - terraform_pre_checks:
-         name: terraform dev preflight checks
-         requires: [build and artifact]
-         tf_workspace: development
-         filters: {branches:{only:[master]}}
+          name: terraform dev preflight checks
+          requires: [build and artifact]
+          tf_workspace: development
+          filters: {branches:{only:[master]}}
       - terraform_action:
-         name: development apply
-         requires: [terraform dev preflight checks]
-         tf_command: apply --auto-approve
-         tf_workspace: development
-         filters: {branches:{only:[master]}}
+          name: development apply
+          requires: [terraform dev preflight checks]
+          tf_command: apply --auto-approve
+          tf_workspace: development
+          applycheck: true
+          filters: {branches:{only:[master]}}
 #      - terraform_pre_checks:
 #         name: terraform preprod preflight checks
 #         requires: [development apply]
@@ -82,8 +84,8 @@ orbs:
         docker:
           - image: circleci/python:3.8.1
         environment:
-          TF_VERSION: 0.12.20
-          TF_SHA256SUM: 46bd906f8cb9bbb871905ecb23ae7344af8017d214d735fbb6d6c8e0feb20ff3
+          TF_VERSION: 0.12.21
+          TF_SHA256SUM: ca0d0796c79d14ee73a3d45649dab5e531f0768ee98da71b31e423e3278e9aa9
           TF_CLI_ARGS_plan: -input=false -lock=false
           TF_CLI_ARGS_apply: -input=false -auto-approve
           TF_CLI_ARGS_destroy: -input=false -auto-approve
@@ -135,7 +137,7 @@ jobs:
       - run:
           name: install requirements for all lambda layers
           command: |
-           export LAYER_PATH=lambda_layers/python/lib/python3.7/site-packages
+            export LAYER_PATH=lambda_layers/python/lib/python3.7/site-packages
             pip3 install -r ./requirements/requirements.txt --target ./$LAYER_PATH/
       - run:
           name: create artifact for future stages
@@ -154,6 +156,10 @@ jobs:
         description: terraform workspace
         type: string
         default: ""
+      tf_stage:
+        description: terraform workspace
+        type: string
+        default: "1_0_0"
     working_directory: ~/project
     steps:
       - attach_workspace:
@@ -182,6 +188,14 @@ jobs:
         description: terraform command
         default: plan
         type: string
+      tf_stage:
+        description: terraform workspace
+        type: string
+        default: "1_0_0"
+      applycheck:
+        description: terraform workspace
+        type: boolean
+        default: false
     environment:
       WORKSPACE: << parameters.tf_workspace >>
     working_directory: ~/project
@@ -205,3 +219,15 @@ jobs:
       - run:
           name: terraform << parameters.tf_command >>
           command: cd ./terraform; terraform << parameters.tf_command >>
+      # https://github.com/terraform-providers/terraform-provider-aws/issues/5364
+      - when:
+          condition: << parameters.applycheck >>
+          steps:
+            - run:
+                name: conditionally reapply if gateway policy is missing
+                command: |
+                  cd ./terraform
+                  if [ `terraform output policy | wc -m` -gt 1 ]
+                  then echo "policy attached, doing nothing"
+                  else terraform << parameters.tf_command >>
+                  fi
