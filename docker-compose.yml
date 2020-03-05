@@ -23,3 +23,11 @@ services:
       PACT_BROKER_DATABASE_NAME: postgres
 #      PACT_BROKER_WEBHOOK_HOST_WHITELIST: api.github.com
 #      PACT_BROKER_LOG_LEVEL: DEBUG
+  mock_sirius:
+    build:
+      context: ./mock_sirius
+      dockerfile: Dockerfile
+    ports:
+      - "4343:4343"
+    volumes:
+      - ./mock_sirius:/var/sirius
