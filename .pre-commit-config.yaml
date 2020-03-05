@@ -9,7 +9,6 @@
   hooks:
     - id: trailing-whitespace
     - id: detect-private-key
-    - id: pretty-format-json
     - id: flake8
     - id: trailing-whitespace
       args: [--markdown-linebreak-ext=md]
