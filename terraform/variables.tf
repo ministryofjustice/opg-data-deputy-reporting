@@ -6,6 +6,10 @@ variable "management_role" {
   default = "sirius-ci"
 }
 
+variable "stage" {
+  default = "1"
+}
+
 variable "accounts" {
   type = map(
     object({
