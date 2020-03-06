@@ -11,3 +11,5 @@ rules:
 ignore: |
     venv
     process.yml
+    docs/swagger
+    mock_sirius/sirius_public_api.yml
