@@ -2,9 +2,9 @@ import requests
 import os
 import logging
 
-from aws_xray_sdk.core import patch_all
-
-patch_all()
+# from aws_xray_sdk.core import patch_all
+#
+# patch_all()
 
 
 def lambda_handler(event, context):

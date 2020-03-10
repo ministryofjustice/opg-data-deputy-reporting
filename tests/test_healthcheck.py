@@ -2,6 +2,8 @@ from lambda_functions.healthcheck import healthcheck
 import pytest
 import requests
 
+from tests.helpers.assertions import assert_valid_schema
+
 
 @pytest.fixture(autouse=True)
 def mock_env_setup(monkeypatch):
@@ -51,5 +53,6 @@ def mock_service_status(monkeypatch):
 def test_get_response_success(mock_service_status):
 
     response = healthcheck.lambda_handler(event=None, context=None)
+    assert_valid_schema(response, "lambda_response.json")
     assert response["statusCode"] == 200
     assert len(response["body"]) == 4

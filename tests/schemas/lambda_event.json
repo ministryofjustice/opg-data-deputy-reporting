@@ -1,0 +1,29 @@
+{
+    "resource": "/clients/{caseref}/reports",
+    "path": "clients/0319392T/reports",
+    "httpMethod": "POST",
+    "headers": null,
+    "multiValueHeaders": null,
+    "queryStringParameters": null,
+    "multiValueQueryStringParameters": null,
+    "pathParameters": {
+        "caseref": "0319392T"
+    },
+    "stageVariables": null,
+    "requestContext": {
+        "resourceId": "emv1ml",
+        "resourcePath": "/clients/{caseref}/reports",
+        "httpMethod": "POST",
+        "extendedRequestId": "Izj7oH3XLPEFj2g=",
+        "requestTime": "03/Mar/2020:08:48:35 +0000",
+        "path": "/reports/{id}",
+        "accountId": "777546893854",
+        "protocol": "HTTP/1.1",
+        "stage": "test-invoke-stage",
+        "domainPrefix": "testPrefix",
+        "requestTimeEpoch": 1583225315903,
+        "requestId": "76268751-c9cf-4d3f-a20d-9b4357fc0449"
+    },
+    "body": "string",
+    "isBase64Encoded": true
+}

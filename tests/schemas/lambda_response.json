@@ -1,0 +1,5 @@
+{
+  "statusCode": "int",
+  "headers": "object",
+  "body": "object"
+}
