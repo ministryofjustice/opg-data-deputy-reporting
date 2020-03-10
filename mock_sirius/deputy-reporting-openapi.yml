@@ -29,8 +29,6 @@ paths:
       operationId: app.healthcheck
       tags:
         - "deputy-reporting"
-      security:
-        - sigv4: []
       x-amazon-apigateway-integration:
         uri: arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/${lambda_healthcheck_arn}/invocations
         responses:
@@ -105,8 +103,6 @@ paths:
           description: Report UUID
           schema:
             $ref: '#/components/schemas/ReportId'
-      security:
-        - sigv4: []
       x-amazon-apigateway-integration:
         uri: arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/${lambda_reports_arn}/invocations
         responses:
@@ -183,8 +179,6 @@ paths:
             type: string
             pattern: "^([0-9]{7}T|[0-9]{8})$"
             example: "0319392T"
-      security:
-        - sigv4: []
       x-amazon-apigateway-integration:
         uri: arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/${lambda_reports_arn}/invocations
         responses:
@@ -302,8 +296,6 @@ paths:
           description: Report UUID
           schema:
             $ref: '#/components/schemas/ReportId'
-      security:
-        - sigv4: []
       x-amazon-apigateway-integration:
         uri: arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/${lambda_reports_arn}/invocations
         responses:

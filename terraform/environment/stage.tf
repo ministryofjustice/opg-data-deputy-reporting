@@ -34,6 +34,7 @@ resource "aws_api_gateway_stage" "currentstage" {
   deployment_id        = aws_api_gateway_deployment.deploy.id
   xray_tracing_enabled = true
   tags                 = local.default_tags
+<<<<<<< HEAD:terraform/environment/stage.tf
 
   access_log_settings {
     destination_arn = aws_cloudwatch_log_group.deputy_reporting.arn
@@ -50,6 +51,8 @@ resource "aws_api_gateway_stage" "currentstage" {
       "\"responseLength\":\"$context.responseLength\"}"
     ])
   }
+=======
+>>>>>>> IN-110 pact verification:terraform/stage.tf
 }
 
 resource "aws_api_gateway_base_path_mapping" "mapping" {
@@ -60,7 +63,12 @@ resource "aws_api_gateway_base_path_mapping" "mapping" {
 }
 
 resource "aws_cloudwatch_log_group" "deputy_reporting" {
+<<<<<<< HEAD:terraform/environment/stage.tf
   name              = "API-Gateway-Execution-Logs-${aws_api_gateway_rest_api.deputy_reporting.name}"
   retention_in_days = 30
+=======
+  name              = "API-Gateway-Execution-Logs_${aws_api_gateway_rest_api.deputy_reporting_api_gateway.id}"
+  retention_in_days = 7
+>>>>>>> IN-110 pact verification:terraform/stage.tf
   tags              = local.default_tags
 }
