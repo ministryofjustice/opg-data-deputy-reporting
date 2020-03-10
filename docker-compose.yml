@@ -1,0 +1,38 @@
+version: '3'
+
+services:
+  postgres:
+    image: postgres
+    ports:
+      - "8765:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: postgres
+  broker_app:
+    image: pactfoundation/pact-broker
+    ports:
+      - "9897:80"
+      - "9292:9292"
+    links:
+      - postgres
+    environment:
+      PACT_BROKER_DATABASE_USERNAME: postgres
+      PACT_BROKER_DATABASE_PASSWORD: password
+      PACT_BROKER_DATABASE_HOST: postgres
+      PACT_BROKER_DATABASE_NAME: postgres
+#      Uncomment these two options for debugging purposes:
+#      PACT_BROKER_WEBHOOK_HOST_WHITELIST: api.github.com
+#      PACT_BROKER_LOG_LEVEL: DEBUG
+  mock_sirius:
+    build:
+      context: ./mock_sirius
+      dockerfile: Dockerfile
+    ports:
+      - "4343:4343"
+  mock_state:
+    build:
+      context: ./mock_sirius
+      dockerfile: Dockerfile
+    ports:
+      - "5001:5001"

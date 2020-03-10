@@ -1,0 +1,10 @@
+#!/bin/bash
+str="x-amazon-apigateway-integration:"
+openapi="deputy-reporting-openapi.yml"
+cp ../$openapi ./$openapi
+echo "copied in.."
+grep -n -B2 $str ./$openapi | grep -v $str | sed -n 's/^\([0-9]\{1,\}\).*/\1d/p' > filelines.txt
+sed -f filelines.txt $openapi > tmp_$openapi
+mv tmp_$openapi $openapi
+echo "security rows removed"
+rm filelines.txt

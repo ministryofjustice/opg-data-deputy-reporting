@@ -8,6 +8,7 @@ module "lamdba_healthcheck" {
   handler                = "healthcheck.lambda_handler"
   lambda_function_subdir = "healthcheck"
   logger_level           = "INFO"
+  tags                   = local.default_tags
 }
 
 module "lambda_reports" {
@@ -20,5 +21,6 @@ module "lambda_reports" {
   handler                = "reports.app"
   lambda_function_subdir = "reports"
   logger_level           = "INFO"
+  tags                   = local.default_tags
 }
 
