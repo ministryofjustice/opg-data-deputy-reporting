@@ -20,3 +20,8 @@ locals {
 output "policy" {
   value = aws_api_gateway_rest_api.deputy_reporting.policy
 }
+
+//https://github.com/terraform-providers/terraform-provider-aws/issues/5364
+output "policy" {
+  value = aws_api_gateway_rest_api.deputy_reporting_api_gateway.policy
+}
