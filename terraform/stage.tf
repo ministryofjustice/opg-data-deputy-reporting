@@ -12,6 +12,7 @@ resource "aws_api_gateway_method_settings" "global_gateway_settings" {
     metrics_enabled = true
     logging_level   = "INFO"
   }
+
 }
 
 resource "aws_api_gateway_domain_name" "sirius_deputy_reporting" {
@@ -22,6 +23,8 @@ resource "aws_api_gateway_domain_name" "sirius_deputy_reporting" {
   endpoint_configuration {
     types = ["REGIONAL"]
   }
+
+  tags = local.default_tags
 }
 
 resource "aws_api_gateway_stage" "currentstage" {
@@ -30,6 +33,7 @@ resource "aws_api_gateway_stage" "currentstage" {
   rest_api_id          = aws_api_gateway_rest_api.deputy_reporting_api_gateway.id
   deployment_id        = aws_api_gateway_deployment.deploy.id
   xray_tracing_enabled = true
+  tags                 = local.default_tags
 }
 
 resource "aws_api_gateway_base_path_mapping" "mapping" {
@@ -42,4 +46,5 @@ resource "aws_api_gateway_base_path_mapping" "mapping" {
 resource "aws_cloudwatch_log_group" "deputy_reporting" {
   name              = "API-Gateway-Execution-Logs_${aws_api_gateway_rest_api.deputy_reporting_api_gateway.id}"
   retention_in_days = 7
+  tags              = local.default_tags
 }

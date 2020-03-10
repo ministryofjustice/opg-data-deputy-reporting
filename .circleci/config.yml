@@ -1,8 +1,20 @@
 ---
 version: 2.1
 
+parameters:
+  run_pull_request:
+    type: boolean
+    default: true
+  run_commit_to_master:
+    type: boolean
+    default: true
+  run_verify_pact:
+    type: boolean
+    default: true
+
 workflows:
   pull_request:
+    when: << pipeline.parameters.run_pull_request >>
     jobs:
       - build_lambda:
           name: build and artifact
@@ -33,6 +45,7 @@ workflows:
           tf_command: destroy
           filters: {branches:{ignore:[master]}}
   commit_to_master:
+    when: << pipeline.parameters.run_commit_to_master >>
     jobs:
       - build_lambda:
           name: build and artifact
@@ -76,6 +89,11 @@ workflows:
 #         tf_command: apply --auto-approve
 #         tf_workspace: production
 #         filters: {branches:{only:[master]}}
+  verify_pact:
+    when: << pipeline.parameters.run_verify_pact >>
+    jobs:
+      - pact_verification:
+          name: verify the latest pact
 
 orbs:
   digideps-data:
@@ -231,3 +249,65 @@ jobs:
                   then echo "policy attached, doing nothing"
                   else terraform << parameters.tf_command >>
                   fi
+  pact_verification:
+    executor: digideps-data/python_with_tfvars
+    working_directory: ~/project
+    environment:
+      MockingEnvironment: localhost
+    steps:
+      - checkout
+      - run:
+          name: copy in the openapidoc
+          command: |
+            cd ./mock_sirius
+            ls
+            pwd
+            ./getopenapidoc
+      - run:
+          name: install requirements mock sirius
+          command: |
+            cd ./mock_sirius
+            pip3 install -r requirements.txt
+      - run:
+          name: spin up mock sirius
+          command: |
+            cd ./mock_sirius
+            python3 app.py
+          background: true
+      - run:
+          name: check mock sirius started
+          command: |
+            sleep 3
+            if [ `netstat -tulpn | grep 4343 | wc -l` -gt 0 ]
+            then
+            echo "Sirius API Service Started Correctly"
+            else
+            echo "Sirius API Service Not Started"
+            fi
+      - run:
+          name: install requirements mock state
+          command: |
+            cd ./mock_state
+            pip3 install -r ./requirements.txt
+      - run:
+          name: spin up mock state
+          command: |
+            cd ./mock_state
+            python3 app.py
+          background: true
+      - run:
+          name: check mock state started
+          command: |
+            sleep 3
+            if [ `netstat -tulpn | grep 5001 | wc -l` -gt 0 ]
+            then
+            echo "State Service Started Correctly"
+            else
+            echo "State Service Not Started"
+            fi
+      - run:
+          name: run a command to check
+          command: |
+            echo "This will be the proper verification command in next story"
+            curl -X POST http://localhost:5001/clients/27493727/reports
+            curl -X POST http://localhost:4343/1.0/clients/27493727/reports

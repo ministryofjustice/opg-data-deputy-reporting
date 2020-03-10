@@ -10,9 +10,10 @@ info:
     # email: "support@example.com"
 
 servers:
-  - description: SwaggerHub API Auto Mocking.
-    url: https://virtserver.swaggerhub.com/leapday/opg-data/1.0.0
-
+#  - url: https://virtserver.swaggerhub.com/leapday/opg-data/1.0.0
+#    description: SwaggerHub API Auto Mocking.
+  - url: /1.0
+    description: localmock
 tags:
   - name: deputy-reporting
     description: API operations relating to the deputy-reporting integration
@@ -170,7 +171,7 @@ paths:
     post:
       summary: Add a client report file
       description: Add a client report file
-      operationId: addReportDocument
+      operationId: app.addReportDocument
       tags:
         - "deputy-reporting"
       parameters:
@@ -291,7 +292,7 @@ paths:
     post:
       summary: Add a document to Supervision which supports a report
       description: Add a document to Supervision which supports a report
-      operationId: addReportSupportingDocument
+      operationId: app.addReportSupportingDocument
       tags:
         - "deputy-reporting"
       parameters:
@@ -500,6 +501,13 @@ components:
       description: Document UUID
       pattern: "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$"
       example: "5a8b1a26-8296-4373-ae61-f8d0b250e773"
+    Name:
+      type: string
+      readOnly: true
+      format: string
+      description: Document UUID
+      pattern: "^[a-zA-Z]+$"
+      example: "bob"
     Error400:
       type: object
       required:

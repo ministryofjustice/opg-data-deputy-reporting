@@ -15,6 +15,7 @@ resource "aws_acm_certificate" "environment_cert" {
   lifecycle {
     create_before_destroy = true
   }
+  tags = local.default_tags
 }
 
 data "aws_acm_certificate" "environment_cert" {

@@ -26,4 +26,5 @@ resource "aws_api_gateway_rest_api" "deputy_reporting_api_gateway" {
   endpoint_configuration {
     types = ["REGIONAL"]
   }
+  tags = local.default_tags
 }
