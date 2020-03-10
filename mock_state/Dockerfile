@@ -2,7 +2,6 @@
 FROM python:3.6-slim
 
 COPY requirements.txt .
-COPY deputy-reporting-openapi.yml .
 COPY app.py .
 
 RUN pip install -r requirements.txt

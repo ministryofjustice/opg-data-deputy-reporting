@@ -4,6 +4,7 @@ locals {
 
 resource "aws_cloudwatch_log_group" "healthcheck_log_group" {
   name = "/aws/lambda/${local.lambda}"
+  tags = var.tags
 }
 
 resource "aws_lambda_function" "lambda_function" {
@@ -28,6 +29,7 @@ resource "aws_lambda_function" "lambda_function" {
   tracing_config {
     mode = "Active"
   }
+  tags = var.tags
 }
 
 resource "aws_lambda_layer_version" "lambda_layer" {

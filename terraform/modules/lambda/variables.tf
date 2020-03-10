@@ -29,3 +29,5 @@ variable "handler" {
 variable "lambda_function_subdir" {
   type = string
 }
+
+variable "tags" {}
