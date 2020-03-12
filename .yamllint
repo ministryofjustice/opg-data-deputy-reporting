@@ -11,5 +11,7 @@ rules:
 ignore: |
     venv
     process.yml
+    ./docs/swagger/sirius_public_api.yml
+    ./mock_sirius/deputy-reporting-openapi.yml
     docs/swagger/sirius_public_api.yml
     mock_sirius/deputy-reporting-openapi.yml
