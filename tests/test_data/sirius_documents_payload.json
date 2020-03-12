@@ -1,0 +1,48 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "caseRef": {
+      "type": "string"
+    },
+    "direction": {
+      "type": "string"
+    },
+    "documentSubType": {
+      "type": "string"
+    },
+    "documentType": {
+      "type": "string"
+    },
+    "file": {
+      "type": "object",
+      "properties": {
+        "fileName": {
+          "type": "string"
+        },
+        "mimeType": {
+          "type": "string"
+        },
+        "source": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "fileName",
+        "mimeType",
+        "source"
+      ]
+    },
+    "metaData": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "caseRef",
+    "direction",
+    "documentSubType",
+    "documentType",
+    "file",
+    "metaData"
+  ]
+}

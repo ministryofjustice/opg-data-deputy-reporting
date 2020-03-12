@@ -9,30 +9,17 @@ def lambda_handler(event, context):
     logger = logging.getLogger()
     logger.setLevel(os.environ["LOGGER_LEVEL"])
 
-    sirius_payload = get_data_from_event(event)
+    sirius_payload = transform_event_to_sirius_request(event)
 
-    try:
-        sirius_response = submit_document_to_sirius(sirius_payload, None)
-        response = {
-            "statusCode": sirius_response.status_code,
-            "headers": json.dumps(dict(sirius_response.headers)),
-            # TODO this is a hack because I cba to rebuild the mock sirius container
-            #  right now - we shouldn't have to map like this
-            "body": {"uuid": json.loads(sirius_response.content)},
-        }
-    except ConnectionError:
-        response = {
-            "statusCode": 404,
-            "headers": {},
-            "body": "Error connecting to Sirius",
-        }
-    return json.dumps(response)
+    sirius_response = submit_document_to_sirius(sirius_payload, None)
+
+    return json.dumps(sirius_response)
 
 
 # Sirius API Service
 
 
-def get_data_from_event(event):
+def transform_event_to_sirius_request(event):
     request_body = event
     case_ref = request_body["pathParameters"]["caseref"]
 
@@ -53,14 +40,34 @@ def get_data_from_event(event):
         "metaData": {},
     }
 
-    return json.dumps(payload)
+    return payload
 
 
 def submit_document_to_sirius(data, headers):
-    SIRIUS_URL = "http://0.0.0.0:5555/api/public/v1/"
+    SIRIUS_URL = os.environ["SIRIUS_PUBLIC_API_URL"]
     headers = {"Content-Type": "application/json"}
 
     url = SIRIUS_URL + "documents"
+
     r = requests.post(url=url, data=data, headers=headers)
 
-    return r
+    if r.status_code == 201:
+        sirius_response = {
+            "statusCode": r.status_code,
+            "headers": json.dumps(dict(r.headers)),
+            "body": r.json,
+        }
+    elif r.status_code == 400:
+        sirius_response = {
+            "statusCode": r.status_code,
+            "headers": json.dumps(dict(r.headers)),
+            "body": "Invalid client id",
+        }
+    else:
+        sirius_response = {
+            "statusCode": r.status_code,
+            "headers": json.dumps(dict(r.headers)),
+            "body": "Error connecting to Sirius Public API",
+        }
+
+    return sirius_response

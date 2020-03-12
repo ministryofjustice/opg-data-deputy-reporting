@@ -48,7 +48,7 @@ paths:
                 type: object
                 properties:
                   data:
-                    $ref: '#/components/schemas/Healthcheck'
+                    $ref: '#/components/test_data/Healthcheck'
                   links:
                     type: object
                   meta:
@@ -58,37 +58,37 @@ paths:
           content:
             application/vnd.opg-data.v1+json:
               schema:
-                $ref: '#/components/schemas/Error400'
+                $ref: '#/components/test_data/Error400'
         401:
           description: Unauthorised (no current user and there should be)
           content:
             application/vnd.opg-data.v1+json:
               schema:
-                $ref: '#/components/schemas/Error401'
+                $ref: '#/components/test_data/Error401'
         403:
           description: Forbidden - The current user is forbidden from accessing this data (in this way)
           content:
             application/vnd.opg-data.v1+json:
               schema:
-                $ref: '#/components/schemas/Error403'
+                $ref: '#/components/test_data/Error403'
         404:
           description: That URL is not a valid route, or the item resource does not exist
           content:
             application/vnd.opg-data.v1+json:
               schema:
-                $ref: '#/components/schemas/Error404'
+                $ref: '#/components/test_data/Error404'
         500:
           description: Something unexpected happened and it is the API"s fault
           content:
             application/vnd.opg-data.v1+json:
               schema:
-                $ref: '#/components/schemas/Error500'
+                $ref: '#/components/test_data/Error500'
         503:
           description: Service Unavailable - please try again later
           content:
             application/vnd.opg-data.v1+json:
               schema:
-                $ref: '#/components/schemas/Error503'
+                $ref: '#/components/test_data/Error503'
   /reports/{id}:
     description: Client report
     get:
@@ -103,7 +103,7 @@ paths:
           required: true
           description: Report UUID
           schema:
-            $ref: '#/components/schemas/ReportId'
+            $ref: '#/components/test_data/ReportId'
       security:
         - sigv4: []
       x-amazon-apigateway-integration:
@@ -124,7 +124,7 @@ paths:
                 type: object
                 properties:
                   data:
-                    $ref: '#/components/schemas/Report'
+                    $ref: '#/components/test_data/Report'
                   links:
                     type: object
                   meta:
@@ -134,37 +134,37 @@ paths:
           content:
             application/vnd.opg-data.v1+json:
               schema:
-                $ref: '#/components/schemas/Error400'
+                $ref: '#/components/test_data/Error400'
         401:
           description: Unauthorised (no current user and there should be)
           content:
             application/vnd.opg-data.v1+json:
               schema:
-                $ref: '#/components/schemas/Error401'
+                $ref: '#/components/test_data/Error401'
         403:
           description: Forbidden - The current user is forbidden from accessing this data (in this way)
           content:
             application/vnd.opg-data.v1+json:
               schema:
-                $ref: '#/components/schemas/Error403'
+                $ref: '#/components/test_data/Error403'
         404:
           description: That URL is not a valid route, or the item resource does not exist
           content:
             application/vnd.opg-data.v1+json:
               schema:
-                $ref: '#/components/schemas/Error404'
+                $ref: '#/components/test_data/Error404'
         500:
           description: Something unexpected happened and it is the API"s fault
           content:
             application/vnd.opg-data.v1+json:
               schema:
-                $ref: '#/components/schemas/Error500'
+                $ref: '#/components/test_data/Error500'
         503:
           description: Service Unavailable - please try again later
           content:
             application/vnd.opg-data.v1+json:
               schema:
-                $ref: '#/components/schemas/Error503'
+                $ref: '#/components/test_data/Error503'
   /clients/{caseref}/reports:
     description: Client reports
     post:
@@ -207,7 +207,7 @@ paths:
                     - data
                   properties:
                     data:
-                      $ref: '#/components/schemas/Report'
+                      $ref: '#/components/test_data/Report'
                 report_file:
                   type: string
                   format: base64
@@ -228,7 +228,7 @@ paths:
                   - links
                 properties:
                   data:
-                    $ref: '#/components/schemas/Report'
+                    $ref: '#/components/test_data/Report'
                   links:
                     type: object
                     properties:
@@ -243,49 +243,49 @@ paths:
           content:
             application/vnd.opg-data.v1+json:
               schema:
-                $ref: '#/components/schemas/Error400'
+                $ref: '#/components/test_data/Error400'
         401:
           description: Unauthorised (no current user and there should be)
           content:
             application/vnd.opg-data.v1+json:
               schema:
-                $ref: '#/components/schemas/Error401'
+                $ref: '#/components/test_data/Error401'
         403:
           description: Forbidden - The current user is forbidden from accessing this data (in this way)
           content:
             application/vnd.opg-data.v1+json:
               schema:
-                $ref: '#/components/schemas/Error403'
+                $ref: '#/components/test_data/Error403'
         404:
           description: That URL is not a valid route, or the item resource does not exist
           content:
             application/vnd.opg-data.v1+json:
               schema:
-                $ref: '#/components/schemas/Error404'
+                $ref: '#/components/test_data/Error404'
         413:
           description: Payload too large
           content:
             application/vnd.opg-data.v1+json:
               schema:
-                $ref: '#/components/schemas/Error413'
+                $ref: '#/components/test_data/Error413'
         415:
           description: Unsupported media type
           content:
             application/vnd.opg-data.v1+json:
               schema:
-                $ref: '#/components/schemas/Error415'
+                $ref: '#/components/test_data/Error415'
         500:
           description: Something unexpected happened and it is the API"s fault
           content:
             application/vnd.opg-data.v1+json:
               schema:
-                $ref: '#/components/schemas/Error500'
+                $ref: '#/components/test_data/Error500'
         503:
           description: Service Unavailable - please try again later
           content:
             application/vnd.opg-data.v1+json:
               schema:
-                $ref: '#/components/schemas/Error503'
+                $ref: '#/components/test_data/Error503'
   /reports/{id}/supportingdocuments:
     description: Supporting documents associated with client reports
     post:
@@ -300,7 +300,7 @@ paths:
           required: true
           description: Report UUID
           schema:
-            $ref: '#/components/schemas/ReportId'
+            $ref: '#/components/test_data/ReportId'
       security:
         - sigv4: []
       x-amazon-apigateway-integration:
@@ -336,7 +336,7 @@ paths:
                   - links
                 properties:
                   data:
-                    $ref: '#/components/schemas/ReportSupportingDocument'
+                    $ref: '#/components/test_data/ReportSupportingDocument'
                   links:
                     type: object
                     properties:
@@ -351,49 +351,49 @@ paths:
           content:
             application/vnd.opg-data.v1+json:
               schema:
-                $ref: '#/components/schemas/Error400'
+                $ref: '#/components/test_data/Error400'
         401:
           description: Unauthorised (no current user and there should be)
           content:
             application/vnd.opg-data.v1+json:
               schema:
-                $ref: '#/components/schemas/Error401'
+                $ref: '#/components/test_data/Error401'
         403:
           description: Forbidden - The current user is forbidden from accessing this data (in this way)
           content:
             application/vnd.opg-data.v1+json:
               schema:
-                $ref: '#/components/schemas/Error403'
+                $ref: '#/components/test_data/Error403'
         404:
           description: That URL is not a valid route, or the item resource does not exist
           content:
             application/vnd.opg-data.v1+json:
               schema:
-                $ref: '#/components/schemas/Error404'
+                $ref: '#/components/test_data/Error404'
         413:
           description: Payload too large
           content:
             application/vnd.opg-data.v1+json:
               schema:
-                $ref: '#/components/schemas/Error413'
+                $ref: '#/components/test_data/Error413'
         415:
           description: Unsupported media type
           content:
             application/vnd.opg-data.v1+json:
               schema:
-                $ref: '#/components/schemas/Error415'
+                $ref: '#/components/test_data/Error415'
         500:
           description: Something unexpected happened and it is the API"s fault
           content:
             application/vnd.opg-data.v1+json:
               schema:
-                $ref: '#/components/schemas/Error500'
+                $ref: '#/components/test_data/Error500'
         503:
           description: Service Unavailable - please try again later
           content:
             application/vnd.opg-data.v1+json:
               schema:
-                $ref: '#/components/schemas/Error503'
+                $ref: '#/components/test_data/Error503'
 components:
   securitySchemes:
     sigv4:
@@ -417,7 +417,7 @@ components:
           pattern: "^reports$"
           example: reports
         report_id:
-          $ref: '#/components/schemas/ReportId'
+          $ref: '#/components/test_data/ReportId'
         attributes:
           type: object
           required:
@@ -478,7 +478,7 @@ components:
           pattern: "^supportingdocuments$"
           example: supportingdocuments
         id:
-          $ref: '#/components/schemas/ReportId'
+          $ref: '#/components/test_data/ReportId'
         links:
           type: object
           readOnly: true
