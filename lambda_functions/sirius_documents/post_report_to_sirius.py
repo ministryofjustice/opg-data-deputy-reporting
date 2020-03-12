@@ -1,7 +1,6 @@
 import json
 import logging
 import os
-
 import requests
 
 
@@ -28,16 +27,10 @@ def transform_event_to_sirius_request(event):
     source = file["source"]
 
     payload = {
-        "caseRef": case_ref,
-        "direction": "DIRECTION_INCOMING",
-        "documentSubType": "Report - General",
-        "documentType": "Report - General",
-        "file": {
-            "fileName": file_name,
-            "mimeType": "application/pdf",
-            "source": source,
-        },
-        "metaData": {},
+        "type": "Report - General",
+        "caseRecNumber": case_ref,
+        "metadata": {},
+        "file": {"name": file_name, "source": source, "type": "application/pdf"},
     }
 
     return payload
@@ -49,25 +42,33 @@ def submit_document_to_sirius(data, headers):
 
     url = SIRIUS_URL + "documents"
 
-    r = requests.post(url=url, data=data, headers=headers)
+    try:
+        r = requests.post(url=url, data=data, headers=headers)
 
-    if r.status_code == 201:
+        if r.status_code == 201:
+            sirius_response = {
+                "statusCode": r.status_code,
+                "headers": json.dumps(dict(r.headers)),
+                "body": r.json,
+            }
+        elif r.status_code == 400:
+            sirius_response = {
+                "statusCode": r.status_code,
+                "headers": json.dumps(dict(r.headers)),
+                "body": "Invalid client id",
+            }
+        else:
+            sirius_response = {
+                "statusCode": r.status_code,
+                "headers": json.dumps(dict(r.headers)),
+                "body": "Error connecting to Sirius Public API",
+            }
+
+    except requests.exceptions.ConnectionError as e:
         sirius_response = {
-            "statusCode": r.status_code,
-            "headers": json.dumps(dict(r.headers)),
-            "body": r.json,
-        }
-    elif r.status_code == 400:
-        sirius_response = {
-            "statusCode": r.status_code,
-            "headers": json.dumps(dict(r.headers)),
-            "body": "Invalid client id",
-        }
-    else:
-        sirius_response = {
-            "statusCode": r.status_code,
-            "headers": json.dumps(dict(r.headers)),
-            "body": "Error connecting to Sirius Public API",
+            "statusCode": 404,
+            "headers": headers,
+            "body": f"Error connecting to Sirius Public API: {e}",
         }
 
     return sirius_response

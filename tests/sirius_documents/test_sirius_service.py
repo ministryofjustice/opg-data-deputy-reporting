@@ -17,6 +17,22 @@ test_data = {
 
 
 @pytest.fixture(autouse=True)
+def sirius_request():
+    return {
+        "type": "Report - General",
+        "caseRecNumber": "",
+        "metadata": {
+            "reporting_period_from": "2019-01-01",
+            "reporting_period_to": "2019-12-31",
+            "year": "2019",
+            "date_submitted": "2020-01-03T09:30:00.001Z",
+            "type": "HW",
+        },
+        "file": {"name": "", "source": "string", "type": "application/pdf"},
+    }
+
+
+@pytest.fixture(autouse=True)
 def mock_env_setup(monkeypatch):
     monkeypatch.setenv("BASE_URL", "http://localhost:8080")
     monkeypatch.setenv("SIRIUS_PUBLIC_API_URL", "http://sirius_url.com/api/public/v1/")
@@ -30,18 +46,18 @@ def patched_requests(monkeypatch):
 
         mock_response = requests.Response()
 
-        # try:
-        if data["caseRef"] in test_data["valid_clients"]:
-            mock_response.status_code = 201
-            mock_response.json = json.dumps(
-                {"uuid": "531ca3b6-3f17-4ece-bdc5-7faf7f1f8427"}
-            )
-        else:
-            mock_response.status_code = 400
+        try:
+            if data["caseRecNumber"] in test_data["valid_clients"]:
+                mock_response.status_code = 201
+                mock_response.json = json.dumps(
+                    {"uuid": "531ca3b6-3f17-4ece-bdc5-7faf7f1f8427"}
+                )
+            else:
+                mock_response.status_code = 400
+                mock_response.json = None
+        except KeyError:
+            mock_response.status_code = 500
             mock_response.json = None
-        # except KeyError:
-        #     mock_response.status_code = 500
-        #     mock_response.json = None
 
         return mock_response
 
@@ -61,10 +77,24 @@ def patched_requests(monkeypatch):
         ("invalid_client_id", {"status_code": 400, "body": "Invalid client id"}),
     ],
 )
-def test_submit_document_to_sirius(patched_requests, case_ref, expected_result):
+def test_submit_document_to_sirius(
+    patched_requests, case_ref, expected_result, sirius_request
+):
+    headers = {"Content-Type": "application/json"}
+    body = sirius_request
+    body["caseRecNumber"] = case_ref
+
+    response = submit_document_to_sirius(data=body, headers=headers)
+
+    assert response["statusCode"] == expected_result["status_code"]
+    assert response["body"] == expected_result["body"]
+
+
+def test_sirius_does_not_exist(monkeypatch):
+    monkeypatch.setenv("SIRIUS_PUBLIC_API_URL", "http://this_url_does_not_exist/")
     headers = {"Content-Type": "application/json"}
     body = {
-        "caseRef": case_ref,
+        "caseRef": "case_ref",
         "direction": "DIRECTION_INCOMING",
         "documentSubType": "Report - General",
         "documentType": "Report - General",
@@ -78,12 +108,14 @@ def test_submit_document_to_sirius(patched_requests, case_ref, expected_result):
 
     response = submit_document_to_sirius(data=body, headers=headers)
 
-    assert response["statusCode"] == expected_result["status_code"]
-    assert response["body"] == expected_result["body"]
+    assert response == {
+        "statusCode": 404,
+        "headers": headers,
+        "body": "Error connecting to Sirius Public API",
+    }
 
 
 def test_transform_event_to_sirius_request():
-
     event = load_data("lambda_event.json", as_json=False)
 
     payload = transform_event_to_sirius_request(event)
@@ -96,7 +128,5 @@ def test_lambda_handler(patched_requests):
     context = None
 
     result = lambda_handler(event=event, context=context)
-
-    print(result)
 
     assert is_valid_schema(result, "lambda_response.json")

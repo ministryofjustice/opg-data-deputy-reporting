@@ -2,47 +2,39 @@
   "$schema": "http://json-schema.org/draft-04/schema#",
   "type": "object",
   "properties": {
-    "caseRef": {
+    "type": {
       "type": "string"
     },
-    "direction": {
+    "caseRecNumber": {
       "type": "string"
     },
-    "documentSubType": {
-      "type": "string"
-    },
-    "documentType": {
-      "type": "string"
+    "metadata": {
+      "type": "object"
     },
     "file": {
       "type": "object",
       "properties": {
-        "fileName": {
-          "type": "string"
-        },
-        "mimeType": {
+        "name": {
           "type": "string"
         },
         "source": {
           "type": "string"
+        },
+        "type": {
+          "type": "string"
         }
       },
       "required": [
-        "fileName",
-        "mimeType",
-        "source"
+        "name",
+        "source",
+        "type"
       ]
-    },
-    "metaData": {
-      "type": "object"
     }
   },
   "required": [
-    "caseRef",
-    "direction",
-    "documentSubType",
-    "documentType",
-    "file",
-    "metaData"
+    "type",
+    "caseRecNumber",
+    "metadata",
+    "file"
   ]
 }
