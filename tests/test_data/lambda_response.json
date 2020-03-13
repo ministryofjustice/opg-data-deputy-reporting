@@ -1,5 +1,23 @@
 {
-  "statusCode": "int",
-  "headers": "object",
-  "body": "object"
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "properties": {
+    "isBase64Encoded": {
+      "type": "boolean"
+    },
+    "statusCode": {
+      "type": "integer"
+    },
+    "headers": {
+      "type": "object"
+    },
+    "body": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "isBase64Encoded",
+    "statusCode",
+    "headers",
+    "body"
+  ]
 }

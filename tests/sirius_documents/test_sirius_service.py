@@ -3,7 +3,7 @@ import json
 import pytest
 import requests
 
-from lambda_functions.sirius_documents.post_report_to_sirius import (
+from lambda_functions.reports.reports import (
     submit_document_to_sirius,
     transform_event_to_sirius_request,
     lambda_handler,
@@ -20,7 +20,7 @@ test_data = {
 def sirius_request():
     return {
         "type": "Report - General",
-        "caseRecNumber": "",
+        "caseRecNumber": "default_case_ref",
         "metadata": {
             "reporting_period_from": "2019-01-01",
             "reporting_period_to": "2019-12-31",
@@ -28,14 +28,19 @@ def sirius_request():
             "date_submitted": "2020-01-03T09:30:00.001Z",
             "type": "HW",
         },
-        "file": {"name": "", "source": "string", "type": "application/pdf"},
+        "file": {
+            "name": "default_file_name.pdf",
+            "source": "string",
+            "type": "application/pdf",
+        },
     }
 
 
 @pytest.fixture(autouse=True)
 def mock_env_setup(monkeypatch):
     monkeypatch.setenv("BASE_URL", "http://localhost:8080")
-    monkeypatch.setenv("SIRIUS_PUBLIC_API_URL", "http://sirius_url.com/api/public/v1/")
+    monkeypatch.setenv("SIRIUS_BASE_URL", "http://sirius_url.com")
+    monkeypatch.setenv("SIRIUS_PUBLIC_API_URL", "api/public/v1/")
     monkeypatch.setenv("LOGGER_LEVEL", "DEBUG")
 
 
@@ -88,31 +93,17 @@ def test_submit_document_to_sirius(
 
     assert response["statusCode"] == expected_result["status_code"]
     assert response["body"] == expected_result["body"]
+    assert is_valid_schema(response, "lambda_response.json")
 
 
-def test_sirius_does_not_exist(monkeypatch):
-    monkeypatch.setenv("SIRIUS_PUBLIC_API_URL", "http://this_url_does_not_exist/")
+def test_sirius_does_not_exist(monkeypatch, sirius_request):
+    monkeypatch.setenv("SIRIUS_BASE_URL", "http://this_url_does_not_exist/")
     headers = {"Content-Type": "application/json"}
-    body = {
-        "caseRef": "case_ref",
-        "direction": "DIRECTION_INCOMING",
-        "documentSubType": "Report - General",
-        "documentType": "Report - General",
-        "file": {
-            "fileName": "Report_1234567T_2018_2019_11111.pdf",
-            "mimeType": "application/pdf",
-            "source": "string",
-        },
-        "metaData": {},
-    }
+    body = sirius_request
 
     response = submit_document_to_sirius(data=body, headers=headers)
 
-    assert response == {
-        "statusCode": 404,
-        "headers": headers,
-        "body": "Error connecting to Sirius Public API",
-    }
+    assert response["statusCode"] == 404
 
 
 def test_transform_event_to_sirius_request():
