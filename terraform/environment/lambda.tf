@@ -18,7 +18,7 @@ module "lambda_reports" {
   target_environment     = local.account.target_environment
   vpc_id                 = local.account.vpc_id
   lambda_prefix          = "sirius-reports"
-  handler                = "reports.app"
+  handler                = "reports.lambda_handler"
   lambda_function_subdir = "reports"
   logger_level           = "INFO"
   tags                   = local.default_tags
