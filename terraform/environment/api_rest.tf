@@ -6,7 +6,7 @@ locals {
     region                 = "eu-west-1"
     environment            = local.environment
   }
-  openapispec = file("../${local.api_name}-openapi.yml")
+  openapispec = file("../../${local.api_name}-openapi.yml")
 }
 
 data "template_file" "_" {

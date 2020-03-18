@@ -47,17 +47,17 @@ resource "aws_lambda_layer_version" "lambda_layer" {
 }
 
 data "local_file" "requirements" {
-  filename = "../requirements/requirements.txt"
+  filename = "../../requirements/requirements.txt"
 }
 
 data "archive_file" "lambda_archive" {
   type        = "zip"
-  source_dir  = "../lambda_functions/${var.lambda_function_subdir}"
+  source_dir  = "../../lambda_functions/${var.lambda_function_subdir}"
   output_path = "./lambda_${var.lambda_function_subdir}.zip"
 }
 
 data "archive_file" "lambda_layer_archive" {
   type        = "zip"
-  source_dir  = "../lambda_layers"
+  source_dir  = "../../lambda_layers"
   output_path = "./lambda_layers_${var.lambda_function_subdir}.zip"
 }

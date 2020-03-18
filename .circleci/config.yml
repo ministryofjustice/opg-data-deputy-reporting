@@ -61,6 +61,7 @@ workflows:
           tf_command: apply --auto-approve
           tf_workspace: development
           applycheck: true
+          run_shared: true
           filters: {branches:{only:[master]}}
 #      - terraform_pre_checks:
 #         name: terraform preprod preflight checks
@@ -102,8 +103,8 @@ orbs:
         docker:
           - image: circleci/python:3.8.1
         environment:
-          TF_VERSION: 0.12.21
-          TF_SHA256SUM: ca0d0796c79d14ee73a3d45649dab5e531f0768ee98da71b31e423e3278e9aa9
+          TF_VERSION: 0.12.23
+          TF_SHA256SUM: 78fd53c0fffd657ee0ab5decac604b0dea2e6c0d4199a9f27db53f081d831a45
           TF_CLI_ARGS_plan: -input=false -lock=false
           TF_CLI_ARGS_apply: -input=false -auto-approve
           TF_CLI_ARGS_destroy: -input=false -auto-approve
@@ -188,13 +189,13 @@ jobs:
           command: unzip ./opg-data-deputy-reporting.zip -d .
       - run:
           name: initialize
-          command: cd ./terraform; terraform init
+          command: cd ./terraform/environment; terraform init
       - run:
           name: terraform format check
-          command: cd ./terraform; terraform fmt -diff -check -recursive
+          command: cd ./terraform/environment; terraform fmt -diff -check -recursive
       - run:
           name: terraform validate
-          command: cd ./terraform; terraform validate
+          command: cd ./terraform/environment; terraform validate
   terraform_action:
     executor: digideps-data/python_with_tfvars
     parameters:
@@ -207,11 +208,15 @@ jobs:
         default: plan
         type: string
       tf_stage:
-        description: terraform workspace
+        description: provider stage
         type: string
         default: "1_0_0"
       applycheck:
-        description: terraform workspace
+        description: workaround for rest api provider
+        type: boolean
+        default: false
+      run_shared:
+        description: whether to run shared terraform
         type: boolean
         default: false
     environment:
@@ -226,7 +231,7 @@ jobs:
           command: unzip ./opg-data-deputy-reporting.zip -d .
       - run:
           name: initialize
-          command: cd ./terraform; terraform init
+          command: cd ./terraform/environment; terraform init
       - run:
           name: Set BASH_ENV
           command: ~/project/.circleci/set_env.sh >> $BASH_ENV
@@ -236,7 +241,7 @@ jobs:
             `cat $BASH_ENV | grep TF_WORKSPACE`
       - run:
           name: terraform << parameters.tf_command >>
-          command: cd ./terraform; terraform << parameters.tf_command >>
+          command: cd ./terraform/environment; terraform << parameters.tf_command >>
       # https://github.com/terraform-providers/terraform-provider-aws/issues/5364
       - when:
           condition: << parameters.applycheck >>
@@ -244,11 +249,19 @@ jobs:
             - run:
                 name: conditionally reapply if gateway policy is missing
                 command: |
-                  cd ./terraform
+                  cd ./terraform/environment
                   if [ `terraform output policy | wc -m` -gt 1 ]
                   then echo "policy attached, doing nothing"
                   else terraform << parameters.tf_command >>
                   fi
+      - when:
+          condition: << parameters.run_shared >>
+          steps:
+            - run:
+                name: apply shared if aginst non branch based env
+                command: |
+                  cd ./terraform/shared
+                  terraform << parameters.tf_command >>
   pact_verification:
     executor: digideps-data/python_with_tfvars
     working_directory: ~/project

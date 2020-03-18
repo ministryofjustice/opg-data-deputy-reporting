@@ -34,6 +34,22 @@ resource "aws_api_gateway_stage" "currentstage" {
   deployment_id        = aws_api_gateway_deployment.deploy.id
   xray_tracing_enabled = true
   tags                 = local.default_tags
+
+  access_log_settings {
+    destination_arn = aws_cloudwatch_log_group.deputy_reporting.arn
+    format = join("", [
+      "{\"requestId\":\"$context.requestId\",",
+      "\"ip\":\"$context.identity.sourceIp\"",
+      "\"caller\":\"$context.identity.caller\"",
+      "\"user\":\"$context.identity.user\"",
+      "\"requestTime\":\"$context.requestTime\"",
+      "\"httpMethod\":\"$context.httpMethod\"",
+      "\"resourcePath\":\"$context.resourcePath\"",
+      "\"status\":\"$context.status\"",
+      "\"protocol\":\"$context.protocol\"",
+      "\"responseLength\":\"$context.responseLength\"}"
+    ])
+  }
 }
 
 resource "aws_api_gateway_base_path_mapping" "mapping" {
@@ -44,7 +60,7 @@ resource "aws_api_gateway_base_path_mapping" "mapping" {
 }
 
 resource "aws_cloudwatch_log_group" "deputy_reporting" {
-  name              = "API-Gateway-Execution-Logs_${aws_api_gateway_rest_api.deputy_reporting_api_gateway.id}"
-  retention_in_days = 7
+  name              = "API-Gateway-Execution-Logs-${aws_api_gateway_rest_api.deputy_reporting_api_gateway.name}"
+  retention_in_days = 30
   tags              = local.default_tags
 }
