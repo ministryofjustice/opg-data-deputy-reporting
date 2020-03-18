@@ -35,9 +35,19 @@ resource "aws_lambda_function" "lambda_function" {
 resource "aws_lambda_layer_version" "lambda_layer" {
   filename         = data.archive_file.lambda_layer_archive.output_path
   source_code_hash = data.archive_file.lambda_layer_archive.output_base64sha256
-  layer_name       = "requirements_layer_${var.target_environment}"
+  layer_name       = "requirement_${var.target_environment}_${substr(replace(base64sha256(data.local_file.requirements.content_base64), "/[^0-9A-Za-z_]/", ""), 0, 5)}"
 
   compatible_runtimes = ["python3.7"]
+
+  lifecycle {
+    ignore_changes = [
+      source_code_hash
+    ]
+  }
+}
+
+data "local_file" "requirements" {
+  filename = "../requirements/requirements.txt"
 }
 
 data "archive_file" "lambda_archive" {
