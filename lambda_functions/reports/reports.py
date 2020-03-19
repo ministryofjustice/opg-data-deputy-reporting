@@ -1,7 +1,5 @@
-import base64
 import datetime
 import json
-import logging
 import os
 from urllib.parse import urljoin
 
@@ -10,12 +8,20 @@ import jwt
 import requests
 from botocore.exceptions import ClientError
 
+
 # logger = logging.getLogger()
 # logger.setLevel(os.environ["LOGGER_LEVEL"])
 
 
 def lambda_handler(event, context):
+    """
 
+    Args:
+        event: json received from API Gateway
+        context:
+    Returns:
+        Response from Sirius in AWS Lambda format, json
+    """
     sirius_api_url = build_sirius_url(
         base_url=os.environ["SIRIUS_BASE_URL"],
         api_route=os.environ["SIRIUS_PUBLIC_API_URL"],
@@ -32,6 +38,16 @@ def lambda_handler(event, context):
 
 
 def transform_event_to_sirius_request(event):
+    """
+    Takes the 'body' from the AWS event and converts it into the right format for the
+    Sirius documents endpoint, detailed here:
+    tests/test_data/sirius_documents_payload.json
+
+    Args:
+        event: json received from API Gateway
+    Returns:
+        Sirius-style payload, json
+    """
     request_body = event
     case_ref = request_body["pathParameters"]["caseref"]
 
@@ -53,56 +69,58 @@ def transform_event_to_sirius_request(event):
 
 
 def build_sirius_url(base_url, api_route, endpoint):
+    """
+    Builds the url for the endpoint from variables (probably saved in env vars)
+
+    Args:
+        base_url: URL of the Sirius server
+        api_route: path to public api
+        endpoint: endpoint
+    Returns:
+        string: url
+    """
     SIRIUS_URL = urljoin(base_url, api_route)
     url = urljoin(SIRIUS_URL, endpoint)
     return url
 
 
 def get_secret(environment):
+    """
+    Gets and decrypts the JWT secret from AWS Secrets Manager for the chosen environment
+    This was c&p directly from AWS Secrets Manager...
+
+    Args:
+        environment: AWS environment name
+    Returns:
+        JWT secret
+    Raises:
+        ClientError
+    """
     secret_name = f"{environment}/jwt-key"
     region_name = "eu-west-1"
 
-    # Create a Secrets Manager client
     session = boto3.session.Session()
     client = session.client(service_name="secretsmanager", region_name=region_name)
 
-    secret = None
-
     try:
         get_secret_value_response = client.get_secret_value(SecretId=secret_name)
+        secret = get_secret_value_response["SecretString"]
     except ClientError as e:
-        if e.response["Error"]["Code"] == "DecryptionFailureException":
-            # Secrets Manager can't decrypt the protected secret text using the provided KMS key.
-            # Deal with the exception here, and/or rethrow at your discretion.
-            raise e
-        elif e.response["Error"]["Code"] == "InternalServiceErrorException":
-            # An error occurred on the server side.
-            # Deal with the exception here, and/or rethrow at your discretion.
-            raise e
-        elif e.response["Error"]["Code"] == "InvalidParameterException":
-            # You provided an invalid value for a parameter.
-            # Deal with the exception here, and/or rethrow at your discretion.
-            raise e
-        elif e.response["Error"]["Code"] == "InvalidRequestException":
-            # You provided a parameter value that is not valid for the current state of the resource.
-            # Deal with the exception here, and/or rethrow at your discretion.
-            raise e
-        elif e.response["Error"]["Code"] == "ResourceNotFoundException":
-            # We can't find the resource that you asked for.
-            # Deal with the exception here, and/or rethrow at your discretion.
-            raise e
-    else:
-        # Decrypts secret using the associated KMS CMK.
-        # Depending on whether the secret is a string or binary, one of these fields will be populated.
-        if "SecretString" in get_secret_value_response:
-            secret = get_secret_value_response["SecretString"]
-        else:
-            secret = base64.b64decode(get_secret_value_response["SecretBinary"])
+        raise e
 
     return secret
 
 
 def build_sirius_headers(content_type="application/json"):
+    """
+    Builds headers for Sirius request, including JWT auth
+
+    Args:
+        content_type: string, defaults to 'application/json'
+    Returns:
+        Header dictionary with content type and auth token
+    """
+
     encoded_jwt = jwt.encode(
         {
             "session-data": "publicapi@opgtest.com",
@@ -120,6 +138,17 @@ def build_sirius_headers(content_type="application/json"):
 
 
 def submit_document_to_sirius(url, data, headers):
+    """
+    Sends POST to Sirius
+
+    Args:
+        url: POST url
+        data: data payload
+        headers: request headers
+
+    Returns:
+        AWS Lambda style dict
+    """
     response_messages = {
         400: "Invalid Casrec ID",
         401: "Unauthorised",
@@ -157,7 +186,7 @@ def submit_document_to_sirius(url, data, headers):
             "isBase64Encoded": False,
             "statusCode": 404,
             "headers": {"Content-Type": "application/json"},
-            "body": default_error,
+            "body": f"{default_error} - {e}",
         }
 
     return sirius_response

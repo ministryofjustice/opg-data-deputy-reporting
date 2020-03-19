@@ -4,7 +4,6 @@ import pytest
 import requests
 
 from lambda_functions.reports import reports
-from lambda_functions.reports.reports import get_secret
 
 test_data = {
     "valid_clients": ["valid_client_id", "0319392T"],
@@ -38,7 +37,7 @@ def mock_env_setup(monkeypatch):
     monkeypatch.setenv("SIRIUS_BASE_URL", "http://sirius_url.com")
     monkeypatch.setenv("SIRIUS_PUBLIC_API_URL", "api/public/v1/")
     monkeypatch.setenv("LOGGER_LEVEL", "DEBUG")
-    monkeypatch.setenv("JWT_SECRET", 'THIS_IS_MY_SECRET_KEY')
+    monkeypatch.setenv("JWT_SECRET", "THIS_IS_MY_SECRET_KEY")
 
 
 @pytest.fixture
@@ -69,6 +68,6 @@ def patched_requests(monkeypatch):
 @pytest.fixture
 def patched_get_secret(monkeypatch):
     def mock_secret(*args, **kwargs):
-        return "ThisIsASecretString"
+        return "this_is_a_secret_string"
 
     monkeypatch.setattr(reports, "get_secret", mock_secret)
