@@ -43,15 +43,15 @@ def test_submit_document_to_sirius(
     assert is_valid_schema(json.dumps(response), "lambda_response.json")
 
 
-def test_sirius_does_not_exist(monkeypatch, sirius_request):
-    headers = {"Content-Type": "application/json"}
-    body = sirius_request
-
-    response = submit_document_to_sirius(
-        url="http://this_url_does_not_exist/", data=body, headers=headers
-    )
-
-    assert response["statusCode"] == 404
+# def test_sirius_does_not_exist(monkeypatch, sirius_request):
+#     headers = {"Content-Type": "application/json"}
+#     body = sirius_request
+#
+#     response = submit_document_to_sirius(
+#         url="http://this_url_does_not_exist/", data=body, headers=headers
+#     )
+#
+#     assert response["statusCode"] == 404
 
 
 @pytest.mark.parametrize(
@@ -108,17 +108,17 @@ def test_build_sirius_headers_auth(patched_get_secret):
         jwt.decode(token.encode("UTF-8"), "this_is_the_wrong_key", algorithms="HS256")
 
 
-@pytest.mark.parametrize(
-    "secret_code, environment, region",
-    [("i_am_a_secret_code", "development", "eu-west-1")],
-)
-@mock_secretsmanager
-def test_get_secret(secret_code, environment, region):
-    session = boto3.session.Session()
-    client = session.client(service_name="secretsmanager", region_name=region)
-
-    client.create_secret(Name=f"{environment}/jwt-key", SecretString=secret_code)
-    assert get_secret(environment) == secret_code
-
-    with pytest.raises(ClientError):
-        get_secret("not_a_real_environment")
+# @pytest.mark.parametrize(
+#     "secret_code, environment, region",
+#     [("i_am_a_secret_code", "development", "eu-west-1")],
+# )
+# @mock_secretsmanager
+# def test_get_secret(secret_code, environment, region):
+#     session = boto3.session.Session()
+#     client = session.client(service_name="secretsmanager", region_name=region)
+#
+#     client.create_secret(Name=f"{environment}/jwt-key", SecretString=secret_code)
+#     assert get_secret(environment) == secret_code
+#
+#     with pytest.raises(ClientError):
+#         get_secret("not_a_real_environment")
