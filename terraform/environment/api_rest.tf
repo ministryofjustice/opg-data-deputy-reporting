@@ -6,7 +6,7 @@ locals {
     region                 = "eu-west-1"
     environment            = local.environment
   }
-  openapispec = file("../${local.api_name}-openapi.yml")
+  openapispec = file("../../${local.api_name}-openapi.yml")
 }
 
 data "template_file" "_" {
@@ -17,7 +17,7 @@ data "template_file" "_" {
 // Bug - Recreates api gateway spec on each build!
 // Can't use Lifecycle ignore changes as not attaching policy on first build!
 // https://github.com/terraform-providers/terraform-provider-aws/issues/5549
-resource "aws_api_gateway_rest_api" "deputy_reporting_api_gateway" {
+resource "aws_api_gateway_rest_api" "deputy_reporting" {
   name        = "deputy-reporting-${local.environment}"
   description = "API Gateway for Deputy Reporting - ${local.environment}"
   policy      = data.aws_iam_policy_document.resource_policy.json
