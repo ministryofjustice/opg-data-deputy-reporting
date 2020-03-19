@@ -61,7 +61,7 @@ workflows:
           tf_command: apply --auto-approve
           tf_workspace: development
           applycheck: true
-          run_shared: true
+          run_account: true
           filters: {branches:{only:[master]}}
 #      - terraform_pre_checks:
 #         name: terraform preprod preflight checks
@@ -215,8 +215,8 @@ jobs:
         description: workaround for rest api provider
         type: boolean
         default: false
-      run_shared:
-        description: whether to run shared terraform
+      run_account:
+        description: whether to run account config in terraform
         type: boolean
         default: false
     environment:
@@ -255,12 +255,12 @@ jobs:
                   else terraform << parameters.tf_command >>
                   fi
       - when:
-          condition: << parameters.run_shared >>
+          condition: << parameters.run_account >>
           steps:
             - run:
-                name: apply shared if aginst non branch based env
+                name: apply account if aginst non branch based env
                 command: |
-                  cd ./terraform/shared
+                  cd ./terraform/account
                   terraform << parameters.tf_command >>
   pact_verification:
     executor: digideps-data/python_with_tfvars

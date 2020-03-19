@@ -4,7 +4,7 @@ locals {
 }
 
 resource "aws_api_gateway_method_settings" "global_gateway_settings" {
-  rest_api_id = aws_api_gateway_rest_api.deputy_reporting_api_gateway.id
+  rest_api_id = aws_api_gateway_rest_api.deputy_reporting.id
   stage_name  = aws_api_gateway_stage.currentstage.stage_name
   method_path = "*/*"
 
@@ -30,7 +30,7 @@ resource "aws_api_gateway_domain_name" "sirius_deputy_reporting" {
 resource "aws_api_gateway_stage" "currentstage" {
   stage_name           = var.stage
   depends_on           = [aws_cloudwatch_log_group.deputy_reporting]
-  rest_api_id          = aws_api_gateway_rest_api.deputy_reporting_api_gateway.id
+  rest_api_id          = aws_api_gateway_rest_api.deputy_reporting.id
   deployment_id        = aws_api_gateway_deployment.deploy.id
   xray_tracing_enabled = true
   tags                 = local.default_tags
@@ -53,14 +53,14 @@ resource "aws_api_gateway_stage" "currentstage" {
 }
 
 resource "aws_api_gateway_base_path_mapping" "mapping" {
-  api_id      = aws_api_gateway_rest_api.deputy_reporting_api_gateway.id
+  api_id      = aws_api_gateway_rest_api.deputy_reporting.id
   stage_name  = aws_api_gateway_deployment.deploy.stage_name
   domain_name = aws_api_gateway_domain_name.sirius_deputy_reporting.domain_name
   base_path   = aws_api_gateway_deployment.deploy.stage_name
 }
 
 resource "aws_cloudwatch_log_group" "deputy_reporting" {
-  name              = "API-Gateway-Execution-Logs-${aws_api_gateway_rest_api.deputy_reporting_api_gateway.name}"
+  name              = "API-Gateway-Execution-Logs-${aws_api_gateway_rest_api.deputy_reporting.name}"
   retention_in_days = 30
   tags              = local.default_tags
 }

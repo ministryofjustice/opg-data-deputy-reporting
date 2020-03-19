@@ -52,14 +52,14 @@ data "aws_iam_policy_document" "gateway_resource_execution_policy" {
     ]
 
     resources = [
-      "${aws_api_gateway_rest_api.deputy_reporting_api_gateway.execution_arn}/*/*/*",
+      "${aws_api_gateway_rest_api.deputy_reporting.execution_arn}/*/*/*",
     ]
   }
 }
 
 //Name of policies and the attachment
 resource "aws_iam_policy" "access_policy" {
-  depends_on = [aws_api_gateway_rest_api.deputy_reporting_api_gateway]
+  depends_on = [aws_api_gateway_rest_api.deputy_reporting]
 
   name   = "access-policy-${local.environment}"
   policy = data.aws_iam_policy_document.gateway_resource_execution_policy.json
@@ -78,7 +78,7 @@ resource "aws_lambda_permission" "healthcheck_lambda_permission" {
   function_name = module.lamdba_healthcheck.lambda.function_name
   principal     = "apigateway.amazonaws.com"
 
-  source_arn = "${aws_api_gateway_rest_api.deputy_reporting_api_gateway.execution_arn}/*/*/*"
+  source_arn = "${aws_api_gateway_rest_api.deputy_reporting.execution_arn}/*/*/*"
 }
 
 resource "aws_lambda_permission" "reports_lambda_permission" {
@@ -87,5 +87,5 @@ resource "aws_lambda_permission" "reports_lambda_permission" {
   function_name = module.lambda_reports.lambda.function_name
   principal     = "apigateway.amazonaws.com"
 
-  source_arn = "${aws_api_gateway_rest_api.deputy_reporting_api_gateway.execution_arn}/*/*/*"
+  source_arn = "${aws_api_gateway_rest_api.deputy_reporting.execution_arn}/*/*/*"
 }

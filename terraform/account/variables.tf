@@ -7,7 +7,6 @@ variable "accounts" {
     object({
       account_id    = string
       is_production = string
-      threshold     = number
     })
   )
 }

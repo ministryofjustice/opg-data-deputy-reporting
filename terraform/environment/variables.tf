@@ -20,6 +20,7 @@ variable "accounts" {
       vpc_id             = string
       opg_hosted_zone    = string
       allowed_roles      = list(string)
+      threshold          = number
     })
   )
 }
