@@ -26,3 +26,5 @@ process.yml
 .pytest_cache/
 
 /venv/
+
+.coverage

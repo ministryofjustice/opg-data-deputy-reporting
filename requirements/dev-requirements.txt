@@ -6,3 +6,5 @@ aws-xray-sdk
 black
 yamllint
 pyjwt
+boto3
+moto
