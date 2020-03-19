@@ -21,7 +21,6 @@ services:
       PACT_BROKER_DATABASE_PASSWORD: password
       PACT_BROKER_DATABASE_HOST: postgres
       PACT_BROKER_DATABASE_NAME: postgres
-<<<<<<< master
 #      Uncomment these two options for debugging purposes:
 #      PACT_BROKER_WEBHOOK_HOST_WHITELIST: api.github.com
 #      PACT_BROKER_LOG_LEVEL: DEBUG
@@ -37,7 +36,3 @@ services:
       dockerfile: Dockerfile
     ports:
       - "5001:5001"
-=======
-#      PACT_BROKER_WEBHOOK_HOST_WHITELIST: api.github.com
-#      PACT_BROKER_LOG_LEVEL: DEBUG
->>>>>>> add pact file and docker-compose [skip ci]

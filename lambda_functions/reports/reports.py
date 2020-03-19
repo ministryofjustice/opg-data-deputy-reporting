@@ -1,5 +1,6 @@
 import datetime
 import json
+import logging
 import os
 from urllib.parse import urljoin
 
@@ -9,8 +10,9 @@ import requests
 from botocore.exceptions import ClientError
 
 
-# logger = logging.getLogger()
-# logger.setLevel(os.environ["LOGGER_LEVEL"])
+logger = logging.getLogger()
+if __name__ == "__main__":
+    logger.setLevel(os.environ["LOGGER_LEVEL"])
 
 
 def lambda_handler(event, context):
@@ -150,7 +152,7 @@ def submit_document_to_sirius(url, data, headers):
         AWS Lambda style dict
     """
     response_messages = {
-        400: "Invalid Casrec ID",
+        400: "Invalid payload",
         401: "Unauthorised",
         403: "Forbidden",
         404: "Error connecting to Sirius Public API",
@@ -162,6 +164,7 @@ def submit_document_to_sirius(url, data, headers):
         r = requests.post(url=url, data=data, headers=headers)
 
         status_code = r.status_code
+
 
         if status_code == 201:
             sirius_response = {

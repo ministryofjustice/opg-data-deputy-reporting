@@ -26,7 +26,7 @@ from tests.helpers.use_test_data import is_valid_schema
                 "body": {"uuid": "531ca3b6-3f17-4ece-bdc5-7faf7f1f8427"},
             },
         ),
-        ("invalid_client_id", {"status_code": 400, "body": "Invalid Casrec ID"}),
+        ("invalid_client_id", {"status_code": 400, "body": "Invalid payload"}),
     ],
 )
 def test_submit_document_to_sirius(
