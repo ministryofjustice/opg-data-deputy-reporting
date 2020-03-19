@@ -4,10 +4,10 @@ version: 2.1
 parameters:
   run_pull_request:
     type: boolean
-    default: false
+    default: true
   run_commit_to_master:
     type: boolean
-    default: false
+    default: true
   run_verify_pact:
     type: boolean
     default: true
@@ -57,6 +57,7 @@ workflows:
           name: terraform dev preflight checks
           requires: [build and artifact]
           tf_workspace: development
+          run_account: true
           filters: {branches:{only:[master]}}
       - terraform_action:
           name: development apply
@@ -191,6 +192,10 @@ jobs:
         description: terraform workspace
         type: string
         default: "1_0_0"
+      run_account:
+        description: whether to run account config in terraform
+        type: boolean
+        default: false
     working_directory: ~/project
     steps:
       - attach_workspace:
@@ -200,14 +205,26 @@ jobs:
           name: unzip artifact
           command: unzip ./opg-data-deputy-reporting.zip -d .
       - run:
-          name: initialize
+          name: initialize terraform - environment
           command: cd ./terraform/environment; terraform init
       - run:
-          name: terraform format check
+          name: terraform check formatting - environment
           command: cd ./terraform/environment; terraform fmt -diff -check -recursive
       - run:
-          name: terraform validate
+          name: validate terraform - environment
           command: cd ./terraform/environment; terraform validate
+      - when:
+          condition: << parameters.run_account >>
+          steps:
+            - run:
+                name: initialize terraform - account
+                command: cd ./terraform/account; terraform init
+            - run:
+                name: terraform check formatting - account
+                command: cd ./terraform/account; terraform fmt -diff -check -recursive
+            - run:
+                name: validate terraform - account
+                command: cd ./terraform/account; terraform validate
   terraform_action:
     executor: digideps-data/python_with_tfvars
     parameters:
@@ -257,7 +274,7 @@ jobs:
       - run:
           name: Set Environment variables
           command: |
-            eval `cat $BASH_ENV`
+            eval $(cat $BASH_ENV)
       - run:
           name: terraform << parameters.tf_command >>
           command: cd ./terraform/environment; terraform << parameters.tf_command >>
@@ -289,8 +306,8 @@ jobs:
             echo "no tags appplied as on branch"
             else
             echo "applying tag on version ${$TF_VAR_stage}"
-            curl -v -X PUT -u $PACT_BROKER_HTTP_AUTH_USER:$PACT_BROKER_HTTP_AUTH_PASS -H "Content-Type: application/json" \
-            https://dev-pact-broker.api.opg.service.justice.gov.uk/pacticipants/OPG%20Data/versions/$TF_VAR_stage/tags/$TF_WORKSPACE
+            curl -v -X PUT -u "${PACT_BROKER_HTTP_AUTH_USER}":"${PACT_BROKER_HTTP_AUTH_PASS}" -H "Content-Type: application/json" \
+            https://"${PACT_BROKER_BASE_URL}"/pacticipants/"${PACT_PROVIDER}"/versions/"${TF_VAR_stage}"/tags/"${TF_WORKSPACE}"
             fi
   pact_verification:
     executor: digideps-data/python_with_tfvars
@@ -363,41 +380,24 @@ jobs:
             pip install pact-python
             pact-verifier --help
       - run:
-          name: Install pact packages
+          name: Set up ready for pact tests
           command: |
             wget https://github.com/pact-foundation/pact-ruby-standalone/releases/download/v1.81.0/pact-1.81.0-linux-x86_64.tar.gz
             tar xzf pact-1.81.0-linux-x86_64.tar.gz
+            chmod 755 ~/project/.circleci/pact_verifier.sh
+            chmod 755 ~/project/.circleci/check_pact_deployable.sh
       - run:
-          name: run a command to get version which is git sha
+          name: verify pact and update github
           command: |
-            export LATEST=`curl -u $PACT_BROKER_HTTP_AUTH_USER:$PACT_BROKER_HTTP_AUTH_PASS \
-            -X GET https://${PACT_BROKER_BASE_URL}/pacts/provider/OPG%20Data/consumer/Complete%20the%20deputy%20report/latest \
-            | jq ._links | jq '.["pb:consumer-version"]' | jq .name | sed 's/"//g'`
+            export LATEST=$(curl -u "${PACT_BROKER_HTTP_AUTH_USER}":"${PACT_BROKER_HTTP_AUTH_PASS}" \
+            -X GET https://"${PACT_BROKER_BASE_URL}"/pacts/provider/"${PACT_PROVIDER}"/consumer/"${PACT_CONSUMER}"/latest \
+            | jq ._links | jq '.["pb:consumer-version"]' | jq .name | sed 's/"//g') >> /dev/null
 
-            if [ "$CONSUMER_VER" == "" ]
+            if [ "${CONSUMER_VER}" == "" ]
             then
-            export CONSUMER_VER=$LATEST
+            export CONSUMER_VER="${LATEST}"
+            echo "Consumer version not set, using latest"
             fi
 
             ~/project/.circleci/pact_verifier.sh
-            ~/project/.circleci/can_i_deploy.sh
-
-            export FULL_COMMIT_SHA=`curl -X GET -u $GITHUB_STATUS_CREDS \
-            https://api.github.com/repos/ministryofjustice/opg-digideps/commits/$CONSUMER_VER | jq -r .sha`
-
-            if [ "$CAN_DEPLOY" == "1" ]
-            then
-            echo "Github Status Updated - Verified"
-            curl -X POST \
-            -H "Content-Type: application/json" \
-            -u $GITHUB_STATUS_CREDS \
-            -d '{"state":"success","target_url":"https://$PACT_BROKER_BASE_URL/","description":"Our build was verified!","context":"pactbroker"}' \
-            https://api.github.com/repos/ministryofjustice/opg-digideps/statuses/$FULL_COMMIT_SHA >> /dev/null
-            else
-            echo "Github Status Updated - Failed"
-            curl -X POST \
-            -H "Content-Type: application/json" \
-            -u $GITHUB_STATUS_CREDS \
-            -d '{"state":"failed","target_url":"https://$PACT_BROKER_BASE_URL/","description":"Our build failed verification!","context":"pactbroker"}' \
-            https://api.github.com/repos/ministryofjustice/opg-digideps/statuses/$FULL_COMMIT_SHA >> /dev/null
-            fi
+            ~/project/.circleci/check_pact_deployable.sh

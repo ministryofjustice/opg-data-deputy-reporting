@@ -3,7 +3,7 @@ import os
 from http.client import HTTPSConnection
 from base64 import b64encode
 
-environment = "development"
+environment = "production"
 url = os.getenv("PACT_BROKER_BASE_URL")
 user = os.getenv("PACT_BROKER_HTTP_AUTH_USER")
 password = os.getenv("PACT_BROKER_HTTP_AUTH_PASS")
@@ -26,7 +26,6 @@ for versions in providerjson["_embedded"]["versions"]:
 versionlist.sort(reverse=True)
 
 if len(versionlist) > 0:
-    print("setting DEPLOYABLE_VER env var to latest deployable version")
-    os.environ["DEPLOYABLE_VER"] = versionlist[0]
+    print("deployable version to prod: " + versionlist[0])
 else:
     print("no provider versions deployed to prod")
