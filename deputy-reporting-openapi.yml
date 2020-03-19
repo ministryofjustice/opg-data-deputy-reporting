@@ -14,6 +14,7 @@ servers:
 #    description: SwaggerHub API Auto Mocking.
   - url: /1.0
     description: localmock
+
 tags:
   - name: deputy-reporting
     description: API operations relating to the deputy-reporting integration

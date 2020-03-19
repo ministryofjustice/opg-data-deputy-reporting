@@ -17,6 +17,7 @@ func main() {
 
     roletoassume := "arn:aws:iam::248804316466:role/operator"
     url := "https://dev.deputy-reporting.api.opg.service.justice.gov.uk/1_0_0/healthcheck"
+
 	mysession := session.Must(session.NewSession())
 	creds := stscreds.NewCredentials(mysession, roletoassume)
 	cfg := aws.Config{Credentials: creds,Region: aws.String("eu-west-1")}
