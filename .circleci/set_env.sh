@@ -17,14 +17,14 @@ export PACT_BROKER_PASS=`aws secretsmanager get-secret-value \
 --region eu-west-1 | jq -r '.SecretString'`
 
 # set up machine user
-# export GITHUB_STATUS=`aws secretsmanager get-secret-value \
-# --secret-id github_machine_token \
-# --region eu-west-1 | jq -r '.SecretString'`
+ export GITHUB_CREDS=`aws secretsmanager get-secret-value \
+ --secret-id integrations_github_credentials \
+ --region eu-west-1 | jq -r '.SecretString'`
 
 PACT_BROKER_ADMIN="admin"
 PACT_BASE_URL="dev-pact-broker.api.opg.service.justice.gov.uk"
 
-echo "export GITHUB_STATUS_CREDS=${GITHUB_STATUS}"
+echo "export GITHUB_STATUS_CREDS=${GITHUB_CREDS}"
 echo "export PACT_BROKER_BASE_URL=${PACT_BASE_URL}"
 echo "export PACT_BROKER_HTTP_AUTH_USER=${PACT_BROKER_ADMIN}"
 echo "export PACT_BROKER_HTTP_AUTH_PASS=${PACT_BROKER_PASS}"

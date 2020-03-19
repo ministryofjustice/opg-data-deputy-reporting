@@ -4,10 +4,10 @@ version: 2.1
 parameters:
   run_pull_request:
     type: boolean
-    default: true
+    default: false
   run_commit_to_master:
     type: boolean
-    default: true
+    default: false
   run_verify_pact:
     type: boolean
     default: true
@@ -331,6 +331,15 @@ jobs:
       - run:
           name: run a command to get version which is git sha
           command: |
+            export LATEST=`curl -u $PACT_BROKER_HTTP_AUTH_USER:$PACT_BROKER_HTTP_AUTH_PASS \
+            -X GET https://${PACT_BROKER_BASE_URL}/pacts/provider/OPG%20Data/consumer/Complete%20the%20deputy%20report/latest \
+            | jq ._links | jq '.["pb:consumer-version"]' | jq .name | sed 's/"//g'`
+
+            if [ "$CONSUMER_VER" == "" ]
+            then
+            export CONSUMER_VER=$LATEST
+            fi
+
             ~/project/.circleci/pact_verifier.sh
             ~/project/.circleci/can_i_deploy.sh
 
