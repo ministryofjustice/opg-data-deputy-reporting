@@ -26,3 +26,4 @@ process.yml
 .pytest_cache/
 
 /venv/
+/mock_sirius/deputy-reporting-openapi.yml
