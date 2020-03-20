@@ -266,7 +266,7 @@ jobs:
           name: unzip artifact
           command: unzip ./opg-data-deputy-reporting.zip -d .
       - run:
-          name: initialize
+          name: initialize terraform - environment
           command: cd ./terraform/environment; terraform init
       - run:
           name: Set BASH_ENV
@@ -276,7 +276,7 @@ jobs:
           command: |
             eval $(cat $BASH_ENV)
       - run:
-          name: terraform << parameters.tf_command >>
+          name: terraform << parameters.tf_command >> - environment
           command: cd ./terraform/environment; terraform << parameters.tf_command >>
       # https://github.com/terraform-providers/terraform-provider-aws/issues/5364
       - when:
@@ -294,7 +294,10 @@ jobs:
           condition: << parameters.run_account >>
           steps:
             - run:
-                name: apply account if aginst non branch based env
+                name: initialize terraform - account
+                command: cd ./terraform/account; terraform init
+            - run:
+                name: terraform apply - account
                 command: |
                   cd ./terraform/account
                   terraform << parameters.tf_command >>
