@@ -11,6 +11,9 @@ parameters:
   run_verify_pact:
     type: boolean
     default: true
+  consumerversion:
+    type: string
+    default: ""
 
 workflows:
   pull_request:
@@ -54,12 +57,14 @@ workflows:
           name: terraform dev preflight checks
           requires: [build and artifact]
           tf_workspace: development
+          run_account: true
           filters: {branches:{only:[master]}}
       - terraform_action:
           name: development apply
           requires: [terraform dev preflight checks]
           tf_command: apply --auto-approve
           tf_workspace: development
+          account: "679638075911"
           applycheck: true
           run_account: true
           filters: {branches:{only:[master]}}
@@ -95,6 +100,7 @@ workflows:
     jobs:
       - pact_verification:
           name: verify the latest pact
+          account: "679638075911"
 
 orbs:
   digideps-data:
@@ -128,6 +134,13 @@ orbs:
           - run:
               name: Install Terraform
               command: sudo unzip terraform_${TF_VERSION}_linux_amd64.zip -d /bin
+      aws_cli_install:
+        steps:
+          - run:
+              name: install aws cli
+              command: |
+                pip3 install awscli --upgrade --user
+                aws --version
 
 jobs:
   build_lambda:
@@ -179,6 +192,10 @@ jobs:
         description: terraform workspace
         type: string
         default: "1_0_0"
+      run_account:
+        description: whether to run account config in terraform
+        type: boolean
+        default: false
     working_directory: ~/project
     steps:
       - attach_workspace:
@@ -188,17 +205,33 @@ jobs:
           name: unzip artifact
           command: unzip ./opg-data-deputy-reporting.zip -d .
       - run:
-          name: initialize
+          name: initialize terraform - environment
           command: cd ./terraform/environment; terraform init
       - run:
-          name: terraform format check
+          name: terraform check formatting - environment
           command: cd ./terraform/environment; terraform fmt -diff -check -recursive
       - run:
-          name: terraform validate
+          name: validate terraform - environment
           command: cd ./terraform/environment; terraform validate
+      - when:
+          condition: << parameters.run_account >>
+          steps:
+            - run:
+                name: initialize terraform - account
+                command: cd ./terraform/account; terraform init
+            - run:
+                name: terraform check formatting - account
+                command: cd ./terraform/account; terraform fmt -diff -check -recursive
+            - run:
+                name: validate terraform - account
+                command: cd ./terraform/account; terraform validate
   terraform_action:
     executor: digideps-data/python_with_tfvars
     parameters:
+      account:
+        description: Account
+        type: string
+        default: "679638075911"
       tf_workspace:
         description: terraform workspace
         type: string
@@ -221,11 +254,14 @@ jobs:
         default: false
     environment:
       WORKSPACE: << parameters.tf_workspace >>
+      TF_VAR_stage: << parameters.tf_stage >>
+      ACCOUNT: << parameters.account >>
     working_directory: ~/project
     steps:
       - attach_workspace:
           at: ~/project
       - digideps-data/terraform_install
+      - digideps-data/aws_cli_install
       - run:
           name: unzip artifact
           command: unzip ./opg-data-deputy-reporting.zip -d .
@@ -236,9 +272,9 @@ jobs:
           name: Set BASH_ENV
           command: ~/project/.circleci/set_env.sh >> $BASH_ENV
       - run:
-          name: Set Environment variable
+          name: Set Environment variables
           command: |
-            `cat $BASH_ENV | grep TF_WORKSPACE`
+            eval $(cat $BASH_ENV)
       - run:
           name: terraform << parameters.tf_command >>
           command: cd ./terraform/environment; terraform << parameters.tf_command >>
@@ -262,19 +298,39 @@ jobs:
                 command: |
                   cd ./terraform/account
                   terraform << parameters.tf_command >>
+      - run:
+          name: tag the latest pact version with env
+          command: |
+            if [ "$TF_WORKSPACE" != "development" ] && [ "$TF_WORKSPACE" != "preproduction" ] && [ "$TF_WORKSPACE" != "production" ]
+            then
+            echo "no tags appplied as on branch"
+            else
+            echo "applying tag on version ${$TF_VAR_stage}"
+            curl -v -X PUT -u "${PACT_BROKER_HTTP_AUTH_USER}":"${PACT_BROKER_HTTP_AUTH_PASS}" -H "Content-Type: application/json" \
+            https://"${PACT_BROKER_BASE_URL}"/pacticipants/"${PACT_PROVIDER}"/versions/"${TF_VAR_stage}"/tags/"${TF_WORKSPACE}"
+            fi
   pact_verification:
     executor: digideps-data/python_with_tfvars
     working_directory: ~/project
+    parameters:
+      account:
+        description: Account
+        type: string
+        default: "679638075911"
     environment:
-      MockingEnvironment: localhost
+      MOCKING_ENV: localhost
+      ACCOUNT: << parameters.account >>
+      CONSUMER_VER: << pipeline.parameters.consumerversion >>
     steps:
       - checkout
+      - digideps-data/aws_cli_install
+      - run:
+          name: Set BASH_ENV
+          command: ~/project/.circleci/set_env.sh >> $BASH_ENV
       - run:
           name: copy in the openapidoc
           command: |
             cd ./mock_sirius
-            ls
-            pwd
             ./getopenapidoc
       - run:
           name: install requirements mock sirius
@@ -319,8 +375,29 @@ jobs:
             echo "State Service Not Started"
             fi
       - run:
-          name: run a command to check
+          name: pip install pact-python
           command: |
-            echo "This will be the proper verification command in next story"
-            curl -X POST http://localhost:5001/clients/27493727/reports
-            curl -X POST http://localhost:4343/1.0/clients/27493727/reports
+            pip install pact-python
+            pact-verifier --help
+      - run:
+          name: Set up ready for pact tests
+          command: |
+            wget https://github.com/pact-foundation/pact-ruby-standalone/releases/download/v1.81.0/pact-1.81.0-linux-x86_64.tar.gz
+            tar xzf pact-1.81.0-linux-x86_64.tar.gz
+            chmod 755 ~/project/.circleci/pact_verifier.sh
+            chmod 755 ~/project/.circleci/check_pact_deployable.sh
+      - run:
+          name: verify pact and update github
+          command: |
+            export LATEST=$(curl -u "${PACT_BROKER_HTTP_AUTH_USER}":"${PACT_BROKER_HTTP_AUTH_PASS}" \
+            -X GET https://"${PACT_BROKER_BASE_URL}"/pacts/provider/"${PACT_PROVIDER}"/consumer/"${PACT_CONSUMER}"/latest \
+            | jq ._links | jq '.["pb:consumer-version"]' | jq .name | sed 's/"//g') >> /dev/null
+
+            if [ "${CONSUMER_VER}" == "" ]
+            then
+            export CONSUMER_VER="${LATEST}"
+            echo "Consumer version not set, using latest"
+            fi
+
+            ~/project/.circleci/pact_verifier.sh
+            ~/project/.circleci/check_pact_deployable.sh

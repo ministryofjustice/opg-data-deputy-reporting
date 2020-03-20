@@ -4,7 +4,7 @@ import requests
 import os
 from flask import Response
 
-mockingEnvironment = os.environ.get("MockingEnvironment")
+mockingEnvironment = os.environ.get("MOCKING_ENV")
 
 
 def healthcheck():
