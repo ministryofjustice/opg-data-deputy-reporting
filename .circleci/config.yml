@@ -64,43 +64,47 @@ workflows:
           requires: [terraform dev preflight checks]
           tf_command: apply --auto-approve
           tf_workspace: development
-          account: "679638075911"
           applycheck: true
           run_account: true
           filters: {branches:{only:[master]}}
-#      - terraform_pre_checks:
-#         name: terraform preprod preflight checks
-#         requires: [development apply]
-#         tf_workspace: preproduction
-#         filters: {branches:{only:[master]}}
-#      - terraform_action:
-#         name: preprod apply
-#         requires: [terraform preprod preflight checks]
-#         tf_command: apply --auto-approve
-#         tf_workspace: preproduction
-#         filters: {branches:{only:[master]}}
-#      - approve:
-#         name: approve release to production
-#         type: approval
-#         requires: [ preprod apply ]
-#         filters: {branches:{only:[master]}}
-#      - terraform_pre_checks:
-#         name: terraform prod preflight checks
-#         requires: [approve release to production]
-#         tf_workspace: production
-#         filters: {branches:{only:[master]}}
-#      - terraform_action:
-#         name: production apply
-#         requires: [terraform prod preflight checks]
-#         tf_command: apply --auto-approve
-#         tf_workspace: production
-#         filters: {branches:{only:[master]}}
+      - terraform_pre_checks:
+         name: terraform preprod preflight checks
+         requires: [build and artifact]
+         tf_workspace: preproduction
+         run_account: true
+         filters: {branches:{only:[master]}}
+      - terraform_action:
+         name: preprod apply
+         requires: [terraform preprod preflight checks]
+         tf_command: apply --auto-approve
+         tf_workspace: preproduction
+         applycheck: true
+         run_account: true
+         filters: {branches:{only:[master]}}
+      - approve:
+         name: approve release to production
+         type: approval
+         requires: [preprod apply]
+         filters: {branches:{only:[master]}}
+      - terraform_pre_checks:
+         name: terraform prod preflight checks
+         requires: [approve release to production]
+         tf_workspace: production
+         run_account: true
+         filters: {branches:{only:[master]}}
+      - terraform_action:
+         name: production apply
+         requires: [terraform prod preflight checks]
+         tf_command: apply --auto-approve
+         tf_workspace: production
+         applycheck: true
+         run_account: true
+         filters: {branches:{only:[master]}}
   verify_pact:
     when: << pipeline.parameters.run_verify_pact >>
     jobs:
       - pact_verification:
           name: verify the latest pact
-          account: "679638075911"
 
 orbs:
   digideps-data:
@@ -228,10 +232,6 @@ jobs:
   terraform_action:
     executor: digideps-data/python_with_tfvars
     parameters:
-      account:
-        description: Account
-        type: string
-        default: "679638075911"
       tf_workspace:
         description: terraform workspace
         type: string
@@ -255,7 +255,6 @@ jobs:
     environment:
       WORKSPACE: << parameters.tf_workspace >>
       TF_VAR_stage: << parameters.tf_stage >>
-      ACCOUNT: << parameters.account >>
     working_directory: ~/project
     steps:
       - attach_workspace:
@@ -308,7 +307,7 @@ jobs:
             then
             echo "no tags appplied as on branch"
             else
-            echo "applying tag on version ${$TF_VAR_stage}"
+            echo "applying tag on version ${TF_VAR_stage}"
             curl -v -X PUT -u "${PACT_BROKER_HTTP_AUTH_USER}":"${PACT_BROKER_HTTP_AUTH_PASS}" -H "Content-Type: application/json" \
             https://"${PACT_BROKER_BASE_URL}"/pacticipants/"${PACT_PROVIDER}"/versions/"${TF_VAR_stage}"/tags/"${TF_WORKSPACE}"
             fi
@@ -316,13 +315,8 @@ jobs:
     executor: digideps-data/python_with_tfvars
     working_directory: ~/project
     parameters:
-      account:
-        description: Account
-        type: string
-        default: "679638075911"
     environment:
       MOCKING_ENV: localhost
-      ACCOUNT: << parameters.account >>
       CONSUMER_VER: << pipeline.parameters.consumerversion >>
     steps:
       - checkout
@@ -392,6 +386,7 @@ jobs:
       - run:
           name: verify pact and update github
           command: |
+            printf "===== Checking consumer version ====="
             export LATEST=$(curl -u "${PACT_BROKER_HTTP_AUTH_USER}":"${PACT_BROKER_HTTP_AUTH_PASS}" \
             -X GET https://"${PACT_BROKER_BASE_URL}"/pacts/provider/"${PACT_PROVIDER}"/consumer/"${PACT_CONSUMER}"/latest \
             | jq ._links | jq '.["pb:consumer-version"]' | jq .name | sed 's/"//g') >> /dev/null
@@ -400,7 +395,20 @@ jobs:
             then
             export CONSUMER_VER="${LATEST}"
             echo "Consumer version not set, using latest"
+            else
+            echo "Consumer version set by upstream job"
             fi
 
+            printf "\n\n===== Verify the Pact =====\n\n"
             ~/project/.circleci/pact_verifier.sh
+            printf "\n\n===== Running checks to see if build deployable =====\n\n"
             ~/project/.circleci/check_pact_deployable.sh
+
+            eval $(grep "FAIL_BUILD" $BASH_ENV)
+
+            #To be activate in next story
+            #if [ "${FAIL_BUILD}" == "true" ]
+            #then
+            #printf "\n\nExit with failure due to unverified pact\n\n"
+            #exit 1
+            #fi
