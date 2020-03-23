@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 set -e
 PACT_BROKER_ADMIN="admin"
-PACT_BASE_URL="dev-pact-broker.api.opg.service.justice.gov.uk"
+PACT_BASE_URL="pact-broker.api.opg.service.justice.gov.uk"
 PROVIDER="OPG%20Data"
 CONSUMER="Complete%20the%20deputy%20report"
 DIGIDEPS_URL="api.github.com/repos/ministryofjustice/opg-digideps"
+ACCOUNT="997462338508"
 
 export SECRETSTRING=$(aws sts assume-role \
---role-arn "arn:aws:iam::${ACCOUNT}:role/get-pact-secret-development" \
+--role-arn "arn:aws:iam::${ACCOUNT}:role/get-pact-secret-production" \
 --role-session-name AWSCLI-Session | \
 jq -r '.Credentials.SessionToken + " " + .Credentials.SecretAccessKey + " " + .Credentials.AccessKeyId')
 
