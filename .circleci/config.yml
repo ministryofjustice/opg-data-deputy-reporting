@@ -159,9 +159,9 @@ jobs:
           name: run black - python code formatter
           command: |
             black lambda_functions
-      - run:
-          name: run yamllint
-          command: yamllint -c ./.yamllint .
+#      - run:
+#          name: run yamllint
+#          command: yamllint -c ./.yamllint .
       - run:
           name: run flake8 - python PEP8 linter, complexity checker
           command: |

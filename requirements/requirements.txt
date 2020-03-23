@@ -1,3 +1,4 @@
 requests
 aws-xray-sdk
-chalice
+pyjwt
+boto3

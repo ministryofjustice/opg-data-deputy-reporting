@@ -30,10 +30,10 @@ resource "aws_iam_role_policy_attachment" "aws_xray_write_only_access" {
 resource "aws_iam_role_policy" "lambda" {
   name   = "lambda-${var.environment}"
   role   = aws_iam_role.lambda_role.id
-  policy = data.aws_iam_policy_document.lambda_logging.json
+  policy = data.aws_iam_policy_document.lambda.json
 }
 
-data "aws_iam_policy_document" "lambda_logging" {
+data "aws_iam_policy_document" "lambda" {
   statement {
     sid       = "allowLogging"
     effect    = "Allow"
@@ -42,6 +42,15 @@ data "aws_iam_policy_document" "lambda_logging" {
       "logs:CreateLogStream",
       "logs:PutLogEvents",
       "logs:DescribeLogStreams"
+    ]
+  }
+
+  statement {
+    sid       = "allowSecretsManagerAccess"
+    effect    = "Allow"
+    resources = ["*"]
+    actions = [
+      "secretsmanager:GetSecretValue"
     ]
   }
 }
