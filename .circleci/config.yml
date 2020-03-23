@@ -75,7 +75,7 @@ workflows:
          filters: {branches:{only:[master]}}
       - terraform_action:
          name: preprod apply
-         requires: [terraform preprod preflight checks]
+         requires: [terraform preprod preflight checks, development apply]
          tf_command: apply --auto-approve
          tf_workspace: preproduction
          applycheck: true
@@ -265,15 +265,26 @@ jobs:
           name: unzip artifact
           command: unzip ./opg-data-deputy-reporting.zip -d .
       - run:
-          name: initialize terraform - environment
-          command: cd ./terraform/environment; terraform init
-      - run:
           name: Set BASH_ENV
           command: ~/project/.circleci/set_env.sh >> $BASH_ENV
       - run:
           name: Set Environment variables
           command: |
             eval $(cat $BASH_ENV)
+      - when:
+          condition: << parameters.run_account >>
+          steps:
+            - run:
+                name: initialize terraform - account
+                command: cd ./terraform/account; terraform init
+            - run:
+                name: terraform apply - account
+                command: |
+                  cd ./terraform/account
+                  terraform << parameters.tf_command >>
+      - run:
+          name: initialize terraform - environment
+          command: cd ./terraform/environment; terraform init
       - run:
           name: terraform << parameters.tf_command >> - environment
           command: cd ./terraform/environment; terraform << parameters.tf_command >>
@@ -289,17 +300,6 @@ jobs:
                   then echo "policy attached, doing nothing"
                   else terraform << parameters.tf_command >>
                   fi
-      - when:
-          condition: << parameters.run_account >>
-          steps:
-            - run:
-                name: initialize terraform - account
-                command: cd ./terraform/account; terraform init
-            - run:
-                name: terraform apply - account
-                command: |
-                  cd ./terraform/account
-                  terraform << parameters.tf_command >>
       - run:
           name: tag the latest pact version with env
           command: |
