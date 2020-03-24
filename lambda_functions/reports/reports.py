@@ -171,7 +171,7 @@ def submit_document_to_sirius(url, data, headers):
                 "isBase64Encoded": False,
                 "statusCode": status_code,
                 "headers": dict(r.headers),
-                "body": json.loads(r.content),
+                "body": r.content.decode('UTF-8'),
             }
 
         else:
