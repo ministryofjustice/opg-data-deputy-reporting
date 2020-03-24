@@ -265,6 +265,15 @@ jobs:
           name: unzip artifact
           command: unzip ./opg-data-deputy-reporting.zip -d .
       - run:
+          name: initialize terraform - environment
+          command: cd ./terraform/environment; terraform init
+      - when:
+          condition: << parameters.run_account >>
+          steps:
+            - run:
+                name: initialize terraform - account
+                command: cd ./terraform/account; terraform init
+      - run:
           name: Set BASH_ENV
           command: ~/project/.circleci/set_env.sh >> $BASH_ENV
       - run:
@@ -275,16 +284,10 @@ jobs:
           condition: << parameters.run_account >>
           steps:
             - run:
-                name: initialize terraform - account
-                command: cd ./terraform/account; terraform init
-            - run:
                 name: terraform apply - account
                 command: |
                   cd ./terraform/account
                   terraform << parameters.tf_command >>
-      - run:
-          name: initialize terraform - environment
-          command: cd ./terraform/environment; terraform init
       - run:
           name: terraform << parameters.tf_command >> - environment
           command: cd ./terraform/environment; terraform << parameters.tf_command >>
