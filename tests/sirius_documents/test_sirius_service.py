@@ -23,7 +23,7 @@ from tests.helpers.use_test_data import is_valid_schema
             "valid_client_id",
             {
                 "status_code": 201,
-                "body": {"uuid": "531ca3b6-3f17-4ece-bdc5-7faf7f1f8427"},
+                "body": '{"uuid": "531ca3b6-3f17-4ece-bdc5-7faf7f1f8427"}',
             },
         ),
         ("invalid_client_id", {"status_code": 400, "body": "Invalid payload"}),

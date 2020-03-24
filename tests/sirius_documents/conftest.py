@@ -50,9 +50,8 @@ def patched_requests(monkeypatch):
         try:
             if json.loads(data)["caseRecNumber"] in test_data["valid_clients"]:
                 mock_response.status_code = 201
-                mock_response._content = json.dumps(
-                    {"uuid": "531ca3b6-3f17-4ece-bdc5-7faf7f1f8427"}
-                )
+                mock_response._content = '{"uuid": ' \
+                                         '"531ca3b6-3f17-4ece-bdc5-7faf7f1f8427"}'.encode('UTF-8')
             else:
                 mock_response.status_code = 400
                 mock_response.json = None
