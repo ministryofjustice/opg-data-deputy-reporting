@@ -27,7 +27,7 @@ process.yml
 
 /venv/
 /mock_sirius/deputy-reporting-openapi.yml
-
+/mock_sirius/log*
 .coverage
 
 *deputy-reporting-openapi.yml

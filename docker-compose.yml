@@ -28,11 +28,15 @@ services:
     build:
       context: ./mock_sirius
       dockerfile: Dockerfile
+    environment:
+      - MOCKING_ENV
     ports:
       - "4343:4343"
   mock_state:
     build:
-      context: ./mock_sirius
+      context: ./mock_state
       dockerfile: Dockerfile
+    environment:
+      - MOCKING_ENV
     ports:
       - "5001:5001"
