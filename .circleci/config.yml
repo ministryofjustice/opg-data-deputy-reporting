@@ -176,6 +176,12 @@ jobs:
             export LAYER_PATH=lambda_layers/python/lib/python3.7/site-packages
             pip3 install -r ./requirements/requirements.txt --target ./$LAYER_PATH/
       - run:
+          name: copy in the openapi spec
+          command: |
+            git clone git@github.com:ministryofjustice/opg-data.git
+            cp ./opg-data/docs/swagger.v1.yaml ./deputy-reporting-openapi.yml
+            rm -rf ./opg-data
+      - run:
           name: create artifact for future stages
           command: |
             chmod -R 755 ./lambda_functions
