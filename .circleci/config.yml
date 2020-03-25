@@ -145,6 +145,14 @@ orbs:
               command: |
                 pip3 install awscli --upgrade --user
                 aws --version
+      clone_opg_data:
+        steps:
+          - run:
+              name: copy in the openapi spec
+              command: |
+                git clone git@github.com:ministryofjustice/opg-data.git
+                cp ./opg-data/docs/swagger.v1.yaml ./deputy-reporting-openapi.yml
+                rm -rf ./opg-data
 
 jobs:
   build_lambda:
@@ -175,12 +183,7 @@ jobs:
           command: |
             export LAYER_PATH=lambda_layers/python/lib/python3.7/site-packages
             pip3 install -r ./requirements/requirements.txt --target ./$LAYER_PATH/
-      - run:
-          name: copy in the openapi spec
-          command: |
-            git clone git@github.com:ministryofjustice/opg-data.git
-            cp ./opg-data/docs/swagger.v1.yaml ./deputy-reporting-openapi.yml
-            rm -rf ./opg-data
+      - digideps-data/clone_opg_data
       - run:
           name: create artifact for future stages
           command: |
@@ -329,6 +332,7 @@ jobs:
       CONSUMER_VER: << pipeline.parameters.consumerversion >>
     steps:
       - checkout
+      - digideps-data/clone_opg_data
       - digideps-data/aws_cli_install
       - run:
           name: Set BASH_ENV

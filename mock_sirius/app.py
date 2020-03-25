@@ -30,8 +30,25 @@ def addReportDocument(caseref):
     return responsegenerated
 
 
-def addReportSupportingDocument():
-    return "supporting doc posted"
+def addReportSupportingDocument(caseref, id):
+    response = requests.post(
+        "http://"
+        + mockingEnvironment
+        + ":5001/clients/"
+        + caseref
+        + "/reports/"
+        + id
+        + "/supportingdocuments"
+    )
+    if response.status_code == 200:
+        responsegenerated = Response(
+            response.text, status=201, mimetype="application/json"
+        )
+    else:
+        responsegenerated = Response(
+            response.text, status=response.status_code, mimetype="application/json"
+        )
+    return responsegenerated
 
 
 sirius_server = connexion.App(__name__)
