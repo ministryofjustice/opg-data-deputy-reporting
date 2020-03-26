@@ -1,16 +1,12 @@
 import json
 
-import boto3
 import jwt
 import pytest
-from botocore.exceptions import ClientError
 from jwt import DecodeError
-from moto import mock_secretsmanager
 
 from lambda_functions.reports.reports import (
     submit_document_to_sirius,
     build_sirius_url,
-    get_secret,
     build_sirius_headers,
 )
 from tests.helpers.use_test_data import is_valid_schema
