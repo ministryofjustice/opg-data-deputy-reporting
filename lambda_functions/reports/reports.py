@@ -24,6 +24,7 @@ def lambda_handler(event, context):
     Returns:
         Response from Sirius in AWS Lambda format, json
     """
+
     sirius_api_url = build_sirius_url(
         base_url=os.environ["SIRIUS_BASE_URL"],
         api_route=os.environ["SIRIUS_PUBLIC_API_URL"],
@@ -35,7 +36,6 @@ def lambda_handler(event, context):
     lambda_response = submit_document_to_sirius(
         url=sirius_api_url, data=sirius_payload, headers=sirius_headers
     )
-
     return lambda_response
 
 
@@ -51,7 +51,7 @@ def transform_event_to_sirius_request(event):
         Sirius-style payload, json
     """
     content_type_header = event["headers"]["Content-Type"]
-    print(content_type_header)
+
     case_ref = event["pathParameters"]["caseref"]
 
     request_body = json.loads(event["body"])["body"].encode()
@@ -71,6 +71,7 @@ def transform_event_to_sirius_request(event):
         "file": {"name": "file_name", "source": file_data, "type": "application/pdf"},
     }
 
+    print(json.dumps(payload))
     return json.dumps(payload)
 
 
