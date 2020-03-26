@@ -71,7 +71,6 @@ def transform_event_to_sirius_request(event):
         "file": {"name": "file_name", "source": file_data, "type": "application/pdf"},
     }
 
-    print(json.dumps(payload))
     return json.dumps(payload)
 
 
