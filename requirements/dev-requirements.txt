@@ -8,3 +8,4 @@ yamllint
 pyjwt
 boto3
 moto
+requests-toolbelt

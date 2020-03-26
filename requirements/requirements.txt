@@ -2,3 +2,4 @@ requests
 aws-xray-sdk
 pyjwt
 boto3
+requests-toolbelt

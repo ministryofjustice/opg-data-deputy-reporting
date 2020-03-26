@@ -1,3 +1,4 @@
+import base64
 import datetime
 import json
 import logging
@@ -8,6 +9,9 @@ import boto3
 import jwt
 import requests
 from botocore.exceptions import ClientError
+from requests_toolbelt import MultipartDecoder
+
+from requests_toolbelt.multipart import decoder
 
 
 logger = logging.getLogger()
@@ -50,18 +54,27 @@ def transform_event_to_sirius_request(event):
     Returns:
         Sirius-style payload, json
     """
-    request_body = event
-    case_ref = request_body["pathParameters"]["caseref"]
+    content_type_header = event['headers']['Content-Type']
+    print(content_type_header)
+    case_ref = event["pathParameters"]["caseref"]
 
-    file = json.loads(request_body["body"])["file"]
-    file_name = file["fileName"]
-    source = file["source"]
+    request_body = json.loads(event['body'])['body'].encode()
+
+
+    request_data = json.loads(decoder.MultipartDecoder(request_body,
+                                                 content_type_header).parts[
+        0].text)
+
+    file_data = decoder.MultipartDecoder(request_body,
+                                                 content_type_header).parts[1].text
+
+
 
     payload = {
         "type": "Report - General",
         "caseRecNumber": case_ref,
         "metadata": {},
-        "file": {"name": file_name, "source": source, "type": "application/pdf"},
+        "file": {"name": "file_name", "source": file_data, "type": "application/pdf"},
     }
 
     return json.dumps(payload)

@@ -1,0 +1,14 @@
+{
+  "path": "/clients/44822363/reports",
+  "query": "",
+  "method": "post",
+  "body": "--c45303ddf21d4c32a7042d8c04653d2abd5c242d\r\nContent-Disposition: form-data; Content-Type: application/json; name=\"report\"\r\nContent-Length: 206\r\n\r\n{\"data\":{\"type\":\"reports\",\"attributes\":{\"reporting_period_from\":\"2018-05-14\",\"reporting_period_to\":\"2019-05-13\",\"year\":\"2018\",\"date_submitted\":\"2019-06-20T00:00:00+01:00\",\"type\":\"PF\",\"submission_id\":banana}}}\r\n--c45303ddf21d4c32a7042d8c04653d2abd5c242d\r\nContent-Disposition: form-data; name=\"report_file\"\r\nContent-Length: 16\r\n\r\nc29tZV9jb250ZW50\r\n--c45303ddf21d4c32a7042d8c04653d2abd5c242d--\r\n",
+  "headers": {
+    "Content-Length": "504",
+    "Content-Type": "multipart/form-data",
+    "Host": "pact-mock",
+    "User-Agent": "GuzzleHttp/6.4.1 curl/7.67.0 PHP/7.3.13",
+    "Accept": "application/vnd.opg-data.v1+json",
+    "Version": "HTTP/1.1"
+  }
+}
