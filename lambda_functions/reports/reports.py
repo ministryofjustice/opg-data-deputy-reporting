@@ -1,4 +1,3 @@
-import base64
 import datetime
 import json
 import logging
@@ -9,10 +8,7 @@ import boto3
 import jwt
 import requests
 from botocore.exceptions import ClientError
-from requests_toolbelt import MultipartDecoder
-
 from requests_toolbelt.multipart import decoder
-
 
 logger = logging.getLogger()
 if __name__ == "__main__":
@@ -54,21 +50,19 @@ def transform_event_to_sirius_request(event):
     Returns:
         Sirius-style payload, json
     """
-    content_type_header = event['headers']['Content-Type']
+    content_type_header = event["headers"]["Content-Type"]
     print(content_type_header)
     case_ref = event["pathParameters"]["caseref"]
 
-    request_body = json.loads(event['body'])['body'].encode()
+    request_body = json.loads(event["body"])["body"].encode()
 
+    # request_data = json.loads(
+    #     decoder.MultipartDecoder(request_body, content_type_header).parts[0].text
+    # )
 
-    request_data = json.loads(decoder.MultipartDecoder(request_body,
-                                                 content_type_header).parts[
-        0].text)
-
-    file_data = decoder.MultipartDecoder(request_body,
-                                                 content_type_header).parts[1].text
-
-
+    file_data = (
+        decoder.MultipartDecoder(request_body, content_type_header).parts[1].text
+    )
 
     payload = {
         "type": "Report - General",
@@ -178,13 +172,12 @@ def submit_document_to_sirius(url, data, headers):
 
         status_code = r.status_code
 
-
         if status_code == 201:
             sirius_response = {
                 "isBase64Encoded": False,
                 "statusCode": status_code,
                 "headers": dict(r.headers),
-                "body": r.content.decode('UTF-8'),
+                "body": r.content.decode("UTF-8"),
             }
 
         else:
