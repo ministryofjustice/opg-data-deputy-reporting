@@ -3,11 +3,13 @@ import json
 import logging
 import os
 from urllib.parse import urljoin
+import re
 
 import boto3
 import jwt
 import requests
 from botocore.exceptions import ClientError
+from requests_toolbelt.multipart import decoder
 
 
 logger = logging.getLogger()
@@ -50,9 +52,39 @@ def transform_event_to_sirius_request(event):
     Returns:
         Sirius-style payload, json
     """
-    # request_body = event
+    content_type_header = event["headers"]["Content-Type"]
 
-    payload = {}
+    case_ref = event["pathParameters"]["caseref"]
+    report_id = event["pathParameters"]["id"]
+
+    request_body = json.loads(event["body"])["body"].encode()
+
+    request_data = json.loads(
+        decoder.MultipartDecoder(request_body, content_type_header).parts[0].text
+    )
+
+    metadata = request_data["data"]["attributes"]
+    metadata['report_id'] = report_id
+
+    file_data = decoder.MultipartDecoder(request_body, content_type_header).parts[1]
+    file_data_dict = {
+        key.decode(): val.decode() for key, val in file_data.headers.items()
+    }
+
+    file_name = re.findall("filename=(.+)", file_data_dict["Content-Disposition"])[0]
+    file_source = file_data.text
+    file_type = file_data_dict["Content-Type"]
+
+    payload = {
+        "type": "Report - General",
+        "caseRecNumber": case_ref,
+        "metadata": metadata,
+        "file": {
+            "name": re.sub("[^A-Za-z0-9.]+", "", file_name),
+            "source": file_source,
+            "type": re.sub("[^A-Za-z0-9/]+", "", file_type),
+        },
+    }
 
     return json.dumps(payload)
 
