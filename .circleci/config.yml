@@ -145,14 +145,6 @@ orbs:
               command: |
                 pip3 install awscli --upgrade --user
                 aws --version
-#      clone_opg_data:
-#        steps:
-#          - run:
-#              name: copy in the openapi spec
-#              command: |
-#                git clone git@github.com:ministryofjustice/opg-data.git
-#                cp ./opg-data/docs/deputy-reporting-openapi* ./
-#                rm -rf ./opg-data
 
 jobs:
   build_lambda:
