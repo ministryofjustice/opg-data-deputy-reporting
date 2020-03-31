@@ -2,7 +2,7 @@ from lambda_functions.v1.functions.healthcheck import healthcheck
 import pytest
 import requests
 
-from tests.helpers.use_test_data import is_valid_schema
+from lambda_functions.v1.tests.helpers.use_test_data import is_valid_schema
 
 
 @pytest.fixture(autouse=True)
