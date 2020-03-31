@@ -179,7 +179,7 @@ jobs:
       - run:
           name: install requirements for all lambda layers
           command: |
-            for i in $(ls -d lambda_functions/*/ | awk -F'/' '{print $2}')
+            for i in $(ls -d lambda_functions/*/ | grep -v pycache | awk -F'/' '{print $2}')
             do
               export LAYER_PATH=lambda_functions/"${i}"/lambda_layers/python/lib/python3.7/site-packages
               pip3 install -r lambda_functions/"${i}"/requirements/requirements.txt --target ./$LAYER_PATH/
