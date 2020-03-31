@@ -183,7 +183,7 @@ jobs:
           command: |
             for d in lambda_functions/*/
             do
-            touch "${d}"/directory_sha/$(find "${d}/functions" -type f -print0 | sort -z | xargs -0 sha1sum | sha1sum | cut -c 1-15)
+            touch "${d}"directory_sha/$(find "${d}/functions" -type f -print0 | sort -z | xargs -0 sha1sum | sha1sum | cut -c 1-15)
             done
       - run:
           name: install requirements for all lambda layers
