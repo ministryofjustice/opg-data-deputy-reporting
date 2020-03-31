@@ -162,7 +162,7 @@ jobs:
       - run:
           name: install all requirements locally
           command: |
-            pip3 install -r .lambda_functions/v1/requirements/dev-requirements.txt
+            pip3 install -r ./lambda_functions/v1/requirements/dev-requirements.txt
       - run:
           name: run black - python code formatter
           command: |
