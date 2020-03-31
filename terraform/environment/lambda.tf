@@ -28,4 +28,19 @@ module "lambda_reports_v1" {
   rest_api               = aws_api_gateway_rest_api.deputy_reporting
 }
 
+module "lambda_supporting_docs_v1" {
+  source                 = "./modules/lambda"
+  environment            = local.environment
+  aws_subnet_ids         = data.aws_subnet_ids.private.ids
+  target_environment     = local.account.target_environment
+  vpc_id                 = local.account.vpc_id
+  lambda_prefix          = "sirius-supporting_docs"
+  handler                = "supporting_docs.lambda_handler"
+  lambda_function_subdir = "supporting_docs"
+  logger_level           = "INFO"
+  tags                   = local.default_tags
+  openapi_version        = "v1"
+  rest_api               = aws_api_gateway_rest_api.deputy_reporting
+}
+
 //To Add New Version Copy and Paste Above and Modify Accordingly

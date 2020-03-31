@@ -1,9 +1,13 @@
+
 import json
 
 import pytest
 import requests
 
-from lambda_functions.v1.functions.reports import reports
+from lambda_functions.v1.functions.reports import reports as sirius_service_reports
+from lambda_functions.v1.functions.supporting_docs import (
+    supporting_docs as sirius_service_supporting_docs,
+)
 
 test_data = {
     "valid_clients": ["valid_client_id", "0319392T"],
@@ -71,4 +75,12 @@ def patched_get_secret(monkeypatch):
     def mock_secret(*args, **kwargs):
         return "this_is_a_secret_string"
 
-    monkeypatch.setattr(reports, "get_secret", mock_secret)
+    monkeypatch.setattr(sirius_service_reports, "get_secret", mock_secret)
+
+
+@pytest.fixture
+def patched_get_secret_supporting_docs(monkeypatch):
+    def mock_secret(*args, **kwargs):
+        return "this_is_a_secret_string"
+
+    monkeypatch.setattr(sirius_service_supporting_docs, "get_secret", mock_secret)
