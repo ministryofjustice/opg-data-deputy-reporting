@@ -50,6 +50,6 @@ def mock_service_status(monkeypatch):
 def test_get_response_success(mock_service_status):
 
     response = healthcheck.lambda_handler(event=None, context=None)
-    is_valid_schema(response, "lambda_response.json")
+    is_valid_schema(response, "standard_lambda_response.json")
     assert response["statusCode"] == 200
     assert len(response["body"]) == 4

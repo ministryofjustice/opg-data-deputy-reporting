@@ -36,7 +36,7 @@ def test_submit_document_to_sirius(
 
     assert response["statusCode"] == expected_result["status_code"]
     assert response["body"] == expected_result["body"]
-    assert is_valid_schema(json.dumps(response), "lambda_response.json")
+    assert is_valid_schema(json.dumps(response), "standard_lambda_response.json")
 
 
 # def test_sirius_does_not_exist(monkeypatch, sirius_request):
