@@ -310,7 +310,7 @@ jobs:
             echo "no tags appplied as on branch"
             else
             echo "applying tag on version ${PROVIDER_VERSION}"
-            curl -v -X PUT -u "${PACT_BROKER_HTTP_AUTH_USER}":"${PACT_BROKER_HTTP_AUTH_PASS}" -H "Content-Type: application/json" \
+            curl -X PUT -u "${PACT_BROKER_HTTP_AUTH_USER}":"${PACT_BROKER_HTTP_AUTH_PASS}" -H "Content-Type: application/json" \
             https://"${PACT_BROKER_BASE_URL}"/pacticipants/"${PACT_PROVIDER}"/versions/"${PROVIDER_VERSION}"/tags/"${TF_WORKSPACE}"
             fi
   pact_verification:
