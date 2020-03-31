@@ -5,7 +5,7 @@ locals {
 
 resource "aws_api_gateway_method_settings" "global_gateway_settings" {
   rest_api_id = aws_api_gateway_rest_api.deputy_reporting.id
-  stage_name  = aws_api_gateway_stage.currentstage.stage_name
+  stage_name  = module.deploy_v1.stage.stage_name
   method_path = "*/*"
 
   settings {
@@ -27,40 +27,27 @@ resource "aws_api_gateway_domain_name" "sirius_deputy_reporting" {
   tags = local.default_tags
 }
 
-resource "aws_api_gateway_stage" "currentstage" {
-  stage_name           = var.stage
-  depends_on           = [aws_cloudwatch_log_group.deputy_reporting]
-  rest_api_id          = aws_api_gateway_rest_api.deputy_reporting.id
-  deployment_id        = aws_api_gateway_deployment.deploy.id
-  xray_tracing_enabled = true
-  tags                 = local.default_tags
-
-  access_log_settings {
-    destination_arn = aws_cloudwatch_log_group.deputy_reporting.arn
-    format = join("", [
-      "{\"requestId\":\"$context.requestId\",",
-      "\"ip\":\"$context.identity.sourceIp\"",
-      "\"caller\":\"$context.identity.caller\"",
-      "\"user\":\"$context.identity.user\"",
-      "\"requestTime\":\"$context.requestTime\"",
-      "\"httpMethod\":\"$context.httpMethod\"",
-      "\"resourcePath\":\"$context.resourcePath\"",
-      "\"status\":\"$context.status\"",
-      "\"protocol\":\"$context.protocol\"",
-      "\"responseLength\":\"$context.responseLength\"}"
-    ])
-  }
+module "deploy_v1" {
+  source             = "./modules/stage"
+  environment        = local.environment
+  aws_subnet_ids     = data.aws_subnet_ids.private.ids
+  target_environment = local.account.target_environment
+  vpc_id             = local.account.vpc_id
+  tags               = local.default_tags
+  api_name           = local.api_name
+  openapi_version    = "v1"
+  reports_lambda     = module.lambda_reports_v1.lambda
+  healthcheck_lambda = module.lamdba_healthcheck_v1.lambda
+  rest_api           = aws_api_gateway_rest_api.deputy_reporting
+  domain_name        = aws_api_gateway_domain_name.sirius_deputy_reporting
 }
+
+//To Add New Version Copy and Paste Above and Modify Accordingly
+//Below takes the latest stage/deployment. Modify for new version.
 
 resource "aws_api_gateway_base_path_mapping" "mapping" {
   api_id      = aws_api_gateway_rest_api.deputy_reporting.id
-  stage_name  = aws_api_gateway_deployment.deploy.stage_name
+  stage_name  = module.deploy_v1.deployment.stage_name
   domain_name = aws_api_gateway_domain_name.sirius_deputy_reporting.domain_name
-  base_path   = aws_api_gateway_deployment.deploy.stage_name
-}
-
-resource "aws_cloudwatch_log_group" "deputy_reporting" {
-  name              = "API-Gateway-Execution-Logs-${aws_api_gateway_rest_api.deputy_reporting.name}"
-  retention_in_days = 30
-  tags              = local.default_tags
+  base_path   = module.deploy_v1.deployment.stage_name
 }

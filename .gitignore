@@ -30,4 +30,4 @@ process.yml
 /mock_sirius/log*
 .coverage
 
-*deputy-reporting-openapi.yml
+deputy-reporting-openapi*.yml

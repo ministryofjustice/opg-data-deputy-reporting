@@ -3,7 +3,7 @@ import json
 import pytest
 import requests
 
-from lambda_functions.reports import reports
+from lambda_functions.v1.functions.reports import reports
 
 test_data = {
     "valid_clients": ["valid_client_id", "0319392T"],
