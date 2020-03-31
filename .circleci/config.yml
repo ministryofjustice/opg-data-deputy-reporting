@@ -145,14 +145,6 @@ orbs:
               command: |
                 pip3 install awscli --upgrade --user
                 aws --version
-      clone_opg_data:
-        steps:
-          - run:
-              name: copy in the openapi spec
-              command: |
-                git clone git@github.com:ministryofjustice/opg-data.git
-                cp ./opg-data/docs/swagger.v1.yaml ./deputy-reporting-openapi.yml
-                rm -rf ./opg-data
 
 jobs:
   build_lambda:
@@ -162,11 +154,17 @@ jobs:
       - run:
           name: install all requirements locally
           command: |
-            pip3 install -r ./requirements/dev-requirements.txt
+            for i in $(ls -d lambda_functions/*/ | awk -F'/' '{print $2}')
+            do
+              pip3 install -r ./lambda_functions/"${i}"/requirements/dev-requirements.txt
+            done
       - run:
           name: run black - python code formatter
           command: |
             black lambda_functions
+      - run:
+          name: setup environment
+          command: ./.circleci/setup.sh
 #      - run:
 #          name: run yamllint
 #          command: yamllint -c ./.yamllint .
@@ -181,14 +179,15 @@ jobs:
       - run:
           name: install requirements for all lambda layers
           command: |
-            export LAYER_PATH=lambda_layers/python/lib/python3.7/site-packages
-            pip3 install -r ./requirements/requirements.txt --target ./$LAYER_PATH/
-      - digideps-data/clone_opg_data
+            for i in $(ls -d lambda_functions/*/ | awk -F'/' '{print $2}')
+            do
+              export LAYER_PATH=lambda_functions/"${i}"/lambda_layers/python/lib/python3.7/site-packages
+              pip3 install -r lambda_functions/"${i}"/requirements/requirements.txt --target ./$LAYER_PATH/
+            done
       - run:
           name: create artifact for future stages
           command: |
             chmod -R 755 ./lambda_functions
-            chmod -R 755 ./lambda_layers
             zip -r9 /tmp/opg-data-deputy-reporting.zip .
       - persist_to_workspace:
           root: /tmp
@@ -201,10 +200,6 @@ jobs:
         description: terraform workspace
         type: string
         default: ""
-      tf_stage:
-        description: terraform workspace
-        type: string
-        default: "1_0_0"
       run_account:
         description: whether to run account config in terraform
         type: boolean
@@ -249,10 +244,6 @@ jobs:
         description: terraform command
         default: plan
         type: string
-      tf_stage:
-        description: provider stage
-        type: string
-        default: "1_0_0"
       applycheck:
         description: workaround for rest api provider
         type: boolean
@@ -263,7 +254,6 @@ jobs:
         default: false
     environment:
       WORKSPACE: << parameters.tf_workspace >>
-      TF_VAR_stage: << parameters.tf_stage >>
     working_directory: ~/project
     steps:
       - attach_workspace:
@@ -319,9 +309,9 @@ jobs:
             then
             echo "no tags appplied as on branch"
             else
-            echo "applying tag on version ${TF_VAR_stage}"
+            echo "applying tag on version ${PROVIDER_VERSION}"
             curl -v -X PUT -u "${PACT_BROKER_HTTP_AUTH_USER}":"${PACT_BROKER_HTTP_AUTH_PASS}" -H "Content-Type: application/json" \
-            https://"${PACT_BROKER_BASE_URL}"/pacticipants/"${PACT_PROVIDER}"/versions/"${TF_VAR_stage}"/tags/"${TF_WORKSPACE}"
+            https://"${PACT_BROKER_BASE_URL}"/pacticipants/"${PACT_PROVIDER}"/versions/"${PROVIDER_VERSION}"/tags/"${TF_WORKSPACE}"
             fi
   pact_verification:
     executor: digideps-data/python_with_tfvars
@@ -332,7 +322,9 @@ jobs:
       CONSUMER_VER: << pipeline.parameters.consumerversion >>
     steps:
       - checkout
-      - digideps-data/clone_opg_data
+      - run:
+          name: setup environment
+          command: ./.circleci/setup.sh
       - digideps-data/aws_cli_install
       - run:
           name: Set BASH_ENV

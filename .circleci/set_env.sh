@@ -29,10 +29,10 @@ WORKSPACE=${WORKSPACE:-$CIRCLE_BRANCH}
 WORKSPACE=${WORKSPACE//[^[:alnum:]]/}
 WORKSPACE=${WORKSPACE,,}
 WORKSPACE=${WORKSPACE:0:14}
-TF_VAR_stage=$(grep -A1 'info:' deputy-reporting-openapi.yml | grep 'version:' | head -1 | awk '{print $2}' | sed 's/\./_/g')
+PROVIDER_VER=$(ls -d lambda_functions/*/ | awk -F'/' '{print $2}' | sort -r | head -n1)
 
 echo "export TF_WORKSPACE=${WORKSPACE}"
-echo "export TF_VAR_stage=${TF_VAR_stage}"
+echo "export PROVIDER_VERSION=${PROVIDER_VER}"
 echo "export PACT_PROVIDER=${PROVIDER}"
 echo "export PACT_CONSUMER=${CONSUMER}"
 echo "export GITHUB_STATUS_CREDS=${GITHUB_CREDS}"

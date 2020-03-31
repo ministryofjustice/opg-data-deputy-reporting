@@ -1,14 +1,3 @@
-locals {
-  api_name = "deputy-reporting"
-  api_template_vars = {
-    lambda_reports_arn     = module.lambda_reports.lambda_arn
-    lambda_healthcheck_arn = module.lamdba_healthcheck.lambda_arn
-    region                 = "eu-west-1"
-    environment            = local.environment
-  }
-  openapispec = file("../../${local.api_name}-openapi.yml")
-}
-
 data "template_file" "_" {
   template = local.openapispec
   vars     = local.api_template_vars

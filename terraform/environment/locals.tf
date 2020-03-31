@@ -14,9 +14,28 @@ locals {
     source-code            = "https://github.com/ministryofjustice/opg-data-deputy-reporting"
   }
 
+  policy_len_tag = {
+    policy_len = aws_api_gateway_rest_api.deputy_reporting.policy
+  }
+
+  api_name = "deputy-reporting"
+
+  api_template_vars = {
+    region      = "eu-west-1"
+    environment = local.environment
+    account_id  = local.account.account_id
+  }
+
+  //Modify for new version of API
+  latest_openapi_version = "v1"
+  openapispec            = file("../../${local.api_name}-openapi-${local.latest_openapi_version}.yml")
 }
 
 //https://github.com/terraform-providers/terraform-provider-aws/issues/5364
 output "policy" {
   value = aws_api_gateway_rest_api.deputy_reporting.policy
+}
+
+output "rest_arn" {
+  value = aws_api_gateway_rest_api.deputy_reporting.execution_arn
 }

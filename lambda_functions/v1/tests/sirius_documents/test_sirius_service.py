@@ -4,12 +4,12 @@ import jwt
 import pytest
 from jwt import DecodeError
 
-from lambda_functions.reports.reports import (
+from lambda_functions.v1.functions.reports.reports import (
     submit_document_to_sirius,
     build_sirius_url,
     build_sirius_headers,
 )
-from tests.helpers.use_test_data import is_valid_schema
+from lambda_functions.v1.tests.helpers.use_test_data import is_valid_schema
 
 
 @pytest.mark.parametrize(

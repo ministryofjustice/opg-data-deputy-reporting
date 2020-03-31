@@ -1,10 +1,10 @@
 import json
 
-from lambda_functions.reports.reports import (
+from lambda_functions.v1.functions.reports.reports import (
     lambda_handler,
     transform_event_to_sirius_request,
 )
-from tests.helpers.use_test_data import is_valid_schema, load_data
+from lambda_functions.v1.tests.helpers.use_test_data import is_valid_schema, load_data
 
 
 def test_lambda_handler(patched_requests, patched_get_secret):
