@@ -5,7 +5,7 @@ locals {
 
 resource "aws_api_gateway_method_settings" "global_gateway_settings" {
   rest_api_id = aws_api_gateway_rest_api.deputy_reporting.id
-  stage_name  = module.deploy_1_0_0.stage.stage_name
+  stage_name  = module.deploy_v1.stage.stage_name
   method_path = "*/*"
 
   settings {
@@ -27,7 +27,7 @@ resource "aws_api_gateway_domain_name" "sirius_deputy_reporting" {
   tags = local.default_tags
 }
 
-module "deploy_1_0_0" {
+module "deploy_v1" {
   source             = "./modules/stage"
   environment        = local.environment
   aws_subnet_ids     = data.aws_subnet_ids.private.ids
@@ -35,9 +35,9 @@ module "deploy_1_0_0" {
   vpc_id             = local.account.vpc_id
   tags               = local.default_tags
   api_name           = local.api_name
-  openapi_version    = "1_0_0"
-  reports_lambda     = module.lambda_reports_1.lambda
-  healthcheck_lambda = module.lamdba_healthcheck_1.lambda
+  openapi_version    = "v1"
+  reports_lambda     = module.lambda_reports_v1.lambda
+  healthcheck_lambda = module.lamdba_healthcheck_v1.lambda
   rest_api           = aws_api_gateway_rest_api.deputy_reporting
   domain_name        = aws_api_gateway_domain_name.sirius_deputy_reporting
 }
@@ -47,7 +47,7 @@ module "deploy_1_0_0" {
 
 resource "aws_api_gateway_base_path_mapping" "mapping" {
   api_id      = aws_api_gateway_rest_api.deputy_reporting.id
-  stage_name  = module.deploy_1_0_0.deployment.stage_name
+  stage_name  = module.deploy_v1.deployment.stage_name
   domain_name = aws_api_gateway_domain_name.sirius_deputy_reporting.domain_name
-  base_path   = module.deploy_1_0_0.deployment.stage_name
+  base_path   = module.deploy_v1.deployment.stage_name
 }

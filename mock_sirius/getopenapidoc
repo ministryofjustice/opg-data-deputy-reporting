@@ -1,5 +1,7 @@
 #!/bin/bash
 str="x-amazon-apigateway-integration:"
+latest_ver=$(ls -d lambda_functions/*/ | awk -F'/' '{print $2}' | sort -r | head -n1)
+openapi_latest="deputy-reporting-openapi-${latest_ver}.yml"
 openapi="deputy-reporting-openapi.yml"
 cp ../$openapi ./$openapi
 echo "copied in.."

@@ -1,4 +1,4 @@
-module "lamdba_healthcheck_1" {
+module "lamdba_healthcheck_v1" {
   source                 = "./modules/lambda"
   environment            = local.environment
   aws_subnet_ids         = data.aws_subnet_ids.private.ids
@@ -9,11 +9,11 @@ module "lamdba_healthcheck_1" {
   lambda_function_subdir = "healthcheck"
   logger_level           = "INFO"
   tags                   = local.default_tags
-  openapi_version        = "1_0_0"
+  openapi_version        = "v1"
   rest_api               = aws_api_gateway_rest_api.deputy_reporting
 }
 
-module "lambda_reports_1" {
+module "lambda_reports_v1" {
   source                 = "./modules/lambda"
   environment            = local.environment
   aws_subnet_ids         = data.aws_subnet_ids.private.ids
@@ -24,7 +24,7 @@ module "lambda_reports_1" {
   lambda_function_subdir = "reports"
   logger_level           = "INFO"
   tags                   = local.default_tags
-  openapi_version        = "1_0_0"
+  openapi_version        = "v1"
   rest_api               = aws_api_gateway_rest_api.deputy_reporting
 }
 
