@@ -69,23 +69,3 @@ resource "aws_iam_role_policy_attachment" "access_policy_attachment" {
   role       = aws_iam_role.data_deputy_reporting.id
   policy_arn = aws_iam_policy.access_policy.arn
 }
-
-//===============Related to Lambdas===================
-
-resource "aws_lambda_permission" "healthcheck_lambda_permission" {
-  statement_id  = "AllowApiDeputyReportingGatewayInvoke_${local.environment}"
-  action        = "lambda:InvokeFunction"
-  function_name = module.lamdba_healthcheck.lambda.function_name
-  principal     = "apigateway.amazonaws.com"
-
-  source_arn = "${aws_api_gateway_rest_api.deputy_reporting.execution_arn}/*/*/*"
-}
-
-resource "aws_lambda_permission" "reports_lambda_permission" {
-  statement_id  = "AllowApiDeputyReportingGatewayInvoke_${local.environment}"
-  action        = "lambda:InvokeFunction"
-  function_name = module.lambda_reports.lambda.function_name
-  principal     = "apigateway.amazonaws.com"
-
-  source_arn = "${aws_api_gateway_rest_api.deputy_reporting.execution_arn}/*/*/*"
-}

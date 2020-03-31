@@ -165,13 +165,12 @@ def submit_document_to_sirius(url, data, headers):
 
         status_code = r.status_code
 
-
         if status_code == 201:
             sirius_response = {
                 "isBase64Encoded": False,
                 "statusCode": status_code,
                 "headers": dict(r.headers),
-                "body": r.content.decode('UTF-8'),
+                "body": r.content.decode("UTF-8"),
             }
 
         else:

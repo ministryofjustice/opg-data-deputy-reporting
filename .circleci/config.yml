@@ -151,7 +151,7 @@ orbs:
               name: copy in the openapi spec
               command: |
                 git clone git@github.com:ministryofjustice/opg-data.git
-                cp ./opg-data/docs/swagger.v1.yaml ./deputy-reporting-openapi.yml
+                cp ./opg-data/docs/deputy-reporting-openapi* ./
                 rm -rf ./opg-data
 
 jobs:
@@ -178,6 +178,13 @@ jobs:
           name: run unit tests (with pytest)
           command: |
             python -m pytest
+      - run:
+          name: create shas of lambda folders
+          command: |
+            for d in lambda_functions/*/
+            do
+            touch "${d}"/directory_sha/$(find "${d}/functions" -type f -print0 | sort -z | xargs -0 sha1sum | sha1sum | cut -c 1-15)
+            done
       - run:
           name: install requirements for all lambda layers
           command: |

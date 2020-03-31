@@ -10,28 +10,20 @@ variable "target_environment" {
   type = string
 }
 
-variable "logger_level" {
-  type = string
-}
-
 variable "vpc_id" {
   type = string
 }
 
-variable "lambda_prefix" {
-  type = string
-}
-
-variable "handler" {
-  type = string
-}
-
-variable "lambda_function_subdir" {
-  type = string
-}
+variable "api_name" {}
 
 variable "tags" {}
 
 variable "openapi_version" {}
 
 variable "rest_api" {}
+
+variable "domain_name" {}
+
+variable "reports_lambda" {}
+
+variable "healthcheck_lambda" {}

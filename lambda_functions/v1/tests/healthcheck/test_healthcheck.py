@@ -1,4 +1,4 @@
-from lambda_functions.healthcheck import healthcheck
+from lambda_functions.v1.functions.healthcheck import healthcheck
 import pytest
 import requests
 

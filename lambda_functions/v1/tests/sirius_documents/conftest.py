@@ -3,7 +3,7 @@ import json
 import pytest
 import requests
 
-from lambda_functions.reports import reports
+from lambda_functions.v1.functions.reports import reports
 
 test_data = {
     "valid_clients": ["valid_client_id", "0319392T"],
@@ -50,8 +50,10 @@ def patched_requests(monkeypatch):
         try:
             if json.loads(data)["caseRecNumber"] in test_data["valid_clients"]:
                 mock_response.status_code = 201
-                mock_response._content = '{"uuid": ' \
-                                         '"531ca3b6-3f17-4ece-bdc5-7faf7f1f8427"}'.encode('UTF-8')
+                mock_response._content = (
+                    '{"uuid": '
+                    '"531ca3b6-3f17-4ece-bdc5-7faf7f1f8427"}'.encode("UTF-8")
+                )
             else:
                 mock_response.status_code = 400
                 mock_response.json = None
