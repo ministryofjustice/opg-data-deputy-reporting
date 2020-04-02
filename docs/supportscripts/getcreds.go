@@ -23,9 +23,12 @@ func main() {
 		fmt.Println(err)
 	}
 
-	fmt.Println("Access Key:    ", sessionstring.AccessKeyID)
-	fmt.Println("Secret Key:    ", sessionstring.SecretAccessKey)
-	fmt.Println("Session Token: ", sessionstring.SessionToken)
+	accesskey := "export AWS_ACCESS_KEY_ID=" + sessionstring.AccessKeyID
+	secret := "export AWS_SECRET_ACCESS_KEY=" + sessionstring.SecretAccessKey
+	session := "export AWS_SESSION_TOKEN=" + sessionstring.SessionToken
+	fmt.Println(accesskey)
+	fmt.Println(secret)
+	fmt.Println(session)
 	fmt.Println("Provider Name: ",sessionstring.ProviderName)
 
 }
