@@ -11,6 +11,7 @@ module "lamdba_healthcheck_v1" {
   tags                   = local.default_tags
   openapi_version        = "v1"
   rest_api               = aws_api_gateway_rest_api.deputy_reporting
+  account_mapping        = local.account.account_mapping
 }
 
 module "lambda_reports_v1" {
@@ -26,6 +27,7 @@ module "lambda_reports_v1" {
   tags                   = local.default_tags
   openapi_version        = "v1"
   rest_api               = aws_api_gateway_rest_api.deputy_reporting
+  account_mapping        = local.account.account_mapping
 }
 
 module "lambda_supporting_docs_v1" {
@@ -41,6 +43,7 @@ module "lambda_supporting_docs_v1" {
   tags                   = local.default_tags
   openapi_version        = "v1"
   rest_api               = aws_api_gateway_rest_api.deputy_reporting
+  account_mapping        = local.account.account_mapping
 }
 
 //To Add New Version Copy and Paste Above and Modify Accordingly

@@ -27,3 +27,5 @@ variable "domain_name" {}
 variable "reports_lambda" {}
 
 variable "healthcheck_lambda" {}
+
+variable "supportingdocs_lambda" {}

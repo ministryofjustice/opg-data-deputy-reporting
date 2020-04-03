@@ -8,6 +8,7 @@ resource "aws_api_gateway_stage" "currentstage" {
   variables = {
     healthcheck_function_name : var.healthcheck_lambda.function_name
     reports_function_name : var.reports_lambda.function_name
+    supporting_docs_name : var.supportingdocs_lambda.function_name
   }
 
   access_log_settings {

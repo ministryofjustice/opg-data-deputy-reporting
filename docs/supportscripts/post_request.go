@@ -16,14 +16,15 @@ import (
 func main() {
 
 	roletoassume := "arn:aws:iam::248804316466:role/operator"
-	url := "https://dev.deputy-reporting.api.opg.service.justice.gov.uk/v1/clients/103-4/reports"
+	url := "https://dev.deputy-reporting.api.opg.service.justice.gov.uk/v1/clients/22814959/reports/d89c26de-0734-47ed-af4f-75f103118ed1/supportingdocuments"
+    //url := "https://dev.deputy-reporting.api.opg.service.justice.gov.uk/v1/clients/22814959/reports"
 	mysession := session.Must(session.NewSession())
 	creds := stscreds.NewCredentials(mysession, roletoassume)
 	cfg := aws.Config{Credentials: creds,Region: aws.String("eu-west-1")}
 	sess := session.Must(session.NewSession(&cfg))
 	signer := v4.NewSigner(sess.Config.Credentials)
 
-	json, err := ioutil.ReadFile("payload.json") // just pass the file name
+	json, err := ioutil.ReadFile("supportingdoc_payload.json") // just pass the file name
 	if err != nil {
 			fmt.Print(err)
 	}
@@ -32,7 +33,7 @@ func main() {
     body := strings.NewReader(str)
 
 	req, _ := http.NewRequest(http.MethodPost, url, body)
-    req.Header.Set("Content-Type", "multipart/form-data")
+    req.Header.Set("Content-Type", "application/json")
 
 	_, err = signer.Sign(req, body, "execute-api", *cfg.Region, time.Now())
 	if err != nil {

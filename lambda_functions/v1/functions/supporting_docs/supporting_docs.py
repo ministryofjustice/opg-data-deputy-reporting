@@ -2,15 +2,13 @@ import datetime
 import json
 import logging
 import os
-from urllib.parse import urljoin
 import re
+from urllib.parse import urljoin
 
 import boto3
 import jwt
 import requests
 from botocore.exceptions import ClientError
-from requests_toolbelt.multipart import decoder
-
 
 logger = logging.getLogger()
 if __name__ == "__main__":
@@ -26,10 +24,11 @@ def lambda_handler(event, context):
     Returns:
         Response from Sirius in AWS Lambda format, json
     """
+
     sirius_api_url = build_sirius_url(
         base_url=os.environ["SIRIUS_BASE_URL"],
         api_route=os.environ["SIRIUS_PUBLIC_API_URL"],
-        endpoint="supporting_docs",
+        endpoint="documents",
     )
     sirius_payload = transform_event_to_sirius_request(event=event)
     sirius_headers = build_sirius_headers()
@@ -37,6 +36,7 @@ def lambda_handler(event, context):
     lambda_response = submit_document_to_sirius(
         url=sirius_api_url, data=sirius_payload, headers=sirius_headers
     )
+    print(lambda_response)
 
     return lambda_response
 
@@ -52,31 +52,17 @@ def transform_event_to_sirius_request(event):
     Returns:
         Sirius-style payload, json
     """
-    content_type_header = event["headers"]["Content-Type"]
-
-    case_ref = event["pathParameters"]["caseref"]
     report_id = event["pathParameters"]["id"]
-
-    request_body = json.loads(event["body"])["body"].encode()
-
-    request_data = json.loads(
-        decoder.MultipartDecoder(request_body, content_type_header).parts[0].text
-    )
-
-    metadata = request_data["data"]["attributes"]
-    metadata['report_id'] = report_id
-
-    file_data = decoder.MultipartDecoder(request_body, content_type_header).parts[1]
-    file_data_dict = {
-        key.decode(): val.decode() for key, val in file_data.headers.items()
-    }
-
-    file_name = re.findall("filename=(.+)", file_data_dict["Content-Disposition"])[0]
-    file_source = file_data.text
-    file_type = file_data_dict["Content-Type"]
+    case_ref = event["pathParameters"]["caseref"]
+    request_body = json.loads(event["body"])
+    metadata = request_body["supporting_document"]["data"]["attributes"]
+    metadata["report_id"] = report_id
+    file_name = request_body["supporting_document"]["data"]["file"]["name"]
+    file_type = request_body["supporting_document"]["data"]["file"]["mimetype"]
+    file_source = request_body["supporting_document"]["data"]["file"]["source"]
 
     payload = {
-        "type": "Report - General",
+        "type": "Report",
         "caseRecNumber": case_ref,
         "metadata": metadata,
         "file": {
@@ -85,6 +71,8 @@ def transform_event_to_sirius_request(event):
             "type": re.sub("[^A-Za-z0-9/]+", "", file_type),
         },
     }
+    print("Payload To Send:")
+    print(payload)
 
     return json.dumps(payload)
 
@@ -144,14 +132,14 @@ def build_sirius_headers(content_type="application/json"):
     Returns:
         Header dictionary with content type and auth token
     """
-
+    environment = os.environ["ENVIRONMENT"]
     encoded_jwt = jwt.encode(
         {
             "session-data": "publicapi@opgtest.com",
             "iat": datetime.datetime.utcnow(),
             "exp": datetime.datetime.utcnow() + datetime.timedelta(seconds=3600),
         },
-        get_secret("development"),
+        get_secret(environment),
         algorithm="HS256",
     )
 
@@ -183,16 +171,19 @@ def submit_document_to_sirius(url, data, headers):
     default_error = "An unknown error occurred connecting to the Sirius Public API"
 
     try:
+
         r = requests.post(url=url, data=data, headers=headers)
 
         status_code = r.status_code
+        print("SIRIUS RETURNS")
+        print(status_code)
 
         if status_code == 201:
             sirius_response = {
                 "isBase64Encoded": False,
                 "statusCode": status_code,
                 "headers": dict(r.headers),
-                "body": json.loads(r.content),
+                "body": r.content.decode("UTF-8"),
             }
 
         else:
