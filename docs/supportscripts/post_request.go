@@ -5,26 +5,36 @@ import (
 	"fmt"
 	"net/http"
 	"time"
-
-	"github.com/aws/aws-sdk-go/aws/session"
+	"strings"
+	"io/ioutil"
 	"github.com/aws/aws-sdk-go/aws"
-	v4 "github.com/aws/aws-sdk-go/aws/signer/v4"
 	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
-
+	"github.com/aws/aws-sdk-go/aws/session"
+	v4 "github.com/aws/aws-sdk-go/aws/signer/v4"
 )
 
 func main() {
 
-    roletoassume := "arn:aws:iam::248804316466:role/operator"
-    url := "https://dev.deputy-reporting.api.opg.service.justice.gov.uk/v1/healthcheck"
+	roletoassume := "arn:aws:iam::248804316466:role/operator"
+	url := "https://dev.deputy-reporting.api.opg.service.justice.gov.uk/v1/clients/103-4/reports"
 	mysession := session.Must(session.NewSession())
 	creds := stscreds.NewCredentials(mysession, roletoassume)
 	cfg := aws.Config{Credentials: creds,Region: aws.String("eu-west-1")}
 	sess := session.Must(session.NewSession(&cfg))
 	signer := v4.NewSigner(sess.Config.Credentials)
-	req, _ := http.NewRequest(http.MethodGet, url, nil)
 
-	_, err := signer.Sign(req, nil, "execute-api", *cfg.Region, time.Now())
+	json, err := ioutil.ReadFile("payload.json") // just pass the file name
+	if err != nil {
+			fmt.Print(err)
+	}
+	str := string(json)
+
+    body := strings.NewReader(str)
+
+	req, _ := http.NewRequest(http.MethodPost, url, body)
+    req.Header.Set("Content-Type", "multipart/form-data")
+
+	_, err = signer.Sign(req, body, "execute-api", *cfg.Region, time.Now())
 	if err != nil {
 		fmt.Printf("failed to sign request: (%v)\n", err)
 	}
