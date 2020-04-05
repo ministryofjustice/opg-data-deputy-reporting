@@ -1,4 +1,3 @@
-
 import json
 
 import pytest
@@ -42,6 +41,7 @@ def mock_env_setup(monkeypatch):
     monkeypatch.setenv("SIRIUS_PUBLIC_API_URL", "api/public/v1/")
     monkeypatch.setenv("LOGGER_LEVEL", "DEBUG")
     monkeypatch.setenv("JWT_SECRET", "THIS_IS_MY_SECRET_KEY")
+    monkeypatch.setenv("ENVIRONMENT", "development")
 
 
 @pytest.fixture

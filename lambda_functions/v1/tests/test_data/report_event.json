@@ -1,104 +1,72 @@
 {
-  "resource": "/clients/{caseref}/reports",
-  "path": "/1_0_0/clients/46433439/reports",
-  "httpMethod": "POST",
-  "headers": {
-    "Accept": "*/*",
-    "Accept-Encoding": "gzip, deflate, br",
-    "Cache-Control": "no-cache",
-    "Content-Type": "multipart/related;  boundary=\"c45303ddf21d4c32a7042d8c04653d2abd5c242d\"",
-    "Host": "in40updaterequ.dev.deputy-reporting.api.opg.service.justice.gov.uk",
-    "Postman-Token": "1ed4cb07-d218-4c70-96c5-e64dd90abd09",
-    "User-Agent": "PostmanRuntime/7.22.0",
-    "X-Amz-Content-Sha256": "663e13df7be5266fe11deb897b32d06d2ae7e4adf1f3c1e6f65ded7f3b9956c4",
-    "X-Amz-Date": "20200326T121020Z",
-    "X-Amz-Security-Token": "FwoGZXIvYXdzEKb//////////wEaDKlmoLZPcUjccf7s+yK7AQqbqhWNsGpo2CG+g2PpYXqzj0SqmAuEy3Lq3NN4l0SFPTBbg0TkozVytwQ4IaksdSuJjHdqKeuBFNXAdzULphYGaWTW552pOzQQBtEOtbm9MxjHoAb9uVm4t9p+RfOSf+sTDek2V8wrH7M/PT0xioPaX/UkrLLcqC0NSWD7y7DgmQU+fYmbb7hlLZDugRqJPu1DS2OydTVvDwr0uUUnmKJgtvOLE1LoK0ypBGefy/0K4+QB6OkOQAzFi7coi7fy8wUyLfavZcLEjbK2UJomMl8A5sJvyL0L87iOuVHCcCprWtcQ0HNXCZhKmt2dAQWijQ==",
-    "X-Amzn-Trace-Id": "Root=1-5e7c9bac-c4e01848d85054207e897d28",
-    "X-Forwarded-For": "81.134.202.29",
-    "X-Forwarded-Port": "443",
-    "X-Forwarded-Proto": "https"
-  },
-  "multiValueHeaders": {
-    "Accept": [
-      "*/*"
-    ],
-    "Accept-Encoding": [
-      "gzip, deflate, br"
-    ],
-    "Cache-Control": [
-      "no-cache"
-    ],
-    "Content-Type": [
-      "multipart/related;  boundary=\"c45303ddf21d4c32a7042d8c04653d2abd5c242d\""
-    ],
-    "Host": [
-      "in40updaterequ.dev.deputy-reporting.api.opg.service.justice.gov.uk"
-    ],
-    "Postman-Token": [
-      "1ed4cb07-d218-4c70-96c5-e64dd90abd09"
-    ],
-    "User-Agent": [
-      "PostmanRuntime/7.22.0"
-    ],
-    "X-Amz-Content-Sha256": [
-      "663e13df7be5266fe11deb897b32d06d2ae7e4adf1f3c1e6f65ded7f3b9956c4"
-    ],
-    "X-Amz-Date": [
-      "20200326T121020Z"
-    ],
-    "X-Amz-Security-Token": [
-      "FwoGZXIvYXdzEKb//////////wEaDKlmoLZPcUjccf7s+yK7AQqbqhWNsGpo2CG+g2PpYXqzj0SqmAuEy3Lq3NN4l0SFPTBbg0TkozVytwQ4IaksdSuJjHdqKeuBFNXAdzULphYGaWTW552pOzQQBtEOtbm9MxjHoAb9uVm4t9p+RfOSf+sTDek2V8wrH7M/PT0xioPaX/UkrLLcqC0NSWD7y7DgmQU+fYmbb7hlLZDugRqJPu1DS2OydTVvDwr0uUUnmKJgtvOLE1LoK0ypBGefy/0K4+QB6OkOQAzFi7coi7fy8wUyLfavZcLEjbK2UJomMl8A5sJvyL0L87iOuVHCcCprWtcQ0HNXCZhKmt2dAQWijQ=="
-    ],
-    "X-Amzn-Trace-Id": [
-      "Root=1-5e7c9bac-c4e01848d85054207e897d28"
-    ],
-    "X-Forwarded-For": [
-      "81.134.202.29"
-    ],
-    "X-Forwarded-Port": [
-      "443"
-    ],
-    "X-Forwarded-Proto": [
-      "https"
-    ]
-  },
-  "queryStringParameters": null,
-  "multiValueQueryStringParameters": null,
-  "pathParameters": {
-    "caseref": "46433439"
-  },
-  "stageVariables": null,
-  "requestContext": {
-    "resourceId": "fxpq1w",
-    "resourcePath": "/clients/{caseref}/reports",
-    "operationName": "app.addReportDocument",
-    "httpMethod": "POST",
-    "extendedRequestId": "J_1C5GDkjoEF5MQ=",
-    "requestTime": "26/Mar/2020:12:10:20 +0000",
-    "path": "/1_0_0/clients/46433439/reports",
-    "accountId": "288342028542",
-    "protocol": "HTTP/1.1",
-    "stage": "1_0_0",
-    "domainPrefix": "in40updaterequ",
-    "requestTimeEpoch": 1585224620089,
-    "requestId": "b49b1f1f-baed-4434-87cd-01de97d230a4",
-    "identity": {
-      "cognitoIdentityPoolId": null,
-      "accountId": "288342028542",
-      "cognitoIdentityId": null,
-      "caller": "AROAUGIUGGD7DOQAYLAZ7:1585224586903376000",
-      "sourceIp": "81.134.202.29",
-      "principalOrgId": "o-b2fpbzyd95",
-      "accessKey": "ASIAUGIUGGD7BPVWBYOU",
-      "cognitoAuthenticationType": null,
-      "cognitoAuthenticationProvider": null,
-      "userArn": "arn:aws:sts::288342028542:assumed-role/operator/1585224586903376000",
-      "userAgent": "PostmanRuntime/7.22.0",
-      "user": "AROAUGIUGGD7DOQAYLAZ7:1585224586903376000"
-    },
-    "domainName": "in40updaterequ.dev.deputy-reporting.api.opg.service.justice.gov.uk",
-    "apiId": "0nvr5epqy6"
-  },
-  "body": "{\n  \"path\": \"/clients/44822363/reports\",\n  \"query\": \"\",\n  \"method\": \"post\",\n  \"body\": \"--c45303ddf21d4c32a7042d8c04653d2abd5c242d\\r\\nContent-Disposition: form-data; Content-Type: application/json; name=\\\"report\\\"\\r\\nContent-Length: 206\\r\\n\\r\\n{\\\"data\\\":{\\\"type\\\":\\\"reports\\\",\\\"attributes\\\":{\\\"reporting_period_from\\\":\\\"2018-05-14\\\",\\\"reporting_period_to\\\":\\\"2019-05-13\\\",\\\"year\\\":\\\"2018\\\",\\\"date_submitted\\\":\\\"2019-06-20T00:00:00+01:00\\\",\\\"type\\\":\\\"PF\\\",\\\"submission_id\\\":1111}}}\\r\\n--c45303ddf21d4c32a7042d8c04653d2abd5c242d\\r\\nContent-Disposition: form-data; name=\\\"report_file\\\"; filename=\\\"test_file.pdf\\\"\\r\\nContent-Type: application/pdf;\\r\\nContent-Length: 16\\r\\n\\r\\nc29tZV9jb250ZW50\\r\\n--c45303ddf21d4c32a7042d8c04653d2abd5c242d--\\r\\n\",\n  \"headers\": {\n    \"Content-Length\": \"504\",\n    \"Content-Type\": \"multipart/form-data\",\n    \"Host\": \"pact-mock\",\n    \"User-Agent\": \"GuzzleHttp/6.4.1 curl/7.67.0 PHP/7.3.13\",\n    \"Accept\": \"application/vnd.opg-data.v1+json\",\n    \"Version\": \"HTTP/1.1\"\n  }\n}",
-  "isBase64Encoded": false
+	"resource": "/clients/{caseref}/reports",
+	"path": "/v1/clients/22814959/reports",
+	"httpMethod": "POST",
+	"headers": {
+		"accept-encoding": "gzip",
+		"content-type": "application/json",
+		"Host": "in149.dev.deputy-reporting.api.opg.service.justice.gov.uk",
+		"User-Agent": "Go-http-client/2.0",
+		"x-amz-date": "20200404T090220Z",
+		"x-amz-security-token": "FwoGZXIvYXdzEHoaDAxn9oqp8v+vJ0qZbyK7Aep6Z4gFBOmLfeBb4reJyV+rtSyC0/fmf7pRf+unoL66Sz6yNzf6xLfY6Gjm1nProlcOT9jlwjS6x2Y6k5iHkuOKdiQXrXBdmuhWP19EJ+CcGVYnKQciCgOhznaaAUSw8gZP7Gpixj4tHte4Cjzg3QMWcT2/OYOzDfgKvyOYyEbrCQwfb3lzVe+AhGWIJlkHS7cKBFE3RUhEnuwMlFODA46nZjl+83+9aR1z3MoVSrwflYyfpJH9AHjJvzsonZqh9AUyLTQ0gDoky6KddsnrhuEYYcXoXzlfVQnoV7tjDbVFBRC5tV82uRWYBbBD7J3D1A==",
+		"X-Amzn-Trace-Id": "Root=1-5e884d1d-b3147b1cd6d837fb6e498db9",
+		"X-Forwarded-For": "92.9.72.100",
+		"X-Forwarded-Port": "443",
+		"X-Forwarded-Proto": "https"
+	},
+	"multiValueHeaders": {
+		"accept-encoding": ["gzip"],
+		"content-type": ["application/json"],
+		"Host": ["in149.dev.deputy-reporting.api.opg.service.justice.gov.uk"],
+		"User-Agent": ["Go-http-client/2.0"],
+		"x-amz-date": ["20200404T090220Z"],
+		"x-amz-security-token": ["FwoGZXIvYXdzEHoaDAxn9oqp8v+vJ0qZbyK7Aep6Z4gFBOmLfeBb4reJyV+rtSyC0/fmf7pRf+unoL66Sz6yNzf6xLfY6Gjm1nProlcOT9jlwjS6x2Y6k5iHkuOKdiQXrXBdmuhWP19EJ+CcGVYnKQciCgOhznaaAUSw8gZP7Gpixj4tHte4Cjzg3QMWcT2/OYOzDfgKvyOYyEbrCQwfb3lzVe+AhGWIJlkHS7cKBFE3RUhEnuwMlFODA46nZjl+83+9aR1z3MoVSrwflYyfpJH9AHjJvzsonZqh9AUyLTQ0gDoky6KddsnrhuEYYcXoXzlfVQnoV7tjDbVFBRC5tV82uRWYBbBD7J3D1A=="],
+		"X-Amzn-Trace-Id": ["Root=1-5e884d1d-b3147b1cd6d837fb6e498db9"],
+		"X-Forwarded-For": ["92.9.72.100"],
+		"X-Forwarded-Port": ["443"],
+		"X-Forwarded-Proto": ["https"]
+	},
+	"queryStringParameters": null,
+	"multiValueQueryStringParameters": null,
+	"pathParameters": {
+		"caseref": "22814959"
+	},
+	"stageVariables": {
+		"supporting_docs_name": "sirius-supporting_docs-in149-v1",
+		"healthcheck_function_name": "sirius-healthcheck-in149-v1",
+		"reports_function_name": "sirius-reports-in149-v1"
+	},
+	"requestContext": {
+		"resourceId": "jskg4r",
+		"resourcePath": "/clients/{caseref}/reports",
+		"operationName": "app.addReportDocument",
+		"httpMethod": "POST",
+		"extendedRequestId": "KdD8oGvtDoEFhew=",
+		"requestTime": "04/Apr/2020:09:02:21 +0000",
+		"path": "/v1/clients/22814959/reports",
+		"accountId": "288342028542",
+		"protocol": "HTTP/1.1",
+		"stage": "v1",
+		"domainPrefix": "in149",
+		"requestTimeEpoch": 1585990941501,
+		"requestId": "bf3d8078-28e9-43ec-9114-05603af3c881",
+		"identity": {
+			"cognitoIdentityPoolId": null,
+			"accountId": "248804316466",
+			"cognitoIdentityId": null,
+			"caller": "AROATT3PESUZKDAX5FJOA:1585990940454443000",
+			"sourceIp": "92.9.72.100",
+			"principalOrgId": "o-b2fpbzyd95",
+			"accessKey": "ASIATT3PESUZHKMLK75W",
+			"cognitoAuthenticationType": null,
+			"cognitoAuthenticationProvider": null,
+			"userArn": "arn:aws:sts::248804316466:assumed-role/operator/1585990940454443000",
+			"userAgent": "Go-http-client/2.0",
+			"user": "AROATT3PESUZKDAX5FJOA:1585990940454443000"
+		},
+		"domainName": "in149.dev.deputy-reporting.api.opg.service.justice.gov.uk",
+		"apiId": "ak1vp6g219"
+	},
+	"body": "{\n\"report\": {\n\"data\": {\n\"type\": \"reports\",\n\"attributes\": {\n\"submission_id\": 12345,\n\"reporting_period_from\": \"2019 - 01 - 01\",\n\"reporting_period_to\": \"2019 - 12 - 31\",\n\"year\": 2019,\n\"date_submitted\": \"2020 - 01 - 03 T09: 30: 00.001 Z\",\n\"type\": \"PF\"\n},\n\"file\": {\n\"name\": \"Report_1234567T_2018_2019_11111.pdf\",\n\"mimetype\": \"application / pdf\",\n\"source\": \"nc29tZV9jb250ZW50\"\n}\n}\n}\n}\n",
+    "isBase64Encoded": false
 }
