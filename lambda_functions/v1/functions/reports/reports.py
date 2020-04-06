@@ -32,20 +32,69 @@ def lambda_handler(event, context):
     Returns:
         Response from Sirius in AWS Lambda format, json
     """
-    sirius_api_url = build_sirius_url(
-        base_url=os.environ["SIRIUS_BASE_URL"],
-        api_route=os.environ["SIRIUS_PUBLIC_API_URL"],
-        endpoint="documents",
-    )
-    sirius_payload = transform_event_to_sirius_request(event=event)
-    sirius_headers = build_sirius_headers()
 
-    lambda_response = submit_document_to_sirius(
-        url=sirius_api_url, data=sirius_payload, headers=sirius_headers
-    )
+    valid_payload, errors = validate_event(event=event)
+
+    if valid_payload:
+        sirius_api_url = build_sirius_url(
+            base_url=os.environ["SIRIUS_BASE_URL"],
+            api_route=os.environ["SIRIUS_PUBLIC_API_URL"],
+            endpoint="documents",
+        )
+
+        sirius_payload = transform_event_to_sirius_request(event=event)
+        sirius_headers = build_sirius_headers()
+
+        lambda_response = submit_document_to_sirius(
+            url=sirius_api_url, data=sirius_payload, headers=sirius_headers
+        )
+    else:
+        lambda_response = {
+            "isBase64Encoded": False,
+            "statusCode": 400,
+            "headers": {"Content-Type": "application/json"},
+            "body": f"unable to parse {', '.join(errors)}"
+        }
+
     print(lambda_response)
     return lambda_response
 
+
+def validate_event(event):
+
+    errors = []
+    request_body = json.loads(event["body"])
+
+    try:
+        event["pathParameters"]["caseref"]
+    except KeyError:
+        errors.append("caseRecNumber")
+    try:
+        request_body["report"]["data"]["attributes"]
+    except KeyError:
+        errors.append('metadata')
+
+    try:
+        if len(request_body["report"]["data"]["file"]["name"]) == 0:
+            errors.append('file_name')
+    except KeyError:
+        errors.append('file_name')
+    except TypeError:
+        errors.append('file_name')
+
+    try:
+        request_body["report"]["data"]["file"]["mimetype"]
+    except KeyError:
+        errors.append('file_type')
+    try:
+        request_body["report"]["data"]["file"]["source"]
+    except KeyError:
+        errors.append('file_source')
+
+    if len(errors) > 0:
+        return False, errors
+    else:
+        return True, errors
 
 def transform_event_to_sirius_request(event):
     """
@@ -58,13 +107,11 @@ def transform_event_to_sirius_request(event):
     Returns:
         Sirius-style payload, json
     """
+
     case_ref = event["pathParameters"]["caseref"]
     request_body = json.loads(event["body"])
     metadata = request_body["report"]["data"]["attributes"]
-    try:
-        file_name = request_body["report"]["data"]["file"]["name"]
-    except KeyError:
-        file_name = "value not present"
+    file_name = request_body["report"]["data"]["file"]["name"]
     file_type = request_body["report"]["data"]["file"]["mimetype"]
     file_source = request_body["report"]["data"]["file"]["source"]
 
