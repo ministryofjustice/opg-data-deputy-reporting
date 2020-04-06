@@ -28,18 +28,19 @@ resource "aws_api_gateway_domain_name" "sirius_deputy_reporting" {
 }
 
 module "deploy_v1" {
-  source             = "./modules/stage"
-  environment        = local.environment
-  aws_subnet_ids     = data.aws_subnet_ids.private.ids
-  target_environment = local.account.target_environment
-  vpc_id             = local.account.vpc_id
-  tags               = local.default_tags
-  api_name           = local.api_name
-  openapi_version    = "v1"
-  reports_lambda     = module.lambda_reports_v1.lambda
-  healthcheck_lambda = module.lamdba_healthcheck_v1.lambda
-  rest_api           = aws_api_gateway_rest_api.deputy_reporting
-  domain_name        = aws_api_gateway_domain_name.sirius_deputy_reporting
+  source                = "./modules/stage"
+  environment           = local.environment
+  aws_subnet_ids        = data.aws_subnet_ids.private.ids
+  target_environment    = local.account.target_environment
+  vpc_id                = local.account.vpc_id
+  tags                  = local.default_tags
+  api_name              = local.api_name
+  openapi_version       = "v1"
+  reports_lambda        = module.lambda_reports_v1.lambda
+  healthcheck_lambda    = module.lamdba_healthcheck_v1.lambda
+  supportingdocs_lambda = module.lambda_supporting_docs_v1.lambda
+  rest_api              = aws_api_gateway_rest_api.deputy_reporting
+  domain_name           = aws_api_gateway_domain_name.sirius_deputy_reporting
 }
 
 //To Add New Version Copy and Paste Above and Modify Accordingly
