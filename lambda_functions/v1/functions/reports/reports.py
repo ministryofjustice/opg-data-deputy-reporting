@@ -2,7 +2,6 @@ import datetime
 import json
 import logging
 import os
-import re
 from urllib.parse import urljoin
 
 import boto3
@@ -11,8 +10,17 @@ import requests
 from botocore.exceptions import ClientError
 
 logger = logging.getLogger()
-if __name__ == "__main__":
+
+try:
     logger.setLevel(os.environ["LOGGER_LEVEL"])
+except KeyError:
+    logger.setLevel("INFO")
+
+handler = logging.StreamHandler()
+handler.setFormatter(
+    logging.Formatter("[%(levelname)s] [in %(funcName)s:%(lineno)d] %(message)s")
+)
+logger.addHandler(handler)
 
 
 def lambda_handler(event, context):
@@ -64,11 +72,7 @@ def transform_event_to_sirius_request(event):
         "type": "Report - General",
         "caseRecNumber": case_ref,
         "metadata": metadata,
-        "file": {
-            "name": file_name,
-            "source": file_source,
-            "type": file_type,
-        },
+        "file": {"name": file_name, "source": file_source, "type": file_type},
     }
     print("Payload To Send:")
     print(payload)

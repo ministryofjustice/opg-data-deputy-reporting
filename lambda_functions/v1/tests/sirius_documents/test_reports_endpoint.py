@@ -1,5 +1,9 @@
 import json
-import pytest
+
+from pytest_cases import (
+    cases_data,
+    CaseDataGetter,
+)
 
 from lambda_functions.v1.functions.reports.reports import (
     lambda_handler,
@@ -10,14 +14,6 @@ from lambda_functions.v1.tests.helpers.use_test_data import (
     load_data,
     build_aws_event,
 )
-from pytest_cases import (
-    cases_data,
-    CaseDataGetter,
-    unfold_expected_err,
-    CaseData,
-    THIS_MODULE,
-)
-
 from lambda_functions.v1.tests.sirius_documents import reports_endpoint_data
 
 

@@ -39,4 +39,3 @@ def build_aws_event(event_body, event_path_parementers, as_json=True):
         return json.dumps(event)
     else:
         return event
-
