@@ -35,7 +35,7 @@ default_expected_result = {
         "type": "PF",
     },
     "file": {
-        "name": "Report1234567T2018201911111.pdf",
+        "name": "Report_1234567T_2018_2019_11111.pdf",
         "source": "string",
         "type": "application/pdf",
     },
@@ -71,7 +71,7 @@ def case_missing_filename() -> CaseData:
 
     body["report"]["data"]["file"].pop("name")
 
-    expected_result["file"]["name"] = ""
+    expected_result["file"]["name"] = "value not present"
 
     return body, case_ref, expected_result
 
@@ -100,7 +100,7 @@ def case_empty_filename() -> CaseData:
     Data for reports endpoint tests
 
     Returns:
-        Null filename
+        Empty filename
     """
 
     body = default_body

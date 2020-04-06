@@ -53,7 +53,10 @@ def transform_event_to_sirius_request(event):
     case_ref = event["pathParameters"]["caseref"]
     request_body = json.loads(event["body"])
     metadata = request_body["report"]["data"]["attributes"]
-    file_name = request_body["report"]["data"]["file"]["name"]
+    try:
+        file_name = request_body["report"]["data"]["file"]["name"]
+    except KeyError:
+        file_name = "value not present"
     file_type = request_body["report"]["data"]["file"]["mimetype"]
     file_source = request_body["report"]["data"]["file"]["source"]
 
@@ -62,9 +65,9 @@ def transform_event_to_sirius_request(event):
         "caseRecNumber": case_ref,
         "metadata": metadata,
         "file": {
-            "name": re.sub("[^A-Za-z0-9.]+", "", file_name),
+            "name": file_name,
             "source": file_source,
-            "type": re.sub("[^A-Za-z0-9/]+", "", file_type),
+            "type": file_type,
         },
     }
     print("Payload To Send:")
