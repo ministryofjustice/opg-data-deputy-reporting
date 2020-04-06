@@ -1,0 +1,15 @@
+{
+  "supporting_document": {
+    "data": {
+      "type": "supportingdocuments",
+      "attributes": {
+        "submission_id": 12345
+      },
+      "file": {
+        "name": "Report_1234567T_2018_2019_11111.pdf",
+        "mimetype": "application/pdf",
+        "source": "string"
+      }
+    }
+  }
+}

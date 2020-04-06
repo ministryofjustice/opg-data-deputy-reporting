@@ -11,10 +11,6 @@ def healthcheck():
     return "healthy"
 
 
-def showReportDocument():
-    return "show a doc"
-
-
 def addReportDocument(caseref):
     response = requests.post(
         "http://" + mockingEnvironment + ":5001/clients/" + caseref + "/reports"
