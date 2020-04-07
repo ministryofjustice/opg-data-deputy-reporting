@@ -35,12 +35,25 @@ def lambda_handler(event, context):
     lambda_response = submit_document_to_sirius(
         url=sirius_api_url, data=sirius_payload, headers=sirius_headers
     )
-    print(lambda_response)
+    logger.debug(f"Lambda Response: {lambda_response}")
 
     return lambda_response
 
 
 def validate_event(event):
+    """
+    The request body *should* be validated by API-G before it gets this far,
+    but given everything blows up if any of these required fields are missing/wrong
+    then it's worth double checking here, and providing integrators with a meaningful
+    error message
+
+    Args:
+        event: AWS event json
+
+    Returns:
+        tuple: valid boolean, error list
+    """
+
     errors = []
     request_body = json.loads(event["body"])
 
@@ -119,8 +132,7 @@ def transform_event_to_sirius_request(event):
         "metadata": metadata,
         "file": {"name": file_name, "source": file_source, "type": file_type},
     }
-    print("Payload To Send:")
-    print(payload)
+    logger.debug(f"Sirius Payload: {payload}")
 
     return json.dumps(payload)
 
@@ -139,6 +151,8 @@ def build_sirius_url(base_url, api_route, endpoint):
     Returns:
         string: url
     """
+
+
     SIRIUS_URL = urljoin(base_url, api_route)
     url = urljoin(SIRIUS_URL, endpoint)
     return url
@@ -223,8 +237,7 @@ def submit_document_to_sirius(url, data, headers):
         r = requests.post(url=url, data=data, headers=headers)
 
         status_code = r.status_code
-        print("SIRIUS RETURNS")
-        print(status_code)
+        logger.debug(f"Sirius reponse code: {status_code}")
 
         if status_code == 201:
             sirius_response = {
