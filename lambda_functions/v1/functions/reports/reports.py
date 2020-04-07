@@ -160,6 +160,7 @@ def build_sirius_url(base_url, api_route, endpoint):
     url = urljoin(SIRIUS_URL, endpoint)
 
     if urlparse(url).scheme != "https":
+        logger.info("Unable to build Sirius URL")
         return False
 
     return url
@@ -187,6 +188,7 @@ def get_secret(environment):
         get_secret_value_response = client.get_secret_value(SecretId=secret_name)
         secret = get_secret_value_response["SecretString"]
     except ClientError as e:
+        logger.info("Unable to get secret from Secrets Manager")
         raise e
 
     return secret
@@ -255,6 +257,9 @@ def submit_document_to_sirius(url, data, headers):
             }
 
         else:
+            logger.info(
+                f"Unable to send request to Sirius, response code {status_code}"
+            )
             sirius_response = {
                 "isBase64Encoded": False,
                 "statusCode": status_code,
@@ -265,6 +270,7 @@ def submit_document_to_sirius(url, data, headers):
             }
 
     except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
+        logger.info(f"Unable to send request to Sirius, server not available")
         sirius_response = {
             "isBase64Encoded": False,
             "statusCode": 404,
