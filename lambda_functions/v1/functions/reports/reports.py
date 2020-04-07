@@ -2,8 +2,7 @@ import datetime
 import json
 import logging
 import os
-import re
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 
 import boto3
 import jwt
@@ -11,8 +10,17 @@ import requests
 from botocore.exceptions import ClientError
 
 logger = logging.getLogger()
-if __name__ == "__main__":
+
+try:
     logger.setLevel(os.environ["LOGGER_LEVEL"])
+except KeyError:
+    logger.setLevel("INFO")
+
+handler = logging.StreamHandler()
+handler.setFormatter(
+    logging.Formatter("[%(levelname)s] [in %(funcName)s:%(lineno)d] %(message)s")
+)
+logger.addHandler(handler)
 
 
 def lambda_handler(event, context):
@@ -24,32 +32,98 @@ def lambda_handler(event, context):
     Returns:
         Response from Sirius in AWS Lambda format, json
     """
-    sirius_api_url = build_sirius_url(
-        base_url=os.environ["SIRIUS_BASE_URL"],
-        api_route=os.environ["SIRIUS_PUBLIC_API_URL"],
-        endpoint="documents",
-    )
-    sirius_payload = transform_event_to_sirius_request(event=event)
-    sirius_headers = build_sirius_headers()
 
-    lambda_response = submit_document_to_sirius(
-        url=sirius_api_url, data=sirius_payload, headers=sirius_headers
-    )
-    print(lambda_response)
+    valid_payload, errors = validate_event(event=event)
+
+    if valid_payload:
+        sirius_api_url = build_sirius_url(
+            base_url=os.environ["SIRIUS_BASE_URL"],
+            api_route=os.environ["SIRIUS_PUBLIC_API_URL"],
+            endpoint="documents",
+        )
+
+        sirius_payload = transform_event_to_sirius_request(event=event)
+        sirius_headers = build_sirius_headers()
+
+        lambda_response = submit_document_to_sirius(
+            url=sirius_api_url, data=sirius_payload, headers=sirius_headers
+        )
+    else:
+        lambda_response = {
+            "isBase64Encoded": False,
+            "statusCode": 400,
+            "headers": {"Content-Type": "application/json"},
+            "body": f"unable to parse {', '.join(errors)}",
+        }
+
+    logger.debug(f"Lambda Response: {lambda_response}")
     return lambda_response
+
+
+def validate_event(event):
+    """
+    The request body *should* be validated by API-G before it gets this far,
+    but given everything blows up if any of these required fields are missing/wrong
+    then it's worth double checking here, and providing integrators with a meaningful
+    error message
+
+    Args:
+        event: AWS event json
+
+    Returns:
+        tuple: valid boolean, error list
+    """
+
+    errors = []
+    request_body = json.loads(event["body"])
+
+    try:
+        if len(event["pathParameters"]["caseref"]) == 0:
+            errors.append("caseRecNumber")
+    except (KeyError, TypeError):
+        errors.append("caseRecNumber")
+
+    try:
+        request_body["report"]["data"]["attributes"]
+    except (KeyError, TypeError):
+        errors.append("metadata")
+
+    try:
+        if len(request_body["report"]["data"]["file"]["name"]) == 0:
+            errors.append("file_name")
+    except (KeyError, TypeError):
+        errors.append("file_name")
+
+    try:
+        if len(request_body["report"]["data"]["file"]["mimetype"]) == 0:
+            errors.append("file_type")
+    except (KeyError, TypeError):
+        errors.append("file_type")
+
+    try:
+        if len(request_body["report"]["data"]["file"]["source"]) == 0:
+            errors.append("file_source")
+    except (KeyError, TypeError):
+        errors.append("file_source")
+
+    if len(errors) > 0:
+        return False, errors
+    else:
+        return True, errors
 
 
 def transform_event_to_sirius_request(event):
     """
     Takes the 'body' from the AWS event and converts it into the right format for the
     Sirius documents endpoint, detailed here:
-    tests/test_data/sirius_documents_payload.json
+    tests/test_data/sirius_documents_payload_schema.json
 
     Args:
         event: json received from API Gateway
     Returns:
         Sirius-style payload, json
     """
+
     case_ref = event["pathParameters"]["caseref"]
     request_body = json.loads(event["body"])
     metadata = request_body["report"]["data"]["attributes"]
@@ -61,14 +135,9 @@ def transform_event_to_sirius_request(event):
         "type": "Report - General",
         "caseRecNumber": case_ref,
         "metadata": metadata,
-        "file": {
-            "name": re.sub("[^A-Za-z0-9.]+", "", file_name),
-            "source": file_source,
-            "type": re.sub("[^A-Za-z0-9/]+", "", file_type),
-        },
+        "file": {"name": file_name, "source": file_source, "type": file_type},
     }
-    print("Payload To Send:")
-    print(payload)
+    logger.debug(f"Sirius Payload: {payload}")
 
     return json.dumps(payload)
 
@@ -89,6 +158,11 @@ def build_sirius_url(base_url, api_route, endpoint):
     """
     SIRIUS_URL = urljoin(base_url, api_route)
     url = urljoin(SIRIUS_URL, endpoint)
+
+    if urlparse(url).scheme not in ['https', 'http']:
+        logger.info("Unable to build Sirius URL")
+        return False
+
     return url
 
 
@@ -114,6 +188,7 @@ def get_secret(environment):
         get_secret_value_response = client.get_secret_value(SecretId=secret_name)
         secret = get_secret_value_response["SecretString"]
     except ClientError as e:
+        logger.info("Unable to get secret from Secrets Manager")
         raise e
 
     return secret
@@ -171,8 +246,7 @@ def submit_document_to_sirius(url, data, headers):
         r = requests.post(url=url, data=data, headers=headers)
 
         status_code = r.status_code
-        print("SIRIUS RETURNS")
-        print(status_code)
+        logger.debug(f"Sirius reponse code: {status_code}")
 
         if status_code == 201:
             sirius_response = {
@@ -183,6 +257,9 @@ def submit_document_to_sirius(url, data, headers):
             }
 
         else:
+            logger.info(
+                f"Unable to send request to Sirius, response code {status_code}"
+            )
             sirius_response = {
                 "isBase64Encoded": False,
                 "statusCode": status_code,
@@ -193,6 +270,7 @@ def submit_document_to_sirius(url, data, headers):
             }
 
     except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
+        logger.info(f"Unable to send request to Sirius, server not available")
         sirius_response = {
             "isBase64Encoded": False,
             "statusCode": 404,
