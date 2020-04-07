@@ -18,11 +18,14 @@ from lambda_functions.v1.tests.sirius_documents import reports_endpoint_test_cas
 
 
 def test_lambda_handler_valid_event(
-    patched_requests, patched_get_secret, default_request_case_ref, default_request_body
+    patched_requests,
+    patched_get_secret,
+    default_request_case_ref,
+    default_report_request_body,
 ):
     path_params = {"caseref": default_request_case_ref}
     event = build_aws_event(
-        event_body=json.dumps(default_request_body),
+        event_body=json.dumps(default_report_request_body),
         event_path_parementers=path_params,
         as_json=False,
     )
@@ -41,11 +44,11 @@ def test_lambda_handler_invalid_event(
     patched_get_secret,
     patched_validate_event,
     default_request_case_ref,
-    default_request_body,
+    default_report_request_body,
 ):
     path_params = {"caseref": default_request_case_ref}
     event = build_aws_event(
-        event_body=json.dumps(default_request_body),
+        event_body=json.dumps(default_report_request_body),
         event_path_parementers=path_params,
         as_json=False,
     )
@@ -73,12 +76,14 @@ def test_validate_payload(case_data: CaseDataGetter):
 
 
 def test_transform_event_to_sirius_request(
-    default_request_body, default_request_case_ref, default_sirius_request
+    default_report_request_body,
+    default_request_case_ref,
+    default_sirius_reports_request,
 ):
 
     path_params = {"caseref": default_request_case_ref}
     event = build_aws_event(
-        event_body=json.dumps(default_request_body),
+        event_body=json.dumps(default_report_request_body),
         event_path_parementers=path_params,
         as_json=False,
     )
@@ -86,4 +91,4 @@ def test_transform_event_to_sirius_request(
     payload = transform_event_to_sirius_request(event)
 
     assert is_valid_schema(json.loads(payload), "sirius_documents_payload_schema.json")
-    assert payload == json.dumps(default_sirius_request)
+    assert payload == json.dumps(default_sirius_reports_request)

@@ -2,7 +2,6 @@ import datetime
 import json
 import logging
 import os
-import re
 from urllib.parse import urljoin
 
 import boto3
@@ -41,6 +40,60 @@ def lambda_handler(event, context):
     return lambda_response
 
 
+def validate_event(event):
+    errors = []
+    request_body = json.loads(event["body"])
+
+    try:
+        if len(event["pathParameters"]["caseref"]) == 0:
+            errors.append("caseRecNumber")
+    except (KeyError, TypeError):
+        errors.append("caseRecNumber")
+
+    try:
+        if len(event["pathParameters"]["id"]) == 0:
+            errors.append("caseRecNumber")
+    except (KeyError, TypeError):
+        errors.append("caseRecNumber")
+
+    try:
+        request_body["supporting_document"]["data"]["attributes"]
+    except (KeyError, TypeError):
+        errors.append("metadata")
+
+    try:
+        if (
+            len(request_body["supporting_document"]["data"]["attributes"]["report_id"])
+            == 0
+        ):
+            errors.append("report_id")
+    except (KeyError, TypeError):
+        errors.append("report_id")
+
+    try:
+        if len(request_body["supporting_document"]["data"]["file"]["name"]) == 0:
+            errors.append("file_name")
+    except (KeyError, TypeError):
+        errors.append("file_name")
+
+    try:
+        if len(request_body["supporting_document"]["data"]["file"]["mimetype"]) == 0:
+            errors.append("file_type")
+    except (KeyError, TypeError):
+        errors.append("file_type")
+
+    try:
+        if len(request_body["supporting_document"]["data"]["file"]["source"]) == 0:
+            errors.append("file_source")
+    except (KeyError, TypeError):
+        errors.append("file_source")
+
+    if len(errors) > 0:
+        return False, errors
+    else:
+        return True, errors
+
+
 def transform_event_to_sirius_request(event):
     """
     Takes the 'body' from the AWS event and converts it into the right format for the
@@ -65,11 +118,7 @@ def transform_event_to_sirius_request(event):
         "type": "Report",
         "caseRecNumber": case_ref,
         "metadata": metadata,
-        "file": {
-            "name": re.sub("[^A-Za-z0-9.]+", "", file_name),
-            "source": file_source,
-            "type": re.sub("[^A-Za-z0-9/]+", "", file_type),
-        },
+        "file": {"name": file_name, "source": file_source, "type": file_type},
     }
     print("Payload To Send:")
     print(payload)

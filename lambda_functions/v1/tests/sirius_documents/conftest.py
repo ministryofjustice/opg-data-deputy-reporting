@@ -18,7 +18,7 @@ test_data = {
 
 
 @pytest.fixture(autouse=True)
-def default_sirius_request(default_request_case_ref):
+def default_sirius_reports_request(default_request_case_ref):
     return {
         "type": "Report - General",
         "caseRecNumber": default_request_case_ref,
@@ -39,7 +39,23 @@ def default_sirius_request(default_request_case_ref):
 
 
 @pytest.fixture(autouse=True)
-def default_request_body():
+def default_sirius_supporting_docs_request(
+    default_request_case_ref, default_request_report_id
+):
+    return {
+        "type": "Report",
+        "caseRecNumber": default_request_case_ref,
+        "metadata": {"submission_id": 231231, "report_id": default_request_report_id},
+        "file": {
+            "name": "Supporting_Document_111.pdf",
+            "source": "string",
+            "type": "application/pdf",
+        },
+    }
+
+
+@pytest.fixture(autouse=True)
+def default_report_request_body():
     return {
         "report": {
             "data": {
@@ -63,8 +79,31 @@ def default_request_body():
 
 
 @pytest.fixture(autouse=True)
+def default_supporting_doc_request_body(default_request_report_id):
+    return {
+        "supporting_document": {
+            "data": {
+                "type": "supportingdocuments",
+                "id": default_request_report_id,
+                "attributes": {"submission_id": 231231},
+                "file": {
+                    "name": "Supporting_Document_111.pdf",
+                    "mimetype": "application/pdf",
+                    "source": "string",
+                },
+            }
+        }
+    }
+
+
+@pytest.fixture(autouse=True)
 def default_request_case_ref():
     return "12345678"
+
+
+@pytest.fixture(autouse=True)
+def default_request_report_id():
+    return "df6ff8dd-01a3-4f02-833b-01655f9b4c9e"
 
 
 @pytest.fixture(autouse=True)

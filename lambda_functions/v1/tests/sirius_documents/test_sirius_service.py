@@ -26,11 +26,11 @@ from lambda_functions.v1.tests.helpers.use_test_data import is_valid_schema
     ],
 )
 def test_submit_document_to_sirius(
-    patched_requests, case_ref, expected_result, default_sirius_request
+    patched_requests, case_ref, expected_result, default_sirius_reports_request
 ):
     headers = {"Content-Type": "application/json"}
-    default_sirius_request["caseRecNumber"] = case_ref
-    body = json.dumps(default_sirius_request)
+    default_sirius_reports_request["caseRecNumber"] = case_ref
+    body = json.dumps(default_sirius_reports_request)
 
     response = submit_document_to_sirius(url="", data=body, headers=headers)
 
