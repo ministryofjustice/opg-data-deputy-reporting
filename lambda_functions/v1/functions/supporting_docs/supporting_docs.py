@@ -62,9 +62,8 @@ def validate_event(event):
         errors.append("metadata")
 
     try:
-        if (
-            len(request_body["supporting_document"]["data"]["attributes"]["report_id"])
-            == 0
+        if 0 == len(
+            request_body["supporting_document"]["data"]["attributes"]["report_id"]
         ):
             errors.append("report_id")
     except (KeyError, TypeError):
