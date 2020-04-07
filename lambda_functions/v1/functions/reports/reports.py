@@ -53,7 +53,7 @@ def lambda_handler(event, context):
             "isBase64Encoded": False,
             "statusCode": 400,
             "headers": {"Content-Type": "application/json"},
-            "body": f"unable to parse {', '.join(errors)}"
+            "body": f"unable to parse {', '.join(errors)}",
         }
 
     print(lambda_response)
@@ -66,41 +66,45 @@ def validate_event(event):
     request_body = json.loads(event["body"])
 
     try:
-        event["pathParameters"]["caseref"]
-    except KeyError:
+        if len(event["pathParameters"]["caseref"]) == 0:
+            errors.append("caseRecNumber")
+    except (KeyError, TypeError):
         errors.append("caseRecNumber")
+
     try:
         request_body["report"]["data"]["attributes"]
-    except KeyError:
-        errors.append('metadata')
+    except (KeyError, TypeError):
+        errors.append("metadata")
 
     try:
         if len(request_body["report"]["data"]["file"]["name"]) == 0:
-            errors.append('file_name')
-    except KeyError:
-        errors.append('file_name')
-    except TypeError:
-        errors.append('file_name')
+            errors.append("file_name")
+    except (KeyError, TypeError):
+        errors.append("file_name")
 
     try:
-        request_body["report"]["data"]["file"]["mimetype"]
-    except KeyError:
-        errors.append('file_type')
+        if len(request_body["report"]["data"]["file"]["mimetype"]) == 0:
+            errors.append("file_type")
+    except (KeyError, TypeError):
+        errors.append("file_type")
+
     try:
-        request_body["report"]["data"]["file"]["source"]
-    except KeyError:
-        errors.append('file_source')
+        if len(request_body["report"]["data"]["file"]["source"]) == 0:
+            errors.append("file_source")
+    except (KeyError, TypeError):
+        errors.append("file_source")
 
     if len(errors) > 0:
         return False, errors
     else:
         return True, errors
 
+
 def transform_event_to_sirius_request(event):
     """
     Takes the 'body' from the AWS event and converts it into the right format for the
     Sirius documents endpoint, detailed here:
-    tests/test_data/sirius_documents_payload.json
+    tests/test_data/sirius_documents_payload_schema.json
 
     Args:
         event: json received from API Gateway

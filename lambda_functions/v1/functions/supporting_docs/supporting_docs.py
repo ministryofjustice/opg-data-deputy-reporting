@@ -45,7 +45,7 @@ def transform_event_to_sirius_request(event):
     """
     Takes the 'body' from the AWS event and converts it into the right format for the
     Sirius documents endpoint, detailed here:
-    tests/test_data/sirius_documents_payload.json
+    tests/test_data/sirius_documents_payload_schema.json
 
     Args:
         event: json received from API Gateway

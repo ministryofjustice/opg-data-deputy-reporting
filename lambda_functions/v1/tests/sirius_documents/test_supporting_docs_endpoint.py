@@ -13,7 +13,7 @@ def test_lambda_handler(patched_requests, patched_get_secret_supporting_docs):
 
     result = lambda_handler(event=event, context=context)
 
-    assert is_valid_schema(json.dumps(result), "standard_lambda_response.json")
+    assert is_valid_schema(json.dumps(result), "standard_lambda_response_schema.json")
 
 
 def test_transform_event_to_sirius_request():
@@ -21,4 +21,4 @@ def test_transform_event_to_sirius_request():
 
     payload = transform_event_to_sirius_request(event)
 
-    assert is_valid_schema(json.loads(payload), "sirius_documents_payload.json")
+    assert is_valid_schema(json.loads(payload), "sirius_documents_payload_schema.json")

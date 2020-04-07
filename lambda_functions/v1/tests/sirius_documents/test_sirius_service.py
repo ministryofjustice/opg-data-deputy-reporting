@@ -26,17 +26,17 @@ from lambda_functions.v1.tests.helpers.use_test_data import is_valid_schema
     ],
 )
 def test_submit_document_to_sirius(
-    patched_requests, case_ref, expected_result, sirius_request
+    patched_requests, case_ref, expected_result, default_sirius_request
 ):
     headers = {"Content-Type": "application/json"}
-    sirius_request["caseRecNumber"] = case_ref
-    body = json.dumps(sirius_request)
+    default_sirius_request["caseRecNumber"] = case_ref
+    body = json.dumps(default_sirius_request)
 
     response = submit_document_to_sirius(url="", data=body, headers=headers)
 
     assert response["statusCode"] == expected_result["status_code"]
     assert response["body"] == expected_result["body"]
-    assert is_valid_schema(json.dumps(response), "standard_lambda_response.json")
+    assert is_valid_schema(json.dumps(response), "standard_lambda_response_schema.json")
 
 
 # def test_sirius_does_not_exist(monkeypatch, sirius_request):

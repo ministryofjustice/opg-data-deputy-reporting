@@ -3,35 +3,68 @@ import json
 import pytest
 import requests
 
-from lambda_functions.v1.functions.reports import reports as sirius_service_reports
+from lambda_functions.v1.functions.reports import (
+    reports as sirius_service_reports,
+    reports,
+)
 from lambda_functions.v1.functions.supporting_docs import (
     supporting_docs as sirius_service_supporting_docs,
 )
 
 test_data = {
-    "valid_clients": ["valid_client_id", "0319392T"],
+    "valid_clients": ["valid_client_id", "0319392T", "12345678", "22814959"],
     "invalid_clients": ["invalid_client_id"],
 }
 
 
 @pytest.fixture(autouse=True)
-def sirius_request():
+def default_sirius_request(default_request_case_ref):
     return {
         "type": "Report - General",
-        "caseRecNumber": "default_case_ref",
+        "caseRecNumber": default_request_case_ref,
         "metadata": {
+            "submission_id": 12345,
             "reporting_period_from": "2019-01-01",
             "reporting_period_to": "2019-12-31",
-            "year": "2019",
+            "year": 2019,
             "date_submitted": "2020-01-03T09:30:00.001Z",
-            "type": "HW",
+            "type": "PF",
         },
         "file": {
-            "name": "default_file_name.pdf",
+            "name": "Report_1234567T_2018_2019_11111.pdf",
             "source": "string",
             "type": "application/pdf",
         },
     }
+
+
+@pytest.fixture(autouse=True)
+def default_request_body():
+    return {
+        "report": {
+            "data": {
+                "type": "reports",
+                "attributes": {
+                    "submission_id": 12345,
+                    "reporting_period_from": "2019-01-01",
+                    "reporting_period_to": "2019-12-31",
+                    "year": 2019,
+                    "date_submitted": "2020-01-03T09:30:00.001Z",
+                    "type": "PF",
+                },
+                "file": {
+                    "name": "Report_1234567T_2018_2019_11111.pdf",
+                    "mimetype": "application/pdf",
+                    "source": "string",
+                },
+            }
+        }
+    }
+
+
+@pytest.fixture(autouse=True)
+def default_request_case_ref():
+    return "12345678"
 
 
 @pytest.fixture(autouse=True)
@@ -84,3 +117,11 @@ def patched_get_secret_supporting_docs(monkeypatch):
         return "this_is_a_secret_string"
 
     monkeypatch.setattr(sirius_service_supporting_docs, "get_secret", mock_secret)
+
+
+@pytest.fixture
+def patched_validate_event(monkeypatch):
+    def mock_invalid(*args, **kwargs):
+        return False, ["file_name", "file_type"]
+
+    monkeypatch.setattr(reports, "validate_event", mock_invalid)

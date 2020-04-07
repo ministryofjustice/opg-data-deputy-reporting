@@ -28,9 +28,7 @@
 	},
 	"queryStringParameters": null,
 	"multiValueQueryStringParameters": null,
-	"pathParameters": {
-		"caseref": "22814959"
-	},
+	"pathParameters": {},
 	"stageVariables": {
 		"supporting_docs_name": "sirius-supporting_docs-in149-v1",
 		"healthcheck_function_name": "sirius-healthcheck-in149-v1",
@@ -67,6 +65,6 @@
 		"domainName": "in149.dev.deputy-reporting.api.opg.service.justice.gov.uk",
 		"apiId": "ak1vp6g219"
 	},
-	"body": "{\n\"report\": {\n\"data\": {\n\"type\": \"reports\",\n\"attributes\": {\n\"submission_id\": 12345,\n\"reporting_period_from\": \"2019 - 01 - 01\",\n\"reporting_period_to\": \"2019 - 12 - 31\",\n\"year\": 2019,\n\"date_submitted\": \"2020 - 01 - 03 T09: 30: 00.001 Z\",\n\"type\": \"PF\"\n},\n\"file\": {\n\"name\": \"Report_1234567T_2018_2019_11111.pdf\",\n\"mimetype\": \"application / pdf\",\n\"source\": \"nc29tZV9jb250ZW50\"\n}\n}\n}\n}\n",
+	"body": "",
     "isBase64Encoded": false
 }
