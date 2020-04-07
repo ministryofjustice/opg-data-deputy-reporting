@@ -26,7 +26,6 @@ def test_lambda_handler(patched_requests, patched_get_secret_supporting_docs):
     context = None
 
     result = lambda_handler(event=event, context=context)
-
     assert is_valid_schema(json.dumps(result), "standard_lambda_response_schema.json")
 
 

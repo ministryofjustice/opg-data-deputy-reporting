@@ -10,8 +10,16 @@ import requests
 from botocore.exceptions import ClientError
 
 logger = logging.getLogger()
-if __name__ == "__main__":
+try:
     logger.setLevel(os.environ["LOGGER_LEVEL"])
+except KeyError:
+    logger.setLevel("INFO")
+
+handler = logging.StreamHandler()
+handler.setFormatter(
+    logging.Formatter("[%(levelname)s] [in %(funcName)s:%(lineno)d] %(message)s")
+)
+logger.addHandler(handler)
 
 
 def lambda_handler(event, context):
@@ -151,7 +159,6 @@ def build_sirius_url(base_url, api_route, endpoint):
     Returns:
         string: url
     """
-
 
     SIRIUS_URL = urljoin(base_url, api_route)
     url = urljoin(SIRIUS_URL, endpoint)

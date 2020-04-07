@@ -159,10 +159,11 @@ def build_sirius_url(base_url, api_route, endpoint):
     SIRIUS_URL = urljoin(base_url, api_route)
     url = urljoin(SIRIUS_URL, endpoint)
 
-    if urlparse(url).scheme != 'https':
+    if urlparse(url).scheme != "https":
         return False
 
     return url
+
 
 def get_secret(environment):
     """
