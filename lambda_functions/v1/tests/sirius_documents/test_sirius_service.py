@@ -95,10 +95,10 @@ def test_submit_document_to_sirius(
             "/v1/documents",
         ),
         (
-            "https://www.fake_url.com",
+            "http://www.fake_url.com",
             "not/a/real/route/",
             "random/endpoint/",
-            "https://www.fake_url.com/not/a/real/route/random/endpoint/",
+            "http://www.fake_url.com/not/a/real/route/random/endpoint/",
         ),
         ("banana", "not/a/real/route/", "random/endpoint/", False,),
     ],

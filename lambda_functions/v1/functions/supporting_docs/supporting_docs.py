@@ -162,7 +162,7 @@ def build_sirius_url(base_url, api_route, endpoint):
     SIRIUS_URL = urljoin(base_url, api_route)
     url = urljoin(SIRIUS_URL, endpoint)
 
-    if urlparse(url).scheme != "https":
+    if urlparse(url).scheme not in ['https', 'http']:
         logger.info("Unable to build Sirius URL")
         return False
 
