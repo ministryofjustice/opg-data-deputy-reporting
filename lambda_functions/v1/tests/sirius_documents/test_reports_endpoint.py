@@ -92,3 +92,21 @@ def test_transform_event_to_sirius_request(
 
     assert is_valid_schema(json.loads(payload), "sirius_documents_payload_schema.json")
     assert payload == json.dumps(default_sirius_reports_request)
+
+
+def test_sirius_request_has_and_submission_id(
+    default_report_request_body,
+    default_request_case_ref,
+    default_sirius_reports_request,
+):
+    path_params = {"caseref": default_request_case_ref}
+    event = build_aws_event(
+        event_body=json.dumps(default_report_request_body),
+        event_path_parementers=path_params,
+        as_json=False,
+    )
+
+    payload = transform_event_to_sirius_request(event)
+    print(payload)
+
+    assert json.loads(payload)["metadata"]["submission_id"]

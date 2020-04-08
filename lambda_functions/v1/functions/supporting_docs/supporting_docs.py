@@ -49,6 +49,7 @@ def lambda_handler(event, context):
 
 
 def validate_event(event):
+    # TODO if there is not a nicer way to do this, there should be
     """
     The request body *should* be validated by API-G before it gets this far,
     but given everything blows up if any of these required fields are missing/wrong
@@ -62,51 +63,18 @@ def validate_event(event):
         tuple: valid boolean, error list
     """
 
-    errors = []
-    request_body = json.loads(event["body"])
+    required_body_structure = {
+        "supporting_document": {
+            "data": {
+                "attributes": {"submission_id": 0},
+                "file": {"name": "string", "mimetype": "string", "source": "string"},
+            }
+        }
+    }
 
-    try:
-        if len(event["pathParameters"]["caseref"]) == 0:
-            errors.append("caseRecNumber")
-    except (KeyError, TypeError):
-        errors.append("caseRecNumber")
-
-    try:
-        if len(event["pathParameters"]["id"]) == 0:
-            errors.append("caseRecNumber")
-    except (KeyError, TypeError):
-        errors.append("caseRecNumber")
-
-    try:
-        request_body["supporting_document"]["data"]["attributes"]
-    except (KeyError, TypeError):
-        errors.append("metadata")
-
-    try:
-        if 0 == len(
-            request_body["supporting_document"]["data"]["attributes"]["report_id"]
-        ):
-            errors.append("report_id")
-    except (KeyError, TypeError):
-        errors.append("report_id")
-
-    try:
-        if len(request_body["supporting_document"]["data"]["file"]["name"]) == 0:
-            errors.append("file_name")
-    except (KeyError, TypeError):
-        errors.append("file_name")
-
-    try:
-        if len(request_body["supporting_document"]["data"]["file"]["mimetype"]) == 0:
-            errors.append("file_type")
-    except (KeyError, TypeError):
-        errors.append("file_type")
-
-    try:
-        if len(request_body["supporting_document"]["data"]["file"]["source"]) == 0:
-            errors.append("file_source")
-    except (KeyError, TypeError):
-        errors.append("file_source")
+    errors = compare_two_dicts(
+        required_body_structure, json.loads(event["body"]), missing=[]
+    )
 
     if len(errors) > 0:
         return False, errors
@@ -145,6 +113,37 @@ def transform_event_to_sirius_request(event):
     return json.dumps(payload)
 
 
+# Helpers
+
+
+def compare_two_dicts(required_structure, test_dict, path="", missing=[]):
+
+    for key in required_structure:
+        if key not in test_dict:
+            missing_item = f"{path}->{key}"
+            if missing_item not in missing:
+                missing.append(missing_item)
+        else:
+            if type(required_structure[key]) is dict:
+                if path == "":
+                    path = key
+                else:
+                    path = path + "->" + key
+                compare_two_dicts(
+                    required_structure[key], test_dict[key], path, missing
+                )
+            else:
+                if isinstance(test_dict[key], type(None)):
+                    missing.append(f"{path}->{key}")
+                elif type(test_dict[key]) == str and len(test_dict[key]) == 0:
+                    missing_item = f"{path}->{key}"
+
+                    if missing_item not in missing:
+                        missing.append(missing_item)
+
+    return missing
+
+
 # Sirius API Service
 
 
@@ -162,7 +161,7 @@ def build_sirius_url(base_url, api_route, endpoint):
     SIRIUS_URL = urljoin(base_url, api_route)
     url = urljoin(SIRIUS_URL, endpoint)
 
-    if urlparse(url).scheme not in ['https', 'http']:
+    if urlparse(url).scheme not in ["https", "http"]:
         logger.info("Unable to build Sirius URL")
         return False
 
