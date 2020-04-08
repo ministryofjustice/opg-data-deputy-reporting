@@ -3,13 +3,10 @@ import json
 import pytest
 import requests
 
-from lambda_functions.v1.functions.reports import (
-    reports as sirius_service_reports,
-    reports,
-)
-from lambda_functions.v1.functions.supporting_docs import (
-    supporting_docs as sirius_service_supporting_docs,
-)
+from lambda_functions.v1.functions.reports.app import sirius_service as sirius_service_reports
+from lambda_functions.v1.functions.reports.app import reports
+from lambda_functions.v1.functions.supporting_docs.app import \
+    sirius_service as sirius_service_supporting_docs
 
 test_data = {
     "valid_clients": ["valid_client_id", "0319392T", "12345678", "22814959"],

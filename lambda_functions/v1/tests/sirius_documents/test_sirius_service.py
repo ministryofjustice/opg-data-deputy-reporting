@@ -8,7 +8,7 @@ from jwt import DecodeError
 # from botocore.exceptions import ClientError
 # from moto import mock_secretsmanager
 
-from lambda_functions.v1.functions.reports.reports import (
+from lambda_functions.v1.functions.reports.app.reports import (
     submit_document_to_sirius,
     build_sirius_url,
     build_sirius_headers,

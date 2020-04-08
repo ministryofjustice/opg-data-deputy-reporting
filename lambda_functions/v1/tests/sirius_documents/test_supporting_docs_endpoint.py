@@ -1,6 +1,6 @@
 import json
 
-from lambda_functions.v1.functions.supporting_docs.supporting_docs import (
+from lambda_functions.v1.functions.supporting_docs.app.supporting_docs import (
     lambda_handler,
     transform_event_to_sirius_request,
     validate_event,

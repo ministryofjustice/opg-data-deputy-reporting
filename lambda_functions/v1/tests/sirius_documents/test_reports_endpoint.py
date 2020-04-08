@@ -5,7 +5,7 @@ from pytest_cases import (
     CaseDataGetter,
 )
 
-from lambda_functions.v1.functions.reports.reports import (
+from lambda_functions.v1.functions.reports.app.reports import (
     lambda_handler,
     transform_event_to_sirius_request,
     validate_event,
