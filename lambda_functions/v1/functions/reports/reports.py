@@ -61,6 +61,7 @@ def lambda_handler(event, context):
 
 
 def validate_event(event):
+    # TODO if there is not a nicer way to do this, there should be
     """
     The request body *should* be validated by API-G before it gets this far,
     but given everything blows up if any of these required fields are missing/wrong
@@ -87,6 +88,12 @@ def validate_event(event):
         request_body["report"]["data"]["attributes"]
     except (KeyError, TypeError):
         errors.append("metadata")
+
+    try:
+        if not request_body["report"]["data"]["attributes"]["submission_id"] > 0:
+            errors.append("submission_id")
+    except (KeyError, TypeError):
+        errors.append("submission_id")
 
     try:
         if len(request_body["report"]["data"]["file"]["name"]) == 0:
@@ -159,7 +166,7 @@ def build_sirius_url(base_url, api_route, endpoint):
     SIRIUS_URL = urljoin(base_url, api_route)
     url = urljoin(SIRIUS_URL, endpoint)
 
-    if urlparse(url).scheme not in ['https', 'http']:
+    if urlparse(url).scheme not in ["https", "http"]:
         logger.info("Unable to build Sirius URL")
         return False
 
