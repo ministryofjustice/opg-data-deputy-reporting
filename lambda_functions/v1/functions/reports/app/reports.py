@@ -1,11 +1,13 @@
 import json
-import json
 import logging
 import os
 
 from .helpers import compare_two_dicts
-from .sirius_service import build_sirius_url, build_sirius_headers, \
-    submit_document_to_sirius
+from .sirius_service import (
+    build_sirius_url,
+    build_sirius_headers,
+    submit_document_to_sirius,
+)
 
 logger = logging.getLogger()
 
@@ -180,7 +182,8 @@ def transform_event_to_sirius_request(event):
 #
 # def get_secret(environment):
 #     """
-#     Gets and decrypts the JWT secret from AWS Secrets Manager for the chosen environment
+#     Gets and decrypts the JWT secret from AWS Secrets Manager for the chosen
+#     environment
 #     This was c&p directly from AWS Secrets Manager...
 #
 #     Args:
