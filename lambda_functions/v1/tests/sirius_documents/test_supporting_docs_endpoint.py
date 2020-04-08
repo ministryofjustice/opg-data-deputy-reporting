@@ -66,7 +66,7 @@ def test_transform_event_to_sirius_request(
     assert payload == json.dumps(default_sirius_supporting_docs_request)
 
 
-def test_sirius_request_has_report_id_and_submission_id(
+def test_sirius_request_has_submission_id(
     default_supporting_doc_request_body,
     default_request_case_ref,
     default_request_report_id,
@@ -82,5 +82,25 @@ def test_sirius_request_has_report_id_and_submission_id(
 
     payload = transform_event_to_sirius_request(event)
 
-    assert json.loads(payload)["metadata"]["report_id"]
     assert json.loads(payload)["metadata"]["submission_id"]
+
+
+def test_sirius_request_has_report_id_from_path(
+    default_supporting_doc_request_body,
+    default_request_case_ref,
+    default_request_report_id,
+    default_sirius_supporting_docs_request,
+):
+    default_supporting_doc_request_body["supporting_document"]["data"]["attributes"][
+        "report_id"
+    ] = "uuid_from_attributes"
+    path_params = {"caseref": default_request_case_ref, "id": "uuid_from_path"}
+    event = build_aws_event(
+        event_body=json.dumps(default_supporting_doc_request_body),
+        event_path_parementers=path_params,
+        as_json=False,
+    )
+
+    payload = transform_event_to_sirius_request(event)
+
+    assert json.loads(payload)["metadata"]["report_id"] == "uuid_from_path"

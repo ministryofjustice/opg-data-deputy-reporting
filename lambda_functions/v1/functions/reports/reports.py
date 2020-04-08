@@ -76,19 +76,13 @@ def validate_event(event):
     """
 
     required_body_structure = {
-
-            "report": {
-                "data": {
-                    "type": "string",
-                    "attributes": {"submission_id": 1},
-                    "file": {
-                        "name": "string",
-                        "mimetype": "string",
-                        "source": "string",
-                    },
-                }
+        "report": {
+            "data": {
+                "type": "string",
+                "attributes": {"submission_id": 1},
+                "file": {"name": "string", "mimetype": "string", "source": "string"},
             }
-
+        }
     }
 
     errors = compare_two_dicts(
