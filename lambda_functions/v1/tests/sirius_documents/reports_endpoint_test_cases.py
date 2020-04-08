@@ -129,3 +129,54 @@ def case_bad_multiple_required_fields() -> CaseData:
     body["report"]["data"]["file"]["source"] = ""
 
     return body, case_ref, expected_result
+
+
+def case_submission_id_is_missing() -> CaseData:
+    """
+    Data for reports endpoint tests
+
+    Returns:
+        Missing required field - submission_id
+    """
+
+    body = copy.deepcopy(default_body)
+    case_ref = default_case_ref
+    expected_result = (False, ["submission_id"])
+
+    body["report"]["data"]["attributes"].pop("submission_id")
+
+    return body, case_ref, expected_result
+
+
+def case_submission_id_is_null() -> CaseData:
+    """
+    Data for reports endpoint tests
+
+    Returns:
+        Missing required field - submission_id
+    """
+
+    body = copy.deepcopy(default_body)
+    case_ref = default_case_ref
+    expected_result = (False, ["submission_id"])
+
+    body["report"]["data"]["attributes"]["submission_id"] = None
+
+    return body, case_ref, expected_result
+
+
+def case_submission_id_is_empty() -> CaseData:
+    """
+    Data for reports endpoint tests
+
+    Returns:
+        Missing required field - submission_id
+    """
+
+    body = copy.deepcopy(default_body)
+    case_ref = default_case_ref
+    expected_result = (False, ["submission_id"])
+
+    body["report"]["data"]["attributes"]["submission_id"] = ""
+
+    return body, case_ref, expected_result

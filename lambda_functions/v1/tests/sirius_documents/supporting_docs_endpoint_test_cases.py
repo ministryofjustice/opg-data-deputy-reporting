@@ -133,3 +133,81 @@ def case_bad_multiple_required_fields() -> CaseData:
     body["supporting_document"]["data"]["file"]["source"] = ""
 
     return body, case_ref, report_id, expected_result
+
+
+def case_report_id_and_submission_id_are_missing() -> CaseData:
+    """
+    Data for reports endpoint tests
+
+    Returns:
+
+    """
+
+    body = copy.deepcopy(default_body)
+    case_ref = default_case_ref
+    report_id = default_report_id
+    expected_result = (False, ["report_id", "submission_id"])
+
+    body["supporting_document"]["data"]["attributes"].pop("report_id")
+    body["supporting_document"]["data"]["attributes"].pop("submission_id")
+
+    return body, case_ref, report_id, expected_result
+
+
+def case_report_id_and_submission_id_are_null() -> CaseData:
+    """
+    Data for reports endpoint tests
+
+    Returns:
+
+    """
+
+    body = copy.deepcopy(default_body)
+    case_ref = default_case_ref
+    report_id = default_report_id
+    expected_result = (False, ["report_id", "submission_id"])
+
+    body["supporting_document"]["data"]["attributes"]["report_id"] = None
+    body["supporting_document"]["data"]["attributes"]["submission_id"] = None
+
+    return body, case_ref, report_id, expected_result
+
+
+def case_report_id_and_submission_id_are_empty() -> CaseData:
+    """
+    Data for reports endpoint tests
+
+    Returns:
+
+    """
+
+    body = copy.deepcopy(default_body)
+    case_ref = default_case_ref
+    report_id = default_report_id
+    expected_result = (False, ["report_id", "submission_id"])
+
+    body["supporting_document"]["data"]["attributes"]["report_id"] = ""
+    body["supporting_document"]["data"]["attributes"]["submission_id"] = ""
+
+    return body, case_ref, report_id, expected_result
+
+
+def case_report_id_in_path_does_not_match_metadata() -> CaseData:
+    """
+    Data for reports endpoint tests
+
+    Returns:
+
+    """
+
+    body = copy.deepcopy(default_body)
+    case_ref = default_case_ref
+    report_id = default_report_id
+    expected_result = (
+        False,
+        ["report_id in metadata does not match report_id in path"],
+    )
+
+    body["supporting_document"]["data"]["attributes"]["report_id"] = "bad report_id"
+
+    return body, case_ref, report_id, expected_result
