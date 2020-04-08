@@ -7,10 +7,7 @@ default_body = {
         "data": {
             "type": "supportingdocuments",
             "id": "443e881b-370a-4343-acb3-9965d341662f",
-            "attributes": {
-                "submission_id": 231231,
-                "report_id": "443e881b-370a-4343-acb3-9965d341662f",
-            },
+            "attributes": {"submission_id": 231231, "report_id": "not a real id"},
             "file": {
                 "name": "Supporting_Document_111.pdf",
                 "mimetype": "application/pdf",
@@ -52,7 +49,7 @@ def case_missing_required_field() -> CaseData:
     body = copy.deepcopy(default_body)
     case_ref = default_case_ref
     report_id = default_report_id
-    expected_result = (False, ["file_name"])
+    expected_result = (False, ["supporting_document->data->attributes->file->name"])
 
     body["supporting_document"]["data"]["file"].pop("name")
 
@@ -70,7 +67,7 @@ def case_null_required_field() -> CaseData:
     body = copy.deepcopy(default_body)
     case_ref = default_case_ref
     report_id = default_report_id
-    expected_result = (False, ["file_name"])
+    expected_result = (False, ["supporting_document->data->attributes->file->name"])
 
     body["supporting_document"]["data"]["file"]["name"] = None
     return body, case_ref, report_id, expected_result
@@ -87,7 +84,7 @@ def case_empty_required_field() -> CaseData:
     body = copy.deepcopy(default_body)
     case_ref = default_case_ref
     report_id = default_report_id
-    expected_result = (False, ["file_name"])
+    expected_result = (False, ["supporting_document->data->attributes->file->name"])
 
     body["supporting_document"]["data"]["file"]["name"] = ""
 
@@ -105,7 +102,13 @@ def case_missing_multiple_required_fields() -> CaseData:
     body = copy.deepcopy(default_body)
     case_ref = default_case_ref
     report_id = default_report_id
-    expected_result = (False, ["file_type", "file_source"])
+    expected_result = (
+        False,
+        [
+            "supporting_document->data->attributes->file->mimetype",
+            "supporting_document->data->attributes->file->source",
+        ],
+    )
 
     body["supporting_document"]["data"]["file"].pop("mimetype")
     body["supporting_document"]["data"]["file"].pop("source")
@@ -126,7 +129,14 @@ def case_bad_multiple_required_fields() -> CaseData:
     body = copy.deepcopy(default_body)
     case_ref = default_case_ref
     report_id = default_report_id
-    expected_result = (False, ["file_type", "file_source", "file_name"])
+    expected_result = (
+        False,
+        [
+            "supporting_document->data->attributes->file->name",
+            "supporting_document->data->attributes->file->mimetype",
+            "supporting_document->data->attributes->file->source",
+        ],
+    )
 
     body["supporting_document"]["data"]["file"]["name"] = None
     body["supporting_document"]["data"]["file"].pop("mimetype")
@@ -135,64 +145,7 @@ def case_bad_multiple_required_fields() -> CaseData:
     return body, case_ref, report_id, expected_result
 
 
-def case_report_id_and_submission_id_are_missing() -> CaseData:
-    """
-    Data for reports endpoint tests
-
-    Returns:
-
-    """
-
-    body = copy.deepcopy(default_body)
-    case_ref = default_case_ref
-    report_id = default_report_id
-    expected_result = (False, ["report_id", "submission_id"])
-
-    body["supporting_document"]["data"]["attributes"].pop("report_id")
-    body["supporting_document"]["data"]["attributes"].pop("submission_id")
-
-    return body, case_ref, report_id, expected_result
-
-
-def case_report_id_and_submission_id_are_null() -> CaseData:
-    """
-    Data for reports endpoint tests
-
-    Returns:
-
-    """
-
-    body = copy.deepcopy(default_body)
-    case_ref = default_case_ref
-    report_id = default_report_id
-    expected_result = (False, ["report_id", "submission_id"])
-
-    body["supporting_document"]["data"]["attributes"]["report_id"] = None
-    body["supporting_document"]["data"]["attributes"]["submission_id"] = None
-
-    return body, case_ref, report_id, expected_result
-
-
-def case_report_id_and_submission_id_are_empty() -> CaseData:
-    """
-    Data for reports endpoint tests
-
-    Returns:
-
-    """
-
-    body = copy.deepcopy(default_body)
-    case_ref = default_case_ref
-    report_id = default_report_id
-    expected_result = (False, ["report_id", "submission_id"])
-
-    body["supporting_document"]["data"]["attributes"]["report_id"] = ""
-    body["supporting_document"]["data"]["attributes"]["submission_id"] = ""
-
-    return body, case_ref, report_id, expected_result
-
-
-def case_report_id_in_path_does_not_match_metadata() -> CaseData:
+def case_submission_id_is_missing() -> CaseData:
     """
     Data for reports endpoint tests
 
@@ -205,9 +158,51 @@ def case_report_id_in_path_does_not_match_metadata() -> CaseData:
     report_id = default_report_id
     expected_result = (
         False,
-        ["report_id in metadata does not match report_id in path"],
+        ["supporting_document->data->attributes->submission_id"],
     )
 
-    body["supporting_document"]["data"]["attributes"]["report_id"] = "bad report_id"
+    body["supporting_document"]["data"]["attributes"].pop("submission_id")
+
+    return body, case_ref, report_id, expected_result
+
+
+def case_submission_id_is_null() -> CaseData:
+    """
+    Data for reports endpoint tests
+
+    Returns:
+
+    """
+
+    body = copy.deepcopy(default_body)
+    case_ref = default_case_ref
+    report_id = default_report_id
+    expected_result = (
+        False,
+        ["supporting_document->data->attributes->submission_id"],
+    )
+
+    body["supporting_document"]["data"]["attributes"]["submission_id"] = None
+
+    return body, case_ref, report_id, expected_result
+
+
+def case_submission_id_is_empty() -> CaseData:
+    """
+    Data for reports endpoint tests
+
+    Returns:
+
+    """
+
+    body = copy.deepcopy(default_body)
+    case_ref = default_case_ref
+    report_id = default_report_id
+    expected_result = (
+        False,
+        ["supporting_document->data->attributes->submission_id"],
+    )
+
+    body["supporting_document"]["data"]["attributes"]["submission_id"] = ""
 
     return body, case_ref, report_id, expected_result
