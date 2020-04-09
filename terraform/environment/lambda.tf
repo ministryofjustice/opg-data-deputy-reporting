@@ -21,7 +21,7 @@ module "lambda_reports_v1" {
   target_environment     = local.account.target_environment
   vpc_id                 = local.account.vpc_id
   lambda_prefix          = "sirius-reports"
-  handler                = "app.reports.lambda_handler"
+  handler                = "reports.lambda_handler"
   lambda_function_subdir = "reports"
   logger_level           = "INFO"
   tags                   = local.default_tags
@@ -37,7 +37,7 @@ module "lambda_supporting_docs_v1" {
   target_environment     = local.account.target_environment
   vpc_id                 = local.account.vpc_id
   lambda_prefix          = "sirius-supporting_docs"
-  handler                = "app.supporting_docs.lambda_handler"
+  handler                = "supporting_docs.lambda_handler"
   lambda_function_subdir = "supporting_docs"
   logger_level           = "INFO"
   tags                   = local.default_tags
