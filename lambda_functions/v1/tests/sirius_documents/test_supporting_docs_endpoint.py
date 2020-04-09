@@ -1,6 +1,6 @@
 import json
 
-from lambda_functions.v1.functions.supporting_docs.app.supporting_docs import (
+from lambda_functions.v1.functions.supporting_docs.supporting_docs import (
     lambda_handler,
     transform_event_to_sirius_request,
     validate_event,
@@ -16,12 +16,12 @@ from pytest_cases import (
     CaseDataGetter,
 )
 
-from lambda_functions.v1.tests.supporting_docs import (
+from lambda_functions.v1.tests.sirius_documents import (
     supporting_docs_endpoint_test_cases,
 )
 
 
-def test_lambda_handler(patched_requests, patched_get_secret):
+def test_lambda_handler(patched_requests, patched_get_secret_supporting_docs):
     event = load_data("supporting_docs_event.json", as_json=False)
     context = None
 
