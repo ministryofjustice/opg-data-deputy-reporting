@@ -14,6 +14,16 @@ from lambda_functions.v1.functions.reports.app.sirius_service import (
     build_sirius_headers,
     # get_secret,
 )
+
+from lambda_functions.v1.functions.supporting_docs.app.supporting_docs import \
+    build_sirius_url as build_sirius_url_supporting_docs
+
+from lambda_functions.v1.functions.supporting_docs.app.supporting_docs import \
+    submit_document_to_sirius as submit_document_to_sirius_supporting_docs
+
+from lambda_functions.v1.functions.supporting_docs.app.supporting_docs import \
+    build_sirius_headers as build_sirius_headers_supporting_docs
+
 from lambda_functions.v1.tests.helpers.use_test_data import is_valid_schema
 
 
@@ -65,10 +75,14 @@ def test_submit_document_to_sirius(
     body = json.dumps(default_sirius_reports_request)
 
     response = submit_document_to_sirius(url="", data=body, headers=headers)
+    response_supporting_docs = submit_document_to_sirius_supporting_docs(url="",
+                                                                      data=body, headers=headers)
+
 
     assert response["statusCode"] == expected_result["status_code"]
     assert response["body"] == expected_result["body"]
     assert is_valid_schema(json.dumps(response), "standard_lambda_response_schema.json")
+    assert response == response_supporting_docs
 
 
 # TODO this does not work through CI, something to do with aws xray,
@@ -106,6 +120,8 @@ def test_submit_document_to_sirius(
 def test_build_sirius_url(base_url, api_route, endpoint, expected_result):
 
     assert build_sirius_url(base_url, api_route, endpoint) == expected_result
+    assert build_sirius_url(base_url, api_route, endpoint) == \
+           build_sirius_url_supporting_docs(base_url, api_route, endpoint)
 
 
 @pytest.mark.parametrize(
