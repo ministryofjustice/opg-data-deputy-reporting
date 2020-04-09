@@ -28,3 +28,14 @@ def load_data(filename, as_json=True):
             return data_file.read()
         else:
             return json.loads(data_file.read())
+
+
+def build_aws_event(event_body, event_path_parementers, as_json=True):
+    event = load_data("standard_lambda_event.json", as_json=False)
+    event["body"] = event_body
+    event["pathParameters"] = event_path_parementers
+
+    if as_json:
+        return json.dumps(event)
+    else:
+        return event

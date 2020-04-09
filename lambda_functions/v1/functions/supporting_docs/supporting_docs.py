@@ -2,8 +2,7 @@ import datetime
 import json
 import logging
 import os
-import re
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 
 import boto3
 import jwt
@@ -11,8 +10,16 @@ import requests
 from botocore.exceptions import ClientError
 
 logger = logging.getLogger()
-if __name__ == "__main__":
+try:
     logger.setLevel(os.environ["LOGGER_LEVEL"])
+except KeyError:
+    logger.setLevel("INFO")
+
+handler = logging.StreamHandler()
+handler.setFormatter(
+    logging.Formatter("[%(levelname)s] [in %(funcName)s:%(lineno)d] %(message)s")
+)
+logger.addHandler(handler)
 
 
 def lambda_handler(event, context):
@@ -36,16 +43,50 @@ def lambda_handler(event, context):
     lambda_response = submit_document_to_sirius(
         url=sirius_api_url, data=sirius_payload, headers=sirius_headers
     )
-    print(lambda_response)
+    logger.debug(f"Lambda Response: {lambda_response}")
 
     return lambda_response
+
+
+def validate_event(event):
+    # TODO if there is not a nicer way to do this, there should be
+    """
+    The request body *should* be validated by API-G before it gets this far,
+    but given everything blows up if any of these required fields are missing/wrong
+    then it's worth double checking here, and providing integrators with a meaningful
+    error message
+
+    Args:
+        event: AWS event json
+
+    Returns:
+        tuple: valid boolean, error list
+    """
+
+    required_body_structure = {
+        "supporting_document": {
+            "data": {
+                "attributes": {"submission_id": 0},
+                "file": {"name": "string", "mimetype": "string", "source": "string"},
+            }
+        }
+    }
+
+    errors = compare_two_dicts(
+        required_body_structure, json.loads(event["body"]), missing=[]
+    )
+
+    if len(errors) > 0:
+        return False, errors
+    else:
+        return True, errors
 
 
 def transform_event_to_sirius_request(event):
     """
     Takes the 'body' from the AWS event and converts it into the right format for the
     Sirius documents endpoint, detailed here:
-    tests/test_data/sirius_documents_payload.json
+    tests/test_data/sirius_documents_payload_schema.json
 
     Args:
         event: json received from API Gateway
@@ -65,16 +106,42 @@ def transform_event_to_sirius_request(event):
         "type": "Report",
         "caseRecNumber": case_ref,
         "metadata": metadata,
-        "file": {
-            "name": re.sub("[^A-Za-z0-9.]+", "", file_name),
-            "source": file_source,
-            "type": re.sub("[^A-Za-z0-9/]+", "", file_type),
-        },
+        "file": {"name": file_name, "source": file_source, "type": file_type},
     }
-    print("Payload To Send:")
-    print(payload)
+    logger.debug(f"Sirius Payload: {payload}")
 
     return json.dumps(payload)
+
+
+# Helpers
+
+
+def compare_two_dicts(required_structure, test_dict, path="", missing=[]):
+
+    for key in required_structure:
+        if key not in test_dict:
+            missing_item = f"{path}->{key}"
+            if missing_item not in missing:
+                missing.append(missing_item)
+        else:
+            if type(required_structure[key]) is dict:
+                if path == "":
+                    path = key
+                else:
+                    path = path + "->" + key
+                compare_two_dicts(
+                    required_structure[key], test_dict[key], path, missing
+                )
+            else:
+                if isinstance(test_dict[key], type(None)):
+                    missing.append(f"{path}->{key}")
+                elif type(test_dict[key]) == str and len(test_dict[key]) == 0:
+                    missing_item = f"{path}->{key}"
+
+                    if missing_item not in missing:
+                        missing.append(missing_item)
+
+    return missing
 
 
 # Sirius API Service
@@ -93,6 +160,11 @@ def build_sirius_url(base_url, api_route, endpoint):
     """
     SIRIUS_URL = urljoin(base_url, api_route)
     url = urljoin(SIRIUS_URL, endpoint)
+
+    if urlparse(url).scheme not in ["https", "http"]:
+        logger.info("Unable to build Sirius URL")
+        return False
+
     return url
 
 
@@ -118,6 +190,7 @@ def get_secret(environment):
         get_secret_value_response = client.get_secret_value(SecretId=secret_name)
         secret = get_secret_value_response["SecretString"]
     except ClientError as e:
+        logger.info("Unable to get secret from Secrets Manager")
         raise e
 
     return secret
@@ -175,8 +248,7 @@ def submit_document_to_sirius(url, data, headers):
         r = requests.post(url=url, data=data, headers=headers)
 
         status_code = r.status_code
-        print("SIRIUS RETURNS")
-        print(status_code)
+        logger.debug(f"Sirius reponse code: {status_code}")
 
         if status_code == 201:
             sirius_response = {
@@ -187,6 +259,9 @@ def submit_document_to_sirius(url, data, headers):
             }
 
         else:
+            logger.info(
+                f"Unable to send request to Sirius, response code {status_code}"
+            )
             sirius_response = {
                 "isBase64Encoded": False,
                 "statusCode": status_code,
@@ -197,6 +272,7 @@ def submit_document_to_sirius(url, data, headers):
             }
 
     except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
+        logger.info(f"Unable to send request to Sirius, server not available")
         sirius_response = {
             "isBase64Encoded": False,
             "statusCode": 404,
