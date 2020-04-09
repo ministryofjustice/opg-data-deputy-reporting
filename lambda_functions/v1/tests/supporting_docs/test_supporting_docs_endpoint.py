@@ -16,12 +16,12 @@ from pytest_cases import (
     CaseDataGetter,
 )
 
-from lambda_functions.v1.tests.sirius_documents import (
+from lambda_functions.v1.tests.supporting_docs import (
     supporting_docs_endpoint_test_cases,
 )
 
 
-def test_lambda_handler(patched_requests, patched_get_secret_supporting_docs):
+def test_lambda_handler(patched_requests, patched_get_secret):
     event = load_data("supporting_docs_event.json", as_json=False)
     context = None
 
