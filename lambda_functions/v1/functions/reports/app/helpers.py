@@ -27,3 +27,17 @@ def compare_two_dicts(required_structure, test_dict, path="", missing=[]):
                         missing.append(missing_item)
 
     return missing
+
+
+def format_response_message(request, uuid, caseref):
+
+    r = request["report"]
+    r["data"]["id"] = uuid
+    r["data"]["links"] = {
+        "self": f"https://opg-data-api.service.gov.uk/reports/{uuid}",
+        "client": f"https://opg-data-api.service.gov.uk/clients/{caseref}",
+    }
+    r["links"] = {"api-docs": "https://opg-data-api.service.gov.uk/developer/"}
+    r["meta"] = {}
+
+    return r

@@ -2,7 +2,7 @@ import json
 import logging
 import os
 
-from .helpers import compare_two_dicts
+from .helpers import compare_two_dicts, format_response_message
 from .sirius_service import (
     build_sirius_url,
     build_sirius_headers,
@@ -45,8 +45,14 @@ def lambda_handler(event, context):
         sirius_payload = transform_event_to_sirius_request(event=event)
         sirius_headers = build_sirius_headers()
 
-        lambda_response = submit_document_to_sirius(
+        sirius_reponse = submit_document_to_sirius(
             url=sirius_api_url, data=sirius_payload, headers=sirius_headers
+        )
+
+        lambda_response = format_response_message(
+            json.loads(event["body"]),
+            json.loads(sirius_reponse["body"])["uuid"],
+            event["pathParameters"]["caseref"],
         )
     else:
         lambda_response = {
@@ -57,6 +63,8 @@ def lambda_handler(event, context):
         }
 
     logger.debug(f"Lambda Response: {lambda_response}")
+
+    print(lambda_response)
     return lambda_response
 
 
