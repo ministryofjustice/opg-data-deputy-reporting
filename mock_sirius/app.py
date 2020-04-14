@@ -3,12 +3,25 @@ import connexion
 import requests
 import os
 from flask import Response
+from connexion.exceptions import OAuthProblem
 
 mockingEnvironment = os.environ.get("MOCKING_ENV")
 
 
 def healthcheck():
     return "healthy"
+
+
+TOKEN_DB = {"asdf1234567890": {"uid": 100}}
+
+
+def apikey_auth(token, required_scopes):
+    info = TOKEN_DB.get(token, None)
+
+    if not info:
+        raise OAuthProblem("Invalid token")
+
+    return info
 
 
 def addReportDocument(caseref):
@@ -23,6 +36,7 @@ def addReportDocument(caseref):
         responsegenerated = Response(
             response.text, status=response.status_code, mimetype="application/json"
         )
+
     return responsegenerated
 
 
@@ -48,5 +62,5 @@ def addReportSupportingDocument(caseref, id):
 
 
 sirius_server = connexion.App(__name__)
-sirius_server.add_api("deputy-reporting-openapi.yml")
+sirius_server.add_api("deputy-reporting-openapi.yml", arguments={"mock": "all"})
 sirius_server.run(port=4343)
