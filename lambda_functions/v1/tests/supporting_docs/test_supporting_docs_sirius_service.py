@@ -8,7 +8,7 @@ from jwt import DecodeError
 # from botocore.exceptions import ClientError
 # from moto import mock_secretsmanager
 
-from lambda_functions.v1.functions.reports.reports import (
+from lambda_functions.v1.functions.supporting_docs.app.sirius_service import (
     submit_document_to_sirius,
     build_sirius_url,
     build_sirius_headers,
@@ -58,11 +58,11 @@ def test_submit_document_to_sirius(
     case_ref,
     logger_message,
     expected_result,
-    default_sirius_reports_request,
+    default_sirius_supporting_docs_request,
 ):
     headers = {"Content-Type": "application/json"}
-    default_sirius_reports_request["caseRecNumber"] = case_ref
-    body = json.dumps(default_sirius_reports_request)
+    default_sirius_supporting_docs_request["caseRecNumber"] = case_ref
+    body = json.dumps(default_sirius_supporting_docs_request)
 
     response = submit_document_to_sirius(url="", data=body, headers=headers)
 
@@ -73,9 +73,9 @@ def test_submit_document_to_sirius(
 
 # TODO this does not work through CI, something to do with aws xray,
 #  see https://github.com/aws/aws-xray-sdk-python/issues/155
-# def test_sirius_does_not_exist(monkeypatch, default_sirius_reports_request):
+# def test_sirius_does_not_exist(monkeypatch, default_sirius_supporting_docs_request):
 #     headers = {"Content-Type": "application/json"}
-#     body = default_sirius_reports_request
+#     body = default_sirius_supporting_docs_request
 #
 #     response = submit_document_to_sirius(
 #         url="http://this_url_does_not_exist/", data=body, headers=headers
