@@ -91,6 +91,9 @@ def patched_requests(monkeypatch):
                     '{"uuid": '
                     '"531ca3b6-3f17-4ece-bdc5-7faf7f1f8427"}'.encode("UTF-8")
                 )
+            elif json.loads(data)["caseRecNumber"] is None:
+                mock_response.status_code = 500
+                mock_response.json = None
             else:
                 mock_response.status_code = 400
                 mock_response.json = None
