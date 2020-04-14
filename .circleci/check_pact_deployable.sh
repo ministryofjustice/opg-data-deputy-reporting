@@ -1,15 +1,28 @@
 export FULL_COMMIT_SHA=$(curl -u "${GITHUB_STATUS_CREDS}" \
 -X GET https://"${GITHUB_DIGIDEPS_URL}"/commits/$CONSUMER_VER | jq -r .sha) >> /dev/null
 
-./pact/bin/pact-broker can-i-deploy \
---broker-base-url https://"${PACT_BROKER_BASE_URL}" \
---broker-username="${PACT_BROKER_HTTP_AUTH_USER}" \
---broker-password="${PACT_BROKER_HTTP_AUTH_PASS}" \
---pacticipant "Complete the deputy report" \
---version "${CONSUMER_VER}" \
---pacticipant "OPG Data" \
---latest "production"
-export CAN_DEPLOY=$?
+if [ "${DIGIDEPSJOB}" == "true" ]
+then
+  ./pact/bin/pact-broker can-i-deploy \
+  --broker-base-url https://"${PACT_BROKER_BASE_URL}" \
+  --broker-username="${PACT_BROKER_HTTP_AUTH_USER}" \
+  --broker-password="${PACT_BROKER_HTTP_AUTH_PASS}" \
+  --pacticipant "Complete the deputy report" \
+  --version "${CONSUMER_VER}" \
+  --pacticipant "OPG Data" \
+  --latest "production"
+  export CAN_DEPLOY=$?
+else
+  ./pact/bin/pact-broker can-i-deploy \
+  --broker-base-url https://"${PACT_BROKER_BASE_URL}" \
+  --broker-username="${PACT_BROKER_HTTP_AUTH_USER}" \
+  --broker-password="${PACT_BROKER_HTTP_AUTH_PASS}" \
+  --pacticipant "Complete the deputy report" \
+  --version "${CONSUMER_VER}" \
+  --pacticipant "OPG Data" \
+  --latest
+  export CAN_DEPLOY=$?
+fi
 
 echo "CAN_DEPLOY return code is: ${CAN_DEPLOY}"
 
@@ -37,4 +50,5 @@ else
     echo "Build OK to deploy"
   else
     echo "Build should not be deployed, fails pact checks"
+  fi
 fi
