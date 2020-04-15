@@ -4,10 +4,10 @@ version: 2.1
 parameters:
   run_pull_request:
     type: boolean
-    default: false
+    default: true
   run_commit_to_master:
     type: boolean
-    default: false
+    default: true
   run_verify_pact:
     type: boolean
     default: true
@@ -316,7 +316,7 @@ jobs:
                   export WORKSPACE_TO_DELETE="${TF_WORKSPACE}"
                   echo "Switching workspace to default so we can remove branch workspace"
                   export TF_WORKSPACE=default
-                  terraform workspace delete "${WORKSPACE_TO_DELETE}"
+                  terraform workspace delete "${WORKSPACE_TO_DELETE}" || echo "no workspace to remove"
       - run:
           name: tag the latest pact version with env
           command: |
