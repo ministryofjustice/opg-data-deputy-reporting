@@ -21,53 +21,12 @@
           "required": [
             "submission_id"
           ]
-        },
-        "file": {
-          "type": "object",
-          "properties": {
-            "name": {
-              "type": "string"
-            },
-            "mimetype": {
-              "type": "string"
-            }
-          },
-          "required": [
-            "name",
-            "mimetype"
-          ]
-        },
-        "links": {
-          "type": "object",
-          "properties": {
-            "self": {
-              "type": "string"
-            },
-            "client": {
-              "type": "string"
-            }
-          },
-          "required": [
-            "self",
-            "client"
-          ]
         }
       },
       "required": [
         "type",
         "id",
         "attributes"
-      ]
-    },
-    "links": {
-      "type": "object",
-      "properties": {
-        "api-docs": {
-          "type": "string"
-        }
-      },
-      "required": [
-        "api-docs"
       ]
     },
     "meta": {

@@ -54,7 +54,7 @@ def lambda_handler(event, context):
             event["pathParameters"]["caseref"],
             "reports",
             # submission_id should come from sirius but it's not there atm so faking it
-            json.loads(event['body'])["report"]["data"]["attributes"]['submission_id']
+            json.loads(event["body"])["report"]["data"]["attributes"]["submission_id"],
         )
     else:
         lambda_response = {
@@ -71,7 +71,6 @@ def lambda_handler(event, context):
 
 
 def validate_event(event):
-    # TODO if there is not a nicer way to do this, there should be
     """
     The request body *should* be validated by API-G before it gets this far,
     but given everything blows up if any of these required fields are missing/wrong

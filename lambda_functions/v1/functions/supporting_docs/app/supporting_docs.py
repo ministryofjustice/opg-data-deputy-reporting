@@ -2,7 +2,7 @@ import json
 import logging
 import os
 
-from .helpers import compare_two_dicts
+from .helpers import compare_two_dicts, format_response_message
 from .sirius_service import (
     build_sirius_url,
     build_sirius_headers,
@@ -32,24 +32,44 @@ def lambda_handler(event, context):
         Response from Sirius in AWS Lambda format, json
     """
 
-    sirius_api_url = build_sirius_url(
-        base_url=os.environ["SIRIUS_BASE_URL"],
-        api_route=os.environ["SIRIUS_PUBLIC_API_URL"],
-        endpoint="documents",
-    )
-    sirius_payload = transform_event_to_sirius_request(event=event)
-    sirius_headers = build_sirius_headers()
+    valid_payload, errors = validate_event(event=event)
 
-    lambda_response = submit_document_to_sirius(
-        url=sirius_api_url, data=sirius_payload, headers=sirius_headers
-    )
+    if valid_payload:
+        sirius_api_url = build_sirius_url(
+            base_url=os.environ["SIRIUS_BASE_URL"],
+            api_route=os.environ["SIRIUS_PUBLIC_API_URL"],
+            endpoint="documents",
+        )
+
+        sirius_payload = transform_event_to_sirius_request(event=event)
+        sirius_headers = build_sirius_headers()
+
+        sirius_reponse = submit_document_to_sirius(
+            url=sirius_api_url, data=sirius_payload, headers=sirius_headers
+        )
+
+        lambda_response = format_response_message(
+            json.loads(sirius_reponse["body"])["uuid"],
+            event["pathParameters"]["caseref"],
+            "reports",
+            # submission_id should come from sirius but it's not there atm so faking it
+            json.loads(event["body"])["supporting_document"]["data"]["attributes"][
+                "submission_id"
+            ],
+        )
+    else:
+        lambda_response = {
+            "isBase64Encoded": False,
+            "statusCode": 400,
+            "headers": {"Content-Type": "application/json"},
+            "body": f"unable to parse {', '.join(errors)}",
+        }
     logger.debug(f"Lambda Response: {lambda_response}")
 
     return lambda_response
 
 
 def validate_event(event):
-    # TODO if there is not a nicer way to do this, there should be
     """
     The request body *should* be validated by API-G before it gets this far,
     but given everything blows up if any of these required fields are missing/wrong
