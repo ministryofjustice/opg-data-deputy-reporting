@@ -115,8 +115,15 @@ def patched_get_secret(monkeypatch):
 
 
 @pytest.fixture
-def patched_validate_event(monkeypatch):
+def patched_validate_event_fail(monkeypatch):
     def mock_invalid(*args, **kwargs):
         return False, ["file_name", "file_type"]
 
     monkeypatch.setattr(reports, "validate_event", mock_invalid)
+
+@pytest.fixture
+def patched_validate_event_success(monkeypatch):
+    def mock_valid(*args, **kwargs):
+        return True, []
+
+    monkeypatch.setattr(reports, "validate_event", mock_valid)

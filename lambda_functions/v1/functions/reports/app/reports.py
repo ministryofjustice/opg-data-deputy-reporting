@@ -49,13 +49,20 @@ def lambda_handler(event, context):
             url=sirius_api_url, data=sirius_payload, headers=sirius_headers
         )
 
-        lambda_response = format_response_message(
+        lambda_response_body = format_response_message(
             json.loads(sirius_reponse["body"])["uuid"],
             event["pathParameters"]["caseref"],
             "reports",
             # submission_id should come from sirius but it's not there atm so faking it
             json.loads(event["body"])["report"]["data"]["attributes"]["submission_id"],
         )
+        lambda_response = {
+            "isBase64Encoded": False,
+            "statusCode": 201,
+            "headers": {"Content-Type": "application/json"},
+            "body": json.dumps(lambda_response_body)
+        }
+
     else:
         lambda_response = {
             "isBase64Encoded": False,
@@ -99,8 +106,10 @@ def validate_event(event):
     )
 
     if len(errors) > 0:
+        logger.debug(f"Validation failed: {', '.join(errors)}")
         return False, errors
     else:
+        logger.debug(f"Validation passed")
         return True, errors
 
 
