@@ -58,7 +58,7 @@ def test_lambda_handler_invalid_event(
 
     result = lambda_handler(event=event, context=context)
 
-    assert is_valid_schema(json.dumps(result), "standard_lambda_response_schema.json")
+    assert is_valid_schema(result, "standard_lambda_response_schema.json")
     assert result["statusCode"] == 400
 
 

@@ -69,7 +69,7 @@ def test_submit_document_to_sirius(
 
     assert response["statusCode"] == expected_result["status_code"]
     # assert response["body"] == expected_result["body"]
-    assert is_valid_schema(json.dumps(response), "standard_lambda_response_schema.json")
+    assert is_valid_schema(response, "standard_lambda_response_schema.json")
 
 
 # TODO this does not work through CI, something to do with aws xray,
