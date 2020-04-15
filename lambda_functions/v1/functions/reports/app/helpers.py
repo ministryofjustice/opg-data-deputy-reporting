@@ -27,16 +27,3 @@ def compare_two_dicts(required_structure, test_dict, path="", missing=[]):
                         missing.append(missing_item)
 
     return missing
-
-
-def format_response_message(uuid, caseref, type, submission_id):
-
-    body = {
-        "data": {
-            "type": type,
-            "id": uuid,
-            "attributes": {"submission_id": submission_id},
-        }
-    }
-
-    return body
