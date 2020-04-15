@@ -28,7 +28,7 @@ def test_lambda_handler(patched_requests, patched_get_secret):
     result = lambda_handler(event=event, context=context)
     assert result["statusCode"] == 201
     assert is_valid_schema(result, "standard_lambda_response_schema.json")
-    assert is_valid_schema(json.loads(result['body']), "201_created_schema.json")
+    assert is_valid_schema(json.loads(result["body"]), "201_created_schema.json")
 
 
 @cases_data(module=supporting_docs_endpoint_test_cases)

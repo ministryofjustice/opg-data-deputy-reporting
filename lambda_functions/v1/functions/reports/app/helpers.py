@@ -1,5 +1,4 @@
 # Helpers
-import os
 
 
 def compare_two_dicts(required_structure, test_dict, path="", missing=[]):
@@ -39,6 +38,5 @@ def format_response_message(uuid, caseref, type, submission_id):
             "attributes": {"submission_id": submission_id},
         }
     }
-
 
     return body

@@ -60,7 +60,7 @@ def lambda_handler(event, context):
             "isBase64Encoded": False,
             "statusCode": 201,
             "headers": {"Content-Type": "application/json"},
-            "body": json.dumps(lambda_response_body)
+            "body": json.dumps(lambda_response_body),
         }
 
     else:

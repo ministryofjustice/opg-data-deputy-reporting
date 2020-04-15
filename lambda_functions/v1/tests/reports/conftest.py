@@ -121,6 +121,7 @@ def patched_validate_event_fail(monkeypatch):
 
     monkeypatch.setattr(reports, "validate_event", mock_invalid)
 
+
 @pytest.fixture
 def patched_validate_event_success(monkeypatch):
     def mock_valid(*args, **kwargs):
