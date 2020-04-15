@@ -21,12 +21,25 @@ from lambda_functions.v1.tests.supporting_docs import (
 )
 
 
-def test_lambda_handler(patched_requests, patched_get_secret):
+def test_lambda_handler(patched_requests, patched_get_secret, patched_validate_event_success):
     event = load_data("supporting_docs_event.json", as_json=False)
     context = None
 
     result = lambda_handler(event=event, context=context)
-    assert is_valid_schema(json.dumps(result), "standard_lambda_response_schema.json")
+    assert result["statusCode"] == 201
+    assert is_valid_schema(result, "standard_lambda_response_schema.json")
+    assert is_valid_schema(json.loads(result["body"]), "201_created_schema.json")
+
+
+def test_lambda_handler_fail(patched_requests, patched_get_secret,
+                        patched_validate_event_fail):
+    event = load_data("supporting_docs_event.json", as_json=False)
+    context = None
+
+    result = lambda_handler(event=event, context=context)
+    assert result["statusCode"] == 400
+    assert is_valid_schema(result, "standard_lambda_response_schema.json")
+
 
 
 @cases_data(module=supporting_docs_endpoint_test_cases)
@@ -38,9 +51,6 @@ def test_validate_payload(case_data: CaseDataGetter):
     )
 
     valid_event, errors = validate_event(event)
-
-    print(valid_event)
-    print(errors)
 
     assert valid_event == expected_result[0]
     assert sorted(errors) == sorted(expected_result[1])

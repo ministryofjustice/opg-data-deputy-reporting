@@ -45,9 +45,30 @@ def lambda_handler(event, context):
         sirius_payload = transform_event_to_sirius_request(event=event)
         sirius_headers = build_sirius_headers()
 
-        lambda_response = submit_document_to_sirius(
+        sirius_reponse = submit_document_to_sirius(
             url=sirius_api_url, data=sirius_payload, headers=sirius_headers
         )
+
+        # submission_id should come from sirius but it's not there atm so faking it
+        lambda_response_body = {
+            "data": {
+                "type": "reports",
+                "id": json.loads(sirius_reponse["body"])["uuid"],
+                "attributes": {
+                    "submission_id": json.loads(event["body"])["report"]["data"][
+                        "attributes"
+                    ]["submission_id"]
+                },
+            }
+        }
+
+        lambda_response = {
+            "isBase64Encoded": False,
+            "statusCode": 201,
+            "headers": {"Content-Type": "application/json"},
+            "body": json.dumps(lambda_response_body),
+        }
+
     else:
         lambda_response = {
             "isBase64Encoded": False,
@@ -57,11 +78,12 @@ def lambda_handler(event, context):
         }
 
     logger.debug(f"Lambda Response: {lambda_response}")
+
+    print(lambda_response)
     return lambda_response
 
 
 def validate_event(event):
-    # TODO if there is not a nicer way to do this, there should be
     """
     The request body *should* be validated by API-G before it gets this far,
     but given everything blows up if any of these required fields are missing/wrong
@@ -90,8 +112,10 @@ def validate_event(event):
     )
 
     if len(errors) > 0:
+        logger.debug(f"Validation failed: {', '.join(errors)}")
         return False, errors
     else:
+        logger.debug(f"Validation passed")
         return True, errors
 
 

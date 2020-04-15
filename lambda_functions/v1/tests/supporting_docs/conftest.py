@@ -81,6 +81,9 @@ def patched_requests(monkeypatch):
                     '{"uuid": '
                     '"531ca3b6-3f17-4ece-bdc5-7faf7f1f8427"}'.encode("UTF-8")
                 )
+            elif json.loads(data)["caseRecNumber"] is None:
+                mock_response.status_code = 500
+                mock_response.json = None
             else:
                 mock_response.status_code = 400
                 mock_response.json = None
@@ -102,8 +105,16 @@ def patched_get_secret(monkeypatch):
 
 
 @pytest.fixture
-def patched_validate_event(monkeypatch):
+def patched_validate_event_fail(monkeypatch):
     def mock_invalid(*args, **kwargs):
         return False, ["file_name", "file_type"]
 
     monkeypatch.setattr(supporting_docs, "validate_event", mock_invalid)
+
+
+@pytest.fixture
+def patched_validate_event_success(monkeypatch):
+    def mock_valid(*args, **kwargs):
+        return True, []
+
+    monkeypatch.setattr(supporting_docs, "validate_event", mock_valid)

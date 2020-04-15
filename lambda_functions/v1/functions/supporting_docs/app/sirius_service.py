@@ -153,7 +153,7 @@ def submit_document_to_sirius(url, data, headers):
         logger.info(f"Unable to send request to Sirius, server not available")
         sirius_response = {
             "isBase64Encoded": False,
-            "statusCode": 404,
+            "statusCode": 500,
             "headers": {"Content-Type": "application/json"},
             "body": f"{default_error} - {e}",
         }

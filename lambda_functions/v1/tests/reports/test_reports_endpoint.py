@@ -22,6 +22,7 @@ def test_lambda_handler_valid_event(
     patched_get_secret,
     default_request_case_ref,
     default_report_request_body,
+    patched_validate_event_success,
 ):
     path_params = {"caseref": default_request_case_ref}
     event = build_aws_event(
@@ -33,16 +34,16 @@ def test_lambda_handler_valid_event(
     context = None
 
     result = lambda_handler(event=event, context=context)
-    print(f"test result: {result}")
 
-    assert is_valid_schema(json.dumps(result), "standard_lambda_response_schema.json")
     assert result["statusCode"] == 201
+    assert is_valid_schema(result, "standard_lambda_response_schema.json")
+    assert is_valid_schema(json.loads(result["body"]), "201_created_schema.json")
 
 
 def test_lambda_handler_invalid_event(
     patched_requests,
     patched_get_secret,
-    patched_validate_event,
+    patched_validate_event_fail,
     default_request_case_ref,
     default_report_request_body,
 ):
@@ -57,7 +58,7 @@ def test_lambda_handler_invalid_event(
 
     result = lambda_handler(event=event, context=context)
 
-    assert is_valid_schema(json.dumps(result), "standard_lambda_response_schema.json")
+    assert is_valid_schema(result, "standard_lambda_response_schema.json")
     assert result["statusCode"] == 400
 
 
