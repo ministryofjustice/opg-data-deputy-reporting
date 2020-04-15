@@ -1,4 +1,5 @@
 # Helpers
+import os
 
 
 def compare_two_dicts(required_structure, test_dict, path="", missing=[]):
@@ -29,15 +30,19 @@ def compare_two_dicts(required_structure, test_dict, path="", missing=[]):
     return missing
 
 
-def format_response_message(request, uuid, caseref):
+def format_response_message(uuid, caseref, type, submission_id):
 
-    r = request["report"]
-    r["data"]["id"] = uuid
-    r["data"]["links"] = {
-        "self": f"https://opg-data-api.service.gov.uk/reports/{uuid}",
-        "client": f"https://opg-data-api.service.gov.uk/clients/{caseref}",
+    base_url = os.environ["BASE_URL"]
+    response = {
+        "data": {
+            "type": type,
+            "id": uuid,
+            "attributes": {"submission_id": submission_id},
+            "links": {
+                "self": f"{base_url}/reports/{uuid}",
+                "client": f"{base_url}/clients/{caseref}",
+            },
+        }
     }
-    r["links"] = {"api-docs": "https://opg-data-api.service.gov.uk/developer/"}
-    r["meta"] = {}
 
-    return r
+    return response

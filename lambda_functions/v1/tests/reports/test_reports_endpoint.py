@@ -33,9 +33,10 @@ def test_lambda_handler_valid_event(
     context = None
 
     result = lambda_handler(event=event, context=context)
-    print(f"test result: {result}")
+    print(f"test result: {type(result)}")
 
     assert is_valid_schema(json.dumps(result), "standard_lambda_response_schema.json")
+    assert is_valid_schema(result, "201_created_schema.json")
     # assert result["statusCode"] == 201
 
 

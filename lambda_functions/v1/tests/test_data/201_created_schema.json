@@ -1,0 +1,80 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "data": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "attributes": {
+          "type": "object",
+          "properties": {
+            "submission_id": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "submission_id"
+          ]
+        },
+        "file": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "mimetype": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "name",
+            "mimetype"
+          ]
+        },
+        "links": {
+          "type": "object",
+          "properties": {
+            "self": {
+              "type": "string"
+            },
+            "client": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "self",
+            "client"
+          ]
+        }
+      },
+      "required": [
+        "type",
+        "id",
+        "attributes"
+      ]
+    },
+    "links": {
+      "type": "object",
+      "properties": {
+        "api-docs": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "api-docs"
+      ]
+    },
+    "meta": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "data"
+  ]
+}

@@ -50,9 +50,11 @@ def lambda_handler(event, context):
         )
 
         lambda_response = format_response_message(
-            json.loads(event["body"]),
             json.loads(sirius_reponse["body"])["uuid"],
             event["pathParameters"]["caseref"],
+            "reports",
+            # submission_id should come from sirius but it's not there atm so faking it
+            json.loads(event['body'])["report"]["data"]["attributes"]['submission_id']
         )
     else:
         lambda_response = {
