@@ -29,7 +29,7 @@ WORKSPACE=${WORKSPACE:-$CIRCLE_BRANCH}
 WORKSPACE=${WORKSPACE//[^[:alnum:]]/}
 WORKSPACE=${WORKSPACE,,}
 WORKSPACE=${WORKSPACE:0:14}
-PROVIDER_VER=$(ls -d lambda_functions/*/ | awk -F'/' '{print $2}' | sort -r | head -n1)
+PROVIDER_VER=$(ls -d lambda_functions/v*/ | awk -F'/' '{print $2}' | sort -r | head -n1)
 
 echo "export TF_WORKSPACE=${WORKSPACE}"
 echo "export PROVIDER_VERSION=${PROVIDER_VER}"

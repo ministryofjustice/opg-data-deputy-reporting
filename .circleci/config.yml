@@ -46,6 +46,7 @@ workflows:
           name: destroy branch environment
           requires: [approve destroy environment]
           tf_command: destroy
+          destroy_workspace: true
           filters: {branches:{ignore:[master]}}
   commit_to_master:
     when: << pipeline.parameters.run_commit_to_master >>
@@ -252,6 +253,10 @@ jobs:
         description: whether to run account config in terraform
         type: boolean
         default: false
+      destroy_workspace:
+        description: whether to destroy the empty workspace
+        type: boolean
+        default: false
     environment:
       WORKSPACE: << parameters.tf_workspace >>
     working_directory: ~/project
@@ -302,6 +307,16 @@ jobs:
                   then echo "policy attached, doing nothing"
                   else terraform << parameters.tf_command >>
                   fi
+      - when:
+          condition: << parameters.destroy_workspace >>
+          steps:
+            - run:
+                name: destroy the workspace to clear up
+                command: |
+                  export WORKSPACE_TO_DELETE="${TF_WORKSPACE}"
+                  echo "Switching workspace to default so we can remove branch workspace"
+                  export TF_WORKSPACE=default
+                  terraform workspace delete "${WORKSPACE_TO_DELETE}" || echo "no workspace to remove"
       - run:
           name: tag the latest pact version with env
           command: |
@@ -393,14 +408,16 @@ jobs:
           command: |
             printf "===== Checking consumer version ====="
             export LATEST=$(curl -u "${PACT_BROKER_HTTP_AUTH_USER}":"${PACT_BROKER_HTTP_AUTH_PASS}" \
-            -X GET https://"${PACT_BROKER_BASE_URL}"/pacts/provider/"${PACT_PROVIDER}"/consumer/"${PACT_CONSUMER}"/latest \
+            -X GET https://"${PACT_BROKER_BASE_URL}"/pacts/provider/"${PACT_PROVIDER}"/consumer/"${PACT_CONSUMER}"/latest/"${PROVIDER_VERSION}" \
             | jq ._links | jq '.["pb:consumer-version"]' | jq .name | sed 's/"//g') >> /dev/null
 
             if [ "${CONSUMER_VER}" == "" ]
             then
             export CONSUMER_VER="${LATEST}"
+            export DIGIDEPSJOB="false"
             echo "Consumer version not set, using latest"
             else
+            export DIGIDEPSJOB="true"
             echo "Consumer version set by upstream job"
             fi
 
