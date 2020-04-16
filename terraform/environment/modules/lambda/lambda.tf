@@ -47,7 +47,7 @@ resource "aws_lambda_permission" "lambda_permission" {
 resource "aws_lambda_layer_version" "lambda_layer" {
   filename         = data.archive_file.lambda_layer_archive.output_path
   source_code_hash = data.archive_file.lambda_layer_archive.output_base64sha256
-  layer_name       = "requirement_${var.target_environment}_${substr(replace(base64sha256(data.local_file.requirements.content_base64), "/[^0-9A-Za-z_]/", ""), 0, 5)}"
+  layer_name       = "requirement_${var.target_environment}"
 
   compatible_runtimes = ["python3.7"]
 
@@ -71,5 +71,5 @@ data "archive_file" "lambda_archive" {
 data "archive_file" "lambda_layer_archive" {
   type        = "zip"
   source_dir  = "../../lambda_functions/${var.openapi_version}/lambda_layers"
-  output_path = "./lambda_layers_${var.lambda_function_subdir}.zip"
+  output_path = "./lambda_layers_${var.lambda_function_subdir}_${substr(replace(base64sha256(data.local_file.requirements.content_base64), "/[^0-9A-Za-z_]/", ""), 0, 5)}.zip"
 }
