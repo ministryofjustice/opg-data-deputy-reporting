@@ -141,3 +141,7 @@ def transform_event_to_sirius_request(event):
     logger.debug(f"Sirius Payload: {payload}")
 
     return json.dumps(payload)
+
+
+def is_child_event():
+    pass
