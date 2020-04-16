@@ -40,29 +40,12 @@ def provider_states():
 
 
 def setupReport():
-    fakedb["1234567T"] = {
-        "data": {
-            "type": "reports",
-            "id": "33ea0382-cfc9-4776-9036-667eeb68fa4b",
-            "attributes": {
-                "reporting_period_from": "2013-02-01",
-                "reporting_period_to": "2013-02-01",
-                "year": "2018",
-                "date_submitted": "2015-08-06T16:53:10.123+01:00",
-                "type": "PF",
-                "submission_id": 9876,
-            },
-        }
-    }
+    fakedb["1234567T"] = {"uuid": "33ea0382-cfc9-4776-9036-667eeb68fa4b"}
 
 
 def setupSupportingDocs():
     fakedb["33ea0382-cfc9-4776-9036-667eeb68fa4b"] = {
-        "data": {
-            "type": "supportingdocuments",
-            "id": "33ea0382-cfc9-4776-9036-667eeb68fa4b",
-            "attributes": {"submission_id": 13},
-        }
+        "uuid": "33ea0382-cfc9-4776-9036-667eeb68fa4b"
     }
 
 
