@@ -143,16 +143,13 @@ def transform_event_to_sirius_request(event):
     return json.dumps(payload)
 
 
-def is_child_event(child_count, parent_id=None, sibling_parent_id=None):
+def determine_document_parent_id(child_count, parent_id=None):
 
     if child_count == 0:
-        parent_id = None
-    elif child_count == 1:
-        parent_id = parent_id
+        return None
     else:
-        parent_id = sibling_parent_id
+        return parent_id
 
-    return parent_id
 
 
 def get_child_count():
