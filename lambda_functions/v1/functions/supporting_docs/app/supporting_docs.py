@@ -152,16 +152,15 @@ def determine_document_parent_id(submission_entries):
             parent_id = None
         else:
             for x in submission_entries:
-                if 'parentUuid' in x and x['parentUuid'] is None:
-                    parent_id = x['uuid']
+                if "parentUuid" in x and x["parentUuid"] is None:
+                    parent_id = x["uuid"]
                     break
-                elif 'parentUuid' not in x:
-                    parent_id = x['uuid']
+                elif "parentUuid" not in x:
+                    parent_id = x["uuid"]
                     break
                 else:
                     logger.info("Unable to determine parent id of document")
                     parent_id = None
-
 
     except TypeError:
         logger.info("Unable to determine parent id of document")
