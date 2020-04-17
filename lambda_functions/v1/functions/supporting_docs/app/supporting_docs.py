@@ -143,16 +143,28 @@ def transform_event_to_sirius_request(event):
     return json.dumps(payload)
 
 
-def determine_document_parent_id(child_count, parent_id=None):
+def determine_document_parent_id(submission_entries):
 
-    if child_count == 0:
-        return None
-    else:
-        return parent_id
+    try:
+        number_of_entries = len([x for x in submission_entries if len(x) > 0])
+
+        if number_of_entries == 0:
+            parent_id = None
+        else:
+            for x in submission_entries:
+                if 'parentUuid' in x and x['parentUuid'] is None:
+                    parent_id = x['uuid']
+                    break
+                elif 'parentUuid' not in x:
+                    parent_id = x['uuid']
+                    break
+                else:
+                    logger.info("Unable to determine parent id of document")
+                    parent_id = None
 
 
+    except TypeError:
+        logger.info("Unable to determine parent id of document")
+        parent_id = None
 
-def get_child_count():
-    from random import randrange
-
-    return randrange(10)
+    return parent_id

@@ -11,8 +11,9 @@ from lambda_functions.v1.tests.supporting_docs import child_submission_test_case
 
 @cases_data(module=child_submission_test_cases)
 def test_is_child_submission(case_data: CaseDataGetter):
-    child_count, parent_id, expected_result = case_data.get()
+    report_get_response, expected_result = case_data.get()
 
-    result = determine_document_parent_id(child_count, parent_id)
+    print(report_get_response)
+    result = determine_document_parent_id(report_get_response)
 
     assert result == expected_result
