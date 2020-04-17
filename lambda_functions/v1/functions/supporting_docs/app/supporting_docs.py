@@ -146,17 +146,19 @@ def transform_event_to_sirius_request(event):
 def determine_document_parent_id(submission_entries):
 
     try:
-        number_of_entries = len([x for x in submission_entries if len(x) > 0])
+        number_of_entries = len(
+            [entry for entry in submission_entries if len(entry) > 0]
+        )
 
         if number_of_entries == 0:
             parent_id = None
         else:
-            for x in submission_entries:
-                if "parentUuid" in x and x["parentUuid"] is None:
-                    parent_id = x["uuid"]
+            for entry in submission_entries:
+                if "parentUuid" in entry and entry["parentUuid"] is None:
+                    parent_id = entry["uuid"]
                     break
-                elif "parentUuid" not in x:
-                    parent_id = x["uuid"]
+                elif "parentUuid" not in entry:
+                    parent_id = entry["uuid"]
                     break
                 else:
                     logger.info("Unable to determine parent id of document")
