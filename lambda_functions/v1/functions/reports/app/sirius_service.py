@@ -122,10 +122,13 @@ def format_sirius_response(sirius_response):
                 "type": sirius_response["type"],
                 "id": sirius_response["uuid"],
                 "attributes": {
-                    "submission_id": sirius_response["metadata"]["submission_id"]
+                    "submission_id": sirius_response["metadata"]["submission_id"],
+                    "parent_id": sirius_response["parentUuid"]
+                    if "parentUuid" in sirius_response
+                    else None,
                 },
             }
         }
 
     except KeyError:
-        return {"data": "Error validating Sirius Public API response"}
+        return {"data": {"message": "Error validating Sirius Public API response"}}

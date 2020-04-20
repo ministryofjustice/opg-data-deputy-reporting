@@ -79,13 +79,13 @@ from lambda_functions.v1.functions.supporting_docs.app.supporting_docs import (
                 "data": {
                     "type": "Report",
                     "id": "8ffdddb1-f19b-4c46-b4d1-9388ade95a68",
-                    "attributes": {"submission_id": 12345},
+                    "attributes": {"submission_id": 12345, "parent_id": None},
                 }
             },
         ),
         (
             {"data": "this is all wrong"},
-            {"data": "Error validating Sirius Public API response"},
+            {"data": {"message": "Error validating Sirius Public API response"}},
         ),
     ],
 )
@@ -104,7 +104,7 @@ def test_format_sirius_response(example_sirius_response, expected_result):
                 "data": {
                     "type": "Report",
                     "id": "8ffdddb1-f19b-4c46-b4d1-9388ade95a68",
-                    "attributes": {"submission_id": 12345},
+                    "attributes": {"submission_id": 12345, "parent_id": None},
                 }
             },
         ),
