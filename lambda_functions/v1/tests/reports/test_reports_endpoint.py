@@ -107,6 +107,5 @@ def test_sirius_request_has_and_submission_id(
     )
 
     payload = transform_event_to_sirius_request(event)
-    print(payload)
 
     assert json.loads(payload)["metadata"]["submission_id"]

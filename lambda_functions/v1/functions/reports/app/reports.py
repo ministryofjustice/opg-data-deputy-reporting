@@ -55,7 +55,6 @@ def lambda_handler(event, context):
 
     logger.debug(f"Lambda Response: {lambda_response}")
 
-    print(lambda_response)
     return lambda_response
 
 
