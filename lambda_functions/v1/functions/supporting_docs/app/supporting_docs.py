@@ -1,25 +1,14 @@
 import json
-import logging
 import os
 
-from .helpers import compare_two_dicts
+from .helpers import compare_two_dicts, custom_logger
 from .sirius_service import (
     build_sirius_url,
     build_sirius_headers,
     submit_document_to_sirius,
 )
 
-logger = logging.getLogger()
-try:
-    logger.setLevel(os.environ["LOGGER_LEVEL"])
-except KeyError:
-    logger.setLevel("INFO")
-
-handler = logging.StreamHandler()
-handler.setFormatter(
-    logging.Formatter("[%(levelname)s] [in %(funcName)s:%(lineno)d] %(message)s")
-)
-logger.addHandler(handler)
+logger = custom_logger("supporting_docs")
 
 
 def lambda_handler(event, context):
