@@ -1,6 +1,9 @@
 import json
+import urllib.parse
+
 import jwt
 import pytest
+import requests
 from jwt import DecodeError
 
 # import boto3
@@ -179,3 +182,48 @@ def test_build_sirius_headers_auth(patched_get_secret):
 
     with pytest.raises(DecodeError):
         jwt.decode(token.encode("UTF-8"), "this_is_the_wrong_key", algorithms="HS256")
+
+
+@pytest.mark.parametrize(
+    "caseref, submission_id, report_id, expected_status_code, expected_result",
+    [
+        ("12345678", "11111", "d0a43b67-3084-4a74-ab55-a7542cfadd37", 200, "[]"),
+        (
+            "12345678",
+            "22222",
+            "d0a43b67-3084-4a74-ab55-a7542cfadd37",
+            200,
+            json.dumps(
+                [{"uuid": "e8c14b7f-d0fc-4820-9ac7-58d61d4160d0", "parentUuid": None}]
+            ),
+        ),
+        ("12345678", "88888", "d0a43b67-3084-4a74-ab55-a7542cfadd37", 500, None),
+    ],
+)
+def test_get_endpoint(
+    patched_requests,
+    caseref,
+    submission_id,
+    report_id,
+    expected_status_code,
+    expected_result,
+):
+
+    basic_url = build_sirius_url(
+        "https://frontend-feature5.dev.sirius.opg.digital/",
+        "/api/public/v1/",
+        f"clients/{caseref}/documents",
+    )
+    url_params = urllib.parse.urlencode(
+        {
+            "metadata['submission_id']": submission_id,
+            "metadata['report_id']": report_id,
+        }
+    )
+
+    url = basic_url + "?" + url_params
+
+    response = requests.get(url)
+
+    assert response.status_code == expected_status_code
+    assert response.content == expected_result

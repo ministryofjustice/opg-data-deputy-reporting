@@ -3,9 +3,8 @@ import json
 import pytest
 import requests
 
-
-from lambda_functions.v1.functions.supporting_docs.app import supporting_docs
 from lambda_functions.v1.functions.supporting_docs.app import sirius_service
+from lambda_functions.v1.functions.supporting_docs.app import supporting_docs
 
 test_data = {
     "valid_clients": ["valid_client_id", "0319392T", "12345678", "22814959"],
@@ -103,7 +102,48 @@ def patched_requests(monkeypatch):
 
         return mock_response
 
+    def mock_get(url):
+
+        import urllib.parse as urlparse
+
+        mock_response = requests.Response()
+
+        parsed = urlparse.urlparse(url)
+        submission_id = urlparse.parse_qs(parsed.query)["metadata['submission_id']"][0]
+
+        get_responses = {
+            "11111": [],
+            "22222": [
+                {"uuid": "e8c14b7f-d0fc-4820-9ac7-58d61d4160d0", "parentUuid": None}
+            ],
+            "55555": [
+                {"uuid": "e8c14b7f-d0fc-4820-9ac7-58d61d4160d0", "parentUuid": None},
+                {
+                    "uuid": "772a922c-2372-4bf4-8040-cb0bf4fb7ccf",
+                    "parentUuid": "e8c14b7f-d0fc-4820-9ac7-58d61d4160d0",
+                },
+                {
+                    "uuid": "b9d242a2-6a4f-4f1e-9642-07cb18d36945",
+                    "parentUuid": "e8c14b7f-d0fc-4820-9ac7-58d61d4160d0",
+                },
+                {
+                    "uuid": "168fb7de-e982-4bf4-a820-751ea529c5fc",
+                    "parentUuid": "e8c14b7f-d0fc-4820-9ac7-58d61d4160d0",
+                },
+            ],
+        }
+
+        try:
+            mock_response.status_code = 200
+            mock_response._content = json.dumps(get_responses[submission_id])
+        except KeyError:
+            mock_response.status_code = 500
+            mock_response.json = None
+
+        return mock_response
+
     monkeypatch.setattr(requests, "post", mock_post)
+    monkeypatch.setattr(requests, "get", mock_get)
 
 
 @pytest.fixture
