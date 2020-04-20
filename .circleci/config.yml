@@ -357,6 +357,7 @@ jobs:
       - run:
           name: spin up mock rest api
           command: |
+            export PYTHONPATH="${PYTHONPATH}:/home/circleci/project"
             cd ./mock_integration_rest_api
             python3 app.py
           background: true
@@ -378,6 +379,7 @@ jobs:
       - run:
           name: spin up mock sirius backend
           command: |
+            export PYTHONPATH="${PYTHONPATH}:/home/circleci/project"
             cd ./mock_sirius_backend
             python3 app.py
           background: true

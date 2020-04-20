@@ -171,6 +171,7 @@ definitions:
       - Report
       - Report - Financial evidence
       - Report - General
+      - Report - New Deputy Report
       - Safeguarding
       - Visit
     example: 'Report - General'

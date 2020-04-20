@@ -12,6 +12,8 @@ mockingEnvironment = os.environ.get("MOCKING_ENV")
 
 
 def create_document(document):
+    # This is only in here because the state setup isn't on the digideps side
+    # Normally the provider_states gets called directly via the verification
     requests.post(
         "http://localhost:5001/api/public/v1/pact/provider_states",
         json={"consumer": "OPG Data", "state": "a submitted report"},
