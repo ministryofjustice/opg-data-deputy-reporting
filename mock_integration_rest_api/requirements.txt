@@ -2,3 +2,6 @@ connexion
 swagger-ui-bundle
 requests
 flask
+boto3
+moto
+pyjwt
