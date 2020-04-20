@@ -37,24 +37,11 @@ def lambda_handler(event, context):
             url=sirius_api_url, data=sirius_payload, headers=sirius_headers
         )
 
-        # submission_id should come from sirius but it's not there atm so faking it
-        lambda_response_body = {
-            "data": {
-                "type": "supporting_document",
-                "id": json.loads(sirius_reponse["body"])["uuid"],
-                "attributes": {
-                    "submission_id": json.loads(event["body"])["supporting_document"][
-                        "data"
-                    ]["attributes"]["submission_id"]
-                },
-            }
-        }
-
         lambda_response = {
             "isBase64Encoded": False,
             "statusCode": 201,
             "headers": {"Content-Type": "application/json"},
-            "body": json.dumps(lambda_response_body),
+            "body": json.dumps(sirius_reponse),
         }
     else:
         lambda_response = {

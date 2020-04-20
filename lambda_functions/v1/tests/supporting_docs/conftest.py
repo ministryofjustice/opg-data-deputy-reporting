@@ -67,6 +67,18 @@ def mock_env_setup(monkeypatch):
     monkeypatch.setenv("ENVIRONMENT", "development")
 
 
+sirius_sup_docs_response = json.dumps(
+    {
+        "type": "Report - General",
+        "filename": "b11a291e6dae6_supportingDoc123.pdf",
+        "mimeType": "application/pdf",
+        "metadata": {"submission_id": 12345},
+        "parentUuid": "12829224-2127-4494-abf7-7e92870332cf",
+        "uuid": "16aae069-99b9-494f-948b-4c2057ec5551",
+    }
+)
+
+
 @pytest.fixture
 def patched_requests(monkeypatch):
     def mock_post(*args, **kwargs):
@@ -77,10 +89,8 @@ def patched_requests(monkeypatch):
         try:
             if json.loads(data)["caseRecNumber"] in test_data["valid_clients"]:
                 mock_response.status_code = 201
-                mock_response._content = (
-                    '{"uuid": '
-                    '"531ca3b6-3f17-4ece-bdc5-7faf7f1f8427"}'.encode("UTF-8")
-                )
+                mock_response._content = sirius_sup_docs_response.encode("UTF-8")
+
             elif json.loads(data)["caseRecNumber"] is None:
                 mock_response.status_code = 500
                 mock_response.json = None
