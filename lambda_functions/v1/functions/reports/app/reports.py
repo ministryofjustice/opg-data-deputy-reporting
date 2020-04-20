@@ -1,26 +1,15 @@
 import json
-import logging
 import os
 
 from .helpers import compare_two_dicts
+from .helpers import custom_logger
 from .sirius_service import (
     build_sirius_url,
     build_sirius_headers,
     submit_document_to_sirius,
 )
 
-logger = logging.getLogger()
-
-try:
-    logger.setLevel(os.environ["LOGGER_LEVEL"])
-except KeyError:
-    logger.setLevel("INFO")
-
-handler = logging.StreamHandler()
-handler.setFormatter(
-    logging.Formatter("[%(levelname)s] [in %(funcName)s:%(lineno)d] %(message)s")
-)
-logger.addHandler(handler)
+logger = custom_logger("reports")
 
 
 def lambda_handler(event, context):
@@ -49,24 +38,11 @@ def lambda_handler(event, context):
             url=sirius_api_url, data=sirius_payload, headers=sirius_headers
         )
 
-        # submission_id should come from sirius but it's not there atm so faking it
-        lambda_response_body = {
-            "data": {
-                "type": "reports",
-                "id": json.loads(sirius_reponse["body"])["uuid"],
-                "attributes": {
-                    "submission_id": json.loads(event["body"])["report"]["data"][
-                        "attributes"
-                    ]["submission_id"]
-                },
-            }
-        }
-
         lambda_response = {
             "isBase64Encoded": False,
             "statusCode": 201,
             "headers": {"Content-Type": "application/json"},
-            "body": json.dumps(lambda_response_body),
+            "body": json.dumps(sirius_reponse),
         }
 
     else:

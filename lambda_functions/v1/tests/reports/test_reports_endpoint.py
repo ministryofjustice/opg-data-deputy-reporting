@@ -81,7 +81,6 @@ def test_transform_event_to_sirius_request(
     default_request_case_ref,
     default_sirius_reports_request,
 ):
-
     path_params = {"caseref": default_request_case_ref}
     event = build_aws_event(
         event_body=json.dumps(default_report_request_body),
