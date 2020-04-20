@@ -141,3 +141,31 @@ def transform_event_to_sirius_request(event):
     logger.debug(f"Sirius Payload: {payload}")
 
     return json.dumps(payload)
+
+
+def determine_document_parent_id(submission_entries):
+
+    try:
+        number_of_entries = len(
+            [entry for entry in submission_entries if len(entry) > 0]
+        )
+
+        if number_of_entries == 0:
+            parent_id = None
+        else:
+            for entry in submission_entries:
+                if "parentUuid" in entry and entry["parentUuid"] is None:
+                    parent_id = entry["uuid"]
+                    break
+                elif "parentUuid" not in entry:
+                    parent_id = entry["uuid"]
+                    break
+                else:
+                    logger.info("Unable to determine parent id of document")
+                    parent_id = None
+
+    except TypeError:
+        logger.info("Unable to determine parent id of document")
+        parent_id = None
+
+    return parent_id

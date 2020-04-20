@@ -21,7 +21,9 @@ from lambda_functions.v1.tests.supporting_docs import (
 )
 
 
-def test_lambda_handler(patched_requests, patched_get_secret, patched_validate_event_success):
+def test_lambda_handler(
+    patched_requests, patched_get_secret, patched_validate_event_success
+):
     event = load_data("supporting_docs_event.json", as_json=False)
     context = None
 
@@ -31,15 +33,15 @@ def test_lambda_handler(patched_requests, patched_get_secret, patched_validate_e
     assert is_valid_schema(json.loads(result["body"]), "201_created_schema.json")
 
 
-def test_lambda_handler_fail(patched_requests, patched_get_secret,
-                        patched_validate_event_fail):
+def test_lambda_handler_fail(
+    patched_requests, patched_get_secret, patched_validate_event_fail
+):
     event = load_data("supporting_docs_event.json", as_json=False)
     context = None
 
     result = lambda_handler(event=event, context=context)
     assert result["statusCode"] == 400
     assert is_valid_schema(result, "standard_lambda_response_schema.json")
-
 
 
 @cases_data(module=supporting_docs_endpoint_test_cases)
