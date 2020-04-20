@@ -347,49 +347,51 @@ jobs:
       - run:
           name: copy in the openapidoc
           command: |
-            cd ./mock_sirius
+            cd ./mock_integration_rest_api
             ./getopenapidoc
       - run:
-          name: install requirements mock sirius
+          name: install requirements mock rest api
           command: |
-            cd ./mock_sirius
+            cd ./mock_integration_rest_api
             pip3 install -r requirements.txt
       - run:
-          name: spin up mock sirius
+          name: spin up mock rest api
           command: |
-            cd ./mock_sirius
+            export PYTHONPATH="${PYTHONPATH}:/home/circleci/project"
+            cd ./mock_integration_rest_api
             python3 app.py
           background: true
       - run:
-          name: check mock sirius started
+          name: check mock rest api started
           command: |
             sleep 3
             if [ `netstat -tulpn | grep 4343 | wc -l` -gt 0 ]
             then
-            echo "Sirius API Service Started Correctly"
+            echo "Digideps Rest API Service Started Correctly"
             else
-            echo "Sirius API Service Not Started"
+            echo "Digideps Rest API Service Not Started"
             fi
       - run:
-          name: install requirements mock state
+          name: install requirements mock sirius backend
           command: |
-            cd ./mock_state
+            cd ./mock_sirius_backend
             pip3 install -r ./requirements.txt
       - run:
-          name: spin up mock state
+          name: spin up mock sirius backend
           command: |
-            cd ./mock_state
+            export PYTHONPATH="${PYTHONPATH}:/home/circleci/project"
+            cd ./mock_sirius_backend
             python3 app.py
           background: true
       - run:
-          name: check mock state started
+          name: check mock sirius backend started
           command: |
             sleep 3
             if [ `netstat -tulpn | grep 5001 | wc -l` -gt 0 ]
             then
-            echo "State Service Started Correctly"
+            echo "Sirius Backend Service Started Correctly"
             else
-            echo "State Service Not Started"
+            echo "Sirius Backend Service Not Started"
             fi
       - run:
           name: pip install pact-python
