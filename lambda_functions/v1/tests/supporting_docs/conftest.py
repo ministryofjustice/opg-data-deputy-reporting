@@ -109,7 +109,7 @@ def patched_requests(monkeypatch):
         mock_response = requests.Response()
 
         parsed = urlparse.urlparse(url)
-        submission_id = urlparse.parse_qs(parsed.query)["metadata['submission_id']"][0]
+        submission_id = urlparse.parse_qs(parsed.query)["metadata[submission_id]"][0]
 
         get_responses = {
             "11111": [],

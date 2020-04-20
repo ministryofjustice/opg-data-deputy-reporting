@@ -215,13 +215,11 @@ def test_get_endpoint(
         f"clients/{caseref}/documents",
     )
     url_params = urllib.parse.urlencode(
-        {
-            "metadata['submission_id']": submission_id,
-            "metadata['report_id']": report_id,
-        }
+        {"metadata[submission_id]": submission_id, "metadata[report_id]": report_id}
     )
 
     url = basic_url + "?" + url_params
+    print(f"url: {url}")
 
     response = requests.get(url)
 
