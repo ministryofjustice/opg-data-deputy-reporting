@@ -3,8 +3,8 @@ import json
 import pytest
 import requests
 
-from lambda_functions.v1.functions.reports.app import sirius_service
 from lambda_functions.v1.functions.reports.app import reports
+from lambda_functions.v1.functions.reports.app import sirius_service
 
 test_data = {
     "valid_clients": ["valid_client_id", "0319392T", "12345678", "22814959"],
@@ -77,6 +77,24 @@ def mock_env_setup(monkeypatch):
     monkeypatch.setenv("ENVIRONMENT", "development")
 
 
+sirius_report_response = json.dumps(
+    {
+        "type": "Report",
+        "filename": "3c1baa57f3cfa_Report_25558511_2018_2019_12345.pdf",
+        "mimeType": "application/pdf",
+        "metadata": {
+            "reporting_period_from": "2019-01-01",
+            "reporting_period_to": "2019-12-31",
+            "year": 2019,
+            "date_submitted": "2020-01-03T09:30:00.001Z",
+            "type": "HW",
+            "submission_id": 12345,
+        },
+        "uuid": "8ffdddb1-f19b-4c46-b4d1-9388ade95a68",
+    }
+)
+
+
 @pytest.fixture
 def patched_requests(monkeypatch):
     def mock_post(*args, **kwargs):
@@ -87,10 +105,7 @@ def patched_requests(monkeypatch):
         try:
             if json.loads(data)["caseRecNumber"] in test_data["valid_clients"]:
                 mock_response.status_code = 201
-                mock_response._content = (
-                    '{"uuid": '
-                    '"531ca3b6-3f17-4ece-bdc5-7faf7f1f8427"}'.encode("UTF-8")
-                )
+                mock_response._content = sirius_report_response.encode("UTF-8")
             elif json.loads(data)["caseRecNumber"] is None:
                 mock_response.status_code = 500
                 mock_response.json = None

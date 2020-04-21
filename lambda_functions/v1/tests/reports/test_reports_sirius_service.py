@@ -9,14 +9,11 @@ from lambda_functions.v1.functions.reports.app.sirius_service import (
     build_sirius_url,
     build_sirius_headers,
     # get_secret,
+    format_sirius_response,
 )
 from lambda_functions.v1.functions.supporting_docs.app.supporting_docs import (
     build_sirius_url as build_sirius_url_supporting_docs,
 )
-from lambda_functions.v1.functions.supporting_docs.app.supporting_docs import (
-    submit_document_to_sirius as submit_document_to_sirius_supporting_docs,
-)
-from lambda_functions.v1.tests.helpers.use_test_data import is_valid_schema
 
 
 # import boto3
@@ -47,43 +44,6 @@ from lambda_functions.v1.tests.helpers.use_test_data import is_valid_schema
 #         get_secret("not_a_real_environment")
 
 
-@pytest.mark.parametrize(
-    "case_ref, logger_message, expected_result",
-    [
-        (
-            "valid_client_id",
-            "Document successfully send to Sirius",
-            {
-                "status_code": 201,
-                "body": '{"uuid": "531ca3b6-3f17-4ece-bdc5-7faf7f1f8427"}',
-            },
-        ),
-        ("invalid_client_id", "", {"status_code": 400, "body": "Invalid payload"}),
-        (None, "", {"status_code": 500, "body": "Invalid payload"}),
-    ],
-)
-def test_submit_document_to_sirius(
-    patched_requests,
-    case_ref,
-    logger_message,
-    expected_result,
-    default_sirius_reports_request,
-):
-    headers = {"Content-Type": "application/json"}
-    default_sirius_reports_request["caseRecNumber"] = case_ref
-    body = json.dumps(default_sirius_reports_request)
-
-    response = submit_document_to_sirius(url="", data=body, headers=headers)
-    response_supporting_docs = submit_document_to_sirius_supporting_docs(
-        url="", data=body, headers=headers
-    )
-
-    assert response["statusCode"] == expected_result["status_code"]
-    # assert response["body"] == expected_result["body"]
-    assert is_valid_schema(response, "standard_lambda_response_schema.json")
-    assert response == response_supporting_docs
-
-
 # TODO this does not work through CI, something to do with aws xray,
 #  see https://github.com/aws/aws-xray-sdk-python/issues/155
 # def test_sirius_does_not_exist(monkeypatch, default_sirius_reports_request):
@@ -95,6 +55,83 @@ def test_submit_document_to_sirius(
 #     )
 #
 #     assert response["statusCode"] == 404
+
+
+@pytest.mark.parametrize(
+    "example_sirius_response, expected_result",
+    [
+        (
+            {
+                "type": "Report",
+                "filename": "3c1baa57f3cfa_Report_25558511_2018_2019_12345.pdf",
+                "mimeType": "application/pdf",
+                "metadata": {
+                    "reporting_period_from": "2019-01-01",
+                    "reporting_period_to": "2019-12-31",
+                    "year": 2019,
+                    "date_submitted": "2020-01-03T09:30:00.001Z",
+                    "type": "HW",
+                    "submission_id": 12345,
+                },
+                "uuid": "8ffdddb1-f19b-4c46-b4d1-9388ade95a68",
+            },
+            {
+                "data": {
+                    "type": "Report",
+                    "id": "8ffdddb1-f19b-4c46-b4d1-9388ade95a68",
+                    "attributes": {"submission_id": 12345, "parent_id": None},
+                }
+            },
+        ),
+        (
+            {"data": "this is all wrong"},
+            {"data": {"message": "Error validating Sirius Public API response"}},
+        ),
+    ],
+)
+def test_format_sirius_response(example_sirius_response, expected_result):
+    result = format_sirius_response(example_sirius_response)
+
+    assert result == expected_result
+
+
+@pytest.mark.parametrize(
+    "case_ref, expected_result",
+    [
+        (
+            "valid_client_id",
+            {
+                "data": {
+                    "type": "Report",
+                    "id": "8ffdddb1-f19b-4c46-b4d1-9388ade95a68",
+                    "attributes": {"submission_id": 12345, "parent_id": None},
+                }
+            },
+        ),
+        (
+            "invalid_client_id",
+            {"data": f"Error sending data to Sirius", "sirius_api_status_code": 400},
+        ),
+        (
+            None,
+            {"data": f"Error sending data to Sirius", "sirius_api_status_code": 500},
+        ),
+    ],
+)
+def test_submit_document_to_sirius(
+    patched_requests, case_ref, expected_result, default_sirius_reports_request,
+):
+    headers = {"Content-Type": "application/json"}
+    default_sirius_reports_request["caseRecNumber"] = case_ref
+    body = json.dumps(default_sirius_reports_request)
+
+    response = submit_document_to_sirius(url="", data=body, headers=headers)
+    # response_supporting_docs = submit_document_to_sirius_supporting_docs(
+    #     url="", data=body, headers=headers
+    # )
+
+    assert response == expected_result
+    # assert response == response_supporting_docs
 
 
 @pytest.mark.parametrize(
@@ -117,7 +154,6 @@ def test_submit_document_to_sirius(
     ],
 )
 def test_build_sirius_url(base_url, api_route, endpoint, expected_result):
-
     assert build_sirius_url(base_url, api_route, endpoint) == expected_result
     assert build_sirius_url(
         base_url, api_route, endpoint

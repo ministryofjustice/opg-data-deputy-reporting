@@ -1,5 +1,5 @@
 import datetime
-import logging
+import json
 import os
 from urllib.parse import urljoin, urlparse
 
@@ -8,21 +8,10 @@ import jwt
 import requests
 from botocore.exceptions import ClientError
 
-
 # Sirius API Service
+from .helpers import custom_logger
 
-logger = logging.getLogger()
-
-try:
-    logger.setLevel(os.environ["LOGGER_LEVEL"])
-except KeyError:
-    logger.setLevel("INFO")
-
-handler = logging.StreamHandler()
-handler.setFormatter(
-    logging.Formatter("[%(levelname)s] [in %(funcName)s:%(lineno)d] %(message)s")
-)
-logger.addHandler(handler)
+logger = custom_logger("sirius_service")
 
 
 def build_sirius_url(base_url, api_route, endpoint):
@@ -101,61 +90,45 @@ def build_sirius_headers(content_type="application/json"):
 
 
 def submit_document_to_sirius(url, data, headers):
-    """
-    Sends POST to Sirius
-
-    Args:
-        url: POST url
-        data: data payload
-        headers: request headers
-
-    Returns:
-        AWS Lambda style dict
-    """
-    response_messages = {
-        400: "Invalid payload",
-        401: "Unauthorised",
-        403: "Forbidden",
-        404: "Error connecting to Sirius Public API",
-    }
-
-    default_error = "An unknown error occurred connecting to the Sirius Public API"
+    r = requests.post(url=url, data=data, headers=headers)
 
     try:
-
-        r = requests.post(url=url, data=data, headers=headers)
-
-        status_code = r.status_code
-        logger.debug(f"Sirius reponse code: {status_code}")
-
-        if status_code == 201:
-            sirius_response = {
-                "isBase64Encoded": False,
-                "statusCode": status_code,
-                "headers": dict(r.headers),
-                "body": r.content.decode("UTF-8"),
-            }
-
+        if r.status_code == 201:
+            response = r.content.decode("UTF-8")
+            sirius_response = format_sirius_response(json.loads(response))
         else:
             logger.info(
-                f"Unable to send request to Sirius, response code {status_code}"
+                f"Unable to send request to Sirius, response code {r.status_code}"
             )
             sirius_response = {
-                "isBase64Encoded": False,
-                "statusCode": status_code,
-                "headers": {"Content-Type": "application/json"},
-                "body": response_messages[status_code]
-                if status_code in response_messages
-                else default_error,
+                "data": f"Error sending data to Sirius",
+                "sirius_api_status_code": r.status_code,
             }
 
     except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
-        logger.info(f"Unable to send request to Sirius, server not available")
+        logger.info(f"Unable to send request to Sirius, server not available: {e}")
         sirius_response = {
-            "isBase64Encoded": False,
-            "statusCode": 500,
-            "headers": {"Content-Type": "application/json"},
-            "body": f"{default_error} - {e}",
+            "data": f"Error sending data to Sirius",
+            "sirius_api_status_code": e,
         }
 
     return sirius_response
+
+
+def format_sirius_response(sirius_response):
+    try:
+        return {
+            "data": {
+                "type": sirius_response["type"],
+                "id": sirius_response["uuid"],
+                "attributes": {
+                    "submission_id": sirius_response["metadata"]["submission_id"],
+                    "parent_id": sirius_response["parentUuid"]
+                    if "parentUuid" in sirius_response
+                    else None,
+                },
+            }
+        }
+
+    except KeyError:
+        return {"data": {"message": "Error validating Sirius Public API response"}}
