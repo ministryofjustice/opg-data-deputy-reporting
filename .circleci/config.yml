@@ -67,6 +67,7 @@ workflows:
           tf_workspace: development
           applycheck: true
           run_account: true
+          pact_tag_master: true
           filters: {branches:{only:[master]}}
       - terraform_pre_checks:
          name: terraform preprod preflight checks
@@ -100,13 +101,13 @@ workflows:
          tf_workspace: production
          applycheck: true
          run_account: true
+         pact_tag_production: true
          filters: {branches:{only:[master]}}
   verify_pact:
     when: << pipeline.parameters.run_verify_pact >>
     jobs:
       - pact_verification:
           name: verify the latest pact
-
 orbs:
   digideps-data:
     executors:
@@ -257,6 +258,14 @@ jobs:
         description: whether to destroy the empty workspace
         type: boolean
         default: false
+      pact_tag_master:
+        description: tag the pact with v<x>_master
+        type: boolean
+        default: false
+      pact_tag_production:
+        description: tag the pact with v<x>_production
+        type: boolean
+        default: false
     environment:
       WORKSPACE: << parameters.tf_workspace >>
     working_directory: ~/project
@@ -284,6 +293,15 @@ jobs:
           name: Set Environment variables
           command: |
             eval $(cat $BASH_ENV)
+      - when:
+          condition: << parameters.pact_tag_master >>
+          steps:
+            - run:
+                name: tag pact commit with v<x>_master
+                command: |
+                  echo "applying tag on version ${GIT_COMMIT_PROVIDER}"
+                  curl -X PUT -u "${PACT_BROKER_HTTP_AUTH_USER}":"${PACT_BROKER_HTTP_AUTH_PASS}" -H "Content-Type: application/json" \
+                  https://"${PACT_BROKER_BASE_URL}"/pacticipants/"${PACT_PROVIDER}"/versions/"${GIT_COMMIT_PROVIDER}"/tags/"${PROVIDER_VERSION}_master"
       - when:
           condition: << parameters.run_account >>
           steps:
@@ -317,24 +335,22 @@ jobs:
                   echo "Switching workspace to default so we can remove branch workspace"
                   export TF_WORKSPACE=default
                   terraform workspace delete "${WORKSPACE_TO_DELETE}" || echo "no workspace to remove"
-      - run:
-          name: tag the latest pact version with env
-          command: |
-            if [ "$TF_WORKSPACE" != "development" ] && [ "$TF_WORKSPACE" != "preproduction" ] && [ "$TF_WORKSPACE" != "production" ]
-            then
-            echo "no tags appplied as on branch"
-            else
-            echo "applying tag on version ${PROVIDER_VERSION}"
-            curl -X PUT -u "${PACT_BROKER_HTTP_AUTH_USER}":"${PACT_BROKER_HTTP_AUTH_PASS}" -H "Content-Type: application/json" \
-            https://"${PACT_BROKER_BASE_URL}"/pacticipants/"${PACT_PROVIDER}"/versions/"${PROVIDER_VERSION}"/tags/"${TF_WORKSPACE}"
-            fi
+      - when:
+          condition: << parameters.pact_tag_production >>
+          steps:
+            - run:
+                name: tag pact commit with v<x>_production
+                command: |
+                  echo "applying tag on version ${GIT_COMMIT_PROVIDER}"
+                  curl -X PUT -u "${PACT_BROKER_HTTP_AUTH_USER}":"${PACT_BROKER_HTTP_AUTH_PASS}" -H "Content-Type: application/json" \
+                  https://"${PACT_BROKER_BASE_URL}"/pacticipants/"${PACT_PROVIDER}"/versions/"${GIT_COMMIT_PROVIDER}"/tags/"${PROVIDER_VERSION}_production"
   pact_verification:
     executor: digideps-data/python_with_tfvars
     working_directory: ~/project
     parameters:
     environment:
       MOCKING_ENV: localhost
-      CONSUMER_VER: << pipeline.parameters.consumerversion >>
+      GIT_COMMIT_CONSUMER: << pipeline.parameters.consumerversion >>
     steps:
       - checkout
       - run:
@@ -394,11 +410,6 @@ jobs:
             echo "Sirius Backend Service Not Started"
             fi
       - run:
-          name: pip install pact-python
-          command: |
-            pip install pact-python
-            pact-verifier --help
-      - run:
           name: Set up ready for pact tests
           command: |
             wget https://github.com/pact-foundation/pact-ruby-standalone/releases/download/v1.81.0/pact-1.81.0-linux-x86_64.tar.gz
@@ -408,31 +419,28 @@ jobs:
       - run:
           name: verify pact and update github
           command: |
-            printf "===== Checking consumer version ====="
-            export LATEST=$(curl -u "${PACT_BROKER_HTTP_AUTH_USER}":"${PACT_BROKER_HTTP_AUTH_PASS}" \
-            -X GET https://"${PACT_BROKER_BASE_URL}"/pacts/provider/"${PACT_PROVIDER}"/consumer/"${PACT_CONSUMER}"/latest/"${PROVIDER_VERSION}" \
-            | jq ._links | jq '.["pb:consumer-version"]' | jq .name | sed 's/"//g') >> /dev/null
-
-            if [ "${CONSUMER_VER}" == "" ]
+            export SCRIPT_PATH="~/project/.circleci"
+            if [ "${GIT_COMMIT_CONSUMER}" == "" ]
             then
-            export CONSUMER_VER="${LATEST}"
-            export DIGIDEPSJOB="false"
-            echo "Consumer version not set, using latest"
+              echo "\n\nProcess kicked off by commit to data-deputy-reporting\n\n"
+              if [ "$TF_WORKSPACE" != "development" ] && [ "$TF_WORKSPACE" != "preproduction" ] && [ "$TF_WORKSPACE" != "production" ]
+              then
+                printf "\n\nSetting CONSUMER_TRIGGERED to false\n\n"
+                export CONSUMER_TRIGGERED=false
+                printf "\n\nOn working branch, performing pact verification\n\n"
+                "${SCRIPT_PATH}"/pact_verifier.sh
+                printf "\n\nChecking if we can deploy with can-i-deploy\n\n"
+                "${SCRIPT_PATH}"/check_pact_deployable.sh
+              else
+                printf "\n\nOn master branch for data-deputy-reporting, no need to perform verification\n\n"
+              fi
+            elif [ "${GIT_COMMIT_CONSUMER}" != "" ]
+            then
+              printf "\n\nSetting CONSUMER_TRIGGERED to true\n\n"
+              export CONSUMER_TRIGGERED=true
+              printf "Process kicked off by commit %b to digideps\n\n" "${CONSUMER_VER}"
+              printf "\n\nChecking if we can deploy with can-i-deploy\n\n"
+              "${SCRIPT_PATH}"/check_pact_deployable.sh
             else
-            export DIGIDEPSJOB="true"
-            echo "Consumer version set by upstream job"
+              printf "\n\nSomething has gone wrong! Check what CONSUMER_VER is set to\n\n"
             fi
-
-            printf "\n\n===== Verify the Pact =====\n\n"
-            ~/project/.circleci/pact_verifier.sh
-            printf "\n\n===== Running checks to see if build deployable =====\n\n"
-            ~/project/.circleci/check_pact_deployable.sh
-
-            eval $(grep "FAIL_BUILD" $BASH_ENV)
-
-            #To be activate in next story
-            #if [ "${FAIL_BUILD}" == "true" ]
-            #then
-            #printf "\n\nExit with failure due to unverified pact\n\n"
-            #exit 1
-            #fi

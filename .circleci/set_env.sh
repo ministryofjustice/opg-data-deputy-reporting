@@ -29,8 +29,10 @@ WORKSPACE=${WORKSPACE:-$CIRCLE_BRANCH}
 WORKSPACE=${WORKSPACE//[^[:alnum:]]/}
 WORKSPACE=${WORKSPACE,,}
 WORKSPACE=${WORKSPACE:0:14}
-PROVIDER_VER=$(ls -d lambda_functions/v*/ | awk -F'/' '{print $2}' | sort -r | head -n1)
+PROVIDER_VER=$(ls -d lambda_functions/v*/ | awk -F'/' '{print $2}' | grep '^v[1-9]\+$' | sort -r | head -n1)
+GIT_COMMIT=${CIRCLE_SHA1:0:7}
 
+echo "export GIT_COMMIT_PROVIDER=${GIT_COMMIT}"
 echo "export TF_WORKSPACE=${WORKSPACE}"
 echo "export PROVIDER_VERSION=${PROVIDER_VER}"
 echo "export PACT_PROVIDER=${PROVIDER}"
