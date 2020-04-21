@@ -4,10 +4,10 @@ version: 2.1
 parameters:
   run_pull_request:
     type: boolean
-    default: true
+    default: false
   run_commit_to_master:
     type: boolean
-    default: true
+    default: false
   run_verify_pact:
     type: boolean
     default: true
@@ -300,8 +300,18 @@ jobs:
                 name: tag pact commit with v<x>_master
                 command: |
                   echo "applying tag on version ${GIT_COMMIT_PROVIDER}"
-                  curl -X PUT -u "${PACT_BROKER_HTTP_AUTH_USER}":"${PACT_BROKER_HTTP_AUTH_PASS}" -H "Content-Type: application/json" \
-                  https://"${PACT_BROKER_BASE_URL}"/pacticipants/"${PACT_PROVIDER}"/versions/"${GIT_COMMIT_PROVIDER}"/tags/"${PROVIDER_VERSION}_master"
+                  STATUS_CODE=$(curl -I -s -X GET -u "${PACT_BROKER_HTTP_AUTH_USER}":"${PACT_BROKER_HTTP_AUTH_PASS}" \
+                  https://"${PACT_BROKER_BASE_URL}"/pacticipants/"${PACT_PROVIDER}"/versions/"${GIT_COMMIT_PROVIDER}" | grep "HTTP" | awk '{print $2}')
+
+                  if [ "${STATUS_CODE}" -eq "200" ]
+                  then
+                    STATUS_CODE=$(curl -I -s -X PUT -u "${PACT_BROKER_HTTP_AUTH_USER}":"${PACT_BROKER_HTTP_AUTH_PASS}" -H "Content-Type: application/json" \
+                    https://"${PACT_BROKER_BASE_URL}"/pacticipants/"${PACT_PROVIDER}"/versions/"${GIT_COMMIT_PROVIDER}"/tags/"${PROVIDER_VERSION}_master" \
+                     | grep "HTTP" | awk '{print $2}')
+                    echo "Pact tagging completed with status code: ${STATUS_CODE}"
+                  else
+                    echo "version of provider with git commit ${GIT_COMMIT_PROVIDER}, not found"
+                  fi
       - when:
           condition: << parameters.run_account >>
           steps:
@@ -342,8 +352,18 @@ jobs:
                 name: tag pact commit with v<x>_production
                 command: |
                   echo "applying tag on version ${GIT_COMMIT_PROVIDER}"
-                  curl -X PUT -u "${PACT_BROKER_HTTP_AUTH_USER}":"${PACT_BROKER_HTTP_AUTH_PASS}" -H "Content-Type: application/json" \
-                  https://"${PACT_BROKER_BASE_URL}"/pacticipants/"${PACT_PROVIDER}"/versions/"${GIT_COMMIT_PROVIDER}"/tags/"${PROVIDER_VERSION}_production"
+                  STATUS_CODE=$(curl -I -s -X GET -u "${PACT_BROKER_HTTP_AUTH_USER}":"${PACT_BROKER_HTTP_AUTH_PASS}" \
+                  https://"${PACT_BROKER_BASE_URL}"/pacticipants/"${PACT_PROVIDER}"/versions/"${GIT_COMMIT_PROVIDER}" | grep "HTTP" | awk '{print $2}')
+
+                  if [ "${STATUS_CODE}" -eq "200" ]
+                  then
+                    STATUS_CODE=$(curl -I -s -X PUT -u "${PACT_BROKER_HTTP_AUTH_USER}":"${PACT_BROKER_HTTP_AUTH_PASS}" -H "Content-Type: application/json" \
+                    https://"${PACT_BROKER_BASE_URL}"/pacticipants/"${PACT_PROVIDER}"/versions/"${GIT_COMMIT_PROVIDER}"/tags/"${PROVIDER_VERSION}_production" \
+                     | grep "HTTP" | awk '{print $2}')
+                    echo "Pact tagging completed with status code: ${STATUS_CODE}"
+                  else
+                    echo "version of provider with git commit ${GIT_COMMIT_PROVIDER}, not found"
+                  fi
   pact_verification:
     executor: digideps-data/python_with_tfvars
     working_directory: ~/project
@@ -419,28 +439,30 @@ jobs:
       - run:
           name: verify pact and update github
           command: |
-            export SCRIPT_PATH="~/project/.circleci"
-            if [ "${GIT_COMMIT_CONSUMER}" == "" ]
-            then
-              echo "\n\nProcess kicked off by commit to data-deputy-reporting\n\n"
-              if [ "$TF_WORKSPACE" != "development" ] && [ "$TF_WORKSPACE" != "preproduction" ] && [ "$TF_WORKSPACE" != "production" ]
-              then
-                printf "\n\nSetting CONSUMER_TRIGGERED to false\n\n"
-                export CONSUMER_TRIGGERED=false
-                printf "\n\nOn working branch, performing pact verification\n\n"
-                "${SCRIPT_PATH}"/pact_verifier.sh
-                printf "\n\nChecking if we can deploy with can-i-deploy\n\n"
-                "${SCRIPT_PATH}"/check_pact_deployable.sh
-              else
-                printf "\n\nOn master branch for data-deputy-reporting, no need to perform verification\n\n"
-              fi
-            elif [ "${GIT_COMMIT_CONSUMER}" != "" ]
-            then
-              printf "\n\nSetting CONSUMER_TRIGGERED to true\n\n"
-              export CONSUMER_TRIGGERED=true
-              printf "Process kicked off by commit %b to digideps\n\n" "${CONSUMER_VER}"
-              printf "\n\nChecking if we can deploy with can-i-deploy\n\n"
-              "${SCRIPT_PATH}"/check_pact_deployable.sh
-            else
-              printf "\n\nSomething has gone wrong! Check what CONSUMER_VER is set to\n\n"
-            fi
+            echo "TEST EXIT"
+            exit 1
+#            export SCRIPT_PATH="/home/circleci/project/.circleci"
+#            if [ "${GIT_COMMIT_CONSUMER}" == "" ]
+#            then
+#              echo "\n\nProcess kicked off by commit to data-deputy-reporting\n\n"
+#              if [ "$TF_WORKSPACE" != "development" ] && [ "$TF_WORKSPACE" != "preproduction" ] && [ "$TF_WORKSPACE" != "production" ]
+#              then
+#                printf "\n\nSetting CONSUMER_TRIGGERED to false\n\n"
+#                export CONSUMER_TRIGGERED=false
+#                printf "\n\nOn working branch, performing pact verification\n\n"
+#                "${SCRIPT_PATH}"/pact_verifier.sh
+#                printf "\n\nChecking if we can deploy with can-i-deploy\n\n"
+#                "${SCRIPT_PATH}"/check_pact_deployable.sh
+#              else
+#                printf "\n\nOn master branch for data-deputy-reporting, no need to perform verification\n\n"
+#              fi
+#            elif [ "${GIT_COMMIT_CONSUMER}" != "" ]
+#            then
+#              printf "\n\nSetting CONSUMER_TRIGGERED to true\n\n"
+#              export CONSUMER_TRIGGERED=true
+#              printf "Process kicked off by commit %b to digideps\n\n" "${CONSUMER_VER}"
+#              printf "\n\nChecking if we can deploy with can-i-deploy\n\n"
+#              "${SCRIPT_PATH}"/check_pact_deployable.sh
+#            else
+#              printf "\n\nSomething has gone wrong! Check what CONSUMER_VER is set to\n\n"
+#            fi

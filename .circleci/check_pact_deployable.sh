@@ -5,7 +5,7 @@ then
 
     # Canideploy with provider git_commit against latest consumer tagged with v<x>_production
     CANIDEPLOY_RESPONSE=$(./pact/bin/pact-broker can-i-deploy \
-    --broker-base-url=https://dev-pact-broker.api.opg.service.justice.gov.uk \
+    --broker-base-url="https://${PACT_BROKER_BASE_URL}" \
     --broker-username="${PACT_BROKER_HTTP_AUTH_USER}" \
     --broker-password="${PACT_BROKER_HTTP_AUTH_PASS}" \
     --pacticipant="Complete the deputy report" \
@@ -21,7 +21,7 @@ then
     then
         # Canideploy with provider git_commit against latest consumer tagged with v<x>
         CANIDEPLOY_RESPONSE=$(./pact/bin/pact-broker can-i-deploy \
-        --broker-base-url=https://dev-pact-broker.api.opg.service.justice.gov.uk \
+        --broker-base-url="https://${PACT_BROKER_BASE_URL}" \
         --broker-username="${PACT_BROKER_HTTP_AUTH_USER}" \
         --broker-password="${PACT_BROKER_HTTP_AUTH_PASS}" \
         --pacticipant="Complete the deputy report" \
@@ -46,10 +46,10 @@ then
     then
         printf "\n\nProvider Side 'Can I Deploy' Successful\n\n"
         echo "${CANIDEPLOY_RESPONSE}"
-        export CAN_I_DEPLOY=true
+        export CAN_I_DEPLOY="true"
     fi
 
-    if [ ${CAN_I_DEPLOY} == "false" ]
+    if [ ! "${CAN_I_DEPLOY}" ]
     then
         printf "\n\nFailing the build\n\n"
         exit
@@ -70,7 +70,7 @@ then
 
     # CanIDeploy with consumer git_commit and latest provider tagged with v<x>_production (must get version from tags)
     CANIDEPLOY_RESPONSE=$(./pact/bin/pact-broker can-i-deploy \
-    --broker-base-url https://"${PACT_BROKER_BASE_URL}" \
+    --broker-base-url "https://${PACT_BROKER_BASE_URL}" \
     --broker-username="${PACT_BROKER_HTTP_AUTH_USER}" \
     --broker-password="${PACT_BROKER_HTTP_AUTH_PASS}" \
     --pacticipant "Complete the deputy report" \
@@ -88,15 +88,15 @@ then
         # There is an issue that what we're comparing against may be in master but not prod but it's a fringe case
         ./pact/bin/pact-provider-verifier --provider-base-url=http://localhost:4343 \
         --custom-provider-header 'Authorization: asdf1234567890' \
-        --pact-broker-base-url="${PACT_BROKER_BASE_URL}" \
-        --provider="${PACT_PROVIDER}" \
+        --pact-broker-base-url="https://${PACT_BROKER_BASE_URL}" \
+        --provider="OPG Data" \
         --broker-username="${PACT_BROKER_HTTP_AUTH_USER}" \
         --broker-password="${PACT_BROKER_HTTP_AUTH_PASS}" -r \
         --consumer-version-tag="${PROVIDER_VERSION}" \
-        --provider-app-version="${GIT_COMMIT_PROVIDER}"
+        --provider-app-version="${GIT_COMMIT_PROVIDER}" || echo "Error validating, didn't validate"
         # Rerun can I deploy
         CANIDEPLOY_RESPONSE=$(./pact/bin/pact-broker can-i-deploy \
-        --broker-base-url https://"${PACT_BROKER_BASE_URL}" \
+        --broker-base-url "https://${PACT_BROKER_BASE_URL}" \
         --broker-username="${PACT_BROKER_HTTP_AUTH_USER}" \
         --broker-password="${PACT_BROKER_HTTP_AUTH_PASS}" \
         --pacticipant "Complete the deputy report" \
@@ -124,7 +124,7 @@ then
         export CAN_I_DEPLOY=true
     fi
     # Send status update to digideps
-    if [ "${CAN_I_DEPLOY}" == "true" ]
+    if [ "${CAN_I_DEPLOY}" ]
     then
         printf "\n\nGithub Status Updated - Verification Successful\n\n"
         curl -X POST \
