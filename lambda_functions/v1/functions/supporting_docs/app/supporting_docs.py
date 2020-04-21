@@ -34,7 +34,7 @@ def lambda_handler(event, context):
         )
 
         sirius_api_url = build_sirius_url(
-            base_url=os.environ["SIRIUS_BASE_URL"],
+            base_url=f'{os.environ["SIRIUS_BASE_URL"]}/api/public',
             version=os.environ["API_VERSION"],
             endpoint="documents",
         )
@@ -96,16 +96,20 @@ def validate_event(event):
 
 def transform_event_to_sirius_get_url(event):
     case_ref = event["pathParameters"]["caseref"]
+    report_id = event["pathParameters"]["id"]
     request_body = json.loads(event["body"])
     submission_id = request_body["supporting_document"]["data"]["attributes"][
         "submission_id"
     ]
 
     url = build_sirius_url(
-        base_url=os.environ["SIRIUS_BASE_URL"],
+        base_url=f'{os.environ["SIRIUS_BASE_URL"]}/api/public',
         version=os.environ["API_VERSION"],
         endpoint=f"clients/{case_ref}/documents",
-        url_params={"metadata[submission_id]": submission_id},
+        url_params={
+            "metadata[submission_id]": submission_id,
+            "metadata[report_id]": report_id,
+        },
     )
 
     return url
@@ -148,29 +152,35 @@ def transform_event_to_sirius_post_request(event, parent_id=None):
 
 def determine_document_parent_id(url):
 
+    parent_id = None
+
     submission_entries = sirius_service.send_get_to_sirius(url)
 
-    try:
-        number_of_entries = len(
-            [entry for entry in submission_entries if len(entry) > 0]
-        )
+    if submission_entries is not None:
 
-        if number_of_entries == 0:
+        try:
+            number_of_entries = len(
+                [entry for entry in submission_entries if len(entry) > 0]
+            )
+
+            print(f"number_of_entries: {number_of_entries}")
+
+            if number_of_entries == 0:
+                parent_id = None
+            else:
+                for entry in submission_entries:
+                    if "parentUuid" in entry and entry["parentUuid"] is None:
+                        parent_id = entry["uuid"]
+                        break
+                    elif "parentUuid" not in entry:
+                        parent_id = entry["uuid"]
+                        break
+                    else:
+                        logger.info("Unable to determine parent id of document")
+                        parent_id = None
+
+        except TypeError as e:
+            logger.info(f"Unable to determine parent id of document {e}")
             parent_id = None
-        else:
-            for entry in submission_entries:
-                if "parentUuid" in entry and entry["parentUuid"] is None:
-                    parent_id = entry["uuid"]
-                    break
-                elif "parentUuid" not in entry:
-                    parent_id = entry["uuid"]
-                    break
-                else:
-                    logger.info("Unable to determine parent id of document")
-                    parent_id = None
-
-    except TypeError:
-        logger.info("Unable to determine parent id of document")
-        parent_id = None
 
     return parent_id
