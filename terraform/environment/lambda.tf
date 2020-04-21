@@ -44,6 +44,7 @@ module "lambda_supporting_docs_v1" {
   openapi_version        = "v1"
   rest_api               = aws_api_gateway_rest_api.deputy_reporting
   account_mapping        = local.account.account_mapping
+  timeout                = 10
 }
 
 //To Add New Version Copy and Paste Above and Modify Accordingly

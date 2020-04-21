@@ -161,6 +161,21 @@ def test_submit_document_to_sirius(
             "-3084-4a74-ab55-a7542cfadd37",
         ),
         (
+            "https://frontend-feature5.dev.sirius.opg.digital/api/public",
+            "v1",
+            "documents",
+            {
+                "casrecnumber": "e4e497bc-7744-47ab-9d1a-345412640161",
+                "metadata[submission_id]": 11111,
+                "metadata[report_id]": "d0a43b67-3084-4a74-ab55-a7542cfadd37",
+            },
+            "https://frontend-feature5.dev.sirius.opg.digital/api/public/v1"
+            "/documents?casrecnumber=e4e497bc-7744-47ab-9d1a-345412640161"
+            "&metadata[submission_id]=11111&metadata["
+            "report_id]=d0a43b67"
+            "-3084-4a74-ab55-a7542cfadd37",
+        ),
+        (
             "http://www.fake_url.com",
             "6.3.1",
             "random/endpoint/",

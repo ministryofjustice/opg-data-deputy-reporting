@@ -105,8 +105,9 @@ def transform_event_to_sirius_get_url(event):
     url = build_sirius_url(
         base_url=f'{os.environ["SIRIUS_BASE_URL"]}/api/public',
         version=os.environ["API_VERSION"],
-        endpoint=f"clients/{case_ref}/documents",
+        endpoint=f"documents",
         url_params={
+            "caserecnumber": case_ref,
             "metadata[submission_id]": submission_id,
             "metadata[report_id]": report_id,
         },
