@@ -64,6 +64,7 @@ def mock_env_setup(monkeypatch):
     monkeypatch.setenv("LOGGER_LEVEL", "DEBUG")
     monkeypatch.setenv("JWT_SECRET", "THIS_IS_MY_SECRET_KEY")
     monkeypatch.setenv("ENVIRONMENT", "development")
+    monkeypatch.setenv("API_VERSION", "v1")
 
 
 sirius_sup_docs_response = json.dumps(
@@ -102,43 +103,16 @@ def patched_requests(monkeypatch):
 
         return mock_response
 
-    def mock_get(url):
-
-        import urllib.parse as urlparse
-
+    def mock_get(*args, **kwargs):
+        url = kwargs["url"]
         mock_response = requests.Response()
 
-        parsed = urlparse.urlparse(url)
-        submission_id = urlparse.parse_qs(parsed.query)["metadata[submission_id]"][0]
-
-        get_responses = {
-            "11111": [],
-            "22222": [
-                {"uuid": "e8c14b7f-d0fc-4820-9ac7-58d61d4160d0", "parentUuid": None}
-            ],
-            "55555": [
-                {"uuid": "e8c14b7f-d0fc-4820-9ac7-58d61d4160d0", "parentUuid": None},
-                {
-                    "uuid": "772a922c-2372-4bf4-8040-cb0bf4fb7ccf",
-                    "parentUuid": "e8c14b7f-d0fc-4820-9ac7-58d61d4160d0",
-                },
-                {
-                    "uuid": "b9d242a2-6a4f-4f1e-9642-07cb18d36945",
-                    "parentUuid": "e8c14b7f-d0fc-4820-9ac7-58d61d4160d0",
-                },
-                {
-                    "uuid": "168fb7de-e982-4bf4-a820-751ea529c5fc",
-                    "parentUuid": "e8c14b7f-d0fc-4820-9ac7-58d61d4160d0",
-                },
-            ],
-        }
-
-        try:
+        if url == "https://frontend-feature5.dev.sirius.opg.digital/":
             mock_response.status_code = 200
-            mock_response._content = json.dumps(get_responses[submission_id])
-        except KeyError:
+            mock_response._content = json.dumps([{"data": "success"}]).encode("UTF-8")
+        else:
             mock_response.status_code = 500
-            mock_response.json = None
+            mock_response._content = None
 
         return mock_response
 
@@ -168,3 +142,44 @@ def patched_validate_event_success(monkeypatch):
         return True, []
 
     monkeypatch.setattr(supporting_docs, "validate_event", mock_valid)
+
+
+@pytest.fixture
+def patched_send_get_to_sirius(monkeypatch):
+    def mock_response(url):
+        import urllib.parse as urlparse
+
+        parsed = urlparse.urlparse(url)
+        submission_id = urlparse.parse_qs(parsed.query)["metadata[submission_id]"][0]
+
+        get_responses = {
+            "11111": [],
+            "22222": [
+                {"uuid": "e8c14b7f-d0fc-4820-9ac7-58d61d4160d0", "parentUuid": None}
+            ],
+            "55555": [
+                {"uuid": "e8c14b7f-d0fc-4820-9ac7-58d61d4160d0", "parentUuid": None},
+                {
+                    "uuid": "772a922c-2372-4bf4-8040-cb0bf4fb7ccf",
+                    "parentUuid": "e8c14b7f-d0fc-4820-9ac7-58d61d4160d0",
+                },
+                {
+                    "uuid": "b9d242a2-6a4f-4f1e-9642-07cb18d36945",
+                    "parentUuid": "e8c14b7f-d0fc-4820-9ac7-58d61d4160d0",
+                },
+                {
+                    "uuid": "168fb7de-e982-4bf4-a820-751ea529c5fc",
+                    "parentUuid": "e8c14b7f-d0fc-4820-9ac7-58d61d4160d0",
+                },
+            ],
+        }
+
+        try:
+
+            mock_response = get_responses[submission_id]
+        except KeyError:
+            mock_response = None
+
+        return mock_response
+
+    monkeypatch.setattr(sirius_service, "send_get_to_sirius", mock_response)

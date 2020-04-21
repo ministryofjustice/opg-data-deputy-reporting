@@ -1,10 +1,10 @@
 import json
 import os
 
+from . import sirius_service
 from .helpers import compare_two_dicts, custom_logger
 from .sirius_service import (
     build_sirius_url,
-    build_sirius_headers,
     submit_document_to_sirius,
 )
 
@@ -26,15 +26,14 @@ def lambda_handler(event, context):
     if valid_payload:
         sirius_api_url = build_sirius_url(
             base_url=os.environ["SIRIUS_BASE_URL"],
-            api_route=os.environ["SIRIUS_PUBLIC_API_URL"],
+            version=os.environ["API_VERSION"],
             endpoint="documents",
         )
 
         sirius_payload = transform_event_to_sirius_request(event=event)
-        sirius_headers = build_sirius_headers()
 
         sirius_reponse = submit_document_to_sirius(
-            url=sirius_api_url, data=sirius_payload, headers=sirius_headers
+            url=sirius_api_url, data=sirius_payload
         )
 
         lambda_response = {
@@ -119,7 +118,9 @@ def transform_event_to_sirius_request(event):
     return json.dumps(payload)
 
 
-def determine_document_parent_id(submission_entries):
+def determine_document_parent_id(url):
+
+    submission_entries = sirius_service.send_get_to_sirius(url)
 
     try:
         number_of_entries = len(

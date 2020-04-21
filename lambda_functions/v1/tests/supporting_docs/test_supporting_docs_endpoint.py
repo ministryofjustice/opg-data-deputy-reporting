@@ -1,5 +1,10 @@
 import json
 
+from pytest_cases import (
+    cases_data,
+    CaseDataGetter,
+)
+
 from lambda_functions.v1.functions.supporting_docs.app.supporting_docs import (
     lambda_handler,
     transform_event_to_sirius_request,
@@ -10,12 +15,6 @@ from lambda_functions.v1.tests.helpers.use_test_data import (
     load_data,
     build_aws_event,
 )
-
-from pytest_cases import (
-    cases_data,
-    CaseDataGetter,
-)
-
 from lambda_functions.v1.tests.supporting_docs import (
     supporting_docs_endpoint_test_cases,
 )

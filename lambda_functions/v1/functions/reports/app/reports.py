@@ -27,7 +27,7 @@ def lambda_handler(event, context):
     if valid_payload:
         sirius_api_url = build_sirius_url(
             base_url=os.environ["SIRIUS_BASE_URL"],
-            api_route=os.environ["SIRIUS_PUBLIC_API_URL"],
+            version=os.environ["API_VERSION"],
             endpoint="documents",
         )
 
