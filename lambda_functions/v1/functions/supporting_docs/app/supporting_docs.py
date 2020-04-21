@@ -24,15 +24,22 @@ def lambda_handler(event, context):
     valid_payload, errors = validate_event(event=event)
 
     if valid_payload:
+
+        parent_id = determine_document_parent_id(
+            url=transform_event_to_sirius_get_url(event)
+        )
+
+        sirius_payload = transform_event_to_sirius_post_request(
+            event=event, parent_id=parent_id
+        )
+
         sirius_api_url = build_sirius_url(
             base_url=os.environ["SIRIUS_BASE_URL"],
             version=os.environ["API_VERSION"],
             endpoint="documents",
         )
 
-        sirius_payload = transform_event_to_sirius_request(event=event)
-
-        sirius_reponse = submit_document_to_sirius(
+        sirius_response = submit_document_to_sirius(
             url=sirius_api_url, data=sirius_payload
         )
 
@@ -40,7 +47,7 @@ def lambda_handler(event, context):
             "isBase64Encoded": False,
             "statusCode": 201,
             "headers": {"Content-Type": "application/json"},
-            "body": json.dumps(sirius_reponse),
+            "body": json.dumps(sirius_response),
         }
     else:
         lambda_response = {
@@ -87,7 +94,24 @@ def validate_event(event):
         return True, errors
 
 
-def transform_event_to_sirius_request(event):
+def transform_event_to_sirius_get_url(event):
+    case_ref = event["pathParameters"]["caseref"]
+    request_body = json.loads(event["body"])
+    submission_id = request_body["supporting_document"]["data"]["attributes"][
+        "submission_id"
+    ]
+
+    url = build_sirius_url(
+        base_url=os.environ["SIRIUS_BASE_URL"],
+        version=os.environ["API_VERSION"],
+        endpoint=f"clients/{case_ref}/documents",
+        url_params={"metadata[submission_id]": submission_id},
+    )
+
+    return url
+
+
+def transform_event_to_sirius_post_request(event, parent_id=None):
     """
     Takes the 'body' from the AWS event and converts it into the right format for the
     Sirius documents endpoint, detailed here:
@@ -113,6 +137,10 @@ def transform_event_to_sirius_request(event):
         "metadata": metadata,
         "file": {"name": file_name, "source": file_source, "type": file_type},
     }
+
+    if parent_id:
+        payload["parentUuid"] = parent_id
+
     logger.debug(f"Sirius Payload: {payload}")
 
     return json.dumps(payload)

@@ -7,7 +7,7 @@ from pytest_cases import (
 
 from lambda_functions.v1.functions.supporting_docs.app.supporting_docs import (
     lambda_handler,
-    transform_event_to_sirius_request,
+    transform_event_to_sirius_post_request,
     validate_event,
 )
 from lambda_functions.v1.tests.helpers.use_test_data import (
@@ -62,6 +62,7 @@ def test_transform_event_to_sirius_request(
     default_request_case_ref,
     default_request_report_id,
     default_sirius_supporting_docs_request,
+    default_sirius_supporting_docs_request_with_parent_id,
 ):
 
     path_params = {"caseref": default_request_case_ref, "id": default_request_report_id}
@@ -71,10 +72,17 @@ def test_transform_event_to_sirius_request(
         as_json=False,
     )
 
-    payload = transform_event_to_sirius_request(event)
+    payload = transform_event_to_sirius_post_request(event)
 
     assert is_valid_schema(json.loads(payload), "sirius_documents_payload_schema.json")
     assert payload == json.dumps(default_sirius_supporting_docs_request)
+
+    payload2 = transform_event_to_sirius_post_request(
+        event, parent_id="5783a7ad-9251-4cc7-80e3-c411c3bd87e0"
+    )
+
+    assert is_valid_schema(json.loads(payload2), "sirius_documents_payload_schema.json")
+    assert payload2 == json.dumps(default_sirius_supporting_docs_request_with_parent_id)
 
 
 def test_sirius_request_has_submission_id(
@@ -91,7 +99,7 @@ def test_sirius_request_has_submission_id(
         as_json=False,
     )
 
-    payload = transform_event_to_sirius_request(event)
+    payload = transform_event_to_sirius_post_request(event)
 
     assert json.loads(payload)["metadata"]["submission_id"]
 
@@ -112,6 +120,6 @@ def test_sirius_request_has_report_id_from_path(
         as_json=False,
     )
 
-    payload = transform_event_to_sirius_request(event)
+    payload = transform_event_to_sirius_post_request(event)
 
     assert json.loads(payload)["metadata"]["report_id"] == "uuid_from_path"

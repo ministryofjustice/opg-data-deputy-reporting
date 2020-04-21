@@ -28,6 +28,23 @@ def default_sirius_supporting_docs_request(
     }
 
 
+@pytest.fixture()
+def default_sirius_supporting_docs_request_with_parent_id(
+    default_request_case_ref, default_request_report_id
+):
+    return {
+        "type": "Report",
+        "caseRecNumber": default_request_case_ref,
+        "metadata": {"submission_id": 231231, "report_id": default_request_report_id},
+        "file": {
+            "name": "Supporting_Document_111.pdf",
+            "source": "string",
+            "type": "application/pdf",
+        },
+        "parentUuid": "5783a7ad-9251-4cc7-80e3-c411c3bd87e0",
+    }
+
+
 @pytest.fixture(autouse=True)
 def default_supporting_doc_request_body(default_request_report_id):
     return {
