@@ -1,4 +1,5 @@
 import json
+import urllib.parse
 
 import jwt
 import pytest
@@ -135,29 +136,55 @@ def test_submit_document_to_sirius(
 
 
 @pytest.mark.parametrize(
-    "base_url, api_route, endpoint, expected_result",
+    "base_url, version, endpoint, url_params, expected_result",
     [
         (
-            "https://frontend-feature5.dev.sirius.opg.digital/",
-            "/api/public/v1/",
+            "https://frontend-feature5.dev.sirius.opg.digital/api/public",
+            "v1",
             "documents",
+            None,
             "https://frontend-feature5.dev.sirius.opg.digital/api/public"
             "/v1/documents",
         ),
         (
-            "http://www.fake_url.com",
-            "not/a/real/route/",
-            "random/endpoint/",
-            "http://www.fake_url.com/not/a/real/route/random/endpoint/",
+            "https://frontend-feature5.dev.sirius.opg.digital/api/public",
+            "v1",
+            "clients/12345678/reports/7230e5a2-312b-4b50-bc09-f9c00c6b7f1d",
+            None,
+            "https://frontend-feature5.dev.sirius.opg.digital/api/public/v1/clients/123"
+            "45678/reports/7230e5a2-312b-4b50-bc09-f9c00c6b7f1d",
         ),
-        ("banana", "not/a/real/route/", "random/endpoint/", False,),
+        (
+            "https://frontend-feature5.dev.sirius.opg.digital/api/public",
+            "v1",
+            "clients/12345678/documents",
+            {
+                "metadata[submission_id]": 11111,
+                "metadata[report_id]": "d0a43b67-3084-4a74-ab55-a7542cfadd37",
+            },
+            "https://frontend-feature5.dev.sirius.opg.digital/api/public/v1/clients/123"
+            "45678/documents?metadata[submission_id]=11111&metadata[report_id]=d0a43b67"
+            "-3084-4a74-ab55-a7542cfadd37",
+        ),
+        (
+            "http://www.fake_url.com",
+            "6.3.1",
+            "random/endpoint/",
+            None,
+            "http://www.fake_url.com/6.3.1/random/endpoint/",
+        ),
+        ("banana", "30", "random/endpoint/", None, False,),
     ],
 )
-def test_build_sirius_url(base_url, api_route, endpoint, expected_result):
-    assert build_sirius_url(base_url, api_route, endpoint) == expected_result
+def test_build_sirius_url(base_url, version, endpoint, url_params, expected_result):
+    url = build_sirius_url(base_url, version, endpoint, url_params)
+    try:
+        assert urllib.parse.unquote(url) == expected_result
+    except TypeError:
+        assert url == expected_result
     assert build_sirius_url(
-        base_url, api_route, endpoint
-    ) == build_sirius_url_supporting_docs(base_url, api_route, endpoint)
+        base_url, version, endpoint
+    ) == build_sirius_url_supporting_docs(base_url, version, endpoint)
 
 
 @pytest.mark.parametrize(
