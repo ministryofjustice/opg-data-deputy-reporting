@@ -4,10 +4,10 @@ version: 2.1
 parameters:
   run_pull_request:
     type: boolean
-    default: false
+    default: true
   run_commit_to_master:
     type: boolean
-    default: false
+    default: true
   run_verify_pact:
     type: boolean
     default: true
@@ -447,8 +447,8 @@ jobs:
               then
                 printf "\n\nSetting CONSUMER_TRIGGERED to false\n\n"
                 export CONSUMER_TRIGGERED=false
-                #printf "\n\nOn working branch, performing pact verification\n\n"
-                #"${SCRIPT_PATH}"/pact_verifier.sh
+                printf "\n\nOn working branch, performing pact verification\n\n"
+                "${SCRIPT_PATH}"/pact_verifier.sh
                 printf "\n\nChecking if we can deploy with can-i-deploy\n\n"
                 "${SCRIPT_PATH}"/check_pact_deployable.sh
               else
