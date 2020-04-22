@@ -14,6 +14,7 @@ resource "aws_lambda_function" "lambda_function" {
   role             = aws_iam_role.lambda_role.arn
   handler          = var.handler
   runtime          = "python3.7"
+  timeout          = 5
   depends_on       = [aws_cloudwatch_log_group.lambda]
   layers           = [aws_lambda_layer_version.lambda_layer.arn]
   vpc_config {
@@ -22,8 +23,7 @@ resource "aws_lambda_function" "lambda_function" {
   }
   environment {
     variables = {
-      BASE_URL              = "http://api.${var.target_environment}.ecs"
-      SIRIUS_BASE_URL       = "http://api.feature5.ecs"
+      SIRIUS_BASE_URL       = "http://api.${var.target_environment}.ecs"
       SIRIUS_PUBLIC_API_URL = "api/public/v1/"
       ENVIRONMENT           = var.account_mapping
       LOGGER_LEVEL          = var.logger_level
