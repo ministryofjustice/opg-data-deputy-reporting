@@ -16,7 +16,7 @@ then
     # If the prod version doesn't exist then it's a breaking change or a new version
     # we are allowed to try the dev version
     if [ "$(echo "${CANIDEPLOY_RESPONSE}" \
-        | grep -c "No version with tag ${PROVIDER_VERSION}_production exists for Complete the deputy report")" -eq 1 ]
+        | grep -c "No version with tag ${PROVIDER_VERSION}_production exists for Complete the deputy report")" -ne 0 ]
     then
         # Canideploy with provider git_commit against latest consumer tagged with v<x>
         CANIDEPLOY_RESPONSE=$(./pact/bin/pact-broker can-i-deploy \
@@ -24,16 +24,21 @@ then
         --broker-username="${PACT_BROKER_HTTP_AUTH_USER}" \
         --broker-password="${PACT_BROKER_HTTP_AUTH_PASS}" \
         --pacticipant="Complete the deputy report" \
-        --latest "${PROVIDER_VERSION}_production" \
+        --latest "${PROVIDER_VERSION}" \
         --pacticipant "OPG Data" \
         --version "${GIT_COMMIT_PROVIDER}" \
         | tail -1)
     fi
 
     if [ "$(echo "${CANIDEPLOY_RESPONSE}" \
-        | grep -c "No version with tag ${PROVIDER_VERSION} exists for Complete the deputy report")" -eq 1 ]
+        | grep -c "No version with tag ${PROVIDER_VERSION} exists for Complete the deputy report")" -ne 0 ]
     then
         echo "Provider Side 'Can I Deploy' Failed! No matching consumer pact!"
+        echo "${CANIDEPLOY_RESPONSE}"
+        export CAN_I_DEPLOY="false"
+    elif [ "$(echo "${CANIDEPLOY_RESPONSE}" | grep -c "No pacts or verifications have been published")" -ne 0 ]
+    then
+        echo "Provider Side 'Can I Deploy' Failed! No pacts or verifications published!"
         echo "${CANIDEPLOY_RESPONSE}"
         export CAN_I_DEPLOY="false"
     elif [ "$(echo "${CANIDEPLOY_RESPONSE}" | grep -c "failed")" -ne 0 ]
@@ -78,8 +83,9 @@ then
     --latest "${CONSUMER_API_VERSION}_production" \
     | tail -1)
 
-    if [ "$(echo "${CANIDEPLOY_RESPONSE}" | grep -c "There is no verified pact")" -eq 1 ]
+    if [ "$(echo "${CANIDEPLOY_RESPONSE}" | grep -c "There is no verified pact")" -ne 0 ]
     then
+        echo "Running verification as this is a new pact!"
         # New Pact has not been verified before. We must verify it!
         # Verify this commit against what is in master using this providers GIT_SHA
         # Tag provider with latest version tag (this may be different to what version is being passed from digideps)
@@ -94,6 +100,7 @@ then
         --consumer-version-tag="${PROVIDER_VERSION}" \
         --provider-app-version="${GIT_COMMIT_PROVIDER}" || echo "Error validating, didn't validate"
         # Rerun can I deploy
+        echo "Rerunning canideploy"
         CANIDEPLOY_RESPONSE=$(./pact/bin/pact-broker can-i-deploy \
         --broker-base-url "https://${PACT_BROKER_BASE_URL}" \
         --broker-username="${PACT_BROKER_HTTP_AUTH_USER}" \
@@ -106,9 +113,15 @@ then
     fi
 
     if [ "$(echo "${CANIDEPLOY_RESPONSE}" \
-        | grep -c "No version with tag ${CONSUMER_API_VERSION} exists for OPG Data")" -eq 1 ]
+        | grep -c "No version with tag ${CONSUMER_API_VERSION} exists for OPG Data")" -ne 0 ]
     then
-        echo "Consumer Side 'Can I Deploy' Failed! No matching consumer pact!"
+        echo "Consumer Side 'Can I Deploy' Failed! No matching provider pact with that tag!"
+        echo "${CANIDEPLOY_RESPONSE}"
+        export CAN_I_DEPLOY="false"
+    elif [ "$(echo "${CANIDEPLOY_RESPONSE}" \
+    | grep -c "No version with tag ${CONSUMER_API_VERSION}_production exists for OPG Data")" -ne 0 ]
+    then
+        echo "Consumer Side 'Can I Deploy' Failed! No matching provider pact with that tag!"
         echo "${CANIDEPLOY_RESPONSE}"
         export CAN_I_DEPLOY="false"
     elif [ "$(echo "${CANIDEPLOY_RESPONSE}" | grep -c "failed")" -ne 0 ]
