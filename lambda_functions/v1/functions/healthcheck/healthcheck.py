@@ -11,7 +11,7 @@ def lambda_handler(event, context):
     logger = logging.getLogger()
     logger.setLevel(os.environ["LOGGER_LEVEL"])
 
-    api_host = os.environ["BASE_URL"]
+    api_host = os.environ["SIRIUS_BASE_URL"]
 
     logger.info(f"Starting healthcheck on {api_host}")
     logger.debug(f"Event: {event}")
