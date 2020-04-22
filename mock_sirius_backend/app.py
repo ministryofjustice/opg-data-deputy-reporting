@@ -38,13 +38,34 @@ def provider_states():
 
 
 def setupReport():
-    fakedb["1234567T"] = {"uuid": "33ea0382-cfc9-4776-9036-667eeb68fa4b"}
+    fakedb["1234567T"] = {
+        "type": "Report",
+        "filename": "a9b4fc3616e62_Report_25558511_2018_2019_12345.pdf",
+        "mimeType": "application/pdf",
+        "metadata": {
+            "reporting_period_from": "2019-01-01",
+            "reporting_period_to": "2019-12-31",
+            "year": 2019,
+            "date_submitted": "2020-01-03T09:30:00.001Z",
+            "type": "HW",
+            "submission_id": 12345,
+        },
+        "uuid": "33ea0382-cfc9-4776-9036-667eeb68fa4b",
+    }
     print(fakedb)
 
 
 def setupSupportingDocs():
     fakedb["33ea0382-cfc9-4776-9036-667eeb68fa4b"] = {
-        "uuid": "33ea0382-cfc9-4776-9036-667eeb68fa4b"
+        "type": "Report - General",
+        "filename": "101856f51959a_supportingDoc.pdf",
+        "mimeType": "application/pdf",
+        "metadata": {
+            "submission_id": 12345,
+            "report_id": "887deae4-ed28-4c4e-8986-f7616e1b7d36",
+        },
+        "parentUuid": "887deae4-ed28-4c4e-8986-f7616e1b7d36",
+        "uuid": "33ea0382-cfc9-4776-9036-667eeb68fa4b",
     }
 
 

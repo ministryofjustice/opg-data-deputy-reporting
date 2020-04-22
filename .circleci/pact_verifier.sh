@@ -2,6 +2,7 @@
 set -e
 if [ "${CONSUMER_TRIGGERED}" == "false" ]
 then
+    echo "Validating against consumer tag ${PROVIDER_VERSION}"
     #  Verify current provider git_commit against latest consumer git_commit tagged with v<x>
     ./pact/bin/pact-provider-verifier --provider-base-url=http://localhost:4343 \
     --custom-provider-header 'Authorization: asdf1234567890' \
@@ -13,6 +14,7 @@ then
     --provider-version-tag="${PROVIDER_VERSION}" \
     --provider-app-version="${GIT_COMMIT_PROVIDER}" || echo "Error validating, didn't validate"
 
+    echo "Validating against consumer tag ${PROVIDER_VERSION}_production"
     # Verify current provider git_commit against latest consumer git_commit tagged with v<x>_production
     ./pact/bin/pact-provider-verifier --provider-base-url=http://localhost:4343 \
     --custom-provider-header 'Authorization: asdf1234567890' \

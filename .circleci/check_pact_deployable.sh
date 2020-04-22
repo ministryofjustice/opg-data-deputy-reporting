@@ -2,7 +2,6 @@
 set -e
 if [ "${CONSUMER_TRIGGERED}" == "false" ]
 then
-
     # Canideploy with provider git_commit against latest consumer tagged with v<x>_production
     CANIDEPLOY_RESPONSE=$(./pact/bin/pact-broker can-i-deploy \
     --broker-base-url="https://${PACT_BROKER_BASE_URL}" \
@@ -34,24 +33,24 @@ then
     if [ "$(echo "${CANIDEPLOY_RESPONSE}" \
         | grep -c "No version with tag ${PROVIDER_VERSION} exists for Complete the deputy report")" -eq 1 ]
     then
-        printf "\n\nProvider Side 'Can I Deploy' Failed! No matching consumer pact!\n\n"
+        echo "Provider Side 'Can I Deploy' Failed! No matching consumer pact!"
         echo "${CANIDEPLOY_RESPONSE}"
-        export CAN_I_DEPLOY=false
+        export CAN_I_DEPLOY="false"
     elif [ "$(echo "${CANIDEPLOY_RESPONSE}" | grep -c "failed")" -ne 0 ]
     then
-        printf "\n\nProvider Side 'Can I Deploy' Failed!\n\n"
+        echo "Provider Side 'Can I Deploy' Failed!"
         echo "${CANIDEPLOY_RESPONSE}"
-        export CAN_I_DEPLOY=false
+        export CAN_I_DEPLOY="false"
     elif [ "$(echo "${CANIDEPLOY_RESPONSE}" | grep -c "successful")" -ne 0 ]
     then
-        printf "\n\nProvider Side 'Can I Deploy' Successful\n\n"
+        echo "Provider Side 'Can I Deploy' Successful"
         echo "${CANIDEPLOY_RESPONSE}"
         export CAN_I_DEPLOY="true"
     fi
 
-    if [ ! "${CAN_I_DEPLOY}" ]
+    if [ "${CAN_I_DEPLOY}" == "false" ]
     then
-        printf "\n\nFailing the build\n\n"
+        echo "Failing the build"
         exit
     fi
 
@@ -62,7 +61,7 @@ then
     CONSUMER_API_VERSION=$(curl -u "${PACT_BROKER_HTTP_AUTH_USER}":"${PACT_BROKER_HTTP_AUTH_PASS}" \
     -X GET https://"${PACT_BROKER_BASE_URL}"/pacticipants/"${PACT_CONSUMER}"/versions/"${GIT_COMMIT_CONSUMER}" \
     | jq ._embedded.tags[] | jq .name | sed 's/"//g' | grep '^v[1-9]\+$' | sort -r | head -n1)
-    printf "\n\nThe consumer version we are testing is %b\n\n" "${CONSUMER_API_VERSION}"
+    echo "The consumer version we are testing is ${CONSUMER_API_VERSION}"
 
     # Get the full commit sha for later use
     export CONSUMER_FULL_COMMIT_SHA=$(curl -u "${GITHUB_STATUS_CREDS}" \
@@ -109,36 +108,39 @@ then
     if [ "$(echo "${CANIDEPLOY_RESPONSE}" \
         | grep -c "No version with tag ${CONSUMER_API_VERSION} exists for OPG Data")" -eq 1 ]
     then
-        printf "\n\nConsumer Side 'Can I Deploy' Failed! No matching consumer pact!\n\n"
+        echo "Consumer Side 'Can I Deploy' Failed! No matching consumer pact!"
         echo "${CANIDEPLOY_RESPONSE}"
-        export CAN_I_DEPLOY=false
+        export CAN_I_DEPLOY="false"
     elif [ "$(echo "${CANIDEPLOY_RESPONSE}" | grep -c "failed")" -ne 0 ]
     then
-        printf "\n\nConsumer Side 'Can I Deploy' Failed!\n\n"
+        echo "Consumer Side 'Can I Deploy' Failed!"
         echo "${CANIDEPLOY_RESPONSE}"
-        export CAN_I_DEPLOY=false
+        export CAN_I_DEPLOY="false"
     elif [ "$(echo "${CANIDEPLOY_RESPONSE}" | grep -c "successful")" -ne 0 ]
     then
-        printf "\n\nConsumer Side 'Can I Deploy' Successful\n\n"
+        echo "Consumer Side 'Can I Deploy' Successful"
         echo "${CANIDEPLOY_RESPONSE}"
-        export CAN_I_DEPLOY=true
+        export CAN_I_DEPLOY="true"
     fi
     # Send status update to digideps
-    if [ "${CAN_I_DEPLOY}" ]
+    if [ "${CAN_I_DEPLOY}" == "true" ]
     then
-        printf "\n\nGithub Status Updated - Verification Successful\n\n"
+        echo "Github Status Updated - Verification Successful"
         curl -X POST \
         -H "Content-Type: application/json" \
         -u "${GITHUB_STATUS_CREDS}" \
         -d '{"state":"success","target_url":"https://'"${PACT_BROKER_BASE_URL}"'/","description":"Our build was verified!","context":"pactbroker"}' \
         https://"${GITHUB_DIGIDEPS_URL}"/statuses/"${CONSUMER_FULL_COMMIT_SHA}"
-    else
-        printf "\n\nGithub Status Updated - Verification Failed\n\n"
+    elif [ "${CAN_I_DEPLOY}" == "false" ]
+    then
+        echo "Github Status Updated - Verification Failed"
         curl -X POST \
         -H "Content-Type: application/json" \
         -u "${GITHUB_STATUS_CREDS}" \
         -d '{"state":"failure","target_url":"https://'"${PACT_BROKER_BASE_URL}"'/","description":"Our build failed verification!","context":"pactbroker"}' \
         https://"${GITHUB_DIGIDEPS_URL}"/statuses/"${CONSUMER_FULL_COMMIT_SHA}"
+    else
+        echo "CAN_I_DEPLOY not set"
     fi
 else
     echo "Environment variable, CONSUMER_TRIGGERED not set"

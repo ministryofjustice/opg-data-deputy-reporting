@@ -4,10 +4,10 @@ version: 2.1
 parameters:
   run_pull_request:
     type: boolean
-    default: false
+    default: true
   run_commit_to_master:
     type: boolean
-    default: false
+    default: true
   run_verify_pact:
     type: boolean
     default: true
@@ -432,37 +432,35 @@ jobs:
       - run:
           name: Set up ready for pact tests
           command: |
-            wget https://github.com/pact-foundation/pact-ruby-standalone/releases/download/v1.81.0/pact-1.81.0-linux-x86_64.tar.gz
-            tar xzf pact-1.81.0-linux-x86_64.tar.gz
+            wget https://github.com/pact-foundation/pact-ruby-standalone/releases/download/v1.82.3/pact-1.82.3-linux-x86_64.tar.gz
+            tar xzf pact-1.82.3-linux-x86_64.tar.gz
             chmod 755 ~/project/.circleci/pact_verifier.sh
             chmod 755 ~/project/.circleci/check_pact_deployable.sh
       - run:
           name: verify pact and update github
           command: |
-            echo "TEST EXIT"
-            exit 1
-#            export SCRIPT_PATH="/home/circleci/project/.circleci"
-#            if [ "${GIT_COMMIT_CONSUMER}" == "" ]
-#            then
-#              echo "\n\nProcess kicked off by commit to data-deputy-reporting\n\n"
-#              if [ "$TF_WORKSPACE" != "development" ] && [ "$TF_WORKSPACE" != "preproduction" ] && [ "$TF_WORKSPACE" != "production" ]
-#              then
-#                printf "\n\nSetting CONSUMER_TRIGGERED to false\n\n"
-#                export CONSUMER_TRIGGERED=false
-#                printf "\n\nOn working branch, performing pact verification\n\n"
-#                "${SCRIPT_PATH}"/pact_verifier.sh
-#                printf "\n\nChecking if we can deploy with can-i-deploy\n\n"
-#                "${SCRIPT_PATH}"/check_pact_deployable.sh
-#              else
-#                printf "\n\nOn master branch for data-deputy-reporting, no need to perform verification\n\n"
-#              fi
-#            elif [ "${GIT_COMMIT_CONSUMER}" != "" ]
-#            then
-#              printf "\n\nSetting CONSUMER_TRIGGERED to true\n\n"
-#              export CONSUMER_TRIGGERED=true
-#              printf "Process kicked off by commit %b to digideps\n\n" "${CONSUMER_VER}"
-#              printf "\n\nChecking if we can deploy with can-i-deploy\n\n"
-#              "${SCRIPT_PATH}"/check_pact_deployable.sh
-#            else
-#              printf "\n\nSomething has gone wrong! Check what CONSUMER_VER is set to\n\n"
-#            fi
+            export SCRIPT_PATH="/home/circleci/project/.circleci"
+            if [ "${GIT_COMMIT_CONSUMER}" == "" ]
+            then
+              printf "\n\nProcess kicked off by commit to data-deputy-reporting\n\n"
+              if [ "$TF_WORKSPACE" != "development" ] && [ "$TF_WORKSPACE" != "preproduction" ] && [ "$TF_WORKSPACE" != "production" ]
+              then
+                printf "\n\nSetting CONSUMER_TRIGGERED to false\n\n"
+                export CONSUMER_TRIGGERED=false
+                printf "\n\nOn working branch, performing pact verification\n\n"
+                "${SCRIPT_PATH}"/pact_verifier.sh
+                printf "\n\nChecking if we can deploy with can-i-deploy\n\n"
+                "${SCRIPT_PATH}"/check_pact_deployable.sh
+              else
+                printf "\n\nOn master branch for data-deputy-reporting, no need to perform verification\n\n"
+              fi
+            elif [ "${GIT_COMMIT_CONSUMER}" != "" ]
+            then
+              printf "\n\nSetting CONSUMER_TRIGGERED to true\n\n"
+              export CONSUMER_TRIGGERED=true
+              printf "Process kicked off by commit %b to digideps\n\n" "${CONSUMER_VER}"
+              printf "\n\nChecking if we can deploy with can-i-deploy\n\n"
+              "${SCRIPT_PATH}"/check_pact_deployable.sh
+            else
+              printf "\n\nSomething has gone wrong! Check what CONSUMER_VER is set to\n\n"
+            fi
