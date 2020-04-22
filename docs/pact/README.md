@@ -22,4 +22,30 @@ a matrix inside the pact broker to show which versions match.
 
 #### Pact CI Workflow
 
+Provider Side
+- Run on commit
+- Not on master branch
+
+Verify current provider git_commit against latest consumer git_commit tagged with v<x>
+Verify current provider git_commit against latest consumer git_commit tagged with v<x>_production
+
+Canideploy with provider git_commit against latest consumer tagged with v<x>_production
+If no rows found for consumer with tag v<x>_production
+  Canideploy with provider git_commit against latest consumer tagged with v<x>
+
+If true then allow build
+
+Consumer side
+- Run on commit
+- Run against master branch of the provider side
+
+Verify this commit against what is in master using GIT_SHA
+tag provider with latest version tag (this may be different to what version is being passed from digideps)
+
+CanIDeploy with consumer git_commit and latest provider tagged with v<x>_production (must get version from tags)
+
+If true then send status update to github
+
+Simplified diagram below:
+
 ![Alt text](pactdiagram.png?raw=true "PactDiagram")
