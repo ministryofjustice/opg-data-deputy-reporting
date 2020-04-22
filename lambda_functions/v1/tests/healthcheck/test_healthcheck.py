@@ -7,7 +7,7 @@ from lambda_functions.v1.tests.helpers.use_test_data import is_valid_schema
 
 @pytest.fixture(autouse=True)
 def mock_env_setup(monkeypatch):
-    monkeypatch.setenv("BASE_URL", "http://localhost:8080")
+    monkeypatch.setenv("SIRIUS_BASE_URL", "http://localhost:8080")
     monkeypatch.setenv("LOGGER_LEVEL", "DEBUG")
 
 
