@@ -1,18 +1,32 @@
-from pytest_cases import (
-    cases_data,
-    CaseDataGetter,
-)
+import pytest
 
+from lambda_functions.v1.functions.supporting_docs.app.sirius_service import (
+    build_sirius_url,
+)
 from lambda_functions.v1.functions.supporting_docs.app.supporting_docs import (
     determine_document_parent_id,
 )
-from lambda_functions.v1.tests.supporting_docs import child_submission_test_cases
 
 
-@cases_data(module=child_submission_test_cases)
-def test_determine_document_parent_id(case_data: CaseDataGetter):
-    report_get_response, expected_result = case_data.get()
+@pytest.mark.parametrize(
+    "submission_id, expected_response",
+    [
+        ("11111", None),
+        ("22222", "e8c14b7f-d0fc-4820-9ac7-58d61d4160d0"),
+        ("55555", "e8c14b7f-d0fc-4820-9ac7-58d61d4160d0"),
+        ("88888", None),
+    ],
+)
+def test_determine_document_parent_id(
+    patched_send_get_to_sirius, submission_id, expected_response
+):
+    url = build_sirius_url(
+        base_url="https://www.notanurl.com",
+        version="1",
+        endpoint="pretend",
+        url_params={"metadata[submission_id]": submission_id},
+    )
 
-    result = determine_document_parent_id(report_get_response)
+    result = determine_document_parent_id(url)
 
-    assert result == expected_result
+    assert result == expected_response

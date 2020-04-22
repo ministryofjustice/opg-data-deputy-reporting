@@ -1,10 +1,10 @@
 import json
 import os
 
+from . import sirius_service
 from .helpers import compare_two_dicts, custom_logger
 from .sirius_service import (
     build_sirius_url,
-    build_sirius_headers,
     submit_document_to_sirius,
 )
 
@@ -24,24 +24,30 @@ def lambda_handler(event, context):
     valid_payload, errors = validate_event(event=event)
 
     if valid_payload:
+
+        parent_id = determine_document_parent_id(
+            url=transform_event_to_sirius_get_url(event)
+        )
+
+        sirius_payload = transform_event_to_sirius_post_request(
+            event=event, parent_id=parent_id
+        )
+
         sirius_api_url = build_sirius_url(
-            base_url=os.environ["SIRIUS_BASE_URL"],
-            api_route=os.environ["SIRIUS_PUBLIC_API_URL"],
+            base_url=f'{os.environ["SIRIUS_BASE_URL"]}/api/public',
+            version=os.environ["API_VERSION"],
             endpoint="documents",
         )
 
-        sirius_payload = transform_event_to_sirius_request(event=event)
-        sirius_headers = build_sirius_headers()
-
-        sirius_reponse = submit_document_to_sirius(
-            url=sirius_api_url, data=sirius_payload, headers=sirius_headers
+        sirius_response = submit_document_to_sirius(
+            url=sirius_api_url, data=sirius_payload
         )
 
         lambda_response = {
             "isBase64Encoded": False,
             "statusCode": 201,
             "headers": {"Content-Type": "application/json"},
-            "body": json.dumps(sirius_reponse),
+            "body": json.dumps(sirius_response),
         }
     else:
         lambda_response = {
@@ -88,7 +94,29 @@ def validate_event(event):
         return True, errors
 
 
-def transform_event_to_sirius_request(event):
+def transform_event_to_sirius_get_url(event):
+    case_ref = event["pathParameters"]["caseref"]
+    report_id = event["pathParameters"]["id"]
+    request_body = json.loads(event["body"])
+    submission_id = request_body["supporting_document"]["data"]["attributes"][
+        "submission_id"
+    ]
+
+    url = build_sirius_url(
+        base_url=f'{os.environ["SIRIUS_BASE_URL"]}/api/public',
+        version=os.environ["API_VERSION"],
+        endpoint=f"documents",
+        url_params={
+            "caserecnumber": case_ref,
+            "metadata[submission_id]": submission_id,
+            "metadata[report_id]": report_id,
+        },
+    )
+
+    return url
+
+
+def transform_event_to_sirius_post_request(event, parent_id=None):
     """
     Takes the 'body' from the AWS event and converts it into the right format for the
     Sirius documents endpoint, detailed here:
@@ -114,34 +142,46 @@ def transform_event_to_sirius_request(event):
         "metadata": metadata,
         "file": {"name": file_name, "source": file_source, "type": file_type},
     }
+
+    if parent_id:
+        payload["parentUuid"] = parent_id
+
     logger.debug(f"Sirius Payload: {payload}")
 
     return json.dumps(payload)
 
 
-def determine_document_parent_id(submission_entries):
+def determine_document_parent_id(url):
 
-    try:
-        number_of_entries = len(
-            [entry for entry in submission_entries if len(entry) > 0]
-        )
+    parent_id = None
 
-        if number_of_entries == 0:
+    submission_entries = sirius_service.send_get_to_sirius(url)
+
+    if submission_entries is not None:
+
+        try:
+            number_of_entries = len(
+                [entry for entry in submission_entries if len(entry) > 0]
+            )
+
+            print(f"number_of_entries: {number_of_entries}")
+
+            if number_of_entries == 0:
+                parent_id = None
+            else:
+                for entry in submission_entries:
+                    if "parentUuid" in entry and entry["parentUuid"] is None:
+                        parent_id = entry["uuid"]
+                        break
+                    elif "parentUuid" not in entry:
+                        parent_id = entry["uuid"]
+                        break
+                    else:
+                        logger.info("Unable to determine parent id of document")
+                        parent_id = None
+
+        except TypeError as e:
+            logger.info(f"Unable to determine parent id of document {e}")
             parent_id = None
-        else:
-            for entry in submission_entries:
-                if "parentUuid" in entry and entry["parentUuid"] is None:
-                    parent_id = entry["uuid"]
-                    break
-                elif "parentUuid" not in entry:
-                    parent_id = entry["uuid"]
-                    break
-                else:
-                    logger.info("Unable to determine parent id of document")
-                    parent_id = None
-
-    except TypeError:
-        logger.info("Unable to determine parent id of document")
-        parent_id = None
 
     return parent_id
