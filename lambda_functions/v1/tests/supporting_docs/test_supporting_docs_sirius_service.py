@@ -1,12 +1,9 @@
 import json
+import urllib.parse
+
 import jwt
 import pytest
 from jwt import DecodeError
-
-# import boto3
-# from aws_xray_sdk.core import xray_recorder
-# from botocore.exceptions import ClientError
-# from moto import mock_secretsmanager
 
 from lambda_functions.v1.functions.supporting_docs.app.sirius_service import (
     submit_document_to_sirius,
@@ -14,7 +11,14 @@ from lambda_functions.v1.functions.supporting_docs.app.sirius_service import (
     build_sirius_headers,
     # get_secret,
     format_sirius_response,
+    send_get_to_sirius,
 )
+
+
+# import boto3
+# from aws_xray_sdk.core import xray_recorder
+# from botocore.exceptions import ClientError
+# from moto import mock_secretsmanager
 
 
 # TODO this does not work through CI, something to do with aws xray,
@@ -126,27 +130,67 @@ def test_submit_document_to_sirius(
 
 
 @pytest.mark.parametrize(
-    "base_url, api_route, endpoint, expected_result",
+    "base_url, version, endpoint, url_params, expected_result",
     [
         (
-            "https://frontend-feature5.dev.sirius.opg.digital/",
-            "/api/public/v1/",
+            "https://frontend-feature5.dev.sirius.opg.digital/api/public",
+            "v1",
             "documents",
+            None,
             "https://frontend-feature5.dev.sirius.opg.digital/api/public"
             "/v1/documents",
         ),
         (
-            "http://www.fake_url.com",
-            "not/a/real/route/",
-            "random/endpoint/",
-            "http://www.fake_url.com/not/a/real/route/random/endpoint/",
+            "https://frontend-feature5.dev.sirius.opg.digital/api/public",
+            "v1",
+            "clients/12345678/reports/7230e5a2-312b-4b50-bc09-f9c00c6b7f1d",
+            None,
+            "https://frontend-feature5.dev.sirius.opg.digital/api/public/v1/clients/123"
+            "45678/reports/7230e5a2-312b-4b50-bc09-f9c00c6b7f1d",
         ),
-        ("banana", "not/a/real/route/", "random/endpoint/", False,),
+        (
+            "https://frontend-feature5.dev.sirius.opg.digital/api/public",
+            "v1",
+            "clients/12345678/documents",
+            {
+                "metadata[submission_id]": 11111,
+                "metadata[report_id]": "d0a43b67-3084-4a74-ab55-a7542cfadd37",
+            },
+            "https://frontend-feature5.dev.sirius.opg.digital/api/public/v1/clients/123"
+            "45678/documents?metadata[submission_id]=11111&metadata[report_id]=d0a43b67"
+            "-3084-4a74-ab55-a7542cfadd37",
+        ),
+        (
+            "https://frontend-feature5.dev.sirius.opg.digital/api/public",
+            "v1",
+            "documents",
+            {
+                "casrecnumber": "e4e497bc-7744-47ab-9d1a-345412640161",
+                "metadata[submission_id]": 11111,
+                "metadata[report_id]": "d0a43b67-3084-4a74-ab55-a7542cfadd37",
+            },
+            "https://frontend-feature5.dev.sirius.opg.digital/api/public/v1"
+            "/documents?casrecnumber=e4e497bc-7744-47ab-9d1a-345412640161"
+            "&metadata[submission_id]=11111&metadata["
+            "report_id]=d0a43b67"
+            "-3084-4a74-ab55-a7542cfadd37",
+        ),
+        (
+            "http://www.fake_url.com",
+            "6.3.1",
+            "random/endpoint/",
+            None,
+            "http://www.fake_url.com/6.3.1/random/endpoint/",
+        ),
+        ("banana", "30", "random/endpoint/", None, False,),
     ],
 )
-def test_build_sirius_url(base_url, api_route, endpoint, expected_result):
-
-    assert build_sirius_url(base_url, api_route, endpoint) == expected_result
+def test_build_sirius_url(base_url, version, endpoint, url_params, expected_result):
+    url = build_sirius_url(base_url, version, endpoint, url_params)
+    try:
+        assert urllib.parse.unquote(url) == expected_result
+    except TypeError:
+        assert url == expected_result
 
 
 @pytest.mark.parametrize(
@@ -179,3 +223,19 @@ def test_build_sirius_headers_auth(patched_get_secret):
 
     with pytest.raises(DecodeError):
         jwt.decode(token.encode("UTF-8"), "this_is_the_wrong_key", algorithms="HS256")
+
+
+@pytest.mark.parametrize(
+    "url, expected_result",
+    [
+        ("https://frontend-feature5.dev.sirius.opg.digital/", [{"data": "success"}]),
+        ("https://fake_url.com", None),
+    ],
+)
+def test_get_endpoint(
+    patched_requests, patched_get_secret, url, expected_result,
+):
+    result = send_get_to_sirius(url)
+    print(result)
+
+    assert result == expected_result

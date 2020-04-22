@@ -1,7 +1,9 @@
 import datetime
 import json
 import os
-from urllib.parse import urljoin, urlparse
+
+
+from urllib.parse import urlparse, urlencode
 
 import boto3
 import jwt
@@ -14,7 +16,7 @@ from .helpers import custom_logger
 logger = custom_logger("sirius_service")
 
 
-def build_sirius_url(base_url, api_route, endpoint):
+def build_sirius_url(base_url, version, endpoint, url_params=None):
     """
     Builds the url for the endpoint from variables (probably saved in env vars)
 
@@ -25,8 +27,14 @@ def build_sirius_url(base_url, api_route, endpoint):
     Returns:
         string: url
     """
-    SIRIUS_URL = urljoin(base_url, api_route)
-    url = urljoin(SIRIUS_URL, endpoint)
+
+    sirius_url = f"{base_url}/{version}/{endpoint}"
+
+    if url_params:
+        encoded_params = urlencode(url_params)
+        url = f"{sirius_url}?{encoded_params}"
+    else:
+        url = sirius_url
 
     if urlparse(url).scheme not in ["https", "http"]:
         logger.info("Unable to build Sirius URL")
@@ -89,7 +97,9 @@ def build_sirius_headers(content_type="application/json"):
     }
 
 
-def submit_document_to_sirius(url, data, headers):
+def submit_document_to_sirius(url, data, headers=None):
+    if not headers:
+        headers = build_sirius_headers()
     r = requests.post(url=url, data=data, headers=headers)
 
     try:
@@ -132,3 +142,25 @@ def format_sirius_response(sirius_response):
 
     except KeyError:
         return {"data": {"message": "Error validating Sirius Public API response"}}
+
+
+def send_get_to_sirius(url, headers=None):
+    if not headers:
+        headers = build_sirius_headers()
+    r = requests.get(url=url, headers=headers)
+
+    try:
+        if r.status_code == 200:
+            response = r.content.decode("UTF-8")
+            sirius_response = json.loads(response)
+        else:
+            logger.info(
+                f"Unable to send request to Sirius, response code {r.status_code}"
+            )
+            sirius_response = None
+
+    except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
+        logger.info(f"Unable to send request to Sirius, server not available: {e}")
+        sirius_response = None
+
+    return sirius_response
