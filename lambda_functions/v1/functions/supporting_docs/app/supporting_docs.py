@@ -6,6 +6,7 @@ from .helpers import compare_two_dicts, custom_logger
 from .sirius_service import (
     build_sirius_url,
     submit_document_to_sirius,
+    build_sirius_headers,
 )
 
 logger = custom_logger("supporting_docs")
@@ -32,6 +33,7 @@ def lambda_handler(event, context):
         sirius_payload = transform_event_to_sirius_post_request(
             event=event, parent_id=parent_id
         )
+        sirius_headers = build_sirius_headers()
 
         sirius_api_url = build_sirius_url(
             base_url=f'{os.environ["SIRIUS_BASE_URL"]}/api/public',
@@ -39,13 +41,13 @@ def lambda_handler(event, context):
             endpoint="documents",
         )
 
-        sirius_response = submit_document_to_sirius(
-            url=sirius_api_url, data=sirius_payload
+        sirius_response_code, sirius_response = submit_document_to_sirius(
+            url=sirius_api_url, data=sirius_payload, headers=sirius_headers
         )
 
         lambda_response = {
             "isBase64Encoded": False,
-            "statusCode": 201,
+            "statusCode": sirius_response_code,
             "headers": {"Content-Type": "application/json"},
             "body": json.dumps(sirius_response),
         }
