@@ -29,5 +29,6 @@ process.yml
 /mock_sirius/deputy-reporting-openapi.yml
 /mock_sirius/log*
 .coverage
+*crash.log
 
 deputy-reporting-openapi*.yml

@@ -81,9 +81,11 @@ def build_sirius_headers(content_type="application/json"):
         Header dictionary with content type and auth token
     """
     environment = os.environ["ENVIRONMENT"]
+    session_data = os.environ["SESSION_DATA"]
+
     encoded_jwt = jwt.encode(
         {
-            "session-data": "publicapi@opgtest.com",
+            "session-data": session_data,
             "iat": datetime.datetime.utcnow(),
             "exp": datetime.datetime.utcnow() + datetime.timedelta(seconds=3600),
         },
