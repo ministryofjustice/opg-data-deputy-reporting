@@ -54,12 +54,14 @@ from lambda_functions.v1.functions.supporting_docs.app.sirius_service import (
 #     )
 #
 #     assert response["statusCode"] == 404
+from lambda_functions.v1.tests.helpers.use_test_data import is_valid_schema
 
 
 @pytest.mark.parametrize(
-    "example_sirius_response, expected_result",
+    "example_sirius_response_code, example_sirius_response, expected_result",
     [
         (
+            201,
             {
                 "type": "Report - General",
                 "filename": "b11a291e6dae6_supportingDoc123.pdf",
@@ -80,19 +82,36 @@ from lambda_functions.v1.functions.supporting_docs.app.sirius_service import (
             },
         ),
         (
+            500,
             {"data": "this is all wrong"},
-            {"data": {"message": "Error validating Sirius Public API response"}},
+            {
+                "errors": {
+                    "id": "",
+                    "code": "OPGDATA-API-SERVERERROR",
+                    "detail": "Something unexpected happened internally",
+                    "meta": {},
+                    "title": "Internal server error",
+                }
+            },
         ),
     ],
 )
-def test_format_sirius_response(example_sirius_response, expected_result):
-    result = format_sirius_response(example_sirius_response)
+def test_format_sirius_response(
+    example_sirius_response_code, example_sirius_response, expected_result
+):
+    result = format_sirius_response(
+        example_sirius_response, example_sirius_response_code
+    )
 
     assert result == expected_result
+    if example_sirius_response_code == 201:
+        assert is_valid_schema(result, "201_created_schema.json")
+    else:
+        assert is_valid_schema(result, "standard_error_schema.json")
 
 
 @pytest.mark.parametrize(
-    "case_ref, expected_result",
+    "case_ref, expected_response_body, expected_response_code",
     [
         (
             "valid_client_id",
@@ -106,19 +125,42 @@ def test_format_sirius_response(example_sirius_response, expected_result):
                     },
                 }
             },
+            201,
         ),
         (
             "invalid_client_id",
-            {"data": f"Error sending data to Sirius", "sirius_api_status_code": 400},
+            {
+                "errors": {
+                    "id": "",
+                    "code": "OPGDATA-API-INVALIDREQUEST",
+                    "title": "Invalid Request",
+                    "detail": "Invalid request, the data is incorrect",
+                    "meta": {},
+                }
+            },
+            400,
         ),
         (
             None,
-            {"data": f"Error sending data to Sirius", "sirius_api_status_code": 500},
+            {
+                "errors": {
+                    "id": "",
+                    "code": "OPGDATA-API-SERVERERROR",
+                    "title": "Internal server error",
+                    "detail": "Something unexpected happened internally",
+                    "meta": {},
+                }
+            },
+            500,
         ),
     ],
 )
 def test_submit_document_to_sirius(
-    patched_requests, case_ref, expected_result, default_sirius_supporting_docs_request,
+    patched_requests,
+    case_ref,
+    expected_response_body,
+    expected_response_code,
+    default_sirius_supporting_docs_request,
 ):
     headers = {"Content-Type": "application/json"}
     default_sirius_supporting_docs_request["caseRecNumber"] = case_ref
@@ -126,7 +168,10 @@ def test_submit_document_to_sirius(
 
     response = submit_document_to_sirius(url="", data=body, headers=headers)
 
-    assert response == expected_result
+    response_code, response_body = response
+
+    assert response_code == expected_response_code
+    assert response_body == expected_response_body
 
 
 @pytest.mark.parametrize(

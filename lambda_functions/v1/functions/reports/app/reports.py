@@ -34,15 +34,15 @@ def lambda_handler(event, context):
         sirius_payload = transform_event_to_sirius_request(event=event)
         sirius_headers = build_sirius_headers()
 
-        sirius_reponse = submit_document_to_sirius(
+        sirius_response_code, sirius_response = submit_document_to_sirius(
             url=sirius_api_url, data=sirius_payload, headers=sirius_headers
         )
 
         lambda_response = {
             "isBase64Encoded": False,
-            "statusCode": 201,
+            "statusCode": sirius_response_code,
             "headers": {"Content-Type": "application/json"},
-            "body": json.dumps(sirius_reponse),
+            "body": json.dumps(sirius_response),
         }
 
     else:
