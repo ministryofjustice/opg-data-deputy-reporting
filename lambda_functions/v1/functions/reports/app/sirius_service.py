@@ -11,7 +11,7 @@ import requests
 from botocore.exceptions import ClientError
 
 # Sirius API Service
-from .helpers import custom_logger
+from .helpers import custom_logger, sirius_errors
 
 logger = custom_logger("sirius_service")
 
@@ -105,45 +105,70 @@ def submit_document_to_sirius(url, data, headers=None):
     r = requests.post(url=url, data=data, headers=headers)
 
     try:
+        sirius_response_code = r.status_code
         if r.status_code == 201:
             response = r.content.decode("UTF-8")
-            sirius_response = format_sirius_response(json.loads(response))
+            sirius_response = format_sirius_response(
+                json.loads(response), sirius_response_code
+            )
         else:
             logger.info(
                 f"Unable to send request to Sirius, response code {r.status_code}"
             )
-            sirius_response = {
-                "data": f"Error sending data to Sirius",
-                "sirius_api_status_code": r.status_code,
-            }
+            sirius_response = format_sirius_response(
+                sirius_response_code=sirius_response_code
+            )
 
     except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
         logger.info(f"Unable to send request to Sirius, server not available: {e}")
-        sirius_response = {
-            "data": f"Error sending data to Sirius",
-            "sirius_api_status_code": e,
-        }
+        sirius_response_code = 500
+        sirius_response = format_sirius_response()
 
-    return sirius_response
+    return (sirius_response_code, sirius_response)
 
 
-def format_sirius_response(sirius_response):
+def format_sirius_response(sirius_response=None, sirius_response_code=500):
+    if sirius_response is None:
+        sirius_response = {}
+
+    print(sirius_response_code)
     try:
-        return {
-            "data": {
-                "type": sirius_response["type"],
-                "id": sirius_response["uuid"],
-                "attributes": {
-                    "submission_id": sirius_response["metadata"]["submission_id"],
-                    "parent_id": sirius_response["parentUuid"]
-                    if "parentUuid" in sirius_response
-                    else None,
-                },
+        if sirius_response_code == 201:
+            response = {
+                "data": {
+                    "type": sirius_response["type"],
+                    "id": sirius_response["uuid"],
+                    "attributes": {
+                        "submission_id": sirius_response["metadata"]["submission_id"],
+                        "parent_id": sirius_response["parentUuid"]
+                        if "parentUuid" in sirius_response
+                        else None,
+                    },
+                }
+            }
+        else:
+            response = {
+                "errors": {
+                    "id": "",
+                    "code": sirius_errors[str(sirius_response_code)]["error_code"],
+                    "title": sirius_errors[str(sirius_response_code)]["error_title"],
+                    "detail": sirius_errors[str(sirius_response_code)]["error_message"],
+                    "meta": {},
+                }
+            }
+
+    except KeyError:
+        response = {
+            "errors": {
+                "id": "",
+                "code": sirius_errors[str(sirius_response_code)]["error_code"],
+                "title": sirius_errors[str(sirius_response_code)]["error_title"],
+                "detail": sirius_errors[str(sirius_response_code)]["error_message"],
+                "meta": {"sirius_error": "Error validating Sirius Public API response"},
             }
         }
 
-    except KeyError:
-        return {"data": {"message": "Error validating Sirius Public API response"}}
+    return response
 
 
 def send_get_to_sirius(url, headers=None):
