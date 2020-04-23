@@ -10,7 +10,7 @@
     - id: trailing-whitespace
     - id: detect-private-key
     - id: flake8
-      args: ['--ignore=W503']
+      args: ['--ignore=W503', '--exclude=docs/supportscripts/*']
     - id: trailing-whitespace
       args: [--markdown-linebreak-ext=md]
 - repo: https://github.com/ambv/black
