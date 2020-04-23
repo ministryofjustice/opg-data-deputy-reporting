@@ -6,17 +6,9 @@ variable "aws_subnet_ids" {
   type = list(string)
 }
 
-//variable "target_environment" {
-//  type = string
-//}
-
 variable "logger_level" {
   type = string
 }
-
-//variable "vpc_id" {
-//  type = string
-//}
 
 variable "lambda_prefix" {
   type = string
@@ -37,4 +29,3 @@ variable "openapi_version" {}
 variable "rest_api" {}
 
 variable "account" {}
-//variable "account_mapping" {}

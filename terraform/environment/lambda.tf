@@ -1,9 +1,7 @@
 module "lamdba_healthcheck_v1" {
-  source         = "./modules/lambda"
-  environment    = local.environment
-  aws_subnet_ids = data.aws_subnet_ids.private.ids
-  //  target_environment     = local.account.target_environment
-  //  vpc_id                 = local.account.vpc_id
+  source                 = "./modules/lambda"
+  environment            = local.environment
+  aws_subnet_ids         = data.aws_subnet_ids.private.ids
   lambda_prefix          = "sirius-healthcheck"
   handler                = "healthcheck.lambda_handler"
   lambda_function_subdir = "healthcheck"
@@ -12,16 +10,12 @@ module "lamdba_healthcheck_v1" {
   openapi_version        = "v1"
   rest_api               = aws_api_gateway_rest_api.deputy_reporting
   account                = local.account
-  //  account_mapping        = local.account.account_mapping
-  //  session_data           = local.account.session_data
 }
 
 module "lambda_reports_v1" {
-  source         = "./modules/lambda"
-  environment    = local.environment
-  aws_subnet_ids = data.aws_subnet_ids.private.ids
-  //  target_environment     = local.account.target_environment
-  //  vpc_id                 = local.account.vpc_id
+  source                 = "./modules/lambda"
+  environment            = local.environment
+  aws_subnet_ids         = data.aws_subnet_ids.private.ids
   lambda_prefix          = "sirius-reports"
   handler                = "app.reports.lambda_handler"
   lambda_function_subdir = "reports"
@@ -30,16 +24,12 @@ module "lambda_reports_v1" {
   openapi_version        = "v1"
   rest_api               = aws_api_gateway_rest_api.deputy_reporting
   account                = local.account
-  //  account_mapping        = local.account.account_mapping
-  //  session_data           = local.account.session_data
 }
 
 module "lambda_supporting_docs_v1" {
-  source         = "./modules/lambda"
-  environment    = local.environment
-  aws_subnet_ids = data.aws_subnet_ids.private.ids
-  //  target_environment     = local.account.target_environment
-  //  vpc_id                 = local.account.vpc_id
+  source                 = "./modules/lambda"
+  environment            = local.environment
+  aws_subnet_ids         = data.aws_subnet_ids.private.ids
   lambda_prefix          = "sirius-supporting_docs"
   handler                = "app.supporting_docs.lambda_handler"
   lambda_function_subdir = "supporting_docs"
@@ -48,8 +38,6 @@ module "lambda_supporting_docs_v1" {
   openapi_version        = "v1"
   rest_api               = aws_api_gateway_rest_api.deputy_reporting
   account                = local.account
-  //  account_mapping        = local.account.account_mapping
-  //  session_data           = local.account.session_data
 }
 
 //To Add New Version Copy and Paste Above and Modify Accordingly
