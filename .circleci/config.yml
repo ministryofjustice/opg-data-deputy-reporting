@@ -306,7 +306,7 @@ jobs:
                   if [ "${STATUS_CODE}" -eq "200" ]
                   then
                     STATUS_CODE=$(curl -I -s -X PUT -u "${PACT_BROKER_HTTP_AUTH_USER}":"${PACT_BROKER_HTTP_AUTH_PASS}" -H "Content-Type: application/json" \
-                    https://"${PACT_BROKER_BASE_URL}"/pacticipants/"${PACT_PROVIDER}"/versions/"${GIT_COMMIT_PROVIDER}"/tags/"${PROVIDER_VERSION}_master" \
+                    https://"${PACT_BROKER_BASE_URL}"/pacticipants/"${PACT_PROVIDER}"/versions/"${GIT_COMMIT_PROVIDER}"/tags/"${API_VERSION}_master" \
                      | grep "HTTP" | awk '{print $2}')
                     echo "Pact tagging completed with status code: ${STATUS_CODE}"
                   else
@@ -358,7 +358,7 @@ jobs:
                   if [ "${STATUS_CODE}" -eq "200" ]
                   then
                     STATUS_CODE=$(curl -I -s -X PUT -u "${PACT_BROKER_HTTP_AUTH_USER}":"${PACT_BROKER_HTTP_AUTH_PASS}" -H "Content-Type: application/json" \
-                    https://"${PACT_BROKER_BASE_URL}"/pacticipants/"${PACT_PROVIDER}"/versions/"${GIT_COMMIT_PROVIDER}"/tags/"${PROVIDER_VERSION}_production" \
+                    https://"${PACT_BROKER_BASE_URL}"/pacticipants/"${PACT_PROVIDER}"/versions/"${GIT_COMMIT_PROVIDER}"/tags/"${API_VERSION}_production" \
                      | grep "HTTP" | awk '{print $2}')
                     echo "Pact tagging completed with status code: ${STATUS_CODE}"
                   else

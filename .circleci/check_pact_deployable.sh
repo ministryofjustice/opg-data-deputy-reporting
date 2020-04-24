@@ -8,7 +8,7 @@ then
     --broker-username="${PACT_BROKER_HTTP_AUTH_USER}" \
     --broker-password="${PACT_BROKER_HTTP_AUTH_PASS}" \
     --pacticipant="Complete the deputy report" \
-    --latest "${PROVIDER_VERSION}_production" \
+    --latest "${API_VERSION}_production" \
     --pacticipant "OPG Data" \
     --version "${GIT_COMMIT_PROVIDER}" \
     | tail -1)
@@ -16,7 +16,7 @@ then
     # If the prod version doesn't exist then it's a breaking change or a new version
     # we are allowed to try the dev version
     if [ "$(echo "${CANIDEPLOY_RESPONSE}" \
-        | grep -c "No version with tag ${PROVIDER_VERSION}_production exists for Complete the deputy report")" -ne 0 ]
+        | grep -c "No version with tag ${API_VERSION}_production exists for Complete the deputy report")" -ne 0 ]
     then
         # Canideploy with provider git_commit against latest consumer tagged with v<x>
         CANIDEPLOY_RESPONSE=$(./pact/bin/pact-broker can-i-deploy \
@@ -24,14 +24,14 @@ then
         --broker-username="${PACT_BROKER_HTTP_AUTH_USER}" \
         --broker-password="${PACT_BROKER_HTTP_AUTH_PASS}" \
         --pacticipant="Complete the deputy report" \
-        --latest "${PROVIDER_VERSION}" \
+        --latest "${API_VERSION}" \
         --pacticipant "OPG Data" \
         --version "${GIT_COMMIT_PROVIDER}" \
         | tail -1)
     fi
 
     if [ "$(echo "${CANIDEPLOY_RESPONSE}" \
-        | grep -c "No version with tag ${PROVIDER_VERSION} exists for Complete the deputy report")" -ne 0 ]
+        | grep -c "No version with tag ${API_VERSION} exists for Complete the deputy report")" -ne 0 ]
     then
         echo "Provider Side 'Can I Deploy' Failed! No matching consumer pact!"
         echo "${CANIDEPLOY_RESPONSE}"
@@ -97,7 +97,7 @@ then
         --provider="OPG Data" \
         --broker-username="${PACT_BROKER_HTTP_AUTH_USER}" \
         --broker-password="${PACT_BROKER_HTTP_AUTH_PASS}" -r \
-        --consumer-version-tag="${PROVIDER_VERSION}" \
+        --consumer-version-tag="${API_VERSION}" \
         --provider-app-version="${GIT_COMMIT_PROVIDER}" || echo "Error validating, didn't validate"
         # Rerun can I deploy
         echo "Rerunning canideploy"
