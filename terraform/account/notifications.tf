@@ -13,7 +13,7 @@ module "notify_slack" {
   cloudwatch_log_group_retention_in_days = 14
 
   slack_webhook_url = data.aws_secretsmanager_secret_version.slack_webhook_url.secret_string
-  slack_channel     = "#integrations-spam-channel"
+  slack_channel     = local.account.alerts_channel
   slack_username    = "aws"
   slack_emoji       = ":warning:"
 
