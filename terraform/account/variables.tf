@@ -5,8 +5,9 @@ variable "default_role" {
 variable "accounts" {
   type = map(
     object({
-      account_id    = string
-      is_production = string
+      account_id     = string
+      alerts_channel = string
+      is_production  = string
     })
   )
 }
