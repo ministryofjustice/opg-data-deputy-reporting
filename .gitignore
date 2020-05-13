@@ -2,11 +2,14 @@
 .terraform
 .notes
 .vs
+
 # Virtual Environments
 .venv
 
 # lambda stuff
 lambda*.zip
+lambda_functions/*/lambda_layers/python/lib/python3.7/site-packages/
+!lambda_functions/*/lambda_layers/python/lib/python3.7/site-packages/README.md
 
 # Ruby
 *.lock
