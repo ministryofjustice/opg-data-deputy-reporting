@@ -90,7 +90,7 @@ def validate_event(event):
         logger.debug(f"Validation failed: {', '.join(errors)}")
         return False, errors
     else:
-        logger.debug(f"Validation passed")
+        logger.debug("Validation passed")
         return True, errors
 
 

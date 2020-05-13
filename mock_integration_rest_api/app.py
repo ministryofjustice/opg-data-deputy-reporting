@@ -15,9 +15,9 @@ from lambda_functions.v1.functions.supporting_docs.app.supporting_docs import (
     lambda_handler as sup_lambda_handler,
 )
 
-mockingEnvironment = os.environ.get("MOCKING_ENV")
+mocking_environment = os.environ.get("MOCKING_ENV")
 os.environ["BASE_URL"] = "http://localhost:4343"
-os.environ["SIRIUS_BASE_URL"] = "http://localhost:5001"
+os.environ["SIRIUS_BASE_URL"] = "http://" + mocking_environment + ":5001"
 os.environ["SIRIUS_PUBLIC_API_URL"] = "api/public/v1/"
 os.environ["LOGGER_LEVEL"] = "DEBUG"
 os.environ["JWT_SECRET"] = "THIS_IS_MY_SECRET_KEY"
@@ -59,11 +59,11 @@ def addReportDocument(caseref, body):
 
     print(response)
     print(response["body"])
-    formattedresponse = Response(
+    formatted_response = Response(
         response["body"], status=201, mimetype="application/json"
     )
 
-    return formattedresponse
+    return formatted_response
 
 
 @mock_secretsmanager
@@ -78,11 +78,11 @@ def addReportSupportingDocument(caseref, id, body):
 
     response = sup_lambda_handler(event, "fakecontext")
 
-    formattedresponse = Response(
+    formatted_response = Response(
         response["body"], status=201, mimetype="application/json"
     )
 
-    return formattedresponse
+    return formatted_response
 
 
 sirius_server = connexion.App(__name__)

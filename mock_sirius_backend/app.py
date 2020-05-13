@@ -1,14 +1,11 @@
 #!/usr/bin/env python3
 import json
-
 import connexion
-import os
 from flask import Response, jsonify, request
 import requests
 
 
-fakedb = {}
-mockingEnvironment = os.environ.get("MOCKING_ENV")
+fake_db = {}
 
 
 def create_document(document):
@@ -19,26 +16,26 @@ def create_document(document):
         json={"consumer": "OPG Data", "state": "a submitted report"},
     )
 
-    dbresult = fakedb[document["caseRecNumber"]]
+    db_result = fake_db[document["caseRecNumber"]]
 
-    responsegenerated = Response(
-        json.dumps(dbresult), status=201, mimetype="application/json"
+    response_generated = Response(
+        json.dumps(db_result), status=201, mimetype="application/json"
     )
 
-    return responsegenerated
+    return response_generated
 
 
 def provider_states():
     mapping = {
-        "a submitted report": setupReport,
-        "submitted supporting docs": setupSupportingDocs,
+        "a submitted report": setup_report,
+        "submitted supporting docs": setup_supporting_docs,
     }
     mapping[request.json["state"]]()
     return jsonify({"result": request.json["state"]})
 
 
-def setupReport():
-    fakedb["1234567T"] = {
+def setup_report():
+    fake_db["1234567T"] = {
         "type": "Report",
         "filename": "a9b4fc3616e62_Report_25558511_2018_2019_12345.pdf",
         "mimeType": "application/pdf",
@@ -52,11 +49,11 @@ def setupReport():
         },
         "uuid": "33ea0382-cfc9-4776-9036-667eeb68fa4b",
     }
-    print(fakedb)
+    print(fake_db)
 
 
-def setupSupportingDocs():
-    fakedb["33ea0382-cfc9-4776-9036-667eeb68fa4b"] = {
+def setup_supporting_docs():
+    fake_db["33ea0382-cfc9-4776-9036-667eeb68fa4b"] = {
         "type": "Report - General",
         "filename": "101856f51959a_supportingDoc.pdf",
         "mimeType": "application/pdf",
