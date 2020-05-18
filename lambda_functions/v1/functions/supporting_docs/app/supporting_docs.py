@@ -1,5 +1,6 @@
 import json
 import os
+import copy
 
 from . import sirius_service
 from .helpers import compare_two_dicts, custom_logger
@@ -148,8 +149,8 @@ def transform_event_to_sirius_post_request(event, parent_id=None):
     if parent_id:
         payload["parentUuid"] = parent_id
 
-    debug_payload = payload
-    debug_payload["file"]["source"] = "JVBERi0xLjYK"
+    debug_payload = copy.deepcopy(payload)
+    debug_payload["file"]["source"] = "REDACTED"
     logger.debug(f"Sirius Payload: {debug_payload}")
 
     return json.dumps(payload)
