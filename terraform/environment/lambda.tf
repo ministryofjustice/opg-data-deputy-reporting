@@ -5,7 +5,6 @@ module "lamdba_healthcheck_v1" {
   lambda_prefix          = "sirius-healthcheck"
   handler                = "healthcheck.lambda_handler"
   lambda_function_subdir = "healthcheck"
-  logger_level           = "INFO"
   tags                   = local.default_tags
   openapi_version        = "v1"
   rest_api               = aws_api_gateway_rest_api.deputy_reporting
@@ -19,7 +18,6 @@ module "lambda_reports_v1" {
   lambda_prefix          = "sirius-reports"
   handler                = "app.reports.lambda_handler"
   lambda_function_subdir = "reports"
-  logger_level           = "INFO"
   tags                   = local.default_tags
   openapi_version        = "v1"
   rest_api               = aws_api_gateway_rest_api.deputy_reporting
@@ -33,7 +31,6 @@ module "lambda_supporting_docs_v1" {
   lambda_prefix          = "sirius-supporting_docs"
   handler                = "app.supporting_docs.lambda_handler"
   lambda_function_subdir = "supporting_docs"
-  logger_level           = "INFO"
   tags                   = local.default_tags
   openapi_version        = "v1"
   rest_api               = aws_api_gateway_rest_api.deputy_reporting

@@ -119,6 +119,9 @@ def transform_event_to_sirius_request(event):
         "metadata": metadata,
         "file": {"name": file_name, "source": file_source, "type": file_type},
     }
-    logger.debug(f"Sirius Payload: {payload}")
+
+    debug_payload = payload
+    debug_payload["file"]["source"] = "REDACTED"
+    logger.debug(f"Sirius Payload: {debug_payload}")
 
     return json.dumps(payload)

@@ -148,7 +148,9 @@ def transform_event_to_sirius_post_request(event, parent_id=None):
     if parent_id:
         payload["parentUuid"] = parent_id
 
-    logger.debug(f"Sirius Payload: {payload}")
+    debug_payload = payload
+    debug_payload["file"]["source"] = "REDACTED"
+    logger.debug(f"Sirius Payload: {debug_payload}")
 
     return json.dumps(payload)
 

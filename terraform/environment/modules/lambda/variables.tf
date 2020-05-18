@@ -6,10 +6,6 @@ variable "aws_subnet_ids" {
   type = list(string)
 }
 
-variable "logger_level" {
-  type = string
-}
-
 variable "lambda_prefix" {
   type = string
 }
