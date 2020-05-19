@@ -11,12 +11,13 @@ variable "accounts" {
     object({
       account_id         = string
       account_mapping    = string
-      is_production      = string
-      target_environment = string
-      vpc_id             = string
-      opg_hosted_zone    = string
       allowed_roles      = list(string)
+      is_production      = string
+      logger_level       = string
+      opg_hosted_zone    = string
+      vpc_id             = string
       session_data       = string
+      target_environment = string
       threshold          = number
     })
   )
