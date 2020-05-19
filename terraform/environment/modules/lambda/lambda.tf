@@ -26,7 +26,7 @@ resource "aws_lambda_function" "lambda_function" {
       SIRIUS_BASE_URL       = "http://api.${var.account.target_environment}.ecs"
       SIRIUS_PUBLIC_API_URL = "api/public/v1/"
       ENVIRONMENT           = var.account.account_mapping
-      LOGGER_LEVEL          = var.logger_level
+      LOGGER_LEVEL          = var.account.logger_level
       API_VERSION           = var.openapi_version
       SESSION_DATA          = var.account.session_data
     }
