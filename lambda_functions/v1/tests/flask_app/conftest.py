@@ -3,8 +3,9 @@ import json
 import pytest
 import requests
 
-from lambda_functions.v1.functions.supporting_docs.app import sirius_service
-from lambda_functions.v1.functions.supporting_docs.app import supporting_docs
+from lambda_functions.v1.flask_app.app.api import sirius_service
+from lambda_functions.v1.flask_app.app import api
+
 
 test_data = {
     "valid_clients": ["valid_client_id", "0319392T", "12345678", "22814959"],
@@ -13,11 +14,56 @@ test_data = {
 
 
 @pytest.fixture(autouse=True)
+def default_sirius_reports_request(default_request_case_ref):
+    return {
+        "type": "Report - General",
+        "caseRecNumber": default_request_case_ref,
+        "metadata": {
+            "submission_id": 12345,
+            "reporting_period_from": "2019-01-01",
+            "reporting_period_to": "2019-12-31",
+            "year": 2019,
+            "date_submitted": "2020-01-03T09:30:00.001Z",
+            "type": "PF",
+        },
+        "file": {
+            "name": "Report_1234567T_2018_2019_11111.pdf",
+            "source": "string",
+            "type": "application/pdf",
+        },
+    }
+
+
+@pytest.fixture(autouse=True)
+def default_report_request_body_flask():
+    return {
+        "report": {
+            "data": {
+                "type": "reports",
+                "attributes": {
+                    "submission_id": 12345,
+                    "reporting_period_from": "2019-01-01",
+                    "reporting_period_to": "2019-12-31",
+                    "year": 2019,
+                    "date_submitted": "2020-01-03T09:30:00.001Z",
+                    "type": "PF",
+                },
+                "file": {
+                    "name": "Report_1234567T_2018_2019_11111.pdf",
+                    "mimetype": "application/pdf",
+                    "source": "string",
+                },
+            }
+        }
+    }
+
+
+@pytest.fixture(autouse=True)
 def default_sirius_supporting_docs_request(
     default_request_case_ref, default_request_report_id
 ):
     return {
-        "type": "Report - General",
+        "type": "Report",
         "caseRecNumber": default_request_case_ref,
         "metadata": {"submission_id": 231231, "report_id": default_request_report_id},
         "file": {
@@ -33,7 +79,7 @@ def default_sirius_supporting_docs_request_with_parent_id(
     default_request_case_ref, default_request_report_id
 ):
     return {
-        "type": "Report - General",
+        "type": "Report",
         "caseRecNumber": default_request_case_ref,
         "metadata": {"submission_id": 231231, "report_id": default_request_report_id},
         "file": {
@@ -46,7 +92,7 @@ def default_sirius_supporting_docs_request_with_parent_id(
 
 
 @pytest.fixture(autouse=True)
-def default_supporting_doc_request_body(default_request_report_id):
+def default_supporting_doc_request_body_flask(default_request_report_id):
     return {
         "supporting_document": {
             "data": {
@@ -76,14 +122,31 @@ def default_request_report_id():
 @pytest.fixture(autouse=True)
 def mock_env_setup(monkeypatch):
     monkeypatch.setenv("BASE_URL", "http://localhost:8080")
-    monkeypatch.setenv("SIRIUS_BASE_URL", "http://sirius_url.com")
+    monkeypatch.setenv("SIRIUS_BASE_URL", "http://not-really-sirius.com")
     monkeypatch.setenv("SIRIUS_PUBLIC_API_URL", "api/public/v1/")
     monkeypatch.setenv("LOGGER_LEVEL", "DEBUG")
     monkeypatch.setenv("JWT_SECRET", "THIS_IS_MY_SECRET_KEY")
     monkeypatch.setenv("ENVIRONMENT", "development")
     monkeypatch.setenv("SESSION_DATA", "publicapi@opgtest.com")
-    monkeypatch.setenv("API_VERSION", "v1")
+    monkeypatch.setenv("API_VERSION", "flask")
 
+
+sirius_report_response = json.dumps(
+    {
+        "type": "Report",
+        "filename": "3c1baa57f3cfa_Report_25558511_2018_2019_12345.pdf",
+        "mimeType": "application/pdf",
+        "metadata": {
+            "reporting_period_from": "2019-01-01",
+            "reporting_period_to": "2019-12-31",
+            "year": 2019,
+            "date_submitted": "2020-01-03T09:30:00.001Z",
+            "type": "HW",
+            "submission_id": 12345,
+        },
+        "uuid": "8ffdddb1-f19b-4c46-b4d1-9388ade95a68",
+    }
+)
 
 sirius_sup_docs_response = json.dumps(
     {
@@ -98,7 +161,7 @@ sirius_sup_docs_response = json.dumps(
 
 
 @pytest.fixture
-def patched_requests(monkeypatch):
+def patched_requests_flask(monkeypatch):
     def mock_post(*args, **kwargs):
         print("MOCK POST")
         data = kwargs["data"]
@@ -108,8 +171,7 @@ def patched_requests(monkeypatch):
         try:
             if json.loads(data)["caseRecNumber"] in test_data["valid_clients"]:
                 mock_response.status_code = 201
-                mock_response._content = sirius_sup_docs_response.encode("UTF-8")
-
+                mock_response._content = sirius_report_response.encode("UTF-8")
             elif json.loads(data)["caseRecNumber"] is None:
                 mock_response.status_code = 500
                 mock_response.json = None
@@ -123,6 +185,7 @@ def patched_requests(monkeypatch):
         return mock_response
 
     def mock_get(*args, **kwargs):
+        print("MOCK GET")
         url = kwargs["url"]
         mock_response = requests.Response()
 
@@ -130,8 +193,10 @@ def patched_requests(monkeypatch):
             mock_response.status_code = 200
             mock_response._content = json.dumps([{"data": "success"}]).encode("UTF-8")
         else:
-            mock_response.status_code = 500
-            mock_response._content = None
+            mock_response.status_code = 200
+            mock_response._content = json.dumps([{"data": "success"}]).encode("UTF-8")
+            # mock_response.status_code = 500
+            # mock_response._content = None
 
         return mock_response
 
@@ -139,28 +204,29 @@ def patched_requests(monkeypatch):
     monkeypatch.setattr(requests, "get", mock_get)
 
 
-@pytest.fixture
+@pytest.fixture()
 def patched_get_secret(monkeypatch):
     def mock_secret(*args, **kwargs):
+        print("I AM A FAKE SECRET")
         return "this_is_a_secret_string"
 
     monkeypatch.setattr(sirius_service, "get_secret", mock_secret)
 
 
-@pytest.fixture
-def patched_validate_event_fail(monkeypatch):
-    def mock_invalid(*args, **kwargs):
-        return False, ["file_name", "file_type"]
-
-    monkeypatch.setattr(supporting_docs, "validate_event", mock_invalid)
-
-
-@pytest.fixture
-def patched_validate_event_success(monkeypatch):
-    def mock_valid(*args, **kwargs):
-        return True, []
-
-    monkeypatch.setattr(supporting_docs, "validate_event", mock_valid)
+# @pytest.fixture
+# def patched_validate_event_fail(monkeypatch):
+#     def mock_invalid(*args, **kwargs):
+#         return False, ["file_name", "file_type"]
+#
+#     monkeypatch.setattr(reports, "validate_event", mock_invalid)
+#
+#
+# @pytest.fixture
+# def patched_validate_event_success(monkeypatch):
+#     def mock_valid(*args, **kwargs):
+#         return True, []
+#
+#     monkeypatch.setattr(reports, "validate_event", mock_valid)
 
 
 @pytest.fixture
@@ -202,3 +268,37 @@ def patched_send_get_to_sirius(monkeypatch):
         return mock_response
 
     monkeypatch.setattr(sirius_service, "send_get_to_sirius", mock_response)
+
+
+@pytest.fixture()
+def patched_submit_document_to_sirius(monkeypatch):
+    def mock_submit_document_to_sirius(*args, **kwargs):
+        print("FAKE POST TO SIRIUS")
+
+        try:
+            data = json.loads(kwargs["data"])
+            print(f"data: {data}")
+        except (KeyError, TypeError) as e:
+            print(f"error getting post data: {e}")
+
+        try:
+            case_ref = json.loads(kwargs["data"])["caseRecNumber"]
+            print(f"case_ref: {case_ref}")
+        except (KeyError, TypeError) as e:
+            print(f"error getting caseRecNumber: {e}")
+
+        response_code = 404
+        response_data = {
+            "data": {
+                "type": "",
+                "id": "",
+                "attributes": {"submission_id": "", "parent_id": ""},
+            }
+        }
+
+        print(f"(response_code, response_data): {(response_code, response_data)}")
+        return (response_code, response_data)
+
+    monkeypatch.setattr(
+        api.sirius_service, "submit_document_to_sirius", mock_submit_document_to_sirius
+    )

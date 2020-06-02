@@ -4,3 +4,5 @@ aws-xray-sdk
 pyjwt
 boto3
 requests-toolbelt
+flask
+flask-lambda

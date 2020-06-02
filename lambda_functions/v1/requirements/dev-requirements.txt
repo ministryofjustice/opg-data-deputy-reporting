@@ -9,6 +9,9 @@ pyjwt
 boto3
 moto
 pytest-cases
+pytest-ordering
+flask
+flask-lambda
 pytest-env
 requests_aws4auth
 faker
