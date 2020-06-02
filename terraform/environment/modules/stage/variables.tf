@@ -29,3 +29,5 @@ variable "reports_lambda" {}
 variable "healthcheck_lambda" {}
 
 variable "supportingdocs_lambda" {}
+
+variable "checklists_lambda" {}

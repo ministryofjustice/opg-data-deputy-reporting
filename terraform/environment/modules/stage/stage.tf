@@ -9,6 +9,7 @@ resource "aws_api_gateway_stage" "currentstage" {
     healthcheck_function_name : var.healthcheck_lambda.function_name
     reports_function_name : var.reports_lambda.function_name
     supporting_docs_name : var.supportingdocs_lambda.function_name
+    checklists_name : var.checklists_lambda.function_name
   }
 
   access_log_settings {
