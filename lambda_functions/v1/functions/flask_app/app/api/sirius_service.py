@@ -55,6 +55,7 @@ def get_secret(environment):
     Raises:
         ClientError
     """
+    print("REAL GET SECRET")
     secret_name = f"{environment}/jwt-key"
     region_name = "eu-west-1"
 
@@ -93,6 +94,8 @@ def build_sirius_headers(content_type="application/json"):
         algorithm="HS256",
     )
 
+    print(f"get_secret(environment): {get_secret(environment)}")
+
     return {
         "Content-Type": content_type,
         "Authorization": "Bearer " + encoded_jwt.decode("UTF8"),
@@ -100,9 +103,19 @@ def build_sirius_headers(content_type="application/json"):
 
 
 def submit_document_to_sirius(url, data, headers=None):
+    print("SENDING DOC TO SIRIUS")
     if not headers:
         headers = build_sirius_headers()
-    r = requests.post(url=url, data=data, headers=headers)
+
+    print(f"url: {url}")
+    print(f"data: {data}")
+    print(f"headers: {headers}")
+    try:
+        r = requests.post(url=url, data=data, headers=headers)
+    except Exception as e:
+        print(f"e: {e}")
+
+    print(f"r: {r}")
 
     try:
         sirius_response_code = r.status_code

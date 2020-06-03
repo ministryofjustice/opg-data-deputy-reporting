@@ -1,6 +1,5 @@
-#Update this date to trigger update of layers: 200416
+#Update this date to trigger update of layers: 200603
 requests
-aws-xray-sdk
 pyjwt
 boto3
 requests-toolbelt

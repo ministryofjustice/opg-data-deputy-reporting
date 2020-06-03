@@ -3,12 +3,15 @@ resource "aws_api_gateway_stage" "currentstage" {
   depends_on           = [aws_cloudwatch_log_group.deputy_reporting]
   rest_api_id          = var.rest_api.id
   deployment_id        = aws_api_gateway_deployment.deploy.id
-  xray_tracing_enabled = true
+  xray_tracing_enabled = false
   tags                 = var.tags
   variables = {
     healthcheck_function_name : var.healthcheck_lambda.function_name
     reports_function_name : var.reports_lambda.function_name
     supporting_docs_name : var.supportingdocs_lambda.function_name
+    //THIS IS JUST TEMPORARY
+    flask_app_name : var.flaskapp_lambda.function_name
+    //THIS IS JUST TEMPORARY
     checklists_name : var.checklists_lambda.function_name
   }
 

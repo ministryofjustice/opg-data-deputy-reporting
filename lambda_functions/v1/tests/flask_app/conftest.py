@@ -3,9 +3,8 @@ import json
 import pytest
 import requests
 
-from lambda_functions.v1.flask_app.app.api import sirius_service
-from lambda_functions.v1.flask_app.app import api
-
+import lambda_functions
+from lambda_functions.v1.functions.flask_app.app.api import sirius_service
 
 test_data = {
     "valid_clients": ["valid_client_id", "0319392T", "12345678", "22814959"],
@@ -300,5 +299,7 @@ def patched_submit_document_to_sirius(monkeypatch):
         return (response_code, response_data)
 
     monkeypatch.setattr(
-        api.sirius_service, "submit_document_to_sirius", mock_submit_document_to_sirius
+        lambda_functions.v1.functions.flask_app.app.api.sirius_service,
+        "submit_document_to_sirius",
+        mock_submit_document_to_sirius,
     )

@@ -3,13 +3,6 @@ import os
 
 
 from .helpers import custom_logger, compare_two_dicts
-
-# from .sirius_service import (
-#     build_sirius_url,
-#     build_sirius_headers,
-#     submit_document_to_sirius,
-# )
-
 from . import sirius_service
 
 logger = custom_logger("reports")
@@ -59,54 +52,6 @@ def endpoint_handler(data, caseref):
         return "unable to parse payload", 400
 
 
-#
-#
-# def lambda_handler(event, context):
-#     """
-#
-#     Args:
-#         event: json received from API Gateway
-#         context:
-#     Returns:
-#         Response from Sirius in AWS Lambda format, json
-#     """
-#
-#     valid_payload, errors = validate_event(event=event)
-#
-#     if valid_payload:
-#         sirius_api_url = build_sirius_url(
-#             base_url=f'{os.environ["SIRIUS_BASE_URL"]}/api/public',
-#             version=os.environ["API_VERSION"],
-#             endpoint="documents",
-#         )
-#
-#         sirius_payload = transform_event_to_sirius_request(event=event)
-#         sirius_headers = build_sirius_headers()
-#
-#         sirius_response_code, sirius_response = submit_document_to_sirius(
-#             url=sirius_api_url, data=sirius_payload, headers=sirius_headers
-#         )
-#
-#         lambda_response = {
-#             "isBase64Encoded": False,
-#             "statusCode": sirius_response_code,
-#             "headers": {"Content-Type": "application/json"},
-#             "body": json.dumps(sirius_response),
-#         }
-#
-#     else:
-#         lambda_response = {
-#             "isBase64Encoded": False,
-#             "statusCode": 400,
-#             "headers": {"Content-Type": "application/json"},
-#             "body": f"unable to parse {', '.join(errors)}",
-#         }
-#
-#     logger.debug(f"Lambda Response: {lambda_response}")
-#
-#     return lambda_response
-#
-#
 def validate_payload_data(data):
     """
     The request body *should* be validated by API-G before it gets this far,
@@ -164,35 +109,3 @@ def transform_payload_data_to_sirius_request(data, caseref=None):
     logger.debug(f"Sirius Payload: {payload}")
 
     return json.dumps(payload)
-
-
-#
-#
-# def transform_event_to_sirius_request(event):
-#     """
-#     Takes the 'body' from the AWS event and converts it into the right format for the
-#     Sirius documents endpoint, detailed here:
-#     tests/test_data/sirius_documents_payload_schema.json
-#
-#     Args:
-#         event: json received from API Gateway
-#     Returns:
-#         Sirius-style payload, json
-#     """
-#
-#     case_ref = event["pathParameters"]["caseref"]
-#     request_body = json.loads(event["body"])
-#     metadata = request_body["report"]["data"]["attributes"]
-#     file_name = request_body["report"]["data"]["file"]["name"]
-#     file_type = request_body["report"]["data"]["file"]["mimetype"]
-#     file_source = request_body["report"]["data"]["file"]["source"]
-#
-#     payload = {
-#         "type": "Report - General",
-#         "caseRecNumber": case_ref,
-#         "metadata": metadata,
-#         "file": {"name": file_name, "source": file_source, "type": file_type},
-#     }
-#     logger.debug(f"Sirius Payload: {payload}")
-#
-#     return json.dumps(payload)

@@ -3,7 +3,7 @@
 from flask import Blueprint
 from flask import request, jsonify
 
-from lambda_functions.v1.flask_app.app.api import reports, supporting_docs
+from lambda_functions.v1.functions.flask_app.app.api import reports, supporting_docs
 
 # version = os.getenv("API_VERSION")
 
@@ -34,8 +34,8 @@ def handle_reports(caseref):
 
 @api.route("/clients/<caseref>/reports/<id>/supportingdocuments", methods=["POST"])
 def handle_supporting_docs(caseref, id):
-    result = supporting_docs.endpoint_handler(
+    response_data, response_status = supporting_docs.endpoint_handler(
         data=request.get_json(), caseref=caseref, id=id
     )
 
-    return jsonify(result), 200
+    return jsonify(response_data), response_status

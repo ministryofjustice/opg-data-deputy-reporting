@@ -155,6 +155,9 @@ jobs:
               pip3 install -r ./lambda_functions/"${i}"/requirements/dev-requirements.txt
             done
       - run:
+          name: list all pacakges
+          command: pip freeze
+      - run:
           name: run black - python code formatter
           command: |
             black lambda_functions
