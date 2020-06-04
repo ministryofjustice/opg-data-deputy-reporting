@@ -1,7 +1,8 @@
-#Update this date to trigger update of layers: 200603
+#Update this date to trigger update of layers: 200604
 requests
 pyjwt
 boto3
 requests-toolbelt
 flask
 flask-lambda
+flask-lambda-python36

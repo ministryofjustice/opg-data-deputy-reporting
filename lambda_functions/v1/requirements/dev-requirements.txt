@@ -11,6 +11,7 @@ pytest-cases
 pytest-ordering
 flask
 flask-lambda
+flask-lambda-python36
 pytest-env
 requests_aws4auth
 faker
