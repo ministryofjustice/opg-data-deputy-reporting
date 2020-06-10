@@ -37,4 +37,17 @@ module "lambda_supporting_docs_v1" {
   account                = local.account
 }
 
+module "lambda_checklists_v1" {
+  source                 = "./modules/lambda"
+  environment            = local.environment
+  aws_subnet_ids         = data.aws_subnet_ids.private.ids
+  lambda_prefix          = "sirius-checklists"
+  handler                = "app.checklists.lambda_handler"
+  lambda_function_subdir = "checklists"
+  tags                   = local.default_tags
+  openapi_version        = "v1"
+  rest_api               = aws_api_gateway_rest_api.deputy_reporting
+  account                = local.account
+}
+
 //To Add New Version Copy and Paste Above and Modify Accordingly

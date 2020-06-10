@@ -2,7 +2,6 @@ import datetime
 import json
 import os
 
-
 from urllib.parse import urlparse, urlencode
 
 import boto3
@@ -99,14 +98,18 @@ def build_sirius_headers(content_type="application/json"):
     }
 
 
-def submit_document_to_sirius(url, data, headers=None):
+def submit_document_to_sirius(method, url, data, headers=None):
     if not headers:
         headers = build_sirius_headers()
-    r = requests.post(url=url, data=data, headers=headers)
+
+    if method == 'PUT':
+        r = requests.put(url=url, data=data, headers=headers)
+    else:
+        r = requests.post(url=url, data=data, headers=headers)
 
     try:
         sirius_response_code = r.status_code
-        if r.status_code == 201:
+        if r.status_code in [201, 200]:
             response = r.content.decode("UTF-8")
             sirius_response = format_sirius_response(
                 json.loads(response), sirius_response_code
@@ -133,7 +136,7 @@ def format_sirius_response(sirius_response=None, sirius_response_code=500):
 
     print(sirius_response_code)
     try:
-        if sirius_response_code == 201:
+        if sirius_response_code in [201, 200]:
             response = {
                 "data": {
                     "type": sirius_response["type"],
