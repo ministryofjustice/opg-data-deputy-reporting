@@ -17,7 +17,7 @@ def default_sirius_supporting_docs_request(
     default_request_case_ref, default_request_report_id
 ):
     return {
-        "type": "Report",
+        "type": "Report - General",
         "caseRecNumber": default_request_case_ref,
         "metadata": {"submission_id": 231231, "report_id": default_request_report_id},
         "file": {
@@ -33,7 +33,7 @@ def default_sirius_supporting_docs_request_with_parent_id(
     default_request_case_ref, default_request_report_id
 ):
     return {
-        "type": "Report",
+        "type": "Report - General",
         "caseRecNumber": default_request_case_ref,
         "metadata": {"submission_id": 231231, "report_id": default_request_report_id},
         "file": {
