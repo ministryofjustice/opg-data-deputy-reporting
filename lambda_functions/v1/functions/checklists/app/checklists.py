@@ -10,7 +10,7 @@ from .sirius_service import (
     build_sirius_headers,
 )
 
-logger = custom_logger("supporting_docs")
+logger = custom_logger("checklists")
 
 
 def lambda_handler(event, context):
@@ -134,7 +134,7 @@ def transform_event_to_sirius_payload(event):
     file_source = request_body["checklist"]["data"]["file"]["source"]
 
     payload = {
-        "type": "Report - General",
+        "type": "Report - Checklist",
         "caseRecNumber": case_ref,
         "metadata": metadata,
         "file": {"name": file_name, "source": file_source, "type": file_type},

@@ -137,7 +137,7 @@ def format_sirius_response(sirius_response=None, sirius_response_code=500):
 
     print(sirius_response_code)
     try:
-        if sirius_response_code == 201:
+        if sirius_response_code in [201, 200]:
             response = {
                 "data": {
                     "type": sirius_response["type"],
