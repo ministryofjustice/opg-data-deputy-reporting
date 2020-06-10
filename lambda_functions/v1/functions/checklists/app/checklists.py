@@ -2,7 +2,6 @@ import json
 import os
 import copy
 
-from . import sirius_service
 from .helpers import compare_two_dicts, custom_logger
 from .sirius_service import (
     build_sirius_url,
