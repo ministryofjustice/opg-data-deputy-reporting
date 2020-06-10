@@ -2,7 +2,6 @@ import datetime
 import json
 import os
 
-
 from urllib.parse import urlparse, urlencode
 
 import boto3

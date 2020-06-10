@@ -43,7 +43,7 @@ def lambda_handler(event, context):
         )
 
         sirius_response_code, sirius_response = submit_document_to_sirius(
-            url=sirius_api_url, data=sirius_payload, headers=sirius_headers
+            method=event["httpMethod"], url=sirius_api_url, data=sirius_payload, headers=sirius_headers
         )
 
         lambda_response = {
