@@ -10,3 +10,4 @@ boto3
 moto
 pytest-cases
 pytest-env
+requests_aws4auth

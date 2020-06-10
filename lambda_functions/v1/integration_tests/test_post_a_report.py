@@ -17,6 +17,7 @@ from lambda_functions.v1.integration_tests.conftest import (
 )
 
 
+@pytest.mark.skip(reason="don't run in CI")
 @pytest.mark.run(order=1)
 @pytest.mark.parametrize("base_url", urls_to_test)
 @cases_data(module=cases_reports_endpoint)
@@ -37,10 +38,8 @@ def test_post_a_report(case_data: CaseDataGetter, base_url):
         r = json.loads(response)
         assert r["data"]["type"] == expected_response_data["type"]
         assert is_valid_uuid(r["data"]["id"])
-        assert (
-            r["data"]["attributes"]["submission_id"]
-            == expected_response_data["submission_id"]
-        )
+        returned_submission_id = r["data"]["attributes"]["submission_id"]
+        assert returned_submission_id == expected_response_data["submission_id"]
         assert (
             r["data"]["attributes"]["parent_id"] == expected_response_data["parent_id"]
         )
@@ -53,6 +52,7 @@ def test_post_a_report(case_data: CaseDataGetter, base_url):
         )
 
 
+@pytest.mark.skip(reason="don't run in CI")
 @pytest.mark.run(order=2)
 @pytest.mark.parametrize("base_url", urls_to_test)
 @cases_data(module=cases_supporting_docs_endpoint)
@@ -73,10 +73,8 @@ def test_post_a_supporting_doc(case_data: CaseDataGetter, base_url):
         r = json.loads(response)
         assert r["data"]["type"] == expected_response_data["type"]
         assert is_valid_uuid(r["data"]["id"])
-        assert (
-            r["data"]["attributes"]["submission_id"]
-            == expected_response_data["submission_id"]
-        )
+        returned_submission_id = r["data"]["attributes"]["submission_id"]
+        assert returned_submission_id == expected_response_data["submission_id"]
         assert (
             r["data"]["attributes"]["parent_id"] == expected_response_data["parent_id"]
         )
@@ -90,6 +88,7 @@ def test_post_a_supporting_doc(case_data: CaseDataGetter, base_url):
         )
 
 
+@pytest.mark.skip(reason="don't run in CI")
 @pytest.mark.run(order=3)
 def test_confirm_data():
     print(f"uploaded_reports: {uploaded_reports}")
