@@ -36,7 +36,7 @@ def lambda_handler(event, context):
         sirius_headers = build_sirius_headers()
 
         sirius_response_code, sirius_response = submit_document_to_sirius(
-            url=sirius_api_url, data=sirius_payload, headers=sirius_headers
+            method=event["httpMethod"], url=sirius_api_url, data=sirius_payload, headers=sirius_headers
         )
 
         lambda_response = {
@@ -115,7 +115,7 @@ def transform_event_to_sirius_request(event):
     file_source = request_body["report"]["data"]["file"]["source"]
 
     payload = {
-        "type": "Report - General",
+        "type": "Report",
         "caseRecNumber": case_ref,
         "metadata": metadata,
         "file": {"name": file_name, "source": file_source, "type": file_type},

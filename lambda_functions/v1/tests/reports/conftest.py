@@ -15,7 +15,7 @@ test_data = {
 @pytest.fixture(autouse=True)
 def default_sirius_reports_request(default_request_case_ref):
     return {
-        "type": "Report - General",
+        "type": "Report",
         "caseRecNumber": default_request_case_ref,
         "metadata": {
             "submission_id": 12345,

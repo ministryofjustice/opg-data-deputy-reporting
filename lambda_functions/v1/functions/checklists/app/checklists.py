@@ -2,7 +2,6 @@ import json
 import os
 import copy
 
-from . import sirius_service
 from .helpers import compare_two_dicts, custom_logger
 from .sirius_service import (
     build_sirius_url,
@@ -10,7 +9,7 @@ from .sirius_service import (
     build_sirius_headers,
 )
 
-logger = custom_logger("supporting_docs")
+logger = custom_logger("checklists")
 
 
 def lambda_handler(event, context):
@@ -27,19 +26,15 @@ def lambda_handler(event, context):
 
     if valid_payload:
 
-        parent_id = determine_document_parent_id(
-            url=transform_event_to_sirius_get_url(event)
-        )
-
-        sirius_payload = transform_event_to_sirius_post_request(
-            event=event, parent_id=parent_id
+        sirius_payload = transform_event_to_sirius_payload(
+            event=event
         )
         sirius_headers = build_sirius_headers()
 
         sirius_api_url = build_sirius_url(
             base_url=f'{os.environ["SIRIUS_BASE_URL"]}/api/public',
             version=os.environ["API_VERSION"],
-            endpoint="documents",
+            endpoint=transform_event_to_endpoint(event),
         )
 
         sirius_response_code, sirius_response = submit_document_to_sirius(
@@ -79,7 +74,7 @@ def validate_event(event):
     """
 
     required_body_structure = {
-        "supporting_document": {
+        "checklist": {
             "data": {
                 "attributes": {"submission_id": 0},
                 "file": {"name": "string", "mimetype": "string", "source": "string"},
@@ -97,29 +92,26 @@ def validate_event(event):
         return True, errors
 
 
-def transform_event_to_sirius_get_url(event):
-    case_ref = event["pathParameters"]["caseref"]
-    report_id = event["pathParameters"]["id"]
-    request_body = json.loads(event["body"])
-    submission_id = request_body["supporting_document"]["data"]["attributes"][
-        "submission_id"
-    ]
+def transform_event_to_endpoint(event):
+    """
+    In the case of a PUT request, pass the checklist uuid through
 
-    url = build_sirius_url(
-        base_url=f'{os.environ["SIRIUS_BASE_URL"]}/api/public',
-        version=os.environ["API_VERSION"],
-        endpoint="documents",
-        url_params={
-            "caserecnumber": case_ref,
-            "metadata[submission_id]": submission_id,
-            "metadata[report_id]": report_id,
-        },
-    )
+    Args:
+        event: AWS event json
 
-    return url
+    Returns:
+        string: endpoint
+
+    """
+    if "PUT" == event["httpMethod"]:
+        endpoint = f'documents/{event["pathParameters"]["checklistId"]}'
+    else:
+        endpoint = "documents"
+
+    return endpoint
 
 
-def transform_event_to_sirius_post_request(event, parent_id=None):
+def transform_event_to_sirius_payload(event):
     """
     Takes the 'body' from the AWS event and converts it into the right format for the
     Sirius documents endpoint, detailed here:
@@ -133,60 +125,22 @@ def transform_event_to_sirius_post_request(event, parent_id=None):
     report_id = event["pathParameters"]["id"]
     case_ref = event["pathParameters"]["caseref"]
     request_body = json.loads(event["body"])
-    metadata = request_body["supporting_document"]["data"]["attributes"]
+    metadata = request_body["checklist"]["data"]["attributes"]
     metadata["report_id"] = report_id
-    file_name = request_body["supporting_document"]["data"]["file"]["name"]
-    file_type = request_body["supporting_document"]["data"]["file"]["mimetype"]
-    file_source = request_body["supporting_document"]["data"]["file"]["source"]
+    metadata["is_checklist"] = "true"
+    file_name = request_body["checklist"]["data"]["file"]["name"]
+    file_type = request_body["checklist"]["data"]["file"]["mimetype"]
+    file_source = request_body["checklist"]["data"]["file"]["source"]
 
     payload = {
-        "type": "Report - General",
+        "type": "Report - Checklist",
         "caseRecNumber": case_ref,
         "metadata": metadata,
         "file": {"name": file_name, "source": file_source, "type": file_type},
     }
-
-    if parent_id:
-        payload["parentUuid"] = parent_id
 
     debug_payload = copy.deepcopy(payload)
     debug_payload["file"]["source"] = "REDACTED"
     logger.debug(f"Sirius Payload: {debug_payload}")
 
     return json.dumps(payload)
-
-
-def determine_document_parent_id(url):
-
-    parent_id = None
-
-    submission_entries = sirius_service.send_get_to_sirius(url)
-
-    if submission_entries is not None:
-
-        try:
-            number_of_entries = len(
-                [entry for entry in submission_entries if len(entry) > 0]
-            )
-
-            print(f"number_of_entries: {number_of_entries}")
-
-            if number_of_entries == 0:
-                parent_id = None
-            else:
-                for entry in submission_entries:
-                    if "parentUuid" in entry and entry["parentUuid"] is None:
-                        parent_id = entry["uuid"]
-                        break
-                    elif "parentUuid" not in entry:
-                        parent_id = entry["uuid"]
-                        break
-                    else:
-                        logger.info("Unable to determine parent id of document")
-                        parent_id = None
-
-        except TypeError as e:
-            logger.info(f"Unable to determine parent id of document {e}")
-            parent_id = None
-
-    return parent_id
