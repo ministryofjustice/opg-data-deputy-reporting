@@ -1,12 +1,11 @@
 # our base image
 FROM python:3.6-slim
 
+WORKDIR /var/www/
 COPY requirements.txt .
-COPY app.py .
-
 RUN pip install -r requirements.txt
 
 ENV FLASK_APP=app.py
-ENV FLASK_ENV='development'
+ENV FLASK_ENV=development
 
-CMD ["python", "app.py"]
+CMD ["python", "mock_sirius_backend/app.py"]

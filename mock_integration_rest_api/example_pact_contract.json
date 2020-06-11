@@ -1,0 +1,144 @@
+{
+  "consumer": {
+    "name": "Complete the deputy report"
+  },
+  "provider": {
+    "name": "OPG Data"
+  },
+  "interactions": [
+    {
+      "_id": "9e10b3b49a49136a8191ff461795c9dd7f0645ea",
+      "description": "A submitted report",
+      "request": {
+        "method": "POST",
+        "path": "/v1/clients/1234567T/reports",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "report": {
+            "data": {
+              "type": "reports",
+              "attributes": {
+                "reporting_period_from": "2018-05-14",
+                "reporting_period_to": "2019-05-13",
+                "year": 2018,
+                "date_submitted": "2019-06-20T00:00:00+01:00",
+                "type": "PF",
+                "submission_id": 9876
+              },
+              "file": {
+                "name": "test.pdf",
+                "mimetype": "application/pdf",
+                "source": "ZmFrZV9jb250ZW50cw=="
+              }
+            }
+          }
+        },
+        "matchingRules": {
+          "$.body.report.data.attributes.reporting_period_from": {
+            "match": "regex",
+            "regex": "^([\\+-]?\\d{4}(?!\\d{2}\\b))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))?)$"
+          },
+          "$.body.report.data.attributes.reporting_period_to": {
+            "match": "regex",
+            "regex": "^([\\+-]?\\d{4}(?!\\d{2}\\b))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))?)$"
+          },
+          "$.body.report.data.attributes.year": {
+            "match": "type"
+          },
+          "$.body.report.data.attributes.date_submitted": {
+            "match": "regex",
+            "regex": "^\\d{4}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d([+-][0-2]\\d:[0-5]\\d|Z)$"
+          },
+          "$.body.report.data.attributes.type": {
+            "match": "regex",
+            "regex": "PF|HW|NDR"
+          },
+          "$.body.report.data.attributes.submission_id": {
+            "match": "type"
+          },
+          "$.body.report.data.file.source": {
+            "match": "regex",
+            "regex": ".+"
+          }
+        }
+      },
+      "response": {
+        "status": 201,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "data": {
+            "id": "33ea0382-cfc9-4776-9036-667eeb68fa4b"
+          }
+        },
+        "matchingRules": {
+          "$.body.data.id": {
+            "match": "regex",
+            "regex": "^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$"
+          }
+        }
+      }
+    },
+    {
+      "_id": "79b89042cb699a3ab4de84e7e7741db3557963c0",
+      "description": "A submitted supporting document",
+      "request": {
+        "method": "POST",
+        "path": "/v1/clients/1234567T/reports/33ea0382-cfc9-4776-9036-667eeb68fa4b/supportingdocuments",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "supporting_document": {
+            "data": {
+              "type": "supportingdocuments",
+              "attributes": {
+                "submission_id": 9876
+              },
+              "file": {
+                "name": "test.pdf",
+                "mimetype": "application/pdf",
+                "source": "ZmFrZV9jb250ZW50cw=="
+              }
+            }
+          }
+        },
+        "matchingRules": {
+          "$.body.supporting_document.data.attributes.submission_id": {
+            "match": "type"
+          },
+          "$.body.supporting_document.data.file.source": {
+            "match": "regex",
+            "regex": ".+"
+          }
+        }
+      },
+      "response": {
+        "status": 201,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "data": {
+            "id": "33ea0382-cfc9-4776-9036-667eeb68fa4b"
+          }
+        },
+        "matchingRules": {
+          "$.body.data.id": {
+            "match": "regex",
+            "regex": "^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$"
+          }
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "pactSpecification": {
+      "version": "2.0.0"
+    }
+  },
+  "createdAt": "2020-06-11T10:37:38+00:00"
+}

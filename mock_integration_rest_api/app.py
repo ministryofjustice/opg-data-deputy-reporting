@@ -15,6 +15,8 @@ from lambda_functions.v1.functions.supporting_docs.app.supporting_docs import (
     lambda_handler as sup_lambda_handler,
 )
 
+# Env variable set here for consistency across CI and local env.
+# MOCKING_ENV set externally
 mocking_environment = os.environ.get("MOCKING_ENV")
 os.environ["BASE_URL"] = "http://localhost:4343"
 os.environ["SIRIUS_BASE_URL"] = "http://" + mocking_environment + ":5001"
@@ -27,6 +29,7 @@ os.environ["AWS_ACCESS_KEY_ID"] = "testing"
 os.environ["AWS_SECRET_ACCESS_KEY"] = "testing"
 os.environ["AWS_SECURITY_TOKEN"] = "testing"
 os.environ["AWS_SESSION_TOKEN"] = "testing"
+os.environ["API_VERSION"] = "v1"
 
 
 def healthcheck():
@@ -51,6 +54,7 @@ def addReportDocument(caseref, body):
     conn.create_secret(Name="local/jwt-key", SecretString="mock_jwt_token")
     event = {
         "headers": "fake headers",
+        "httpMethod": "POST",
         "pathParameters": {"caseref": caseref},
         "body": json.dumps(body),
     }
@@ -72,6 +76,7 @@ def addReportSupportingDocument(caseref, id, body):
     conn.create_secret(Name="local/jwt-key", SecretString="mock_jwt_token")
     event = {
         "headers": "fake headers",
+        "httpMethod": "POST",
         "pathParameters": {"caseref": caseref, "id": id},
         "body": json.dumps(body),
     }
@@ -83,6 +88,14 @@ def addReportSupportingDocument(caseref, id, body):
     )
 
     return formatted_response
+
+
+def addReportChecklist():
+    return "Coming soon"
+
+
+def updateReportChecklist():
+    return "Coming soon"
 
 
 sirius_server = connexion.App(__name__)
