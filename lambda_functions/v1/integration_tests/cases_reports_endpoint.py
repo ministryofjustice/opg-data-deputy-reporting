@@ -44,7 +44,7 @@ def case_success_original(base_url: str) -> CaseData:
 
     expected_status_code = 201
     expected_response_data = {
-        "type": "Report - General",
+        "type": "Report",
         "submission_id": submission_id,
         "parent_id": None,
     }

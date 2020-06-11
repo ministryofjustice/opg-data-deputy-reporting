@@ -33,6 +33,7 @@ urls_to_test = [
 
 uploaded_reports = []
 uploaded_supporting_docs = []
+uploaded_checklists = []
 
 
 def send_a_request(url, method, payload):
