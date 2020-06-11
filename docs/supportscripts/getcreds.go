@@ -11,7 +11,8 @@ import (
 
 func main() {
 
-    roletoassume := "arn:aws:iam::248804316466:role/operator"
+    roletoassume := "arn:aws:iam::288342028542:role/operator"
+//     roletoassume := "arn:aws:iam::492687888235:role/operator"
 
 	mysession := session.Must(session.NewSession())
 	digidepcreds := stscreds.NewCredentials(mysession, roletoassume)
