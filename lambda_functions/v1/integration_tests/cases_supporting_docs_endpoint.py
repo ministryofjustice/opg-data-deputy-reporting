@@ -50,6 +50,7 @@ def case_success_original(base_url: str) -> CaseData:
         "type": "Report - General",
         "submission_id": submission_id,
         "parent_id": report_id,
+        "report_id": report_id,
     }
 
     return url, method, payload, expected_status_code, expected_response_data
@@ -95,6 +96,7 @@ def case_success_new_submission(base_url: str) -> CaseData:
         "type": "Report - General",
         "submission_id": submission_id,
         "parent_id": None,
+        "report_id": report_id,
     }
 
     return url, method, payload, expected_status_code, expected_response_data
@@ -145,6 +147,7 @@ def case_success_new_submission_child(base_url: str) -> CaseData:
         "type": "Report - General",
         "submission_id": submission_id,
         "parent_id": parent_id[0],
+        "report_id": report_id,
     }
 
     return url, method, payload, expected_status_code, expected_response_data

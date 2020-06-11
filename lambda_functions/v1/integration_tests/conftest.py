@@ -36,6 +36,9 @@ uploaded_supporting_docs = []
 uploaded_checklists = []
 
 
+all_records = []
+
+
 def send_a_request(url, method, payload):
 
     print(f"config['AWS_ACCESS_KEY_ID']: {config['AWS_ACCESS_KEY_ID']}")
@@ -64,3 +67,52 @@ def is_valid_uuid(val):
         return True
     except ValueError:
         return False
+
+
+def create_record(returned_data):
+
+    r = returned_data
+
+    child_record = True if r["data"]["attributes"]["parent_id"] is not None else False
+
+    record = {
+        "document_type": r["data"]["type"],
+        "document_id": r["data"]["id"],
+        "submission_id": r["data"]["attributes"]["submission_id"],
+        "parent_id": r["data"]["attributes"]["parent_id"],
+    }
+
+    if child_record:
+        parent_id = r["data"]["attributes"]["parent_id"]
+        parent_record = [p for p in all_records if p["document_id"] == parent_id][0]
+        parent_record["children"].append(record)
+
+        return print(f'Added child record {r["data"]["id"]} to parent {parent_id}')
+        return f'Added child record {r["data"]["id"]} to parent {parent_id}'
+    else:
+        record["children"] = []
+        record["amendments"] = []
+        all_records.append(record)
+
+        print(f'Added parent record {r["data"]["id"]}')
+        return f'Added parent record {r["data"]["id"]}'
+
+
+def update_record(returned_data, original_record_id):
+    r = returned_data
+
+    original_record = [
+        r for r in all_records if r["document_id"] == original_record_id
+    ][0]
+
+    record = {
+        "document_type": r["data"]["type"],
+        "document_id": r["data"]["id"],
+        "submission_id": r["data"]["attributes"]["submission_id"],
+        "amendment": len(original_record["amendments"]) + 1,
+    }
+
+    original_record["amendments"].append(record)
+
+    print(f"Updated record with document_id: {original_record_id}")
+    return f"Updated record with document_id: {original_record_id}"

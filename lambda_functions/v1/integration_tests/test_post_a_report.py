@@ -1,3 +1,4 @@
+import datetime
 import json
 
 import pytest
@@ -17,6 +18,9 @@ from lambda_functions.v1.integration_tests.conftest import (
     urls_to_test,
     uploaded_supporting_docs,
     uploaded_checklists,
+    all_records,
+    create_record,
+    update_record,
 )
 
 
@@ -39,6 +43,9 @@ def test_post_a_report(case_data: CaseDataGetter, base_url):
     assert type(response) == str
     if status == 201:
         r = json.loads(response)
+
+        create_record(returned_data=r)
+
         assert r["data"]["type"] == expected_response_data["type"]
         assert is_valid_uuid(r["data"]["id"])
         returned_submission_id = r["data"]["attributes"]["submission_id"]
@@ -74,6 +81,9 @@ def test_post_a_supporting_doc(case_data: CaseDataGetter, base_url):
     assert type(response) == str
     if status == 201:
         r = json.loads(response)
+
+        create_record(returned_data=r)
+
         assert r["data"]["type"] == expected_response_data["type"]
         assert is_valid_uuid(r["data"]["id"])
         returned_submission_id = r["data"]["attributes"]["submission_id"]
@@ -110,6 +120,9 @@ def test_post_a_new_checklist(case_data: CaseDataGetter, base_url):
     assert type(response) == str
     if status == 201:
         r = json.loads(response)
+
+        create_record(returned_data=r)
+
         assert r["data"]["type"] == expected_response_data["type"]
         assert is_valid_uuid(r["data"]["id"])
         returned_submission_id = r["data"]["attributes"]["submission_id"]
@@ -145,15 +158,18 @@ def test_post_an_updated_checklist(case_data: CaseDataGetter, base_url):
 
     assert status == expected_status_code
     assert type(response) == str
-    if status == 201:
+    if status == 200:
         r = json.loads(response)
+
+        update_record(
+            returned_data=r,
+            original_record_id=expected_response_data["original_checklist_id"],
+        )
+
         assert r["data"]["type"] == expected_response_data["type"]
         assert is_valid_uuid(r["data"]["id"])
         returned_submission_id = r["data"]["attributes"]["submission_id"]
         assert returned_submission_id == expected_response_data["submission_id"]
-        assert (
-            r["data"]["attributes"]["parent_id"] == expected_response_data["parent_id"]
-        )
 
         checklist_id = r["data"]["id"]
         updated_checklist = list(
@@ -164,10 +180,17 @@ def test_post_an_updated_checklist(case_data: CaseDataGetter, base_url):
 
 
 # @pytest.mark.skip(reason="don't run in CI")
-@pytest.mark.run(order=3)
-def test_confirm_data():
-    print(f"uploaded_reports: {uploaded_reports}")
-    print(f"uploaded_supporting_docs: {uploaded_supporting_docs}")
+@pytest.mark.run(order=5)
+@pytest.mark.parametrize("base_url", urls_to_test)
+def test_confirm_data(base_url):
 
-    assert len(uploaded_reports) > 0
-    assert len(uploaded_supporting_docs) > 0
+    assert len(all_records) > 0
+
+    for row in all_records:
+        row["url_used"] = base_url
+
+    filename = datetime.datetime.now().strftime("%Y-%m-%d")
+    json_records = json.dumps(all_records, indent=4)
+
+    with open(f"{filename}_updates.json", "w") as outfile:
+        outfile.write(json_records)

@@ -11,10 +11,7 @@ from lambda_functions.v1.integration_tests.conftest import (
 new_submission_id = random.randint(10000, 99999)
 
 
-@case_name(
-    "Successful post to new checklist endpoint - checklist is child of existing "
-    "report sent in the same submission"
-)
+@case_name("Successful update of a checklist")
 def case_success_original_IN_112(base_url: str) -> CaseData:
 
     print(f"Using base_url: {base_url}")
@@ -56,9 +53,9 @@ def case_success_original_IN_112(base_url: str) -> CaseData:
 
     expected_status_code = 200
     expected_response_data = {
-        "type": "Report",
+        "type": "Report - Checklist",
         "submission_id": submission_id,
-        "parent_id": report_id,
+        "original_checklist_id": checklist_id,
     }
 
     return url, method, payload, expected_status_code, expected_response_data
