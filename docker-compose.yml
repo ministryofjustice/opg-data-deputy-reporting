@@ -25,7 +25,7 @@ services:
       # Uncomment these two options for debugging purposes:
       # PACT_BROKER_WEBHOOK_HOST_WHITELIST: circleci.com
       # PACT_BROKER_LOG_LEVEL: DEBUG
-  mock_sirius:
+  mock-aws-rest-api:
     build:
       context: ./mock_integration_rest_api
       dockerfile: Dockerfile
@@ -36,7 +36,7 @@ services:
       - ./mock_integration_rest_api/:/var/www/mock_integration_rest_api/
     ports:
       - "4343:4343"
-  mock_state:
+  mock-sirius:
     build:
       context: ./mock_sirius_backend
       dockerfile: Dockerfile
