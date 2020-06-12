@@ -56,7 +56,7 @@ then
     if [ "${CAN_I_DEPLOY}" == "false" ]
     then
         echo "Failing the build"
-        exit
+        exit 1
     fi
 
 elif [ "${CONSUMER_TRIGGERED}" == "true" ]

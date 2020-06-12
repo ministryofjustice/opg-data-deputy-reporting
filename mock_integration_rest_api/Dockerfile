@@ -1,13 +1,11 @@
 # our base image
 FROM python:3.6-slim
 
+WORKDIR /var/www/
 COPY requirements.txt .
-COPY deputy-reporting-openapi.yml .
-COPY app.py .
-
 RUN pip install -r requirements.txt
 
 ENV FLASK_APP=app.py
-ENV FLASK_ENV='development'
-
-CMD ["python", "app.py"]
+ENV FLASK_ENV=development
+ENV PYTHONPATH=/var/www
+CMD ["python", "mock_integration_rest_api/app.py"]
