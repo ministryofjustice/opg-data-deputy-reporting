@@ -3,12 +3,12 @@
     "data": {
       "type": "supportingdocuments",
       "attributes": {
-        "submission_id": 12345
+        "submission_id": 9876
       },
       "file": {
-        "name": "Report_1234567T_2018_2019_11111.pdf",
+        "name": "test.pdf",
         "mimetype": "application/pdf",
-        "source": "string"
+        "source": "ZmFrZV9jb250ZW50cw=="
       }
     }
   }
