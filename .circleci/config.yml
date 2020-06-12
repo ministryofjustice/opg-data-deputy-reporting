@@ -58,7 +58,6 @@ workflows:
           name: terraform dev preflight checks
           requires: [build and artifact]
           tf_workspace: development
-          run_account: true
           filters: {branches:{only:[master]}}
       - terraform_action:
           name: development apply
@@ -66,14 +65,12 @@ workflows:
           tf_command: apply --auto-approve
           tf_workspace: development
           applycheck: true
-          run_account: true
           pact_tag_master: true
           filters: {branches:{only:[master]}}
       - terraform_pre_checks:
          name: terraform preprod preflight checks
          requires: [build and artifact]
          tf_workspace: preproduction
-         run_account: true
          filters: {branches:{only:[master]}}
       - terraform_action:
          name: preprod apply
@@ -81,7 +78,6 @@ workflows:
          tf_command: apply --auto-approve
          tf_workspace: preproduction
          applycheck: true
-         run_account: true
          filters: {branches:{only:[master]}}
       - approve:
          name: approve release to production
@@ -92,7 +88,6 @@ workflows:
          name: terraform prod preflight checks
          requires: [approve release to production]
          tf_workspace: production
-         run_account: true
          filters: {branches:{only:[master]}}
       - terraform_action:
          name: production apply
@@ -100,7 +95,6 @@ workflows:
          tf_command: apply --auto-approve
          tf_workspace: production
          applycheck: true
-         run_account: true
          pact_tag_production: true
          filters: {branches:{only:[master]}}
   verify_pact:
@@ -202,10 +196,6 @@ jobs:
         description: terraform workspace
         type: string
         default: ""
-      run_account:
-        description: whether to run account config in terraform
-        type: boolean
-        default: false
     working_directory: ~/project
     steps:
       - attach_workspace:
@@ -223,18 +213,6 @@ jobs:
       - run:
           name: validate terraform - environment
           command: cd ./terraform/environment; terraform validate
-      - when:
-          condition: << parameters.run_account >>
-          steps:
-            - run:
-                name: initialize terraform - account
-                command: cd ./terraform/account; terraform init
-            - run:
-                name: terraform check formatting - account
-                command: cd ./terraform/account; terraform fmt -diff -check -recursive
-            - run:
-                name: validate terraform - account
-                command: cd ./terraform/account; terraform validate
   terraform_action:
     executor: digideps-data/python_with_tfvars
     parameters:
@@ -248,10 +226,6 @@ jobs:
         type: string
       applycheck:
         description: workaround for rest api provider
-        type: boolean
-        default: false
-      run_account:
-        description: whether to run account config in terraform
         type: boolean
         default: false
       destroy_workspace:
@@ -280,12 +254,6 @@ jobs:
       - run:
           name: initialize terraform - environment
           command: cd ./terraform/environment; terraform init
-      - when:
-          condition: << parameters.run_account >>
-          steps:
-            - run:
-                name: initialize terraform - account
-                command: cd ./terraform/account; terraform init
       - run:
           name: Set BASH_ENV
           command: ~/project/.circleci/set_env.sh >> $BASH_ENV
@@ -312,14 +280,6 @@ jobs:
                   else
                     echo "version of provider with git commit ${GIT_COMMIT_PROVIDER}, not found"
                   fi
-      - when:
-          condition: << parameters.run_account >>
-          steps:
-            - run:
-                name: terraform apply - account
-                command: |
-                  cd ./terraform/account
-                  terraform << parameters.tf_command >>
       - run:
           name: terraform << parameters.tf_command >> - environment
           command: cd ./terraform/environment; terraform << parameters.tf_command >>
