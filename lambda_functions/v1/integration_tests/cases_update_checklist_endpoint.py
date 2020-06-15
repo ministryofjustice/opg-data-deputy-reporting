@@ -2,33 +2,24 @@ import random
 
 from pytest_cases import CaseData, case_name
 
-from lambda_functions.v1.integration_tests.conftest import (
-    config,
-    uploaded_reports,
-    uploaded_checklists,
-)
-
 new_submission_id = random.randint(10000, 99999)
 
 
 @case_name("Successful update of a checklist")
-def case_success_original_IN_112(base_url: str) -> CaseData:
+def case_success_original_IN_112(test_config: str) -> CaseData:
 
-    print(f"Using base_url: {base_url}")
+    print(f"Using test_config: {test_config['name']}")
     # Test Data
 
-    report = random.choice(uploaded_reports)
-    report_id = report["report_id"]
-    submission_id = new_submission_id
-    checklist_id = random.choice(
-        [d["document_id"] for d in uploaded_checklists if d["amended"] is False]
-    )
+    report_id = test_config["report_id"]
+    submission_id = 54321
+    case_ref = test_config["case_ref"]
+    checklist_id = test_config["checklist_id"]
+
     endpoint = (
-        f"clients/{config['GOOD_CASEREF']}/reports/"
-        f"{report_id}/checklists/"
-        f"{checklist_id}"
+        f"clients/{case_ref}/reports/" f"{report_id}/checklists/" f"{checklist_id}"
     )
-    url = f"{base_url}/{endpoint}"
+    url = f"{test_config['url']}/{endpoint}"
 
     print(f"report_id: {report_id}")
     print(f"submission_id: {submission_id}")

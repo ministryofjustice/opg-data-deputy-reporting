@@ -2,12 +2,6 @@ import random
 
 from pytest_cases import CaseData, case_name
 
-from lambda_functions.v1.integration_tests.conftest import (
-    config,
-    uploaded_reports,
-    uploaded_supporting_docs,
-)
-
 new_submission_id = random.randint(10000, 99999)
 
 
@@ -15,18 +9,19 @@ new_submission_id = random.randint(10000, 99999)
     "Successful post to supporting docs endpoint - doc is child of existing "
     "report sent in the same submission"
 )
-def case_success_original(base_url: str) -> CaseData:
+def case_success_original(test_config: str) -> CaseData:
 
-    print(f"Using base_url: {base_url}")
+    print(f"Using test_config: {test_config['name']}")
     # Test Data
 
-    report = random.choice(uploaded_reports)
-    report_id = report["report_id"]
-    submission_id = report["submission_id"]
-    endpoint = (
-        f"clients/{config['GOOD_CASEREF']}/reports/" f"{report_id}/supportingdocuments"
-    )
-    url = f"{base_url}/{endpoint}"
+    print(f"test_config['report_id']: {test_config['report_id']}")
+
+    report_id = test_config["report_id"]
+    submission_id = test_config["submission_id"]
+    case_ref = test_config["case_ref"]
+
+    endpoint = f"clients/{case_ref}/reports/" f"{report_id}/supportingdocuments"
+    url = f"{test_config['url']}/{endpoint}"
 
     method = "POST"
     payload = {
@@ -60,19 +55,17 @@ def case_success_original(base_url: str) -> CaseData:
     "Successful post to supporting docs endpoint - doc is child of existing "
     "report sent in a different submission"
 )
-def case_success_new_submission(base_url: str) -> CaseData:
+def case_success_new_submission(test_config: str) -> CaseData:
 
-    print(f"Using base_url: {base_url}")
+    print(f"Using test_config: {test_config['name']}")
     # Test Data
 
-    report = random.choice(uploaded_reports)
-    report_id = report["report_id"]
-    submission_id = new_submission_id
+    report_id = test_config["report_id"]
+    submission_id = 54321
+    case_ref = test_config["case_ref"]
 
-    endpoint = (
-        f"clients/{config['GOOD_CASEREF']}/reports/" f"{report_id}/supportingdocuments"
-    )
-    url = f"{base_url}/{endpoint}"
+    endpoint = f"clients/{case_ref}/reports/" f"{report_id}/supportingdocuments"
+    url = f"{test_config['url']}/{endpoint}"
 
     method = "POST"
     payload = {
@@ -104,26 +97,19 @@ def case_success_new_submission(base_url: str) -> CaseData:
 
 @case_name(
     "Successful post to supporting docs endpoint - doc is child of existing "
-    "supporting doc "
+    "report sent in a different submission  - set up for the following test"
 )
-def case_success_new_submission_child(base_url: str) -> CaseData:
+def case_success_new_submission_2(test_config: str) -> CaseData:
 
-    print(f"Using base_url: {base_url}")
+    print(f"Using test_config: {test_config['name']}")
     # Test Data
 
-    report = random.choice(uploaded_reports)
-    report_id = report["report_id"]
-    submission_id = new_submission_id
-    parent_id = [
-        i["document_id"]
-        for i in uploaded_supporting_docs
-        if i["submission_id"] == submission_id
-    ]
+    report_id = test_config["report_id"]
+    submission_id = 543218
+    case_ref = test_config["case_ref"]
 
-    endpoint = (
-        f"clients/{config['GOOD_CASEREF']}/reports/" f"{report_id}/supportingdocuments"
-    )
-    url = f"{base_url}/{endpoint}"
+    endpoint = f"clients/{case_ref}/reports/" f"{report_id}/supportingdocuments"
+    url = f"{test_config['url']}/{endpoint}"
 
     method = "POST"
     payload = {
@@ -146,7 +132,53 @@ def case_success_new_submission_child(base_url: str) -> CaseData:
     expected_response_data = {
         "type": "Report - General",
         "submission_id": submission_id,
-        "parent_id": parent_id[0],
+        # "parent_id": None,
+        "report_id": report_id,
+    }
+
+    return url, method, payload, expected_status_code, expected_response_data
+
+
+@case_name(
+    "Successful post to supporting docs endpoint - doc is child of existing "
+    "supporting doc "
+)
+def case_success_new_submission_child(test_config: str) -> CaseData:
+
+    print(f"Using test_config: {test_config['name']}")
+    # Test Data
+
+    report_id = test_config["report_id"]
+    submission_id = 543218
+    case_ref = test_config["case_ref"]
+
+    parent_id = test_config["supp_doc_id"]
+
+    endpoint = f"clients/{case_ref}/reports/" f"{report_id}/supportingdocuments"
+    url = f"{test_config['url']}/{endpoint}"
+
+    method = "POST"
+    payload = {
+        "supporting_document": {
+            "data": {
+                "type": "supportingdocuments",
+                "attributes": {"submission_id": submission_id},
+                "file": {
+                    "name": "Report_1234567T_2018_2019_11111.pdf",
+                    "mimetype": "application/pdf",
+                    "source": "string",
+                },
+            }
+        }
+    }
+
+    # Expected returns
+
+    expected_status_code = 201
+    expected_response_data = {
+        "type": "Report - General",
+        "submission_id": submission_id,
+        "parent_id": parent_id,
         "report_id": report_id,
     }
 

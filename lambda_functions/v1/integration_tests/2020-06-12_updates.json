@@ -1,0 +1,70 @@
+[
+    {
+        "document_type": "Report",
+        "document_id": "33ea0382-cfc9-4776-9036-667eeb68fa4b",
+        "submission_id": 12345,
+        "parent_id": null,
+        "children": [],
+        "amendments": [],
+        "url_used": {
+            "name": "Local Mock APG Gateway",
+            "url": "http://0.0.0.0:4343/v1",
+            "security": "token",
+            "case_ref": "1234567T",
+            "report_id": "33ea0382-cfc9-4776-9036-667eeb68fa4b",
+            "submission_id": 12345,
+            "checklist_id": "123"
+        }
+    },
+    {
+        "document_type": "Report",
+        "document_id": "33ea0382-cfc9-4776-9036-667eeb68fa4b",
+        "submission_id": 12345,
+        "parent_id": null,
+        "children": [],
+        "amendments": [],
+        "url_used": {
+            "name": "Local Mock APG Gateway",
+            "url": "http://0.0.0.0:4343/v1",
+            "security": "token",
+            "case_ref": "1234567T",
+            "report_id": "33ea0382-cfc9-4776-9036-667eeb68fa4b",
+            "submission_id": 12345,
+            "checklist_id": "123"
+        }
+    },
+    {
+        "document_type": "Report",
+        "document_id": "33ea0382-cfc9-4776-9036-667eeb68fa4b",
+        "submission_id": 12345,
+        "parent_id": null,
+        "children": [],
+        "amendments": [],
+        "url_used": {
+            "name": "Local Mock APG Gateway",
+            "url": "http://0.0.0.0:4343/v1",
+            "security": "token",
+            "case_ref": "1234567T",
+            "report_id": "33ea0382-cfc9-4776-9036-667eeb68fa4b",
+            "submission_id": 12345,
+            "checklist_id": "123"
+        }
+    },
+    {
+        "document_type": "Report",
+        "document_id": "33ea0382-cfc9-4776-9036-667eeb68fa4b",
+        "submission_id": 12345,
+        "parent_id": null,
+        "children": [],
+        "amendments": [],
+        "url_used": {
+            "name": "Local Mock APG Gateway",
+            "url": "http://0.0.0.0:4343/v1",
+            "security": "token",
+            "case_ref": "1234567T",
+            "report_id": "33ea0382-cfc9-4776-9036-667eeb68fa4b",
+            "submission_id": 12345,
+            "checklist_id": "123"
+        }
+    }
+]

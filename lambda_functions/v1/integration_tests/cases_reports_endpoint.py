@@ -1,22 +1,20 @@
-from random import randint
-
 from pytest_cases import CaseData, case_name
 
-from lambda_functions.v1.integration_tests.conftest import config
 
 # submission_id = config["SUBMISSION_ID"]
 
 
 @case_name("Successful post to reports endpoint")
-def case_success_original(base_url: str) -> CaseData:
+def case_success_original(test_config: str) -> CaseData:
 
-    print(f"Using base_url: {base_url}")
+    print(f"Using test_config: {test_config['name']}")
 
     # Test Data
 
-    submission_id = randint(100, 999)
-    endpoint = f"clients/{config['GOOD_CASEREF']}/reports"
-    url = f"{base_url}/{endpoint}"
+    submission_id = test_config["submission_id"]
+
+    endpoint = f"clients/{test_config['case_ref']}/reports"
+    url = f"{test_config['url']}/{endpoint}"
 
     method = "POST"
     payload = {
