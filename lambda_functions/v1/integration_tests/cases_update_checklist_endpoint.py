@@ -1,18 +1,24 @@
 import random
 
-from pytest_cases import CaseData, case_name
+from pytest_cases import CaseData, cases_generator
+
+from lambda_functions.v1.integration_tests.conftest import generate_file_name
 
 new_submission_id = random.randint(10000, 99999)
 
 
-@case_name("Successful update of a checklist")
-def case_success_original_IN_112(test_config: str) -> CaseData:
+@cases_generator(
+    "Successful multiple updates of a checklist with different "
+    "submission_ids: {sub_id}",
+    sub_id=[22222, 33333, 44444, 55555],
+)
+def case_success_original_IN_112(test_config: str, sub_id: int) -> CaseData:
 
     print(f"Using test_config: {test_config['name']}")
     # Test Data
 
     report_id = test_config["report_id"]
-    submission_id = 54321
+    submission_id = sub_id
     case_ref = test_config["case_ref"]
     checklist_id = test_config["checklist_id"]
 
@@ -32,7 +38,7 @@ def case_success_original_IN_112(test_config: str) -> CaseData:
                 "type": "supportingdocuments",
                 "attributes": {"submission_id": submission_id},
                 "file": {
-                    "name": "Report_1234567T_2018_2019_11111.pdf",
+                    "name": f"{generate_file_name()}.pdf",
                     "mimetype": "application/pdf",
                     "source": "string",
                 },

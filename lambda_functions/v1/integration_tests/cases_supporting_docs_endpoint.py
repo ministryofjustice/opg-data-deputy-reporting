@@ -2,6 +2,8 @@ import random
 
 from pytest_cases import CaseData, case_name
 
+from lambda_functions.v1.integration_tests.conftest import generate_file_name
+
 new_submission_id = random.randint(10000, 99999)
 
 
@@ -30,7 +32,7 @@ def case_success_original(test_config: str) -> CaseData:
                 "type": "supportingdocuments",
                 "attributes": {"submission_id": submission_id},
                 "file": {
-                    "name": "Report_1234567T_2018_2019_11111.pdf",
+                    "name": f"{generate_file_name()}.pdf",
                     "mimetype": "application/pdf",
                     "source": "string",
                 },
@@ -74,7 +76,7 @@ def case_success_new_submission(test_config: str) -> CaseData:
                 "type": "supportingdocuments",
                 "attributes": {"submission_id": submission_id},
                 "file": {
-                    "name": "Report_1234567T_2018_2019_11111.pdf",
+                    "name": f"{generate_file_name()}.pdf",
                     "mimetype": "application/pdf",
                     "source": "string",
                 },
@@ -118,7 +120,7 @@ def case_success_new_submission_2(test_config: str) -> CaseData:
                 "type": "supportingdocuments",
                 "attributes": {"submission_id": submission_id},
                 "file": {
-                    "name": "Report_1234567T_2018_2019_11111.pdf",
+                    "name": f"{generate_file_name()}.pdf",
                     "mimetype": "application/pdf",
                     "source": "string",
                 },
@@ -164,7 +166,7 @@ def case_success_new_submission_child(test_config: str) -> CaseData:
                 "type": "supportingdocuments",
                 "attributes": {"submission_id": submission_id},
                 "file": {
-                    "name": "Report_1234567T_2018_2019_11111.pdf",
+                    "name": f"{generate_file_name()}.pdf",
                     "mimetype": "application/pdf",
                     "source": "string",
                 },

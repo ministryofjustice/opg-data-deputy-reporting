@@ -2,6 +2,7 @@ from pytest_cases import CaseData, case_name
 
 
 # submission_id = config["SUBMISSION_ID"]
+from lambda_functions.v1.integration_tests.conftest import generate_file_name
 
 
 @case_name("Successful post to reports endpoint")
@@ -15,6 +16,8 @@ def case_success_original(test_config: str) -> CaseData:
 
     endpoint = f"clients/{test_config['case_ref']}/reports"
     url = f"{test_config['url']}/{endpoint}"
+
+    print(f"url: {url}")
 
     method = "POST"
     payload = {
@@ -30,7 +33,7 @@ def case_success_original(test_config: str) -> CaseData:
                     "type": "PF",
                 },
                 "file": {
-                    "name": "Report_1234567T_2018_2019_11111.pdf",
+                    "name": f"{generate_file_name()}.pdf",
                     "mimetype": "application/pdf",
                     "source": "string",
                 },
