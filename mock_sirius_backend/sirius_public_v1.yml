@@ -55,6 +55,26 @@ paths:
         '500':
           description: Unexpected error
   /documents:
+    get:
+      description: Get lis tof things
+      operationId: app.get_documents
+      responses:
+        '200':
+          description: List of ids
+          schema:
+            properties:
+              ids:
+                type: string
+      parameters:
+        - in: query
+          name: caserecnumber
+          type: string
+        - in: query
+          name: metadata[submission_id]
+          type: integer
+        - in: query
+          name: metadata[report_id]
+          type: string
     post:
       description: Post a document to be stored within Sirius
       operationId: app.createDeputyDocument
