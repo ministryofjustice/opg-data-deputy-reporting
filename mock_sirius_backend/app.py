@@ -8,7 +8,7 @@ import requests
 fake_db = {}
 
 
-def create_document(document):
+def createDeputyDocument(document):
     # This is only in here because the state setup isn't on the digideps side
     # Normally the provider_states gets called directly via the verification
     requests.post(
