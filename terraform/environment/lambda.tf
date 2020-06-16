@@ -43,7 +43,7 @@ module "lamdba_flask_v1" {
   environment            = local.environment
   aws_subnet_ids         = data.aws_subnet_ids.private.ids
   lambda_prefix          = "sirius-flaskapp"
-  handler                = "flask_app.docs"
+  handler                = "app.docs.lambda_handler"
   lambda_function_subdir = "flask_app"
   tags                   = local.default_tags
   openapi_version        = "v1"

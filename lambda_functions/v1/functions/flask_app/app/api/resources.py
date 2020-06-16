@@ -10,9 +10,8 @@ from lambda_functions.v1.functions.flask_app.app.api import reports, supporting_
 # api = Blueprint("api", __name__, url_prefix=f"/{version}")
 
 version = "flask"
-api = Blueprint("api", __name__, url_prefix=f"/{version}")
-
-print(f"version: {version}")
+# api = Blueprint("api", __name__, url_prefix=f"/{version}")
+api = Blueprint("api", __name__)
 
 
 @api.route("/healthcheck", methods=["HEAD", "GET"])
