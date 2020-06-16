@@ -49,7 +49,17 @@ def handle_supporting_docs(caseref, id):
 def handle_checklists(caseref, id):
 
     response_data, response_status = checklists.endpoint_handler(
-        data=request.get_json(), caseref=caseref, id=id
+        data=request.get_json(), caseref=caseref, id=id, checklist_id=None
+    )
+
+    return jsonify(response_data), response_status
+
+
+@api.route("/clients/<caseref>/reports/<id>/checklists/<checklistId>", methods=["PUT"])
+def handle_checklists_update(caseref, id, checklistId):
+
+    response_data, response_status = checklists.endpoint_handler(
+        data=request.get_json(), caseref=caseref, id=id, checklist_id=checklistId
     )
 
     return jsonify(response_data), response_status

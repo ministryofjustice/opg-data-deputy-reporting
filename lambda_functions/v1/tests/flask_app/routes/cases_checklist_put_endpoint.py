@@ -1,11 +1,11 @@
 from pytest_cases import case_name, CaseData
 
 
-@case_name("Successful post to supporting docs endpoint")
+@case_name("Successful PUT to checklist endpoint")
 def case_success() -> CaseData:
 
     test_data = {
-        "supporting_document": {
+        "checklist": {
             "data": {
                 "type": "supportingdocuments",
                 "attributes": {"submission_id": 12345},
@@ -19,6 +19,7 @@ def case_success() -> CaseData:
     }
     test_case_ref = 1111
     test_report_id = "de26f80c-ed6d-4c52-b6bd-e0260bb0faf0"
+    test_checklist_id = "ea35592e-a1a7-4f87-98e9-1519bcb086ac"
 
     test_headers = {"Content-Type": "application/json"}
 
@@ -29,6 +30,7 @@ def case_success() -> CaseData:
         test_data,
         test_headers,
         test_report_id,
+        test_checklist_id,
         test_case_ref,
         expected_response_status_code,
         expected_response_data,

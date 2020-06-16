@@ -7,7 +7,7 @@ from .helpers import custom_logger, compare_two_dicts
 logger = custom_logger("checklists")
 
 
-def endpoint_handler(data, caseref, id):
+def endpoint_handler(data, caseref, id, checklist_id):
 
     try:
         SIRIUS_BASE_URL = os.environ["SIRIUS_BASE_URL"]
@@ -23,7 +23,7 @@ def endpoint_handler(data, caseref, id):
         sirius_api_url = sirius_service.build_sirius_url(
             base_url=f"{SIRIUS_BASE_URL}/api/public",
             version=API_VERSION,
-            endpoint="documents",
+            endpoint=transform_payload_to_endpoint(checklist_id=checklist_id),
         )
 
         sirius_payload = transform_payload_to_sirius_post_request(
@@ -88,3 +88,22 @@ def transform_payload_to_sirius_post_request(
     logger.debug(f"Sirius Payload: {payload}")
 
     return json.dumps(payload)
+
+
+def transform_payload_to_endpoint(checklist_id=None):
+    """
+    In the case of a PUT request, pass the checklist uuid through
+
+    Args:
+        event: AWS event json
+
+    Returns:
+        string: endpoint
+
+    """
+    if checklist_id:
+        endpoint = f"documents/{checklist_id}"
+    else:
+        endpoint = "documents"
+
+    return endpoint

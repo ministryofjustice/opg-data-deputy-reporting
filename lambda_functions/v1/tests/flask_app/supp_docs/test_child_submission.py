@@ -1,9 +1,5 @@
 import pytest
 
-
-from lambda_functions.v1.functions.flask_app.app.api.sirius_service import (
-    build_sirius_url,
-)
 from lambda_functions.v1.functions.flask_app.app.api.supporting_docs import (
     determine_document_parent_id,
 )
@@ -21,13 +17,25 @@ from lambda_functions.v1.functions.flask_app.app.api.supporting_docs import (
 def test_determine_document_parent_id(
     patched_send_get_to_sirius, submission_id, expected_response
 ):
-    url = build_sirius_url(
-        base_url="https://www.notanurl.com",
-        version="1",
-        endpoint="pretend",
-        url_params={"metadata[submission_id]": submission_id},
-    )
+    case_ref = 1111
+    report_id = "695bcfae-e2a4-4805-90de-4a814e8d49d2"
 
-    result = determine_document_parent_id(url)
+    test_data = {
+        "supporting_document": {
+            "data": {
+                "type": "supportingdocuments",
+                "attributes": {"submission_id": submission_id},
+                "file": {
+                    "name": "Report_1234567T_2018_2019_11111.pdf",
+                    "mimetype": "application/pdf",
+                    "source": "string",
+                },
+            }
+        }
+    }
+
+    result = determine_document_parent_id(
+        data=test_data, case_ref=case_ref, report_id=report_id
+    )
 
     assert result == expected_response
