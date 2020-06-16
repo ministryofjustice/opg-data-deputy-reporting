@@ -26,9 +26,7 @@ def lambda_handler(event, context):
 
     if valid_payload:
 
-        sirius_payload = transform_event_to_sirius_payload(
-            event=event
-        )
+        sirius_payload = transform_event_to_sirius_payload(event=event)
         sirius_headers = build_sirius_headers()
 
         sirius_api_url = build_sirius_url(
@@ -38,7 +36,10 @@ def lambda_handler(event, context):
         )
 
         sirius_response_code, sirius_response = submit_document_to_sirius(
-            method=event["httpMethod"], url=sirius_api_url, data=sirius_payload, headers=sirius_headers
+            method=event["httpMethod"],
+            url=sirius_api_url,
+            data=sirius_payload,
+            headers=sirius_headers,
         )
 
         lambda_response = {
