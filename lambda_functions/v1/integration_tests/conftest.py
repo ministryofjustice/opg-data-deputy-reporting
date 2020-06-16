@@ -12,11 +12,6 @@ from faker import Faker
 
 
 aws_dev_config = {
-    "AWS_REGION": "eu-west-1",
-    "AWS_SERVICE": "execute-api",
-    "AWS_ACCESS_KEY_ID": os.environ["AWS_ACCESS_KEY_ID"],
-    "AWS_SECRET_ACCESS_KEY": os.environ["AWS_SECRET_ACCESS_KEY"],
-    "AWS_SESSION_TOKEN": os.environ["AWS_SESSION_TOKEN"],
     "name": "AWS Dev",
     "url": "https://dev.deputy-reporting.api.opg.service.justice.gov.uk/v1",
     "security": "aws_signature",
@@ -28,11 +23,6 @@ aws_dev_config = {
 }
 
 aws_flask_config = {
-    "AWS_REGION": "eu-west-1",
-    "AWS_SERVICE": "execute-api",
-    "AWS_ACCESS_KEY_ID": os.environ["AWS_ACCESS_KEY_ID"],
-    "AWS_SECRET_ACCESS_KEY": os.environ["AWS_SECRET_ACCESS_KEY"],
-    "AWS_SESSION_TOKEN": os.environ["AWS_SESSION_TOKEN"],
     "name": "AWS Flask",
     "url": "https://j3b9s5fno6.execute-api.eu-west-1.amazonaws.com/v1",
     "security": "aws_signature",
@@ -71,17 +61,17 @@ def send_a_request(url, method, payload, test_config):
             "Content-Type": "application/json",
         }
     else:
-        if test_config["AWS_ACCESS_KEY_ID"] == "testing":
+        if os.getenv("AWS_ACCESS_KEY_ID") == "testing":
             print("Your AWS creds are not set properly")
 
-        boto3.setup_default_session(region_name=test_config["AWS_REGION"])
+        boto3.setup_default_session(region_name=os.getenv("AWS_REGION"))
 
         auth = AWS4Auth(
-            test_config["AWS_ACCESS_KEY_ID"],
-            test_config["AWS_SECRET_ACCESS_KEY"],
-            test_config["AWS_REGION"],
-            test_config["AWS_SERVICE"],
-            session_token=test_config["AWS_SESSION_TOKEN"],
+            os.getenv("AWS_ACCESS_KEY_ID"),
+            os.getenv("AWS_SECRET_ACCESS_KEY"),
+            os.getenv("AWS_REGION"),
+            os.getenv("AWS_SERVICE"),
+            session_token=os.getenv("AWS_SESSION_TOKEN"),
         )
 
         headers = {
