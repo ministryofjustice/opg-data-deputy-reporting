@@ -3,8 +3,12 @@
 from flask import Blueprint
 from flask import request, jsonify
 
-from lambda_functions.v1.functions.checklists.app import checklists
-from lambda_functions.v1.functions.flask_app.app.api import reports, supporting_docs
+
+from lambda_functions.v1.functions.flask_app.app.api import (
+    reports,
+    supporting_docs,
+    checklists,
+)
 
 # version = os.getenv("API_VERSION")
 
@@ -43,6 +47,7 @@ def handle_supporting_docs(caseref, id):
 
 @api.route("/clients/<caseref>/reports/<id>/checklists", methods=["POST"])
 def handle_checklists(caseref, id):
+
     response_data, response_status = checklists.endpoint_handler(
         data=request.get_json(), caseref=caseref, id=id
     )

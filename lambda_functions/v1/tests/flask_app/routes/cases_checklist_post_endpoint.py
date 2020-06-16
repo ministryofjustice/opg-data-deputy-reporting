@@ -1,5 +1,3 @@
-import json
-
 from pytest_cases import case_name, CaseData
 
 
@@ -25,9 +23,7 @@ def case_success() -> CaseData:
     test_headers = {"Content-Type": "application/json"}
 
     expected_response_status_code = 201
-    expected_response_data = json.dumps(
-        {"uuid": "5a8b1a26-8296-4373-ae61-f8d0b250e773"}
-    )
+    expected_response_data = {"uuid": "5a8b1a26-8296-4373-ae61-f8d0b250e773"}
 
     return (
         test_data,

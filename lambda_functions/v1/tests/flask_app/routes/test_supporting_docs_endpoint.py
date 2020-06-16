@@ -28,6 +28,7 @@ def test_supporting_docs(server, case_data: CaseDataGetter):
 
         print(f"test_case_ref: {test_case_ref}")
         print(f"test_report_id: {test_report_id}")
+        print(f"test_data: {test_data}")
 
         r = requests.post(
             f"{server.url}/clients/{test_case_ref}/reports/"
