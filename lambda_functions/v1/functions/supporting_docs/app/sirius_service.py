@@ -102,7 +102,7 @@ def submit_document_to_sirius(method, url, data, headers=None):
     if not headers:
         headers = build_sirius_headers()
 
-    if method == 'PUT':
+    if method == "PUT":
         r = requests.put(url=url, data=data, headers=headers)
     else:
         r = requests.post(url=url, data=data, headers=headers)

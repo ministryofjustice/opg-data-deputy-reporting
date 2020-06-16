@@ -166,7 +166,9 @@ def test_submit_document_to_sirius(
     default_sirius_supporting_docs_request["caseRecNumber"] = case_ref
     body = json.dumps(default_sirius_supporting_docs_request)
 
-    response = submit_document_to_sirius(method="POST", url="", data=body, headers=headers)
+    response = submit_document_to_sirius(
+        method="POST", url="", data=body, headers=headers
+    )
 
     response_code, response_body = response
 
