@@ -11,3 +11,4 @@ moto
 pytest-cases
 pytest-env
 requests_aws4auth
+faker
