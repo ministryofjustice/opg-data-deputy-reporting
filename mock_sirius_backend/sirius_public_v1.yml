@@ -57,7 +57,7 @@ paths:
   /documents:
     post:
       description: Post a document to be stored within Sirius
-      operationId: app.create_document
+      operationId: app.createDeputyDocument
       parameters:
         - name: document
           in: body
@@ -72,50 +72,100 @@ paths:
               - file
             properties:
               caseRecNumber:
-                type: string
-                pattern: '^([0-9]{7}T|[0-9]{8})$'
-                example: '0319392T'
+                $ref: '#/definitions/CaseRecNumber'
               parentUuid:
-                type: string
-                format: uuid
-                description: this document will become a child of the parent document
-                pattern: '^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$'
-                example: '5a8b1a26-8296-4373-ae61-f8d0b250e773'
+                $ref: '#/definitions/DocumentUuid'
               type:
                 $ref: '#/definitions/NoteType'
               metadata:
                 type: object
                 description: Metadata to be stored along with the document
               file:
-                type: object
-                description: The base64 encoded file
-                required:
-                  - name
-                  - type
-                  - source
-                properties:
-                  name:
-                    type: string
-                    example: Report_1234567T_2018_2019_11111.pdf
-                  type:
-                    type: string
-                    example: application/pdf
-                  source:
-                    type: string
-                    description: The base64 encoded file
+                $ref: '#/definitions/DeputyDocumentFile'
       responses:
         '201':
           description: The document was created
           schema:
+            $ref: '#/definitions/DeputyDocumentResponse'
+        '400':
+          description: Invalid query
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Unexpected error
+    get:
+      description: |
+        This endpoint retrieves a list of documents for a client identified by casenumber, filtered by metadata
+        <br />
+        Retrieve documents by Client caseref: `/api/public/v1/documents?caserecnumber={caseref}&metadata[submission_id]={Digideps submission Id}&metadata[report_id]={UUID of parent document}`
+        <br />
+        e.g. `/api/public/v1/documents?caserecnumber=1681346T&metadata[submission_id]=11111&metadata[report_id]=94f2c3e7-34b8-47ff-bb6e-aa645f1e2c5d
+      operationId: getDeputyDocuments
+      parameters:
+          - name: caserecnumber
+            in: query
+            type: string
+            description: Case record number assigned to the client
+            required: true
+            pattern: '^([0-9]{7}T|[0-9]{8})$'
+          - name: metadata[submission_id]
+            in: query
+            type: integer
+            description: the Digideps submission id filter
+            required: true
+          - name: metadata[report_id]
+            in: query
+            type: string
+            description: the Digideps report id filter
+            required: true
+      responses:
+        '200':
+          description: List retrieved
+          schema:
+            $ref: '#/definitions/DeputyDocumentResponseCollection'
+        '400':
+          description: Invalid query
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Unexpected error
+    put:
+      description: Update a document stored within Sirius
+      operationId: updateDeputyDocument
+      parameters:
+        - name: uuid
+          in: query
+          type: string
+          format: uuid
+          pattern: '^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$'
+          description: The uuid of the document to be updated
+          required: true
+        - name: document
+          in: body
+          description: The document and associated metadata
+          required: true
+          schema:
+            type: object
             required:
-              - uuid
+              - caseRecNumber
+              - type
+              - metadata
+              - file
             properties:
-              uuid:
-                type: string
-                format: uuid
-                description: Document UUID
-                pattern: '^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$'
-                example: '5a8b1a26-8296-4373-ae61-f8d0b250e773'
+              caseRecNumber:
+                $ref: '#/definitions/CaseRecNumber'
+              type:
+                $ref: '#/definitions/NoteType'
+              metadata:
+                type: object
+                description: Metadata to be stored along with the document
+              file:
+                $ref: '#/definitions/DeputyDocumentFile'
+      responses:
+        '200':
+          description: The document was updated
+          schema:
+            $ref: '#/definitions/DeputyDocumentResponse'
         '400':
           description: Invalid query
           schema:
@@ -170,8 +220,61 @@ definitions:
       - Order
       - Report
       - Report - Financial evidence
+      - Report - Checklist
       - Report - General
       - Report - New Deputy Report
       - Safeguarding
       - Visit
     example: 'Report - General'
+  DeputyDocumentResponseCollection:
+    type: array
+    minItems: 0
+    items:
+      $ref: '#/definitions/DeputyDocumentResponse'
+  DeputyDocumentResponse:
+    type: object
+    required:
+      - uuid
+    properties:
+      type:
+        $ref: '#/definitions/NoteType'
+      filename:
+        type: string
+        example: 'Report_1234567T_2018_2019_11111.pdf'
+      mimetype:
+        type: string
+        example: 'application/pdf'
+      metadata:
+        type: object
+        description: Metadata matches the metadata received in the request
+      uuid:
+        $ref: '#/definitions/DocumentUuid'
+      parentUuid:
+        $ref: '#/definitions/DocumentUuid'
+  DeputyDocumentFile:
+    type: object
+    description: The base64 encoded file
+    required:
+      - name
+      - type
+      - source
+    properties:
+      name:
+        type: string
+        example: Report_1234567T_2018_2019_11111.pdf
+      type:
+        type: string
+        example: application/pdf
+      source:
+        type: string
+        description: The base64 encoded file
+  CaseRecNumber:
+    type: string
+    pattern: '^([0-9]{7}T|[0-9]{8})$'
+    example: '0319392T'
+  DocumentUuid:
+    type: string
+    format: uuid
+    description: Document UUID
+    pattern: '^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$'
+    example: '5a8b1a26-8296-4373-ae61-f8d0b250e773'
