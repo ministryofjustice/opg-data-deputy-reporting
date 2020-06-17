@@ -14,11 +14,11 @@ def all_routes(case_ref, report_id, checklist_id):
     return [
         {"route": f"/clients/{case_ref}/reports", "method": "POST"},
         {
-            "route": f"/clients/{case_ref}/reports/" f"{report_id}/supportingdocuments",
+            "route": f"/clients/{case_ref}/reports/{report_id}/supportingdocuments",
             "method": "POST",
         },
         {
-            "route": f"/clients/{case_ref}/reports/" f"{report_id}/checklists",
+            "route": f"/clients/{case_ref}/reports/{report_id}/checklists",
             "method": f"POST",
         },
         {
@@ -116,9 +116,6 @@ def test_400_bad_url_params(test_config):
         assert response_data["errors"]["code"] == "OPGDATA-API-INVALIDREQUEST"
 
 
-# @pytest.mark.xfail(
-#     raises=AssertionError, reason="error code should be 'OPGDATA-API-FORBIDDEN'"
-# )
 @pytest.mark.skipif(os.getenv("AWS_SESSION_TOKEN") == "", reason="AWS creds not set")
 @pytest.mark.smoke_test
 @pytest.mark.run(order=10)
@@ -143,7 +140,7 @@ def test_404(test_config):
 @pytest.mark.smoke_test
 @pytest.mark.run(order=10)
 @pytest.mark.parametrize("test_config", configs_to_test)
-def test_405(test_config, monkeypatch):
+def test_405(test_config):
     print(f"Using test_config: {test_config['name']}")
 
     routes = all_routes(
@@ -168,3 +165,69 @@ def test_405(test_config, monkeypatch):
         assert status == 405
         response_data = json.loads(response)
         assert response_data["errors"]["code"] == "OPGDATA-API-NOTALLOWED"
+
+
+@pytest.mark.xfail(raises=AssertionError, reason="Custom headers not implemented'")
+@pytest.mark.smoke_test
+@pytest.mark.run(order=10)
+@pytest.mark.parametrize("test_config", configs_to_test)
+def test_500(test_config,):
+    print(f"Using test_config: {test_config['name']}")
+
+    routes = all_routes(
+        case_ref=test_config["case_ref"],
+        report_id=test_config["report_id"],
+        checklist_id=test_config["checklist_id"],
+    )
+
+    payload = {}
+
+    for route in routes:
+
+        headers = [{"header_name": "X-Error-Response", "header_value": "500"}]
+
+        url = f"{test_config['url']}/{route['route']}"
+        status, response = send_a_request(
+            url=url,
+            method=route["method"],
+            payload=payload,
+            test_config=test_config,
+            extra_headers=headers,
+        )
+        print(f"route: {route} - {status}")
+        assert status == 500
+        response_data = json.loads(response)
+        assert response_data["errors"]["code"] == "OPGDATA-API-SERVERERROR"
+
+
+@pytest.mark.xfail(raises=AssertionError, reason="Custom headers not implemented'")
+@pytest.mark.smoke_test
+@pytest.mark.run(order=10)
+@pytest.mark.parametrize("test_config", configs_to_test)
+def test_503(test_config,):
+    print(f"Using test_config: {test_config['name']}")
+
+    routes = all_routes(
+        case_ref=test_config["case_ref"],
+        report_id=test_config["report_id"],
+        checklist_id=test_config["checklist_id"],
+    )
+
+    payload = {}
+
+    for route in routes:
+
+        headers = [{"header_name": "X-Error-Response", "header_value": "503"}]
+
+        url = f"{test_config['url']}/{route['route']}"
+        status, response = send_a_request(
+            url=url,
+            method=route["method"],
+            payload=payload,
+            test_config=test_config,
+            extra_headers=headers,
+        )
+        print(f"route: {route} - {status}")
+        assert status == 500
+        response_data = json.loads(response)
+        assert response_data["errors"]["code"] == "OPGDATA-API-UNAVAILABLE"

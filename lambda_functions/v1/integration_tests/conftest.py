@@ -1,3 +1,4 @@
+import datetime
 import json
 import os
 import uuid
@@ -50,16 +51,21 @@ configs_to_test = [aws_dev_config]
 all_records = []
 
 
-def send_a_request(url, method, payload, test_config):
-    headers = {}
+def send_a_request(url, method, payload, test_config, extra_headers=None):
+    headers = {
+        "Content-Type": "application/json",
+    }
+
+    if extra_headers:
+        for h in extra_headers:
+            headers[h["header_name"]] = h["header_value"]
+
     body = json.dumps(payload)
 
     if test_config["security"] == "token":
         auth = None
-        headers = {
-            "Authorization": "asdf1234567890",
-            "Content-Type": "application/json",
-        }
+        headers["Authorization"] = "asdf1234567890"
+
     else:
         if os.getenv("AWS_ACCESS_KEY_ID") == "testing":
             print("Your AWS creds are not set properly")
@@ -73,10 +79,6 @@ def send_a_request(url, method, payload, test_config):
             os.getenv("AWS_SERVICE"),
             session_token=os.getenv("AWS_SESSION_TOKEN"),
         )
-
-        headers = {
-            "Content-Type": "application/json",
-        }
 
     response = requests.request(method, url, auth=auth, data=body, headers=headers)
     return response.status_code, response.text
@@ -97,7 +99,7 @@ def generate_file_name():
     return "_".join(words)
 
 
-def create_record(returned_data=None, file_name=None):
+def create_record(returned_data=None, file_name=None, config_name=None):
     # pass
     try:
         r = returned_data
@@ -119,18 +121,19 @@ def create_record(returned_data=None, file_name=None):
         parent_record = [p for p in all_records if p["document_id"] == parent_id][0]
         parent_record["children"].append(record)
 
-        return print(f'Added child record {r["data"]["id"]} to parent {parent_id}')
-        return f'Added child record {r["data"]["id"]} to parent {parent_id}'
+        print(f'Added child record {r["data"]["id"]} to parent {parent_id}')
+
     else:
         record["children"] = []
         record["amendments"] = []
         all_records.append(record)
 
         print(f'Added parent record {r["data"]["id"]}')
-        return f'Added parent record {r["data"]["id"]}'
+
+    write_record(config_name=config_name)
 
 
-def update_record(returned_data, original_record_id):
+def update_record(returned_data, original_record_id, config_name=None):
     # pass
     r = returned_data
 
@@ -148,4 +151,13 @@ def update_record(returned_data, original_record_id):
     original_record["amendments"].append(record)
 
     print(f"Updated record with document_id: {original_record_id}")
-    return f"Updated record with document_id: {original_record_id}"
+    write_record(config_name=config_name)
+
+
+def write_record(config_name):
+
+    date = datetime.datetime.now().strftime("%Y-%m-%d")
+    json_records = json.dumps(all_records, indent=4)
+
+    with open(f"{config_name}_{date}_updates.json", "w") as outfile:
+        outfile.write(json_records)

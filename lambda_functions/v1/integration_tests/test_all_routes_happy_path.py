@@ -1,4 +1,3 @@
-import datetime
 import json
 
 import pytest
@@ -16,7 +15,6 @@ from lambda_functions.v1.integration_tests.conftest import (
     create_record,
     configs_to_test,
     update_record,
-    all_records,
 )
 
 
@@ -48,7 +46,9 @@ def test_post_a_report(case_data: CaseDataGetter, test_config):
 
         test_config["report_id"] = r["data"]["id"]
 
-        create_record(returned_data=r, file_name=file_name)
+        create_record(
+            returned_data=r, file_name=file_name, config_name=test_config["name"]
+        )
 
         assert r["data"]["type"] == expected_response_data["type"]
         assert is_valid_uuid(r["data"]["id"])
@@ -87,7 +87,9 @@ def test_post_a_supporting_doc(case_data: CaseDataGetter, test_config):
 
         test_config["supp_doc_id"] = r["data"]["id"]
 
-        create_record(returned_data=r, file_name=file_name)
+        create_record(
+            returned_data=r, file_name=file_name, config_name=test_config["name"]
+        )
 
         assert r["data"]["type"] == expected_response_data["type"]
         assert is_valid_uuid(r["data"]["id"])
@@ -123,7 +125,9 @@ def test_post_a_new_checklist(case_data: CaseDataGetter, test_config):
         file_name = payload["checklist"]["data"]["file"]["name"]
         test_config["checklist_id"] = r["data"]["id"]
 
-        create_record(returned_data=r, file_name=file_name)
+        create_record(
+            returned_data=r, file_name=file_name, config_name=test_config["name"]
+        )
 
         assert r["data"]["type"] == expected_response_data["type"]
         assert is_valid_uuid(r["data"]["id"])
@@ -159,26 +163,10 @@ def test_post_an_updated_checklist(case_data: CaseDataGetter, test_config):
         update_record(
             returned_data=r,
             original_record_id=expected_response_data["original_checklist_id"],
+            config_name=test_config["name"],
         )
 
         assert r["data"]["type"] == expected_response_data["type"]
         assert is_valid_uuid(r["data"]["id"])
         returned_submission_id = r["data"]["attributes"]["submission_id"]
         assert returned_submission_id == expected_response_data["submission_id"]
-
-
-@pytest.mark.smoke_test
-@pytest.mark.run(order=5)
-@pytest.mark.parametrize("test_config", configs_to_test)
-def test_confirm_data(test_config):
-
-    assert len(all_records) > 0
-
-    for row in all_records:
-        row["config_used"] = test_config["name"]
-
-    filename = datetime.datetime.now().strftime("%Y-%m-%d")
-    json_records = json.dumps(all_records, indent=4)
-
-    with open(f"{filename}_updates.json", "w") as outfile:
-        outfile.write(json_records)
