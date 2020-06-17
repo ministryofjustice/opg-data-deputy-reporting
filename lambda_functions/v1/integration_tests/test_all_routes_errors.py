@@ -1,3 +1,6 @@
+import json
+import os
+
 import pytest
 
 from lambda_functions.v1.integration_tests.conftest import (
@@ -26,6 +29,9 @@ def all_routes(case_ref, report_id, checklist_id):
     ]
 
 
+@pytest.mark.xfail(
+    raises=AssertionError, reason="error code should be 'OPGDATA-API-FORBIDDEN'"
+)
 @pytest.mark.smoke_test
 @pytest.mark.run(order=10)
 @pytest.mark.parametrize("test_config", configs_to_test)
@@ -52,12 +58,18 @@ def test_403(test_config, monkeypatch):
         )
 
         assert status == 403
+        response_data = json.loads(response)
+        assert response_data["errors"]["code"] == "OPGDATA-API-FORBIDDEN"
 
 
+@pytest.mark.xfail(
+    raises=AssertionError, reason="error code should be 'OPGDATA-API-INVALIDREQUEST'"
+)
+@pytest.mark.skipif(os.getenv("AWS_SESSION_TOKEN") == "", reason="AWS creds not set")
 @pytest.mark.smoke_test
 @pytest.mark.run(order=10)
 @pytest.mark.parametrize("test_config", configs_to_test)
-def test_400_bad_caseref(test_config):
+def test_400_bad_url_params(test_config):
     print(f"Using test_config: {test_config['name']}")
     # this actually returns "unable to parse" error from lambda payload validation,
     # not from API-G??
@@ -97,3 +109,5 @@ def test_400_bad_caseref(test_config):
         print(f"response: {response}")
 
         assert status == 400
+        response_data = json.loads(response)
+        assert response_data["errors"]["code"] == "OPGDATA-API-INVALIDREQUEST"

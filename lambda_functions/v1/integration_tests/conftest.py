@@ -69,7 +69,7 @@ def send_a_request(url, method, payload, test_config):
         auth = AWS4Auth(
             os.getenv("AWS_ACCESS_KEY_ID"),
             os.getenv("AWS_SECRET_ACCESS_KEY"),
-            os.getenv("AWS_REGION"),
+            os.getenv("AWS_DEFAULT_REGION"),
             os.getenv("AWS_SERVICE"),
             session_token=os.getenv("AWS_SESSION_TOKEN"),
         )
