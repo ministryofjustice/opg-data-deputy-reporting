@@ -19,7 +19,7 @@ def all_routes(case_ref, report_id, checklist_id):
         },
         {
             "route": f"/clients/{case_ref}/reports/{report_id}/checklists",
-            "method": f"POST",
+            "method": "POST",
         },
         {
             "route": f"/clients/{case_ref}/reports/"
