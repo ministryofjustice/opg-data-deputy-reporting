@@ -3,11 +3,11 @@ import os
 from json import JSONDecodeError
 
 import pytest
+from pytest_cases import cases_data, CaseDataGetter
 
-from lambda_functions.v1.integration_tests.conftest import (
-    send_a_request,
-    configs_to_test,
-)
+from lambda_functions.v1.integration_tests import cases_payload_errors
+from lambda_functions.v1.integration_tests.conftest import configs_to_test
+from lambda_functions.v1.integration_tests.conftest import send_a_request
 
 
 def all_routes(case_ref, report_id, checklist_id):
@@ -137,6 +137,7 @@ def test_404(test_config):
 
 
 @pytest.mark.xfail(raises=AssertionError, reason="405 error not implemented'")
+@pytest.mark.skipif(os.getenv("AWS_SESSION_TOKEN") == "", reason="AWS creds not set")
 @pytest.mark.smoke_test
 @pytest.mark.run(order=10)
 @pytest.mark.parametrize("test_config", configs_to_test)
@@ -168,6 +169,7 @@ def test_405(test_config):
 
 
 @pytest.mark.xfail(raises=AssertionError, reason="Custom headers not implemented'")
+@pytest.mark.skipif(os.getenv("AWS_SESSION_TOKEN") == "", reason="AWS creds not set")
 @pytest.mark.smoke_test
 @pytest.mark.run(order=10)
 @pytest.mark.parametrize("test_config", configs_to_test)
@@ -201,6 +203,7 @@ def test_500(test_config,):
 
 
 @pytest.mark.xfail(raises=AssertionError, reason="Custom headers not implemented'")
+@pytest.mark.skipif(os.getenv("AWS_SESSION_TOKEN") == "", reason="AWS creds not set")
 @pytest.mark.smoke_test
 @pytest.mark.run(order=10)
 @pytest.mark.parametrize("test_config", configs_to_test)
@@ -231,3 +234,27 @@ def test_503(test_config,):
         assert status == 500
         response_data = json.loads(response)
         assert response_data["errors"]["code"] == "OPGDATA-API-UNAVAILABLE"
+
+
+@pytest.mark.xfail(
+    raises=(AssertionError, JSONDecodeError),
+    reason="Not all required fields are " "validated by API Gateway'",
+)
+@pytest.mark.skipif(os.getenv("AWS_SESSION_TOKEN") == "", reason="AWS creds not set")
+@pytest.mark.smoke_test
+@pytest.mark.run(order=1)
+@pytest.mark.parametrize("test_config", configs_to_test)
+@cases_data(module=cases_payload_errors)
+def test_bad_payload(case_data: CaseDataGetter, test_config):
+    (url, method, payload, expected_status_code) = case_data.get(test_config)
+
+    status, response = send_a_request(
+        url=url, method=method, payload=payload, test_config=test_config
+    )
+
+    print(f"response: {response}")
+
+    assert status == expected_status_code
+    response_data = json.loads(response)
+    for error in response_data["errors"]:
+        assert error["code"] == "OPGDATA-API-INVALIDREQUEST"
