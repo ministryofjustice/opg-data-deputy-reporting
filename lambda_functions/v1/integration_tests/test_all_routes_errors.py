@@ -1,5 +1,6 @@
 import json
 import os
+from json import JSONDecodeError
 
 import pytest
 
@@ -51,6 +52,7 @@ def test_403(test_config, monkeypatch):
     payload = {}
 
     for route in routes:
+        print(f"route: {route}")
 
         url = f"{test_config['url']}/{route['route']}"
         status, response = send_a_request(
@@ -63,7 +65,8 @@ def test_403(test_config, monkeypatch):
 
 
 @pytest.mark.xfail(
-    raises=AssertionError, reason="error code should be 'OPGDATA-API-INVALIDREQUEST'"
+    raises=(AssertionError, JSONDecodeError),
+    reason="error code should be " "'OPGDATA-API-INVALIDREQUEST'",
 )
 @pytest.mark.skipif(os.getenv("AWS_SESSION_TOKEN") == "", reason="AWS creds not set")
 @pytest.mark.smoke_test
@@ -111,3 +114,57 @@ def test_400_bad_url_params(test_config):
         assert status == 400
         response_data = json.loads(response)
         assert response_data["errors"]["code"] == "OPGDATA-API-INVALIDREQUEST"
+
+
+# @pytest.mark.xfail(
+#     raises=AssertionError, reason="error code should be 'OPGDATA-API-FORBIDDEN'"
+# )
+@pytest.mark.skipif(os.getenv("AWS_SESSION_TOKEN") == "", reason="AWS creds not set")
+@pytest.mark.smoke_test
+@pytest.mark.run(order=10)
+@pytest.mark.parametrize("test_config", configs_to_test)
+def test_404(test_config):
+    # print(f"Using test_config: {test_config['name']}")
+
+    route = "not_a_real_endpoint"
+    payload = {}
+
+    url = f"{test_config['url']}/{route}"
+    status, response = send_a_request(
+        url=url, method="POST", payload=payload, test_config=test_config,
+    )
+
+    assert status == 404
+    response_data = json.loads(response)
+    assert response_data["errors"]["code"] == "OPGDATA-API-NOTFOUND"
+
+
+@pytest.mark.xfail(raises=AssertionError, reason="405 error not implemented'")
+@pytest.mark.smoke_test
+@pytest.mark.run(order=10)
+@pytest.mark.parametrize("test_config", configs_to_test)
+def test_405(test_config, monkeypatch):
+    print(f"Using test_config: {test_config['name']}")
+
+    routes = all_routes(
+        case_ref=test_config["case_ref"],
+        report_id=test_config["report_id"],
+        checklist_id=test_config["checklist_id"],
+    )
+
+    payload = {}
+
+    for route in routes:
+        if route["method"] in ["POST", "PUT"]:
+            method = "GET"
+        else:
+            method = "POST"
+
+        url = f"{test_config['url']}/{route['route']}"
+        status, response = send_a_request(
+            url=url, method=method, payload=payload, test_config=test_config,
+        )
+        print(f"route: {route} - {status}")
+        assert status == 405
+        response_data = json.loads(response)
+        assert response_data["errors"]["code"] == "OPGDATA-API-NOTALLOWED"
