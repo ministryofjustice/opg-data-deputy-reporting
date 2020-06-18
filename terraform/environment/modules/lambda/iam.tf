@@ -1,5 +1,5 @@
 resource "aws_iam_role" "lambda_role" {
-  name_prefix        = "lambda-${var.environment}-"
+  name               = local.lambda
   assume_role_policy = data.aws_iam_policy_document.lambda_assume.json
   lifecycle {
     create_before_destroy = true
@@ -51,6 +51,15 @@ data "aws_iam_policy_document" "lambda" {
     resources = ["*"]
     actions = [
       "secretsmanager:GetSecretValue"
+    ]
+  }
+
+  statement {
+    sid       = "allowAssumeAccess"
+    effect    = "Allow"
+    resources = ["arn:aws:iam::${var.account.digideps_account_id}:role/integrations-s3-read-${var.account.account_mapping}"]
+    actions = [
+      "sts:AssumeRole"
     ]
   }
 }
