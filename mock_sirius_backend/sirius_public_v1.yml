@@ -100,7 +100,7 @@ paths:
         Retrieve documents by Client caseref: `/api/public/v1/documents?caserecnumber={caseref}&metadata[submission_id]={Digideps submission Id}&metadata[report_id]={UUID of parent document}`
         <br />
         e.g. `/api/public/v1/documents?caserecnumber=1681346T&metadata[submission_id]=11111&metadata[report_id]=94f2c3e7-34b8-47ff-bb6e-aa645f1e2c5d
-      operationId: getDeputyDocuments
+      operationId: app.getDeputyDocuments
       parameters:
           - name: caserecnumber
             in: query
@@ -131,7 +131,7 @@ paths:
           description: Unexpected error
     put:
       description: Update a document stored within Sirius
-      operationId: updateDeputyDocument
+      operationId: app.updateDeputyDocument
       parameters:
         - name: uuid
           in: query
