@@ -6,7 +6,10 @@ import pytest
 from pytest_cases import cases_data, CaseDataGetter
 
 from lambda_functions.v1.integration_tests import cases_payload_errors
-from lambda_functions.v1.integration_tests.conftest import configs_to_test
+from lambda_functions.v1.integration_tests.conftest import (
+    configs_to_test,
+    generate_file_name,
+)
 from lambda_functions.v1.integration_tests.conftest import send_a_request
 
 
@@ -166,6 +169,106 @@ def test_405(test_config):
         assert status == 405
         response_data = json.loads(response)
         assert response_data["errors"]["code"] == "OPGDATA-API-NOTALLOWED"
+
+
+@pytest.mark.xfail(
+    raises=AssertionError, reason="error code should be 'OPGDATA-API-FILESIZELIMIT'"
+)
+@pytest.mark.smoke_test
+@pytest.mark.run(order=10)
+@pytest.mark.parametrize("test_config", configs_to_test)
+def test_413(test_config):
+    print(f"Using test_config: {test_config['name']}")
+
+    with open("large_encoded_file.txt", "r") as large_file:
+        # print(f"large_file.read().decode('UTF-8''): "
+        #       f"{type(large_file.read())}")
+
+        payload = {
+            "report": {
+                "data": {
+                    "type": "reports",
+                    "attributes": {
+                        "submission_id": 1234,
+                        "reporting_period_from": "2019-01-01",
+                        "reporting_period_to": "2019-12-31",
+                        "year": 2019,
+                        "date_submitted": "2020-01-03T09:30:00.001Z",
+                        "type": "PF",
+                    },
+                    "file": {
+                        "name": f"{generate_file_name()}.pdf",
+                        "mimetype": "application/pdf",
+                        "source": large_file.read(),
+                    },
+                }
+            }
+        }
+
+        case_ref = test_config["case_ref"]
+        route = f"/clients/{case_ref}/reports"
+        url = f"{test_config['url']}/{route}"
+        status, response = send_a_request(
+            url=url, method="POST", payload=payload, test_config=test_config
+        )
+
+        print(f"status: {status}")
+        print(f"response: {response}")
+        assert status == 413
+        response_data = json.loads(response)
+        assert response_data["errors"]["code"] == "OPGDATA-API-FILESIZELIMIT"
+
+
+@pytest.mark.xfail(
+    raises=AssertionError, reason="error code should be 'OPGDATA-API-MEDIA' not a 201!"
+)
+@pytest.mark.smoke_test
+@pytest.mark.run(order=10)
+@pytest.mark.parametrize("test_config", configs_to_test)
+def test_415(test_config, monkeypatch):
+    print(f"Using test_config: {test_config['name']}")
+
+    routes = all_routes(
+        case_ref=test_config["case_ref"],
+        report_id=test_config["report_id"],
+        checklist_id=test_config["checklist_id"],
+    )
+
+    payload = {
+        "report": {
+            "data": {
+                "type": "reports",
+                "attributes": {
+                    "submission_id": 1234,
+                    "reporting_period_from": "2019-01-01",
+                    "reporting_period_to": "2019-12-31",
+                    "year": 2019,
+                    "date_submitted": "2020-01-03T09:30:00.001Z",
+                    "type": "PF",
+                },
+                "file": {
+                    "name": f"{generate_file_name()}.pdf",
+                    "mimetype": "application/pdf",
+                    "source": "string",
+                },
+            }
+        }
+    }
+
+    for route in routes:
+        print(f"route: {route}")
+
+        url = f"{test_config['url']}/{route['route']}"
+        status, response = send_a_request(
+            url=url,
+            method=route["method"],
+            payload=payload,
+            test_config=test_config,
+            content_type="application/zip",
+        )
+        assert status == 415
+        response_data = json.loads(response)
+        assert response_data["errors"]["code"] == "OPGDATA-API-MEDIA"
 
 
 @pytest.mark.xfail(raises=AssertionError, reason="Custom headers not implemented'")

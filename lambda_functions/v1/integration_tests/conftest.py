@@ -51,9 +51,11 @@ configs_to_test = [aws_dev_config]
 all_records = []
 
 
-def send_a_request(url, method, payload, test_config, extra_headers=None):
+def send_a_request(
+    url, method, payload, test_config, extra_headers=None, content_type=None
+):
     headers = {
-        "Content-Type": "application/json",
+        "Content-Type": content_type if content_type else "application/json",
     }
 
     if extra_headers:
