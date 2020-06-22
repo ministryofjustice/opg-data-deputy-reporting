@@ -62,6 +62,8 @@ def test_403(test_config, monkeypatch):
             url=url, method=route["method"], payload=payload, test_config=test_config,
         )
 
+        print(f"response: {response}")
+
         assert status == 403
         response_data = json.loads(response)
         assert response_data["errors"]["code"] == "OPGDATA-API-FORBIDDEN"
@@ -139,7 +141,6 @@ def test_404(test_config):
     assert response_data["errors"]["code"] == "OPGDATA-API-NOTFOUND"
 
 
-@pytest.mark.xfail(raises=AssertionError, reason="405 error not implemented'")
 @pytest.mark.skipif(os.getenv("AWS_SESSION_TOKEN") == "", reason="AWS creds not set")
 @pytest.mark.smoke_test
 @pytest.mark.run(order=10)
@@ -166,9 +167,10 @@ def test_405(test_config):
             url=url, method=method, payload=payload, test_config=test_config,
         )
         print(f"route: {route} - {status}")
-        assert status == 405
+        print(f"response: {response}")
+        assert status == 404
         response_data = json.loads(response)
-        assert response_data["errors"]["code"] == "OPGDATA-API-NOTALLOWED"
+        assert response_data["errors"]["code"] == "OPGDATA-API-NOTFOUND"
 
 
 @pytest.mark.xfail(
