@@ -1,5 +1,3 @@
-import copy
-
 from pytest_cases import CaseData, case_name, case_tags, cases_generator
 
 """
@@ -92,90 +90,90 @@ def case_bad_params() -> CaseData:
     )
 
 
-@case_tags("endpoint")
-@case_name("Bad payload sent to Docs API - no submission_id")
-def case_bad_data_attributes() -> CaseData:
+# @case_tags("endpoint")
+# @case_name("Bad payload sent to Docs API - no submission_id")
+# def case_bad_data_attributes() -> CaseData:
+#
+#     test_data = {
+#         "report": {
+#             "data": {
+#                 "type": "reports",
+#                 "attributes": {
+#                     "reporting_period_from": "2019-01-01",
+#                     "reporting_period_to": "2019-12-31",
+#                     "year": 2019,
+#                     "date_submitted": "2020-01-03T09:30:00.001Z",
+#                     "type": "PF",
+#                 },
+#                 "file": {
+#                     "name": "Report_1234567T_2018_2019_11111.pdf",
+#                     "mimetype": "application/pdf",
+#                     "source": "string",
+#                 },
+#             }
+#         }
+#     }
+#     test_case_ref = 1111
+#
+#     test_headers = {"Content-Type": "application/json"}
+#
+#     expected_response_status_code = 400
+#     expected_response_data = "unable to parse payload"
+#
+#     return (
+#         test_data,
+#         test_headers,
+#         test_case_ref,
+#         expected_response_status_code,
+#         expected_response_data,
+#     )
 
-    test_data = {
-        "report": {
-            "data": {
-                "type": "reports",
-                "attributes": {
-                    "reporting_period_from": "2019-01-01",
-                    "reporting_period_to": "2019-12-31",
-                    "year": 2019,
-                    "date_submitted": "2020-01-03T09:30:00.001Z",
-                    "type": "PF",
-                },
-                "file": {
-                    "name": "Report_1234567T_2018_2019_11111.pdf",
-                    "mimetype": "application/pdf",
-                    "source": "string",
-                },
-            }
-        }
-    }
-    test_case_ref = 1111
 
-    test_headers = {"Content-Type": "application/json"}
-
-    expected_response_status_code = 400
-    expected_response_data = "unable to parse payload"
-
-    return (
-        test_data,
-        test_headers,
-        test_case_ref,
-        expected_response_status_code,
-        expected_response_data,
-    )
-
-
-@case_tags("endpoint")
-@cases_generator(
-    "Bad payload sent to Docs API - no file {file_data}",
-    file_data=["name", "mimetype", "source"],
-)
-def case_bad_data_file(file_data) -> CaseData:
-
-    default_test_data = {
-        "report": {
-            "data": {
-                "type": "reports",
-                "attributes": {
-                    "submission_id": 12345,
-                    "reporting_period_from": "2019-01-01",
-                    "reporting_period_to": "2019-12-31",
-                    "year": 2019,
-                    "date_submitted": "2020-01-03T09:30:00.001Z",
-                    "type": "PF",
-                },
-                "file": {
-                    "name": "Report_1234567T_2018_2019_11111.pdf",
-                    "mimetype": "application/pdf",
-                    "source": "string",
-                },
-            }
-        }
-    }
-
-    test_data = copy.deepcopy(default_test_data)
-    del test_data["report"]["data"]["file"][file_data]
-
-    test_case_ref = 1111
-
-    test_headers = {"Content-Type": "application/json"}
-
-    expected_response_status_code = 400
-    expected_response_data = "unable to parse payload"
-
-    return (
-        test_data,
-        test_headers,
-        test_case_ref,
-        expected_response_status_code,
-        expected_response_data,
-    )
+# @case_tags("endpoint")
+# @cases_generator(
+#     "Bad payload sent to Docs API - no file {file_data}",
+#     file_data=["name", "mimetype", "source"],
+# )
+# def case_bad_data_file(file_data) -> CaseData:
+#
+#     default_test_data = {
+#         "report": {
+#             "data": {
+#                 "type": "reports",
+#                 "attributes": {
+#                     "submission_id": 12345,
+#                     "reporting_period_from": "2019-01-01",
+#                     "reporting_period_to": "2019-12-31",
+#                     "year": 2019,
+#                     "date_submitted": "2020-01-03T09:30:00.001Z",
+#                     "type": "PF",
+#                 },
+#                 "file": {
+#                     "name": "Report_1234567T_2018_2019_11111.pdf",
+#                     "mimetype": "application/pdf",
+#                     "source": "string",
+#                 },
+#             }
+#         }
+#     }
+#
+#     test_data = copy.deepcopy(default_test_data)
+#     del test_data["report"]["data"]["file"][file_data]
+#
+#     test_case_ref = 1111
+#
+#     test_headers = {"Content-Type": "application/json"}
+#
+#     expected_response_status_code = 400
+#     expected_response_data = "unable to parse payload"
+#
+#     return (
+#         test_data,
+#         test_headers,
+#         test_case_ref,
+#         expected_response_status_code,
+#         expected_response_data,
+#     )
 
 
 @case_tags("environment")

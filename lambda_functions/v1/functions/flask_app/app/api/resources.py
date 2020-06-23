@@ -1,7 +1,6 @@
 # import os
 
-from flask import Blueprint
-from flask import request, jsonify
+from flask import Blueprint, abort, request, jsonify
 
 
 from lambda_functions.v1.functions.flask_app.app.api import (
@@ -13,6 +12,7 @@ from lambda_functions.v1.functions.flask_app.app.api import (
 # version = os.getenv("API_VERSION")
 
 # api = Blueprint("api", __name__, url_prefix=f"/{version}")
+from lambda_functions.v1.functions.flask_app.app.api.helpers import error_message
 
 version = "flask"
 api = Blueprint("api", __name__, url_prefix=f"/{version}")
@@ -29,8 +29,18 @@ def handle_healthcheck():
 @api.route("/clients/<caseref>/reports", methods=["POST"])
 def handle_reports(caseref):
     print(f"caseref: {caseref}")
+
+    try:
+        data = request.get_json()
+        print(f"data: {data}")
+    except Exception as e:
+        abort(400, e)
+
+    if request.headers["Content-Type"] != "application/json":
+        abort(415)
+
     response_data, response_status = reports.endpoint_handler(
-        data=request.get_json(), caseref=caseref
+        data=data, caseref=caseref
     )
 
     return jsonify(response_data), response_status
@@ -38,18 +48,20 @@ def handle_reports(caseref):
 
 @api.route("/clients/<caseref>/reports/<id>/supportingdocuments", methods=["POST"])
 def handle_supporting_docs(caseref, id):
+
+    print(f"request.method: {request.method}")
+
+    try:
+        data = request.get_json()
+        print(f"data: {data}")
+    except Exception as e:
+        abort(400, e)
+
+    if request.headers["Content-Type"] != "application/json":
+        abort(415)
+
     response_data, response_status = supporting_docs.endpoint_handler(
-        data=request.get_json(), caseref=caseref, id=id
-    )
-
-    return jsonify(response_data), response_status
-
-
-@api.route("/clients/<caseref>/reports/<id>/checklists", methods=["POST"])
-def handle_checklists(caseref, id):
-
-    response_data, response_status = checklists.endpoint_handler(
-        data=request.get_json(), caseref=caseref, id=id, checklist_id=None
+        data=data, caseref=caseref, id=id
     )
 
     return jsonify(response_data), response_status
@@ -57,9 +69,54 @@ def handle_checklists(caseref, id):
 
 @api.route("/clients/<caseref>/reports/<id>/checklists/<checklistId>", methods=["PUT"])
 def handle_checklists_update(caseref, id, checklistId):
+    try:
+        data = request.get_json()
+        print(f"data: {data}")
+    except Exception as e:
+        abort(400, e)
+    if request.headers["Content-Type"] != "application/json":
+        abort(415)
 
     response_data, response_status = checklists.endpoint_handler(
-        data=request.get_json(), caseref=caseref, id=id, checklist_id=checklistId
+        data=data, caseref=caseref, id=id, checklist_id=checklistId
     )
 
     return jsonify(response_data), response_status
+
+
+@api.route("/clients/<caseref>/reports/<id>/checklists", methods=["POST"])
+def handle_checklists(caseref, id):
+    try:
+        data = request.get_json()
+        print(f"data: {data}")
+    except Exception as e:
+        abort(400, e)
+
+    if request.headers["Content-Type"] != "application/json":
+        abort(415)
+
+    response_data, response_status = checklists.endpoint_handler(
+        data=data, caseref=caseref, id=id, checklist_id=None
+    )
+
+    return jsonify(response_data), response_status
+
+
+@api.app_errorhandler(400)
+def handle400(error=None):
+    return error_message(400, error)
+
+
+@api.app_errorhandler(405)
+def handle405(error=None):
+    return error_message(405, error)
+
+
+@api.app_errorhandler(404)
+def handle404(error=None):
+    return error_message(404, error)
+
+
+@api.app_errorhandler(415)
+def handle415(error=None):
+    return error_message(415, error)

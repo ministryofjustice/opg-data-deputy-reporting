@@ -1,14 +1,48 @@
 import json
+import logging
 import os
 import socket
+import sys
 import threading
 import time
 
 import pytest
 from flask import Flask
 
-
 from lambda_functions.v1.functions.flask_app.app import api, create_app
+
+
+class StreamToLogger(object):
+    """
+   Fake file-like stream object that redirects writes to a logger instance.
+   Not actually used by tests, but if the tests fail the logger messages from the flask
+   server thread are output to the out.log file, which is super handy
+   """
+
+    def __init__(self, logger, log_level=logging.INFO):
+        self.logger = logger
+        self.log_level = log_level
+        self.linebuf = ""
+
+    def write(self, buf):
+        for line in buf.rstrip().splitlines():
+            self.logger.log(self.log_level, line.rstrip())
+
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format="%(asctime)s:%(levelname)s:%(name)s:%(message)s",
+    filename="out.log",
+    filemode="a",
+)
+
+stdout_logger = logging.getLogger("STDOUT")
+sl = StreamToLogger(stdout_logger, logging.INFO)
+sys.stdout = sl
+
+stderr_logger = logging.getLogger("STDERR")
+sl = StreamToLogger(stderr_logger, logging.ERROR)
+sys.stderr = sl
 
 
 def get_open_port():

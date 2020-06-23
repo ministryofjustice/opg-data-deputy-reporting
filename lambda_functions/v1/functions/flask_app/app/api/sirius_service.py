@@ -1,8 +1,6 @@
 import datetime
 import json
 import os
-
-
 from urllib.parse import urlparse, urlencode
 
 import boto3
@@ -103,7 +101,7 @@ def build_sirius_headers(content_type="application/json"):
 
 
 def submit_document_to_sirius(url, data, headers=None):
-    print("SENDING DOC TO SIRIUS")
+    logger.info("SENDING DOC TO SIRIUS")
     if not headers:
         headers = build_sirius_headers()
 

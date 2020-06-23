@@ -36,3 +36,5 @@ process.yml
 
 /lambda_functions/v1/integration_tests/*.json
 /mock_sirius_backend/venv
+
+*.log

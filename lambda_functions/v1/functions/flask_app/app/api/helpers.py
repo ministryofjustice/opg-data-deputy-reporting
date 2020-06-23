@@ -2,6 +2,8 @@
 import logging
 import os
 
+from flask import jsonify
+
 
 def custom_logger(name):
     formatter = logging.Formatter(
@@ -21,31 +23,31 @@ def custom_logger(name):
     return logger
 
 
-def compare_two_dicts(required_structure, test_dict, path="", missing=[]):
-    for key in required_structure:
-        if key not in test_dict:
-            missing_item = f"{path}->{key}"
-            if missing_item not in missing:
-                missing.append(missing_item)
-        else:
-            if type(required_structure[key]) is dict:
-                if path == "":
-                    path = key
-                else:
-                    path = path + "->" + key
-                compare_two_dicts(
-                    required_structure[key], test_dict[key], path, missing
-                )
-            else:
-                if isinstance(test_dict[key], type(None)):
-                    missing.append(f"{path}->{key}")
-                elif type(test_dict[key]) == str and len(test_dict[key]) == 0:
-                    missing_item = f"{path}->{key}"
-
-                    if missing_item not in missing:
-                        missing.append(missing_item)
-
-    return missing
+# def compare_two_dicts(required_structure, test_dict, path="", missing=[]):
+#     for key in required_structure:
+#         if key not in test_dict:
+#             missing_item = f"{path}->{key}"
+#             if missing_item not in missing:
+#                 missing.append(missing_item)
+#         else:
+#             if type(required_structure[key]) is dict:
+#                 if path == "":
+#                     path = key
+#                 else:
+#                     path = path + "->" + key
+#                 compare_two_dicts(
+#                     required_structure[key], test_dict[key], path, missing
+#                 )
+#             else:
+#                 if isinstance(test_dict[key], type(None)):
+#                     missing.append(f"{path}->{key}")
+#                 elif type(test_dict[key]) == str and len(test_dict[key]) == 0:
+#                     missing_item = f"{path}->{key}"
+#
+#                     if missing_item not in missing:
+#                         missing.append(missing_item)
+#
+#     return missing
 
 
 sirius_errors = {
@@ -71,6 +73,11 @@ sirius_errors = {
         "does not exist",
         "error_title": "Page not found",
     },
+    "405": {
+        "error_code": "OPGDATA-API-NOT-ALLOWED",
+        "error_message": "That method is not allowed on this URL",
+        "error_title": "Method not allowed",
+    },
     "413": {
         "error_code": "OPGDATA-API-FILESIZELIMIT",
         "error_message": "Payload too large, try and upload in smaller chunks",
@@ -92,3 +99,24 @@ sirius_errors = {
         "error_title": "Service Unavailable",
     },
 }
+
+
+def error_message(code, message):
+    return (
+        jsonify(
+            {
+                "isBase64Encoded": False,
+                "statusCode": code,
+                "headers": {"Content-Type": "application/json"},
+                "body": {
+                    "error": {
+                        "code": sirius_errors[str(code)]["error_code"],
+                        "title": sirius_errors[str(code)]["error_title"],
+                        "message": f"{sirius_errors[str(code)]['error_message']} "
+                        f"{message if message else ''}",
+                    }
+                },
+            }
+        ),
+        code,
+    )
