@@ -3,7 +3,8 @@ if ls ./deputy-reporting-openapi-v*.yml 1> /dev/null 2>&1
 then
   echo "openapi spec exists in folder"
 else
-  git clone git@github.com:ministryofjustice/opg-data.git
+#  git clone git@github.com:ministryofjustice/opg-data.git
+  git clone -b IN-263 git@github.com:ministryofjustice/opg-data.git
   cp ./opg-data/docs/deputy-reporting-openapi* ./
   rm -rf ./opg-data
 fi
