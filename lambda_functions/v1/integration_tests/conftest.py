@@ -1,3 +1,4 @@
+import datetime
 import json
 import os
 import uuid
@@ -12,11 +13,6 @@ from faker import Faker
 
 
 aws_dev_config = {
-    "AWS_REGION": "eu-west-1",
-    "AWS_SERVICE": "execute-api",
-    "AWS_ACCESS_KEY_ID": os.environ["AWS_ACCESS_KEY_ID"],
-    "AWS_SECRET_ACCESS_KEY": os.environ["AWS_SECRET_ACCESS_KEY"],
-    "AWS_SESSION_TOKEN": os.environ["AWS_SESSION_TOKEN"],
     "name": "AWS Dev",
     "url": "https://dev.deputy-reporting.api.opg.service.justice.gov.uk/v1",
     "security": "aws_signature",
@@ -28,11 +24,6 @@ aws_dev_config = {
 }
 
 aws_flask_config = {
-    "AWS_REGION": "eu-west-1",
-    "AWS_SERVICE": "execute-api",
-    "AWS_ACCESS_KEY_ID": os.environ["AWS_ACCESS_KEY_ID"],
-    "AWS_SECRET_ACCESS_KEY": os.environ["AWS_SECRET_ACCESS_KEY"],
-    "AWS_SESSION_TOKEN": os.environ["AWS_SESSION_TOKEN"],
     "name": "AWS Flask",
     "url": "https://j3b9s5fno6.execute-api.eu-west-1.amazonaws.com/v1",
     "security": "aws_signature",
@@ -60,33 +51,36 @@ configs_to_test = [aws_dev_config]
 all_records = []
 
 
-def send_a_request(url, method, payload, test_config):
-    headers = {}
+def send_a_request(
+    url, method, payload, test_config, extra_headers=None, content_type=None
+):
+    headers = {
+        "Content-Type": content_type if content_type else "application/json",
+    }
+
+    if extra_headers:
+        for h in extra_headers:
+            headers[h["header_name"]] = h["header_value"]
+
     body = json.dumps(payload)
 
     if test_config["security"] == "token":
         auth = None
-        headers = {
-            "Authorization": "asdf1234567890",
-            "Content-Type": "application/json",
-        }
+        headers["Authorization"] = "asdf1234567890"
+
     else:
-        if test_config["AWS_ACCESS_KEY_ID"] == "testing":
+        if os.getenv("AWS_ACCESS_KEY_ID") == "testing":
             print("Your AWS creds are not set properly")
 
-        boto3.setup_default_session(region_name=test_config["AWS_REGION"])
+        boto3.setup_default_session(region_name=os.getenv("AWS_REGION"))
 
         auth = AWS4Auth(
-            test_config["AWS_ACCESS_KEY_ID"],
-            test_config["AWS_SECRET_ACCESS_KEY"],
-            test_config["AWS_REGION"],
-            test_config["AWS_SERVICE"],
-            session_token=test_config["AWS_SESSION_TOKEN"],
+            os.getenv("AWS_ACCESS_KEY_ID"),
+            os.getenv("AWS_SECRET_ACCESS_KEY"),
+            os.getenv("AWS_DEFAULT_REGION"),
+            os.getenv("AWS_SERVICE"),
+            session_token=os.getenv("AWS_SESSION_TOKEN"),
         )
-
-        headers = {
-            "Content-Type": "application/json",
-        }
 
     response = requests.request(method, url, auth=auth, data=body, headers=headers)
     return response.status_code, response.text
@@ -107,7 +101,7 @@ def generate_file_name():
     return "_".join(words)
 
 
-def create_record(returned_data=None, file_name=None):
+def create_record(returned_data=None, file_name=None, config_name=None):
     # pass
     try:
         r = returned_data
@@ -129,18 +123,19 @@ def create_record(returned_data=None, file_name=None):
         parent_record = [p for p in all_records if p["document_id"] == parent_id][0]
         parent_record["children"].append(record)
 
-        return print(f'Added child record {r["data"]["id"]} to parent {parent_id}')
-        return f'Added child record {r["data"]["id"]} to parent {parent_id}'
+        print(f'Added child record {r["data"]["id"]} to parent {parent_id}')
+
     else:
         record["children"] = []
         record["amendments"] = []
         all_records.append(record)
 
         print(f'Added parent record {r["data"]["id"]}')
-        return f'Added parent record {r["data"]["id"]}'
+
+    write_record(config_name=config_name)
 
 
-def update_record(returned_data, original_record_id):
+def update_record(returned_data, original_record_id, config_name=None):
     # pass
     r = returned_data
 
@@ -158,4 +153,13 @@ def update_record(returned_data, original_record_id):
     original_record["amendments"].append(record)
 
     print(f"Updated record with document_id: {original_record_id}")
-    return f"Updated record with document_id: {original_record_id}"
+    write_record(config_name=config_name)
+
+
+def write_record(config_name):
+
+    date = datetime.datetime.now().strftime("%Y-%m-%d")
+    json_records = json.dumps(all_records, indent=4)
+
+    with open(f"{config_name}_{date}_updates.json", "w") as outfile:
+        outfile.write(json_records)

@@ -44,7 +44,8 @@ def case_success_original(test_config: str) -> CaseData:
 
     expected_status_code = 201
     expected_response_data = {
-        "type": "Report - General",
+        # "type": "Report - General",
+        "type": "supportingdocuments",
         "submission_id": submission_id,
         "parent_id": report_id,
         "report_id": report_id,
@@ -88,7 +89,8 @@ def case_success_new_submission(test_config: str) -> CaseData:
 
     expected_status_code = 201
     expected_response_data = {
-        "type": "Report - General",
+        # "type": "Report - General",
+        "type": "supportingdocuments",
         "submission_id": submission_id,
         "parent_id": None,
         "report_id": report_id,
@@ -132,7 +134,8 @@ def case_success_new_submission_2(test_config: str) -> CaseData:
 
     expected_status_code = 201
     expected_response_data = {
-        "type": "Report - General",
+        # "type": "Report - General",
+        "type": "supportingdocuments",
         "submission_id": submission_id,
         # "parent_id": None,
         "report_id": report_id,
@@ -178,7 +181,8 @@ def case_success_new_submission_child(test_config: str) -> CaseData:
 
     expected_status_code = 201
     expected_response_data = {
-        "type": "Report - General",
+        # "type": "Report - General",
+        "type": "supportingdocuments",
         "submission_id": submission_id,
         "parent_id": parent_id,
         "report_id": report_id,
