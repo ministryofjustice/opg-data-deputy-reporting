@@ -43,7 +43,8 @@ def case_success_original_IN_112(test_config: str) -> CaseData:
 
     expected_status_code = 201
     expected_response_data = {
-        "type": "Report - Checklist",
+        # "type": "Report - Checklist",
+        "type": "supportingdocuments",
         "submission_id": submission_id,
         "parent_id": None,
     }
@@ -86,7 +87,8 @@ def case_success_new_submission_IN_112(test_config: str) -> CaseData:
 
     expected_status_code = 201
     expected_response_data = {
-        "type": "Report - Checklist",
+        # "type": "Report - Checklist",
+        "type": "supportingdocuments",
         "submission_id": submission_id,
         "parent_id": None,
     }
