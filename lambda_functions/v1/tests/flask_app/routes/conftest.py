@@ -158,3 +158,14 @@ def patched_send_get_to_sirius(monkeypatch):
     monkeypatch.setattr(
         api.sirius_service, "send_get_to_sirius", mock_send_get_to_sirius
     )
+
+
+@pytest.fixture(autouse=True)
+def patched_send_get_to_sirius_healthcheck(monkeypatch):
+    def mock_send_get_to_sirius(*args, **kwargs):
+        print("FAKE GET TO SIRIUS")
+        return 200, "OK"
+
+    monkeypatch.setattr(
+        api.sirius_service, "send_get_to_sirius", mock_send_get_to_sirius
+    )

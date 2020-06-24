@@ -185,7 +185,6 @@ def format_sirius_response(sirius_response=None, sirius_response_code=500):
 
 
 def send_get_to_sirius(url, headers=None):
-    print("REAL GET TO SIRIUS")
     if not headers:
         headers = build_sirius_headers()
     r = requests.get(url=url, headers=headers)

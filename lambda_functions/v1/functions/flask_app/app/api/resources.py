@@ -1,7 +1,6 @@
-# import os
+import os
 
 from flask import Blueprint, abort, request, jsonify
-
 
 from lambda_functions.v1.functions.flask_app.app.api import (
     reports,
@@ -9,21 +8,29 @@ from lambda_functions.v1.functions.flask_app.app.api import (
     checklists,
 )
 
-# version = os.getenv("API_VERSION")
 
 # api = Blueprint("api", __name__, url_prefix=f"/{version}")
+from lambda_functions.v1.functions.flask_app.app.api.healthcheck import endpoint_handler
 from lambda_functions.v1.functions.flask_app.app.api.helpers import error_message
 
-version = "flask"
+version = os.getenv("API_VERSION")
+# version = "flask"
 api = Blueprint("api", __name__, url_prefix=f"/{version}")
 # api = Blueprint("api", __name__)
 
 
-@api.route("/healthcheck", methods=["HEAD", "GET"])
-def handle_healthcheck():
+@api.route("/reporting_healthcheck", methods=["HEAD", "GET"])
+def handle_reporting_healthcheck():
     response_message = "OK"
 
     return jsonify(response_message), 200
+
+
+@api.route("/healthcheck", methods=["HEAD", "GET"])
+def handle_healthcheck():
+    response_data, response_status = endpoint_handler()
+
+    return jsonify(response_data), response_status
 
 
 @api.route("/clients/<caseref>/reports", methods=["POST"])
