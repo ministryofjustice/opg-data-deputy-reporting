@@ -1,20 +1,15 @@
-import os
+# import os
 
 from flask import Blueprint, abort, request, jsonify
 
-from lambda_functions.v1.functions.flask_app.app.api import (
-    reports,
-    supporting_docs,
-    checklists,
-)
-
+from . import reports, supporting_docs, checklists, healthcheck
+from .helpers import error_message
 
 # api = Blueprint("api", __name__, url_prefix=f"/{version}")
-from lambda_functions.v1.functions.flask_app.app.api.healthcheck import endpoint_handler
-from lambda_functions.v1.functions.flask_app.app.api.helpers import error_message
 
-version = os.getenv("API_VERSION")
-# version = "flask"
+
+# version = os.getenv("API_VERSION")
+version = "flask"
 api = Blueprint("api", __name__, url_prefix=f"/{version}")
 # api = Blueprint("api", __name__)
 
@@ -28,7 +23,7 @@ def handle_reporting_healthcheck():
 
 @api.route("/healthcheck", methods=["HEAD", "GET"])
 def handle_healthcheck():
-    response_data, response_status = endpoint_handler()
+    response_data, response_status = healthcheck.endpoint_handler()
 
     return jsonify(response_data), response_status
 

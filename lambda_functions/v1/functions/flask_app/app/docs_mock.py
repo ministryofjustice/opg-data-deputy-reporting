@@ -1,5 +1,5 @@
 from flask import Flask
 
-from lambda_functions.v1.functions.flask_app.app import create_app
+from . import create_app
 
 http_server = create_app(Flask)
