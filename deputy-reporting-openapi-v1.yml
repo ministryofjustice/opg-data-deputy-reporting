@@ -657,7 +657,9 @@ components:
                 - "NDR"
               example: "PF"
         file:
-          $ref: '#/components/schemas/file'
+          oneOf:
+            - $ref: '#/components/schemas/file'
+            - $ref: '#/components/schemas/fileS3'
     ReportSupportingDocument:
       type: object
       required:
@@ -679,7 +681,9 @@ components:
             submission_id:
               $ref: '#/components/schemas/submissionId'
         file:
-          $ref: '#/components/schemas/file'
+          oneOf:
+            - $ref: '#/components/schemas/file'
+            - $ref: '#/components/schemas/fileS3'
     CaseRef:
       type: string
       pattern: '^([0-9]{7}T|[0-9]{8})$'
@@ -712,6 +716,23 @@ components:
           type: string
           format: byte
           description: The base64 encoded file
+    fileS3:
+      type: object
+      required:
+        - name
+        - s3_reference
+        - mimetype
+      properties:
+        name:
+          type: string
+          example: Report_1234567T_2018_2019_11111.pdf
+        s3_reference:
+          type: string
+          example: dd_doc_98765_01234567890123.pdf
+          description: The filename only of the Amazon AWS S3 link to the document file in the Digideps bucket
+        mimetype:
+          type: string
+          example: application/pdf
     Response201:
       type: object
       required:

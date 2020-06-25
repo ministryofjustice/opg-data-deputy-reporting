@@ -1,0 +1,15 @@
+{
+  "supporting_document": {
+    "data": {
+      "type": "supportingdocuments",
+      "attributes": {
+        "submission_id": 9876
+      },
+      "file": {
+        "name": "test.pdf",
+        "mimetype": "application/pdf",
+        "s3_reference": "dd_doc_98765_01234567890123.pdf"
+      }
+    }
+  }
+}

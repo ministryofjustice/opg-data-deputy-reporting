@@ -1,0 +1,20 @@
+{
+	"report": {
+		"data": {
+			"type": "reports",
+			"attributes": {
+				"reporting_period_from": "2018-05-14",
+				"reporting_period_to": "2019-05-13",
+				"year": 2018,
+				"date_submitted": "2019-06-20T00:00:00+01:00",
+				"type": "PF",
+				"submission_id": 9876
+			},
+			"file": {
+				"name": "test.pdf",
+				"mimetype": "application/pdf",
+				"s3_reference": "dd_doc_98765_01234567890123.pdf"
+			}
+		}
+	}
+}
