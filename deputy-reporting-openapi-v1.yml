@@ -633,21 +633,21 @@ components:
               $ref: '#/components/schemas/submissionId'
             reporting_period_from:
               type: string
-              format: date
+#              format: date
               example: "2019-01-01"
             reporting_period_to:
               type: string
-              format: date
+#              format: date
               example: "2019-12-31"
             year:
               type: integer
-              format: int32
+#              format: int32
               minimum: 999
               maximum: 9999
               example: 2019
             date_submitted:
               type: string
-              format: date-time
+#              format: date-time
               example: "2020-01-03T09:30:00.001Z"
             type:
               type: string
@@ -687,13 +687,13 @@ components:
     DocumentUuid:
       type: string
       readOnly: true
-      format: uuid
+#      format: uuid
       description: Document UUID
       pattern: '^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$'
       example: '5a8b1a26-8296-4373-ae61-f8d0b250e773'
     submissionId:
       type: integer
-      format: int32
+#      format: int32
       example: 12345
     file:
       type: object
@@ -704,13 +704,15 @@ components:
       properties:
         name:
           type: string
+          pattern: '.*\S[.].*\S'
           example: Report_1234567T_2018_2019_11111.pdf
         mimetype:
           type: string
+          pattern: '.*\S[/].*\S'
           example: application/pdf
         source:
           type: string
-          format: byte
+          pattern: '(?:[A-Za-z0-9+/]{4}){2,}(?:[A-Za-z0-9+/]{2}[AEIMQUYcgkosw048]=|[A-Za-z0-9+/][AQgw]==)'
           description: The base64 encoded file
     Response201:
       type: object
