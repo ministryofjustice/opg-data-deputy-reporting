@@ -98,7 +98,7 @@ def transform_payload_data_to_sirius_request(data, caseref=None):
     file_source = request_body["report"]["data"]["file"]["source"]
 
     payload = {
-        "type": "Report - General",
+        "type": "Report",
         "caseRecNumber": case_ref,
         "metadata": metadata,
         "file": {"name": file_name, "source": file_source, "type": file_type},

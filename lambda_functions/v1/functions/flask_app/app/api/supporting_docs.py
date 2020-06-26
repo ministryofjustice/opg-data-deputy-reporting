@@ -57,7 +57,7 @@ def transform_payload_to_sirius_post_request(
     file_source = request_body["supporting_document"]["data"]["file"]["source"]
 
     payload = {
-        "type": "Report",
+        "type": "Report - General",
         "caseRecNumber": case_ref,
         "metadata": metadata,
         "file": {"name": file_name, "source": file_source, "type": file_type},
@@ -117,8 +117,8 @@ def determine_document_parent_id(data, case_ref, report_id):
                         parent_id = entry["uuid"]
                         break
                     elif "parentUuid" not in entry:
-                        # parent_id = entry["uuid"]
-                        parent_id = None
+                        parent_id = entry["uuid"]
+                        # parent_id = None
                         break
                     else:
                         logger.info("Unable to determine parent id of document")
