@@ -14,7 +14,7 @@ from faker import Faker
 
 aws_dev_config = {
     "name": "AWS Dev",
-    "url": "https://dev.deputy-reporting.api.opg.service.justice.gov.uk/v1",
+    "url": "https://j3b9s5fno6.execute-api.eu-west-1.amazonaws.com/v1",
     "security": "aws_signature",
     "case_ref": "33205624",
     "report_id": "123",
@@ -25,7 +25,7 @@ aws_dev_config = {
 
 aws_flask_config = {
     "name": "AWS Flask",
-    "url": "https://j3b9s5fno6.execute-api.eu-west-1.amazonaws.com/v1",
+    "url": "https://ivd5scecj4.execute-api.eu-west-1.amazonaws.com/v1/flask",
     "security": "aws_signature",
     "case_ref": "33205624",
     "report_id": "123",
@@ -44,7 +44,7 @@ mock_config = {
     "checklist_id": "123",
 }
 
-configs_to_test = [aws_dev_config]
+configs_to_test = [aws_dev_config, aws_flask_config]
 
 
 # Data persisted between tests

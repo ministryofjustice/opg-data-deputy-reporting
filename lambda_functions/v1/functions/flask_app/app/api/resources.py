@@ -5,13 +5,10 @@ from flask import Blueprint, abort, request, jsonify
 from . import reports, supporting_docs, checklists, healthcheck
 from .helpers import error_message
 
-# api = Blueprint("api", __name__, url_prefix=f"/{version}")
-
 
 # version = os.getenv("API_VERSION")
 version = "flask"
 api = Blueprint("api", __name__, url_prefix=f"/{version}")
-# api = Blueprint("api", __name__)
 
 
 @api.route("/reporting_healthcheck", methods=["HEAD", "GET"])
