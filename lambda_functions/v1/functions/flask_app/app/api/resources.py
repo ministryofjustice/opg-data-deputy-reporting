@@ -35,7 +35,7 @@ def handle_reports(caseref):
     except Exception as e:
         abort(400, e)
 
-    if request.headers["Content-Type"] != "application/json":
+    if "application/json" not in request.headers["Content-Type"]:
         abort(415)
 
     response_data, response_status = reports.endpoint_handler(
@@ -56,7 +56,7 @@ def handle_supporting_docs(caseref, id):
     except Exception as e:
         abort(400, e)
 
-    if request.headers["Content-Type"] != "application/json":
+    if "application/json" not in request.headers["Content-Type"]:
         abort(415)
 
     response_data, response_status = supporting_docs.endpoint_handler(
@@ -73,7 +73,7 @@ def handle_checklists_update(caseref, id, checklistId):
         print(f"data: {data}")
     except Exception as e:
         abort(400, e)
-    if request.headers["Content-Type"] != "application/json":
+    if "application/json" not in request.headers["Content-Type"]:
         abort(415)
 
     response_data, response_status = checklists.endpoint_handler(
@@ -91,7 +91,7 @@ def handle_checklists(caseref, id):
     except Exception as e:
         abort(400, e)
 
-    if request.headers["Content-Type"] != "application/json":
+    if "application/json" not in request.headers["Content-Type"]:
         abort(415)
 
     response_data, response_status = checklists.endpoint_handler(

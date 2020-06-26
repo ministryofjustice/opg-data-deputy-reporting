@@ -45,8 +45,8 @@ def case_success_original(test_config: str) -> CaseData:
 
     expected_status_code = 201
     expected_response_data = {
-        # "type": "Report",
-        "type": "reports",
+        "type": "Report",
+        # "type": "reports",
         "submission_id": submission_id,
         "parent_id": None,
     }
