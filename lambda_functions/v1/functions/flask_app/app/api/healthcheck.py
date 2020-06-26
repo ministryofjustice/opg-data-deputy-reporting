@@ -1,7 +1,7 @@
 import os
 
-from lambda_functions.v1.functions.flask_app.app.api import sirius_service
-from lambda_functions.v1.functions.flask_app.app.api.helpers import custom_logger
+from . import sirius_service
+from .helpers import custom_logger
 
 logger = custom_logger("sirius healthcheck")
 
