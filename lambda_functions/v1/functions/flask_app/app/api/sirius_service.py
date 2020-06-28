@@ -100,16 +100,16 @@ def build_sirius_headers(content_type="application/json"):
     }
 
 
-def submit_document_to_sirius(url, data, headers=None):
+def submit_document_to_sirius(url, data, headers=None, method="POST"):
     logger.info("SENDING DOC TO SIRIUS")
     if not headers:
         headers = build_sirius_headers()
 
-    print(f"url: {url}")
-    print(f"data: {data}")
-    print(f"headers: {headers}")
     try:
-        r = requests.post(url=url, data=data, headers=headers)
+        if method == "PUT":
+            r = requests.put(url=url, data=data, headers=headers)
+        else:
+            r = requests.post(url=url, data=data, headers=headers)
     except Exception as e:
         print(f"e: {e}")
 
@@ -117,7 +117,7 @@ def submit_document_to_sirius(url, data, headers=None):
 
     try:
         sirius_response_code = r.status_code
-        if r.status_code == 201:
+        if r.status_code in [200, 201]:
             response = r.content.decode("UTF-8")
             sirius_response = format_sirius_response(
                 json.loads(response), sirius_response_code
@@ -146,7 +146,7 @@ def format_sirius_response(sirius_response=None, sirius_response_code=500):
 
     print(sirius_response_code)
     try:
-        if sirius_response_code == 201:
+        if sirius_response_code in [200, 201]:
             response = {
                 "data": {
                     "type": sirius_response["type"],

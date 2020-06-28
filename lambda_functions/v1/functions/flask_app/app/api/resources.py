@@ -67,24 +67,8 @@ def handle_supporting_docs(caseref, id):
 
 
 @api.route("/clients/<caseref>/reports/<id>/checklists/<checklistId>", methods=["PUT"])
-def handle_checklists_update(caseref, id, checklistId):
-    try:
-        data = request.get_json()
-        print(f"data: {data}")
-    except Exception as e:
-        abort(400, e)
-    if "application/json" not in request.headers["Content-Type"]:
-        abort(415)
-
-    response_data, response_status = checklists.endpoint_handler(
-        data=data, caseref=caseref, id=id, checklist_id=checklistId
-    )
-
-    return jsonify(response_data), response_status
-
-
 @api.route("/clients/<caseref>/reports/<id>/checklists", methods=["POST"])
-def handle_checklists(caseref, id):
+def handle_checklists(caseref, id, checklistId=None):
     try:
         data = request.get_json()
         print(f"data: {data}")
@@ -95,7 +79,11 @@ def handle_checklists(caseref, id):
         abort(415)
 
     response_data, response_status = checklists.endpoint_handler(
-        data=data, caseref=caseref, id=id, checklist_id=None
+        data=data,
+        caseref=caseref,
+        id=id,
+        checklist_id=checklistId,
+        method=request.method,
     )
 
     return jsonify(response_data), response_status
