@@ -594,516 +594,7 @@ paths:
             application/vnd.opg-data.v1+json:
               schema:
                 $ref: '#/components/schemas/Error503'
-#The following is temporary
-  /flask/healthcheck:
-    description: Sirius healthcheck
-    get:
-      summary: Sirius healthcheck
-      description: Client report
-      operationId: app.healthcheck
-      tags:
-        - "deputy-reporting"
-      security:
-        - sigv4: []
-      x-amazon-apigateway-request-validator: "all"
-      x-amazon-apigateway-integration:
-        uri: arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:$${stageVariables.healthcheck_function_name}/invocations
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-      responses:
-        200:
-          description: Sirius healthcheck
-          content:
-            application/vnd.opg-data.v1+json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    $ref: '#/components/schemas/Healthcheck'
-                  meta:
-                    type: object
-        400:
-          description: Generic bad request (generally invalid syntax)
-          content:
-            application/vnd.opg-data.v1+json:
-              schema:
-                $ref: '#/components/schemas/Error400'
-        401:
-          description: Unauthorised (no current user and there should be)
-          content:
-            application/vnd.opg-data.v1+json:
-              schema:
-                $ref: '#/components/schemas/Error401'
-        403:
-          description: Forbidden - The current user is forbidden from accessing this data (in this way)
-          content:
-            application/vnd.opg-data.v1+json:
-              schema:
-                $ref: '#/components/schemas/Error403'
-        404:
-          description: That URL is not a valid route, or the item resource does not exist
-          content:
-            application/vnd.opg-data.v1+json:
-              schema:
-                $ref: '#/components/schemas/Error404'
-        500:
-          description: Something unexpected happened and it is the API"s fault
-          content:
-            application/vnd.opg-data.v1+json:
-              schema:
-                $ref: '#/components/schemas/Error500'
-        503:
-          description: Service Unavailable - please try again later
-          content:
-            application/vnd.opg-data.v1+json:
-              schema:
-                $ref: '#/components/schemas/Error503'
-  /flask/clients/{caseref}/reports:
-    description: Client reports
-    post:
-      summary: Add a client report file
-      description: Add a client report file
-      operationId: app.addReportDocument
-      tags:
-        - "deputy-reporting"
-      parameters:
-        - in: path
-          name: caseref
-          required: true
-          description: Case Reference / Casrec number
-          schema:
-            $ref: '#/components/schemas/CaseRef'
-      security:
-        - sigv4: []
-      x-amazon-apigateway-request-validator: "all"
-      x-amazon-apigateway-integration:
-        uri: arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:$${stageVariables.reports_function_name}/invocations
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-      requestBody:
-        required: true
-        description: A report pdf file, and metadata
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                report:
-                  type: object
-                  required:
-                    - data
-                  properties:
-                    data:
-                      $ref: '#/components/schemas/Report'
-      responses:
-        201:
-          description: Document created
-          content:
-            application/vnd.opg-data.v1+json:
-              schema:
-                type: object
-                required:
-                  - data
-                properties:
-                  data:
-                    $ref: '#/components/schemas/Response201'
-                  meta:
-                    type: object
-        400:
-          description: Generic bad request (generally invalid syntax)
-          content:
-            application/vnd.opg-data.v1+json:
-              schema:
-                $ref: '#/components/schemas/Error400'
-        401:
-          description: Unauthorised (no current user and there should be)
-          content:
-            application/vnd.opg-data.v1+json:
-              schema:
-                $ref: '#/components/schemas/Error401'
-        403:
-          description: Forbidden - The current user is forbidden from accessing this data (in this way)
-          content:
-            application/vnd.opg-data.v1+json:
-              schema:
-                $ref: '#/components/schemas/Error403'
-        404:
-          description: That URL is not a valid route, or the item resource does not exist
-          content:
-            application/vnd.opg-data.v1+json:
-              schema:
-                $ref: '#/components/schemas/Error404'
-        413:
-          description: Payload too large
-          content:
-            application/vnd.opg-data.v1+json:
-              schema:
-                $ref: '#/components/schemas/Error413'
-        415:
-          description: Unsupported media type
-          content:
-            application/vnd.opg-data.v1+json:
-              schema:
-                $ref: '#/components/schemas/Error415'
-        500:
-          description: Something unexpected happened and it is the API"s fault
-          content:
-            application/vnd.opg-data.v1+json:
-              schema:
-                $ref: '#/components/schemas/Error500'
-        503:
-          description: Service Unavailable - please try again later
-          content:
-            application/vnd.opg-data.v1+json:
-              schema:
-                $ref: '#/components/schemas/Error503'
-  /flask/clients/{caseref}/reports/{id}/supportingdocuments:
-    description: Supporting documents associated with client reports
-    post:
-      summary: Add a document to Supervision which supports a report
-      description: Add a document to Supervision which supports a report
-      operationId: app.addReportSupportingDocument
-      tags:
-        - "deputy-reporting"
-      parameters:
-        - in: path
-          name: caseref
-          required: true
-          description: Case Reference / Casrec number
-          schema:
-            $ref: '#/components/schemas/CaseRef'
-        - in: path
-          name: id
-          required: true
-          description: Report UUID
-          schema:
-            $ref: '#/components/schemas/DocumentUuid'
-      security:
-        - sigv4: []
-      x-amazon-apigateway-request-validator: "all"
-      x-amazon-apigateway-integration:
-        uri: arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:$${stageVariables.supporting_docs_name}/invocations
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-      requestBody:
-        required: true
-        description: The supporting document
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                supporting_document:
-                  type: object
-                  required:
-                    - data
-                  properties:
-                    data:
-                      $ref: '#/components/schemas/ReportSupportingDocument'
-      responses:
-        201:
-          description: Document created
-          content:
-            application/vnd.opg-data.v1+json:
-              schema:
-                type: object
-                required:
-                  - data
-                properties:
-                  data:
-                    $ref: '#/components/schemas/Response201'
-                  meta:
-                    type: object
-        400:
-          description: Generic bad request (generally invalid syntax)
-          content:
-            application/vnd.opg-data.v1+json:
-              schema:
-                $ref: '#/components/schemas/Error400'
-        401:
-          description: Unauthorised (no current user and there should be)
-          content:
-            application/vnd.opg-data.v1+json:
-              schema:
-                $ref: '#/components/schemas/Error401'
-        403:
-          description: Forbidden - The current user is forbidden from accessing this data (in this way)
-          content:
-            application/vnd.opg-data.v1+json:
-              schema:
-                $ref: '#/components/schemas/Error403'
-        404:
-          description: That URL is not a valid route, or the item resource does not exist
-          content:
-            application/vnd.opg-data.v1+json:
-              schema:
-                $ref: '#/components/schemas/Error404'
-        413:
-          description: Payload too large
-          content:
-            application/vnd.opg-data.v1+json:
-              schema:
-                $ref: '#/components/schemas/Error413'
-        415:
-          description: Unsupported media type
-          content:
-            application/vnd.opg-data.v1+json:
-              schema:
-                $ref: '#/components/schemas/Error415'
-        500:
-          description: Something unexpected happened and it is the API"s fault
-          content:
-            application/vnd.opg-data.v1+json:
-              schema:
-                $ref: '#/components/schemas/Error500'
-        503:
-          description: Service Unavailable - please try again later
-          content:
-            application/vnd.opg-data.v1+json:
-              schema:
-                $ref: '#/components/schemas/Error503'
-  /flask/clients/{caseref}/reports/{id}/checklists:
-    description: Lodging and review checklists associated with client reports
-    post:
-      summary: Add a report lodging or review checklist
-      description: Add a report lodging or review checklist
-      operationId: app.addReportChecklist
-      tags:
-        - "deputy-reporting"
-      parameters:
-        - in: path
-          name: caseref
-          required: true
-          description: Case Reference / Casrec number
-          schema:
-            $ref: '#/components/schemas/CaseRef'
-        - in: path
-          name: id
-          required: true
-          description: Report UUID
-          schema:
-            $ref: '#/components/schemas/DocumentUuid'
-      security:
-        - sigv4: []
-      x-amazon-apigateway-request-validator: "all"
-      x-amazon-apigateway-integration:
-        uri: arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:$${stageVariables.checklists_name}/invocations
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-      requestBody:
-        required: true
-        description: The checklist
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                checklist:
-                  type: object
-                  required:
-                    - data
-                  properties:
-                    data:
-                      $ref: '#/components/schemas/ReportSupportingDocument'
-      responses:
-        201:
-          description: Document created
-          content:
-            application/vnd.opg-data.v1+json:
-              schema:
-                type: object
-                required:
-                  - data
-                properties:
-                  data:
-                    $ref: '#/components/schemas/Response201'
-                  meta:
-                    type: object
-        400:
-          description: Generic bad request (generally invalid syntax)
-          content:
-            application/vnd.opg-data.v1+json:
-              schema:
-                $ref: '#/components/schemas/Error400'
-        401:
-          description: Unauthorised (no current user and there should be)
-          content:
-            application/vnd.opg-data.v1+json:
-              schema:
-                $ref: '#/components/schemas/Error401'
-        403:
-          description: Forbidden - The current user is forbidden from accessing this data (in this way)
-          content:
-            application/vnd.opg-data.v1+json:
-              schema:
-                $ref: '#/components/schemas/Error403'
-        404:
-          description: That URL is not a valid route, or the item resource does not exist
-          content:
-            application/vnd.opg-data.v1+json:
-              schema:
-                $ref: '#/components/schemas/Error404'
-        413:
-          description: Payload too large
-          content:
-            application/vnd.opg-data.v1+json:
-              schema:
-                $ref: '#/components/schemas/Error413'
-        415:
-          description: Unsupported media type
-          content:
-            application/vnd.opg-data.v1+json:
-              schema:
-                $ref: '#/components/schemas/Error415'
-        500:
-          description: Something unexpected happened and it is the API"s fault
-          content:
-            application/vnd.opg-data.v1+json:
-              schema:
-                $ref: '#/components/schemas/Error500'
-        503:
-          description: Service Unavailable - please try again later
-          content:
-            application/vnd.opg-data.v1+json:
-              schema:
-                $ref: '#/components/schemas/Error503'
-  /flask/clients/{caseref}/reports/{id}/checklists/{checklistId}:
-    description: Lodging and review checklists associated with client reports
-    put:
-      summary: Update a report lodging or review checklist
-      description: Update a report lodging or review checklist
-      operationId: app.updateReportChecklist
-      tags:
-        - "deputy-reporting"
-      parameters:
-        - in: path
-          name: caseref
-          required: true
-          description: Case Reference / Casrec number
-          schema:
-            $ref: '#/components/schemas/CaseRef'
-        - in: path
-          name: id
-          required: true
-          description: Report UUID
-          schema:
-            $ref: '#/components/schemas/DocumentUuid'
-        - in: path
-          name: checklistId
-          required: true
-          description: Checklist UUID
-          schema:
-            $ref: '#/components/schemas/DocumentUuid'
-      security:
-        - sigv4: []
-      x-amazon-apigateway-request-validator: "all"
-      x-amazon-apigateway-integration:
-        uri: arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:$${stageVariables.checklists_name}/invocations
-        responses:
-          default:
-            statusCode: "200"
-        passthroughBehavior: "when_no_match"
-        httpMethod: "POST"
-        contentHandling: "CONVERT_TO_TEXT"
-        type: "aws_proxy"
-      requestBody:
-        required: true
-        description: The checklist
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                checklist:
-                  type: object
-                  required:
-                    - data
-                  properties:
-                    data:
-                      $ref: '#/components/schemas/ReportSupportingDocument'
-      responses:
-        200:
-          description: Document updated
-          content:
-            application/vnd.opg-data.v1+json:
-              schema:
-                type: object
-                required:
-                  - data
-                properties:
-                  data:
-                    $ref: '#/components/schemas/Response201'
-                  meta:
-                    type: object
-        400:
-          description: Generic bad request (generally invalid syntax)
-          content:
-            application/vnd.opg-data.v1+json:
-              schema:
-                $ref: '#/components/schemas/Error400'
-        401:
-          description: Unauthorised (no current user and there should be)
-          content:
-            application/vnd.opg-data.v1+json:
-              schema:
-                $ref: '#/components/schemas/Error401'
-        403:
-          description: Forbidden - The current user is forbidden from accessing this data (in this way)
-          content:
-            application/vnd.opg-data.v1+json:
-              schema:
-                $ref: '#/components/schemas/Error403'
-        404:
-          description: That URL is not a valid route, or the item resource does not exist
-          content:
-            application/vnd.opg-data.v1+json:
-              schema:
-                $ref: '#/components/schemas/Error404'
-        413:
-          description: Payload too large
-          content:
-            application/vnd.opg-data.v1+json:
-              schema:
-                $ref: '#/components/schemas/Error413'
-        415:
-          description: Unsupported media type
-          content:
-            application/vnd.opg-data.v1+json:
-              schema:
-                $ref: '#/components/schemas/Error415'
-        500:
-          description: Something unexpected happened and it is the API"s fault
-          content:
-            application/vnd.opg-data.v1+json:
-              schema:
-                $ref: '#/components/schemas/Error500'
-        503:
-          description: Service Unavailable - please try again later
-          content:
-            application/vnd.opg-data.v1+json:
-              schema:
-                $ref: '#/components/schemas/Error503'
-#End of the temporary bit
+
 components:
   securitySchemes:
     sigv4:
@@ -1142,21 +633,21 @@ components:
               $ref: '#/components/schemas/submissionId'
             reporting_period_from:
               type: string
-#              format: date
+              format: date
               example: "2019-01-01"
             reporting_period_to:
               type: string
-#              format: date
+              format: date
               example: "2019-12-31"
             year:
               type: integer
-#              format: int32
+              format: int32
               minimum: 999
               maximum: 9999
               example: 2019
             date_submitted:
               type: string
-#              format: date-time
+              format: date-time
               example: "2020-01-03T09:30:00.001Z"
             type:
               type: string
@@ -1196,13 +687,13 @@ components:
     DocumentUuid:
       type: string
       readOnly: true
-#      format: uuid
+      format: uuid
       description: Document UUID
       pattern: '^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$'
       example: '5a8b1a26-8296-4373-ae61-f8d0b250e773'
     submissionId:
       type: integer
-#      format: int32
+      format: int32
       example: 12345
     file:
       type: object
@@ -1213,15 +704,13 @@ components:
       properties:
         name:
           type: string
-          pattern: '.*\S[.].*\S'
           example: Report_1234567T_2018_2019_11111.pdf
         mimetype:
           type: string
-          pattern: '.*\S[/].*\S'
           example: application/pdf
         source:
           type: string
-          pattern: '(?:[A-Za-z0-9+/]{4}){2,}(?:[A-Za-z0-9+/]{2}[AEIMQUYcgkosw048]=|[A-Za-z0-9+/][AQgw]==)'
+          format: byte
           description: The base64 encoded file
     Response201:
       type: object

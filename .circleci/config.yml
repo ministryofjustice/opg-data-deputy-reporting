@@ -176,6 +176,15 @@ jobs:
           command: |
             python -m pytest -m "not smoke_test"
       - run:
+          name: intgration tests
+          command: |
+            export COMMIT_MESSAGE=\"$(git log --format=oneline -n 1 $CIRCLE_SHA1)\""
+            if [[ "$COMMIT_MESSAGE" == *"[int-test]"* ]]
+              then python -m pytest
+            else
+              echo "Integration tests not chosen to run"
+          working_directory: ~/project/lambda_functions/v1/integration_tests
+      - run:
           name: install requirements for all lambda layers
           command: |
             for i in $(ls -d lambda_functions/*/ | awk -F'/' '{print $2}' | grep '^v[1-9]\+')

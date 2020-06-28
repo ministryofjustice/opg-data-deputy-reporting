@@ -38,3 +38,4 @@ process.yml
 /mock_sirius_backend/venv
 
 *.log
+log/pact.log

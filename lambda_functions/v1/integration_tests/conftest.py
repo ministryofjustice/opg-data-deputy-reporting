@@ -4,6 +4,7 @@ import os
 import uuid
 
 import boto3
+from boto3.session import Session
 
 import requests
 from requests_aws4auth import AWS4Auth
@@ -14,7 +15,7 @@ from faker import Faker
 
 aws_dev_config = {
     "name": "AWS Dev",
-    "url": "https://j3b9s5fno6.execute-api.eu-west-1.amazonaws.com/v1",
+    "url": "https://sq25usy81d.execute-api.eu-west-1.amazonaws.com/v1",
     "security": "aws_signature",
     "case_ref": "33205624",
     "report_id": "123",
@@ -25,7 +26,7 @@ aws_dev_config = {
 
 aws_flask_config = {
     "name": "AWS Flask",
-    "url": "https://ivd5scecj4.execute-api.eu-west-1.amazonaws.com/v1/flask",
+    "url": "https://sq25usy81d.execute-api.eu-west-1.amazonaws.com/v1",
     "security": "aws_signature",
     "case_ref": "33205624",
     "report_id": "123",
@@ -44,7 +45,7 @@ mock_config = {
     "checklist_id": "123",
 }
 
-configs_to_test = [aws_dev_config, aws_flask_config]
+configs_to_test = [aws_dev_config]
 
 
 # Data persisted between tests
@@ -67,22 +68,44 @@ def send_a_request(
     if test_config["security"] == "token":
         auth = None
         headers["Authorization"] = "asdf1234567890"
-
     else:
         if os.getenv("AWS_ACCESS_KEY_ID") == "testing":
             print("Your AWS creds are not set properly")
 
-        boto3.setup_default_session(region_name=os.getenv("AWS_REGION"))
+        boto3.setup_default_session(region_name="eu-west-1",)
+
+        client = boto3.client("sts")
+        account_id = client.get_caller_identity()["Account"]
+        print(account_id)
+
+        role_to_assume = "arn:aws:iam::248804316466:role/operator"
+        response = client.assume_role(
+            RoleArn=role_to_assume, RoleSessionName="assumed_role"
+        )
+
+        session = Session(
+            aws_access_key_id=response["Credentials"]["AccessKeyId"],
+            aws_secret_access_key=response["Credentials"]["SecretAccessKey"],
+            aws_session_token=response["Credentials"]["SessionToken"],
+        )
+
+        client = session.client("sts")
+        account_id = client.get_caller_identity()["Account"]
+        print(account_id)
+
+        credentials = session.get_credentials()
+
+        credentials = credentials.get_frozen_credentials()
+        access_key = credentials.access_key
+        secret_key = credentials.secret_key
+        token = credentials.token
 
         auth = AWS4Auth(
-            os.getenv("AWS_ACCESS_KEY_ID"),
-            os.getenv("AWS_SECRET_ACCESS_KEY"),
-            os.getenv("AWS_DEFAULT_REGION"),
-            os.getenv("AWS_SERVICE"),
-            session_token=os.getenv("AWS_SESSION_TOKEN"),
+            access_key, secret_key, "eu-west-1", "execute-api", session_token=token,
         )
 
     response = requests.request(method, url, auth=auth, data=body, headers=headers)
+    print(str(response.text))
     return response.status_code, response.text
 
 
