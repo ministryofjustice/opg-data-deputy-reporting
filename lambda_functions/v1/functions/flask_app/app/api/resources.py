@@ -16,7 +16,7 @@ from .helpers import error_message
 
 version = os.getenv("API_VERSION")
 # version = "flask"
-api = Blueprint("api", __name__, url_prefix=f"/{version}")
+api = Blueprint("api", __name__, url_prefix=f"/{version}/flask")
 
 
 @api.route("/reporting_healthcheck", methods=["HEAD", "GET"])

@@ -74,7 +74,7 @@ def server():
     print(f"routes: {routes}")
 
     port = get_open_port()
-    http_server.url = "http://localhost:{}/{}".format(port, version)
+    http_server.url = "http://localhost:{}/{}/flask".format(port, version)
     print(f"http_server.url: {http_server.url}")
 
     def start():
