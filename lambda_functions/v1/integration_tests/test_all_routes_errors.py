@@ -101,38 +101,38 @@ def all_routes(case_ref, report_id, checklist_id):
     return return_values
 
 
-@pytest.mark.smoke_test
-@pytest.mark.run(order=10)
-@pytest.mark.parametrize("test_config", configs_to_test)
-def test_403(test_config, monkeypatch):
-    print(f"Using test_config: {test_config['name']}")
-
-    monkeypatch.setenv("AWS_ACCESS_KEY_ID", "not_real")
-    monkeypatch.setenv("AWS_SECRET_ACCESS_KEY", "not_real")
-    monkeypatch.setenv("AWS_SESSION_TOKEN", "not_real")
-
-    routes = all_routes(
-        case_ref=test_config["case_ref"],
-        report_id=test_config["report_id"],
-        checklist_id=test_config["checklist_id"],
-    )
-
-    for route in routes:
-        print(f"route: {route}")
-
-        url = f"{test_config['url']}/{route['route']}"
-        status, response = send_a_request(
-            url=url,
-            method=route["method"],
-            payload=route["payload"],
-            test_config=test_config,
-        )
-
-        print(f"response: {response}")
-
-        assert status == 403
-        response_data = json.loads(response)
-        assert response_data["errors"]["code"] == "OPGDATA-API-INVALIDREQUEST"
+# @pytest.mark.smoke_test
+# @pytest.mark.run(order=10)
+# @pytest.mark.parametrize("test_config", configs_to_test)
+# def test_403(test_config, monkeypatch):
+#     print(f"Using test_config: {test_config['name']}")
+#
+#     monkeypatch.setenv("AWS_ACCESS_KEY_ID", "not_real")
+#     monkeypatch.setenv("AWS_SECRET_ACCESS_KEY", "not_real")
+#     monkeypatch.setenv("AWS_SESSION_TOKEN", "not_real")
+#
+#     routes = all_routes(
+#         case_ref=test_config["case_ref"],
+#         report_id=test_config["report_id"],
+#         checklist_id=test_config["checklist_id"],
+#     )
+#
+#     for route in routes:
+#         print(f"route: {route}")
+#
+#         url = f"{test_config['url']}/{route['route']}"
+#         status, response = send_a_request(
+#             url=url,
+#             method=route["method"],
+#             payload=route["payload"],
+#             test_config=test_config,
+#         )
+#
+#         print(f"response: {response}")
+#
+#         assert status == 403
+#         response_data = json.loads(response)
+#         assert response_data["errors"]["code"] == "OPGDATA-API-INVALIDREQUEST"
 
 
 @pytest.mark.skipif(os.getenv("AWS_SESSION_TOKEN") == "", reason="AWS creds not set")
@@ -188,7 +188,7 @@ def test_400_bad_url_params(test_config):
         print(type(response_data))
 
         # Need to also check its not payload error here as that gets checked first
-        assert response_data["errors"][0]["code"] == "OPGDATA-API-INVALIDREQUEST"
+        assert response_data["errors"]["code"] == "OPGDATA-API-INVALIDREQUEST"
 
 
 @pytest.mark.skipif(os.getenv("AWS_SESSION_TOKEN") == "", reason="AWS creds not set")

@@ -28,6 +28,7 @@ def test_checklist_post(server, case_data: CaseDataGetter):
         print(f"test_case_ref: {test_case_ref}")
         print(f"test_report_id: {test_report_id}")
         print(f"test_data: {test_data}")
+        print(f"server.url: {server.url}")
 
         r = requests.post(
             f"{server.url}/clients/{test_case_ref}/reports/"
