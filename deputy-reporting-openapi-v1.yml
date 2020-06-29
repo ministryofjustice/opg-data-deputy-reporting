@@ -600,7 +600,7 @@ paths:
     get:
       summary: Sirius healthcheck
       description: Client report
-      operationId: app.healthcheck
+      operationId: app.healthcheckFlask
       tags:
         - "deputy-reporting"
       security:
@@ -668,7 +668,7 @@ paths:
     post:
       summary: Add a client report file
       description: Add a client report file
-      operationId: app.addReportDocument
+      operationId: app.addReportDocumentFlask
       tags:
         - "deputy-reporting"
       parameters:
@@ -772,7 +772,7 @@ paths:
     post:
       summary: Add a document to Supervision which supports a report
       description: Add a document to Supervision which supports a report
-      operationId: app.addReportSupportingDocument
+      operationId: app.addReportSupportingDocumentFlask
       tags:
         - "deputy-reporting"
       parameters:
@@ -882,7 +882,7 @@ paths:
     post:
       summary: Add a report lodging or review checklist
       description: Add a report lodging or review checklist
-      operationId: app.addReportChecklist
+      operationId: app.addReportChecklistFlask
       tags:
         - "deputy-reporting"
       parameters:
@@ -992,7 +992,7 @@ paths:
     put:
       summary: Update a report lodging or review checklist
       description: Update a report lodging or review checklist
-      operationId: app.updateReportChecklist
+      operationId: app.updateReportChecklistFlask
       tags:
         - "deputy-reporting"
       parameters:

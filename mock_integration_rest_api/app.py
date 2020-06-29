@@ -98,6 +98,28 @@ def updateReportChecklist():
     return "Coming soon"
 
 
+# Flask endpoints (no need for them to return anything real yet
+# as pact wont test against them with current paths
+def healthcheckFlask():
+    return "healthy"
+
+
+def addReportDocumentFlask():
+    return "Coming soon"
+
+
+def addReportSupportingDocumentFlask():
+    return "Coming soon"
+
+
+def addReportChecklistFlask():
+    return "Coming soon"
+
+
+def updateReportChecklistFlask():
+    return "Coming soon"
+
+
 sirius_server = connexion.App(__name__)
 sirius_server.add_api("deputy-reporting-openapi.yml")
 sirius_server.run(port=4343)
