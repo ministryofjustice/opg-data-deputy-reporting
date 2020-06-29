@@ -15,7 +15,7 @@ from faker import Faker
 
 aws_dev_config = {
     "name": "AWS Dev",
-    "url": "https://sq25usy81d.execute-api.eu-west-1.amazonaws.com/v1",
+    "url": "https://dev.deputy-reporting.api.opg.service.justice.gov.uk/v1",
     "security": "aws_signature",
     "case_ref": "33205624",
     "report_id": "123",

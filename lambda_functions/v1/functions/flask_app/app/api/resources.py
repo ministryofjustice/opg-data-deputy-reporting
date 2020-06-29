@@ -5,17 +5,7 @@ from flask import Blueprint, abort, request, jsonify
 from . import reports, supporting_docs, checklists, healthcheck
 from .helpers import error_message
 
-
-# version = "flask"
-# if "CI" not in os.environ:
-#     prepend_version = "/v1"
-# else:
-#     prepend_version = ""
-#
-# api = Blueprint("api", __name__, url_prefix=f"{prepend_version}/{version}")
-
 version = os.getenv("API_VERSION")
-# version = "flask"
 api = Blueprint("api", __name__, url_prefix=f"/{version}/flask")
 
 

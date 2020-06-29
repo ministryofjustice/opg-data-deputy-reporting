@@ -7,7 +7,7 @@ from boto3.session import Session
 
 def try_request():
     headers = {
-        "Content-Type": "application/pdf",
+        "Content-Type": "application/json",
     }
 
     client = boto3.client("sts")
@@ -62,7 +62,7 @@ def try_request():
         }
     }
 
-    url = "https://sq25usy81d.execute-api.eu-west-1.amazonaws.com/v1/flask/clients/33205624/reports"
+    url = "https://in260.dev.deputy-reporting.api.opg.service.justice.gov.uk/v1/flask/clients/33205624/reports"
     # url = "https://sq25usy81d.execute-api.eu-west-1.amazonaws.com/v1/flask/clients/33205624/reports"
 
     body = json.dumps(payload)

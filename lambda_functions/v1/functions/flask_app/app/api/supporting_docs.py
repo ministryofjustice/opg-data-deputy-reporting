@@ -16,10 +16,6 @@ def endpoint_handler(data, caseref, id):
         logger.error(f"{e} not set")
         return "internal server error", 500
 
-    # valid_payload, errors = validate_payload_data(data=data)
-
-    # if valid_payload:
-
     sirius_api_url = sirius_service.build_sirius_url(
         base_url=f"{SIRIUS_BASE_URL}/api/public",
         version=API_VERSION,
@@ -38,9 +34,7 @@ def endpoint_handler(data, caseref, id):
         url=sirius_api_url, data=sirius_payload, headers=sirius_headers
     )
 
-    return (sirius_response, sirius_response_code)
-    # else:
-    #     return "unable to parse payload", 400
+    return sirius_response, sirius_response_code
 
 
 def transform_payload_to_sirius_post_request(
@@ -129,24 +123,3 @@ def determine_document_parent_id(data, case_ref, report_id):
             parent_id = None
 
     return parent_id
-
-
-# def validate_payload_data(data):
-#
-#     required_body_structure = {
-#         "supporting_document": {
-#             "data": {
-#                 "attributes": {"submission_id": 0},
-#                 "file": {"name": "string", "mimetype": "string", "source": "string"},
-#             }
-#         }
-#     }
-#
-#     errors = compare_two_dicts(required_body_structure, data, missing=[])
-#
-#     if len(errors) > 0:
-#         logger.debug(f"Validation failed: {', '.join(errors)}")
-#         return False, errors
-#     else:
-#         logger.debug("Validation passed")
-#         return True, errors

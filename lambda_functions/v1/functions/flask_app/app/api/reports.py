@@ -16,10 +16,6 @@ def endpoint_handler(data, caseref):
         logger.error(f"{e} not set")
         return "internal server error", 500
 
-    # valid_payload, errors = validate_payload_data(data=data)
-
-    # if valid_payload:
-
     sirius_api_url = sirius_service.build_sirius_url(
         base_url=f"{SIRIUS_BASE_URL}/api/public",
         version=API_VERSION,
@@ -45,45 +41,6 @@ def endpoint_handler(data, caseref):
         logger.error(f"Error sending document to Sirius: {e}")
 
     return (sirius_response, sirius_response_code)
-    # else:
-    #     return "unable to parse payload", 400
-
-
-# def validate_payload_data(data):
-#     """
-#     The request body *should* be validated by API-G before it gets this far,
-#     but given everything blows up if any of these required fields are missing/wrong
-#     then it's worth double checking here, and providing integrators with a meaningful
-#     error message
-#
-#     Args:
-#         event: AWS event json
-#
-#     Returns:
-#         tuple: valid boolean, error list
-#     """
-#
-#     required_body_structure = {
-#         "report": {
-#             "data": {
-#                 "type": "string",
-#                 "attributes": {"submission_id": 1},
-#                 "file": {"name": "string", "mimetype": "string", "source": "string"},
-#             }
-#         }
-#     }
-#     print(f"json_data: {data}")
-#
-#     errors = compare_two_dicts(required_body_structure, data, missing=[])
-#
-#     print(f"errors: {errors}")
-#
-#     if len(errors) > 0:
-#         logger.debug(f"Validation failed: {', '.join(errors)}")
-#         return False, errors
-#     else:
-#         logger.debug("Validation passed")
-#         return True, errors
 
 
 def transform_payload_data_to_sirius_request(data, caseref=None):
