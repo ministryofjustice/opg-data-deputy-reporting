@@ -30,4 +30,8 @@ variable "healthcheck_lambda" {}
 
 variable "supportingdocs_lambda" {}
 
+//THIS IS JUST TEMPORARY
+variable "flaskapp_lambda" {}
+//THIS IS JUST TEMPORARY
+
 variable "checklists_lambda" {}
