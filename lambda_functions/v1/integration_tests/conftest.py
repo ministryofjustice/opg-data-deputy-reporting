@@ -72,37 +72,43 @@ def send_a_request(
         if os.getenv("AWS_ACCESS_KEY_ID") == "testing":
             print("Your AWS creds are not set properly")
 
-        boto3.setup_default_session(region_name="eu-west-1",)
+    if "CI" in os.environ:
+        role_name = "sirius-ci"
+    else:
+        role_name = "operator"
 
-        client = boto3.client("sts")
-        account_id = client.get_caller_identity()["Account"]
-        print(account_id)
+    boto3.setup_default_session(region_name="eu-west-1",)
 
-        role_to_assume = "arn:aws:iam::248804316466:role/operator"
-        response = client.assume_role(
-            RoleArn=role_to_assume, RoleSessionName="assumed_role"
-        )
+    client = boto3.client("sts")
+    account_id = client.get_caller_identity()["Account"]
+    print(account_id)
 
-        session = Session(
-            aws_access_key_id=response["Credentials"]["AccessKeyId"],
-            aws_secret_access_key=response["Credentials"]["SecretAccessKey"],
-            aws_session_token=response["Credentials"]["SessionToken"],
-        )
+    role_to_assume = f"arn:aws:iam::248804316466:role/{role_name}"
 
-        client = session.client("sts")
-        account_id = client.get_caller_identity()["Account"]
-        print(account_id)
+    response = client.assume_role(
+        RoleArn=role_to_assume, RoleSessionName="assumed_role"
+    )
 
-        credentials = session.get_credentials()
+    session = Session(
+        aws_access_key_id=response["Credentials"]["AccessKeyId"],
+        aws_secret_access_key=response["Credentials"]["SecretAccessKey"],
+        aws_session_token=response["Credentials"]["SessionToken"],
+    )
 
-        credentials = credentials.get_frozen_credentials()
-        access_key = credentials.access_key
-        secret_key = credentials.secret_key
-        token = credentials.token
+    client = session.client("sts")
+    account_id = client.get_caller_identity()["Account"]
+    print(account_id)
 
-        auth = AWS4Auth(
-            access_key, secret_key, "eu-west-1", "execute-api", session_token=token,
-        )
+    credentials = session.get_credentials()
+
+    credentials = credentials.get_frozen_credentials()
+    access_key = credentials.access_key
+    secret_key = credentials.secret_key
+    token = credentials.token
+
+    auth = AWS4Auth(
+        access_key, secret_key, "eu-west-1", "execute-api", session_token=token,
+    )
 
     response = requests.request(method, url, auth=auth, data=body, headers=headers)
     print(str(response.text))

@@ -136,7 +136,6 @@ def test_403(test_config, monkeypatch):
 
 @pytest.mark.skipif(os.getenv("AWS_SESSION_TOKEN") == "", reason="AWS creds not set")
 @pytest.mark.smoke_test
-@pytest.mark.jim_test
 @pytest.mark.run(order=10)
 @pytest.mark.parametrize("test_config", configs_to_test)
 def test_400_bad_url_params(test_config):
