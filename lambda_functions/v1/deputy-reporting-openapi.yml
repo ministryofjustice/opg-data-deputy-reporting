@@ -600,14 +600,14 @@ paths:
     get:
       summary: Sirius healthcheck
       description: Client report
-      operationId: app.healthcheck
+      operationId: app.healthcheckFlask
       tags:
         - "deputy-reporting"
       security:
         - sigv4: []
       x-amazon-apigateway-request-validator: "all"
       x-amazon-apigateway-integration:
-        uri: arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:$${stageVariables.healthcheck_function_name}/invocations
+        uri: arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:$${stageVariables.flask_app_name}/invocations
         responses:
           default:
             statusCode: "200"
@@ -668,7 +668,7 @@ paths:
     post:
       summary: Add a client report file
       description: Add a client report file
-      operationId: app.addReportDocument
+      operationId: app.addReportDocumentFlask
       tags:
         - "deputy-reporting"
       parameters:
@@ -682,7 +682,7 @@ paths:
         - sigv4: []
       x-amazon-apigateway-request-validator: "all"
       x-amazon-apigateway-integration:
-        uri: arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:$${stageVariables.reports_function_name}/invocations
+        uri: arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:$${stageVariables.flask_app_name}/invocations
         responses:
           default:
             statusCode: "200"
@@ -772,7 +772,7 @@ paths:
     post:
       summary: Add a document to Supervision which supports a report
       description: Add a document to Supervision which supports a report
-      operationId: app.addReportSupportingDocument
+      operationId: app.addReportSupportingDocumentFlask
       tags:
         - "deputy-reporting"
       parameters:
@@ -792,7 +792,7 @@ paths:
         - sigv4: []
       x-amazon-apigateway-request-validator: "all"
       x-amazon-apigateway-integration:
-        uri: arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:$${stageVariables.supporting_docs_name}/invocations
+        uri: arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:$${stageVariables.flask_app_name}/invocations
         responses:
           default:
             statusCode: "200"
@@ -882,7 +882,7 @@ paths:
     post:
       summary: Add a report lodging or review checklist
       description: Add a report lodging or review checklist
-      operationId: app.addReportChecklist
+      operationId: app.addReportChecklistFlask
       tags:
         - "deputy-reporting"
       parameters:
@@ -902,7 +902,7 @@ paths:
         - sigv4: []
       x-amazon-apigateway-request-validator: "all"
       x-amazon-apigateway-integration:
-        uri: arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:$${stageVariables.checklists_name}/invocations
+        uri: arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:$${stageVariables.flask_app_name}/invocations
         responses:
           default:
             statusCode: "200"
@@ -992,7 +992,7 @@ paths:
     put:
       summary: Update a report lodging or review checklist
       description: Update a report lodging or review checklist
-      operationId: app.updateReportChecklist
+      operationId: app.updateReportChecklistFlask
       tags:
         - "deputy-reporting"
       parameters:
@@ -1018,7 +1018,7 @@ paths:
         - sigv4: []
       x-amazon-apigateway-request-validator: "all"
       x-amazon-apigateway-integration:
-        uri: arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:$${stageVariables.checklists_name}/invocations
+        uri: arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:$${stageVariables.flask_app_name}/invocations
         responses:
           default:
             statusCode: "200"
@@ -1142,21 +1142,17 @@ components:
               $ref: '#/components/schemas/submissionId'
             reporting_period_from:
               type: string
-#              format: date
               example: "2019-01-01"
             reporting_period_to:
               type: string
-#              format: date
               example: "2019-12-31"
             year:
               type: integer
-#              format: int32
               minimum: 999
               maximum: 9999
               example: 2019
             date_submitted:
               type: string
-#              format: date-time
               example: "2020-01-03T09:30:00.001Z"
             type:
               type: string
@@ -1196,13 +1192,11 @@ components:
     DocumentUuid:
       type: string
       readOnly: true
-#      format: uuid
       description: Document UUID
       pattern: '^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$'
       example: '5a8b1a26-8296-4373-ae61-f8d0b250e773'
     submissionId:
       type: integer
-#      format: int32
       example: 12345
     file:
       type: object
@@ -1221,7 +1215,7 @@ components:
           example: application/pdf
         source:
           type: string
-          pattern: '(?:[A-Za-z0-9+/]{4}){2,}(?:[A-Za-z0-9+/]{2}[AEIMQUYcgkosw048]=|[A-Za-z0-9+/][AQgw]==)'
+          pattern: '.*'
           description: The base64 encoded file
     Response201:
       type: object

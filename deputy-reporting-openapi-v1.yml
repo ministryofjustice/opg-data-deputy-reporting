@@ -607,7 +607,7 @@ paths:
         - sigv4: []
       x-amazon-apigateway-request-validator: "all"
       x-amazon-apigateway-integration:
-        uri: arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:$${stageVariables.flaskapp_lambda}/invocations
+        uri: arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:$${stageVariables.flask_app_name}/invocations
         responses:
           default:
             statusCode: "200"
@@ -682,7 +682,7 @@ paths:
         - sigv4: []
       x-amazon-apigateway-request-validator: "all"
       x-amazon-apigateway-integration:
-        uri: arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:$${stageVariables.flaskapp_lambda}/invocations
+        uri: arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:$${stageVariables.flask_app_name}/invocations
         responses:
           default:
             statusCode: "200"
@@ -792,7 +792,7 @@ paths:
         - sigv4: []
       x-amazon-apigateway-request-validator: "all"
       x-amazon-apigateway-integration:
-        uri: arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:$${stageVariables.flaskapp_lambda}/invocations
+        uri: arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:$${stageVariables.flask_app_name}/invocations
         responses:
           default:
             statusCode: "200"
@@ -902,7 +902,7 @@ paths:
         - sigv4: []
       x-amazon-apigateway-request-validator: "all"
       x-amazon-apigateway-integration:
-        uri: arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:$${stageVariables.flaskapp_lambda}/invocations
+        uri: arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:$${stageVariables.flask_app_name}/invocations
         responses:
           default:
             statusCode: "200"
@@ -1018,7 +1018,7 @@ paths:
         - sigv4: []
       x-amazon-apigateway-request-validator: "all"
       x-amazon-apigateway-integration:
-        uri: arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:$${stageVariables.flaskapp_lambda}/invocations
+        uri: arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:$${stageVariables.flask_app_name}/invocations
         responses:
           default:
             statusCode: "200"
@@ -1215,7 +1215,7 @@ components:
           example: application/pdf
         source:
           type: string
-          pattern: '(?s).*'
+          pattern: '.*'
           description: The base64 encoded file
     Response201:
       type: object

@@ -62,7 +62,7 @@ def try_request():
         }
     }
 
-    url = "https://sq25usy81d.execute-api.eu-west-1.amazonaws.com/v1/clients/33205624/reports"
+    url = "https://sq25usy81d.execute-api.eu-west-1.amazonaws.com/v1/flask/clients/33205624/reports"
     # url = "https://sq25usy81d.execute-api.eu-west-1.amazonaws.com/v1/flask/clients/33205624/reports"
 
     body = json.dumps(payload)
