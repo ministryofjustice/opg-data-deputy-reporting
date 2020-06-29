@@ -40,19 +40,12 @@ def try_request():
         access_key, secret_key, "eu-west-1", "execute-api", session_token=token,
     )
 
-    method = "POST"
+    method = "PUT"
     payload = {
-        "report": {
+        "checklist": {
             "data": {
-                "type": "reports",
-                "attributes": {
-                    "submission_id": 12345,
-                    "reporting_period_from": "2019-01-01",
-                    "reporting_period_to": "2019-12-31",
-                    "year": 2019,
-                    "date_submitted": "2020-01-03T09:30:00.001Z",
-                    "type": "PF",
-                },
+                "type": "supportingdocuments",
+                "attributes": {"submission_id": 1234},
                 "file": {
                     "name": "blah.pdf",
                     "mimetype": "application/pdf",
@@ -62,7 +55,7 @@ def try_request():
         }
     }
 
-    url = "https://sq25usy81d.execute-api.eu-west-1.amazonaws.com/v1/clients/33205624/reports"
+    url = "https://sq25usy81d.execute-api.eu-west-1.amazonaws.com/v1/clients/33205624/reports/123/checklists/123"
     # url = "https://sq25usy81d.execute-api.eu-west-1.amazonaws.com/v1/flask/clients/33205624/reports"
 
     body = json.dumps(payload)

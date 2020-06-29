@@ -83,7 +83,7 @@ def send_a_request(
     account_id = client.get_caller_identity()["Account"]
     print(account_id)
 
-    role_to_assume = f"arn:aws:iam::248804316466:role/{role_name}"
+    role_to_assume = f"arn:aws:iam::288342028542:role/{role_name}"
 
     response = client.assume_role(
         RoleArn=role_to_assume, RoleSessionName="assumed_role"

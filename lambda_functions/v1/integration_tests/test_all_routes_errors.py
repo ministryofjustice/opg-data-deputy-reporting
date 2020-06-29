@@ -64,6 +64,7 @@ default_checklist_payload = {
 
 
 def all_routes(case_ref, report_id, checklist_id):
+
     return_values = [
         {
             "route": f"/clients/{case_ref}/reports/"
@@ -183,7 +184,11 @@ def test_400_bad_url_params(test_config):
 
         assert status == 400
         response_data = json.loads(response)
-        assert response_data["errors"]["code"] == "OPGDATA-API-INVALIDREQUEST"
+
+        print(type(response_data))
+
+        # Need to also check its not payload error here as that gets checked first
+        assert response_data["errors"][0]["code"] == "OPGDATA-API-INVALIDREQUEST"
 
 
 @pytest.mark.skipif(os.getenv("AWS_SESSION_TOKEN") == "", reason="AWS creds not set")
