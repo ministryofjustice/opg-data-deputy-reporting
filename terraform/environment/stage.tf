@@ -40,8 +40,11 @@ module "deploy_v1" {
   healthcheck_lambda    = module.lamdba_healthcheck_v1.lambda
   supportingdocs_lambda = module.lambda_supporting_docs_v1.lambda
   checklists_lambda     = module.lambda_checklists_v1.lambda
-  rest_api              = aws_api_gateway_rest_api.deputy_reporting
-  domain_name           = aws_api_gateway_domain_name.sirius_deputy_reporting
+  //THIS IS JUST TEMPORARY
+  flaskapp_lambda = module.lamdba_flask_v1.lambda
+  //THIS IS JUST TEMPORARY
+  rest_api    = aws_api_gateway_rest_api.deputy_reporting
+  domain_name = aws_api_gateway_domain_name.sirius_deputy_reporting
 }
 
 //To Add New Version Copy and Paste Above and Modify Accordingly

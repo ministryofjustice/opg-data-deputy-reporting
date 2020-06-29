@@ -24,8 +24,10 @@ def createDeputyDocument(document):
 
     return response_generated
 
+
 def updateDeputyDocument():
     return 200
+
 
 def getDeputyDocuments():
     return 200
