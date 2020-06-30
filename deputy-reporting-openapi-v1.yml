@@ -1230,13 +1230,16 @@ components:
       properties:
         name:
           type: string
+          pattern: '.*\S[.].*\S'
           example: Report_1234567T_2018_2019_11111.pdf
         s3_reference:
           type: string
-          example: dd_doc_98765_01234567890123.pdf
+          pattern: '.*'
+          example: dd_doc_98765_01234567890123
           description: The filename only of the Amazon AWS S3 link to the document file in the Digideps bucket
         mimetype:
           type: string
+          pattern: '.*\S[/].*\S'
           example: application/pdf
     Response201:
       type: object
