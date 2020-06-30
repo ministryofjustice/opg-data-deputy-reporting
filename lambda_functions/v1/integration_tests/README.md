@@ -25,5 +25,6 @@ To run the integration tests in their entirety:
 2) Activate it: `source venv/bin/activate`
 3) Install pip requirements: `pip install -r lambda_functions/v1/requirements/dev-requirements.txt`
 4) Make sure $PYTHONPATH is set to root of directory.
-5) `cd` into integrations test folder and run `aws-vault exec identity -- python -m pytest`
+5) `cd` into integrations test folder and run `aws-vault exec identity -- python -m pytest -n2 --dist=loadfile --html=report.html --self-contained-html`
+6) Open `report.html` in a browser to see the results of the tests all laid out nicely
 
