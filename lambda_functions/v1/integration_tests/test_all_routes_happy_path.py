@@ -12,9 +12,7 @@ from lambda_functions.v1.integration_tests import (
 from lambda_functions.v1.integration_tests.conftest import (
     send_a_request,
     is_valid_uuid,
-    create_record,
     configs_to_test,
-    update_record,
 )
 
 
@@ -35,20 +33,12 @@ def test_post_a_report(case_data: CaseDataGetter, test_config):
         url=url, method=method, payload=payload, test_config=test_config
     )
 
-    print(f"response: {response}")
-
     assert status == expected_status_code
     assert type(response) == str
     if status == 201:
         r = json.loads(response)
 
-        file_name = payload["report"]["data"]["file"]["name"]
-
         test_config["report_id"] = r["data"]["id"]
-
-        create_record(
-            returned_data=r, file_name=file_name, config_name=test_config["name"]
-        )
 
         assert r["data"]["type"] == expected_response_data["type"]
         assert is_valid_uuid(r["data"]["id"])
@@ -76,20 +66,12 @@ def test_post_a_supporting_doc(case_data: CaseDataGetter, test_config):
         url=url, method=method, payload=payload, test_config=test_config
     )
 
-    r = json.loads(response)
-    print(f"r: {r}")
-
     assert status == expected_status_code
     assert type(response) == str
     if status == 201:
         r = json.loads(response)
-        file_name = payload["supporting_document"]["data"]["file"]["name"]
 
         test_config["supp_doc_id"] = r["data"]["id"]
-
-        create_record(
-            returned_data=r, file_name=file_name, config_name=test_config["name"]
-        )
 
         assert r["data"]["type"] == expected_response_data["type"]
         assert is_valid_uuid(r["data"]["id"])
@@ -122,12 +104,7 @@ def test_post_a_new_checklist(case_data: CaseDataGetter, test_config):
     if status == 201:
         r = json.loads(response)
 
-        file_name = payload["checklist"]["data"]["file"]["name"]
         test_config["checklist_id"] = r["data"]["id"]
-
-        create_record(
-            returned_data=r, file_name=file_name, config_name=test_config["name"]
-        )
 
         assert r["data"]["type"] == expected_response_data["type"]
         assert is_valid_uuid(r["data"]["id"])
@@ -159,12 +136,6 @@ def test_post_an_updated_checklist(case_data: CaseDataGetter, test_config):
     assert type(response) == str
     if status == 200:
         r = json.loads(response)
-
-        update_record(
-            returned_data=r,
-            original_record_id=expected_response_data["original_checklist_id"],
-            config_name=test_config["name"],
-        )
 
         assert r["data"]["type"] == expected_response_data["type"]
         assert is_valid_uuid(r["data"]["id"])
