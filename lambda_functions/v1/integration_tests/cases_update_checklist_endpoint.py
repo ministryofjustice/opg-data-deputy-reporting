@@ -14,9 +14,6 @@ new_submission_id = random.randint(10000, 99999)
 )
 def case_success_original_IN_112(test_config: str, sub_id: int) -> CaseData:
 
-    print(f"Using test_config: {test_config['name']}")
-    # Test Data
-
     report_id = test_config["report_id"]
     submission_id = sub_id
     case_ref = test_config["case_ref"]
@@ -26,10 +23,6 @@ def case_success_original_IN_112(test_config: str, sub_id: int) -> CaseData:
         f"clients/{case_ref}/reports/" f"{report_id}/checklists/" f"{checklist_id}"
     )
     url = f"{test_config['url']}/{endpoint}"
-
-    print(f"report_id: {report_id}")
-    print(f"submission_id: {submission_id}")
-    print(f"checklist_id: {checklist_id}")
 
     method = "PUT"
     payload = {

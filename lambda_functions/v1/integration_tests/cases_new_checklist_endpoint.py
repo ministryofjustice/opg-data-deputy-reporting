@@ -13,7 +13,6 @@ new_submission_id = random.randint(10000, 99999)
 )
 def case_success_original_IN_112(test_config: str) -> CaseData:
 
-    print(f"Using test_config: {test_config['name']}")
     # Test Data
 
     report_id = test_config["report_id"]
@@ -58,7 +57,6 @@ def case_success_original_IN_112(test_config: str) -> CaseData:
 )
 def case_success_new_submission_IN_112(test_config: str) -> CaseData:
 
-    print(f"Using test_config: {test_config['name']}")
     # Test Data
 
     report_id = test_config["report_id"]

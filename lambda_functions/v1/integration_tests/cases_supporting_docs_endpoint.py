@@ -13,11 +13,6 @@ new_submission_id = random.randint(10000, 99999)
 )
 def case_success_original(test_config: str) -> CaseData:
 
-    print(f"Using test_config: {test_config['name']}")
-    # Test Data
-
-    print(f"test_config['report_id']: {test_config['report_id']}")
-
     report_id = test_config["report_id"]
     submission_id = test_config["submission_id"]
     case_ref = test_config["case_ref"]
@@ -59,9 +54,6 @@ def case_success_original(test_config: str) -> CaseData:
     "report sent in a different submission"
 )
 def case_success_new_submission(test_config: str) -> CaseData:
-
-    print(f"Using test_config: {test_config['name']}")
-    # Test Data
 
     report_id = test_config["report_id"]
     submission_id = 54321
@@ -105,9 +97,6 @@ def case_success_new_submission(test_config: str) -> CaseData:
 )
 def case_success_new_submission_2(test_config: str) -> CaseData:
 
-    print(f"Using test_config: {test_config['name']}")
-    # Test Data
-
     report_id = test_config["report_id"]
     submission_id = 543218
     case_ref = test_config["case_ref"]
@@ -149,9 +138,6 @@ def case_success_new_submission_2(test_config: str) -> CaseData:
     "supporting doc "
 )
 def case_success_new_submission_child(test_config: str) -> CaseData:
-
-    print(f"Using test_config: {test_config['name']}")
-    # Test Data
 
     report_id = test_config["report_id"]
     submission_id = 543218

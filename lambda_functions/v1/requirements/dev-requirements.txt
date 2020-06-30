@@ -15,3 +15,5 @@ flask-lambda-python36
 pytest-env
 requests_aws4auth
 faker
+pytest-html
+pytest-xdist

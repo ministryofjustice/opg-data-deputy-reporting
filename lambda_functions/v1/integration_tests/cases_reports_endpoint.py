@@ -8,16 +8,12 @@ from lambda_functions.v1.integration_tests.conftest import generate_file_name
 @case_name("Successful post to reports endpoint")
 def case_success_original(test_config: str) -> CaseData:
 
-    print(f"Using test_config: {test_config['name']}")
-
     # Test Data
 
     submission_id = test_config["submission_id"]
 
     endpoint = f"clients/{test_config['case_ref']}/reports"
     url = f"{test_config['url']}/{endpoint}"
-
-    print(f"url: {url}")
 
     method = "POST"
     payload = {

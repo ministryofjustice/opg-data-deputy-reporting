@@ -66,8 +66,6 @@ default_checklist_payload = {
 )
 def case_reports_missing_fields(test_config: str, missing) -> CaseData:
 
-    print(f"Using test_config: {test_config['name']}")
-
     endpoint = f"clients/{test_config['case_ref']}/reports"
     url = f"{test_config['url']}/{endpoint}"
     method = "POST"
@@ -96,8 +94,6 @@ def case_reports_missing_fields(test_config: str, missing) -> CaseData:
 )
 def case_reports_empty_fields(test_config: str, missing) -> CaseData:
 
-    print(f"Using test_config: {test_config['name']}")
-
     endpoint = f"clients/{test_config['case_ref']}/reports"
     url = f"{test_config['url']}/{endpoint}"
     method = "POST"
@@ -119,8 +115,6 @@ def case_reports_empty_fields(test_config: str, missing) -> CaseData:
     missing=["attributes/submission_id", "file/name", "file/mimetype", "file/source"],
 )
 def case_suppdocs_missing_fields(test_config: str, missing) -> CaseData:
-
-    print(f"Using test_config: {test_config['name']}")
 
     report_id = test_config["report_id"]
     case_ref = test_config["case_ref"]
@@ -148,7 +142,6 @@ def case_suppdocs_missing_fields(test_config: str, missing) -> CaseData:
     missing=["attributes/submission_id", "file/name", "file/mimetype", "file/source"],
 )
 def case_suppdocs_empty_fields(test_config: str, missing) -> CaseData:
-    print(f"Using test_config: {test_config['name']}")
 
     report_id = test_config["report_id"]
     case_ref = test_config["case_ref"]
@@ -177,8 +170,6 @@ def case_suppdocs_empty_fields(test_config: str, missing) -> CaseData:
 )
 def case_checklist_missing_fields(test_config: str, missing) -> CaseData:
 
-    print(f"Using test_config: {test_config['name']}")
-
     report_id = test_config["report_id"]
     case_ref = test_config["case_ref"]
 
@@ -203,7 +194,6 @@ def case_checklist_missing_fields(test_config: str, missing) -> CaseData:
     missing=["attributes/submission_id", "file/name", "file/mimetype", "file/source"],
 )
 def case_checklist_empty_fields(test_config: str, missing) -> CaseData:
-    print(f"Using test_config: {test_config['name']}")
 
     report_id = test_config["report_id"]
     case_ref = test_config["case_ref"]
@@ -229,8 +219,6 @@ def case_checklist_empty_fields(test_config: str, missing) -> CaseData:
     missing=["attributes/submission_id", "file/name", "file/mimetype", "file/source"],
 )
 def case_checklist_update_missing_fields(test_config: str, missing) -> CaseData:
-
-    print(f"Using test_config: {test_config['name']}")
 
     report_id = test_config["report_id"]
     case_ref = test_config["case_ref"]
@@ -259,7 +247,6 @@ def case_checklist_update_missing_fields(test_config: str, missing) -> CaseData:
     missing=["attributes/submission_id", "file/name", "file/mimetype", "file/source"],
 )
 def case_checklist_update_empty_fields(test_config: str, missing) -> CaseData:
-    print(f"Using test_config: {test_config['name']}")
 
     report_id = test_config["report_id"]
     case_ref = test_config["case_ref"]

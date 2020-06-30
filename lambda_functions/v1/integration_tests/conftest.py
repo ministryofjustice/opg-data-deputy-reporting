@@ -1,14 +1,12 @@
-import datetime
 import json
 import os
 import uuid
 
 import boto3
-from boto3.session import Session
-
 import requests
-from requests_aws4auth import AWS4Auth
+from boto3.session import Session
 from faker import Faker
+from requests_aws4auth import AWS4Auth
 
 # Setup Data
 
@@ -55,6 +53,11 @@ all_records = []
 def send_a_request(
     url, method, payload, test_config, extra_headers=None, content_type=None
 ):
+    print(f"Using test_config: {test_config['name']}")
+    print(f"url: {url}")
+    print(f"method: {method}")
+    print(f"payload: {json.dumps(payload, indent=4)}")
+
     headers = {
         "Content-Type": content_type if content_type else "application/json",
     }
@@ -80,8 +83,7 @@ def send_a_request(
     boto3.setup_default_session(region_name="eu-west-1",)
 
     client = boto3.client("sts")
-    account_id = client.get_caller_identity()["Account"]
-    print(account_id)
+    client.get_caller_identity()["Account"]
 
     role_to_assume = f"arn:aws:iam::288342028542:role/{role_name}"
 
@@ -96,8 +98,7 @@ def send_a_request(
     )
 
     client = session.client("sts")
-    account_id = client.get_caller_identity()["Account"]
-    print(account_id)
+    client.get_caller_identity()["Account"]
 
     credentials = session.get_credentials()
 
@@ -111,7 +112,10 @@ def send_a_request(
     )
 
     response = requests.request(method, url, auth=auth, data=body, headers=headers)
-    print(str(response.text))
+
+    print(f"response.status_code: {response.status_code}")
+    print(f"response: {json.dumps(response.json(), indent=4)}")
+
     return response.status_code, response.text
 
 
@@ -128,67 +132,3 @@ def generate_file_name():
     words = fake.words()
 
     return "_".join(words)
-
-
-def create_record(returned_data=None, file_name=None, config_name=None):
-    # pass
-    try:
-        r = returned_data
-    except Exception:
-        return "failed to create record"
-
-    child_record = True if r["data"]["attributes"]["parent_id"] is not None else False
-
-    record = {
-        "document_type": r["data"]["type"],
-        "document_id": r["data"]["id"],
-        "submission_id": r["data"]["attributes"]["submission_id"],
-        "parent_id": r["data"]["attributes"]["parent_id"],
-        "file_name": file_name,
-    }
-
-    if child_record:
-        parent_id = r["data"]["attributes"]["parent_id"]
-        parent_record = [p for p in all_records if p["document_id"] == parent_id][0]
-        parent_record["children"].append(record)
-
-        print(f'Added child record {r["data"]["id"]} to parent {parent_id}')
-
-    else:
-        record["children"] = []
-        record["amendments"] = []
-        all_records.append(record)
-
-        print(f'Added parent record {r["data"]["id"]}')
-
-    write_record(config_name=config_name)
-
-
-def update_record(returned_data, original_record_id, config_name=None):
-    # pass
-    r = returned_data
-
-    original_record = [
-        r for r in all_records if r["document_id"] == original_record_id
-    ][0]
-
-    record = {
-        "document_type": r["data"]["type"],
-        "document_id": r["data"]["id"],
-        "submission_id": r["data"]["attributes"]["submission_id"],
-        "amendment": len(original_record["amendments"]) + 1,
-    }
-
-    original_record["amendments"].append(record)
-
-    print(f"Updated record with document_id: {original_record_id}")
-    write_record(config_name=config_name)
-
-
-def write_record(config_name):
-
-    date = datetime.datetime.now().strftime("%Y-%m-%d")
-    json_records = json.dumps(all_records, indent=4)
-
-    with open(f"{config_name}_{date}_updates.json", "w") as outfile:
-        outfile.write(json_records)
