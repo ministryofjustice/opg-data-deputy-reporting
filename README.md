@@ -1,7 +1,7 @@
 # opg-data-deputy-reporting
 Deputy reporting integration with OPG Data: Managed by opg-org-infra &amp; Terraform
 
-#### Path specific naming conventions
+### Path specific naming conventions
 
 Paths are product and environment specific and use delegated domains to create a hierarchy
 to support this implementation.
@@ -18,7 +18,7 @@ PR1234.dev.api.deputy-reporting.api.opg.service.justice.gov.uk/v1/healthcheck.
 
 New certs aren't created per branch as the sub branches use the wildcard cert for dev sub domain.
 
-#### Deployment of RestAPIs
+### Deployment of RestAPIs
 
 The rest APIs deploy through a circleci job. The deployments are separate for each branch
 and the uri for your branch will follow the pattern above.
@@ -31,7 +31,7 @@ environments.
 On merge of the PR the changes are applied into development and preproduction and after
 a further approval, production.
 
-#### Authentication and local testing
+### Authentication and local testing
 
 Because the frontend is using IAM auth to access the endpoints, you must have temporary
 credentials for one of the roles that is authorised to access the endpoint if you want to
@@ -40,7 +40,37 @@ endpoints locally. You can use getcreds.go script with aws-vault (aws-vault exec
 go run getcreds.go) and paste the outputs into appropriate section
 of your GUI API testing tools (like postman) to test the endpoints that way.
 
-#### PACT
+### 'Integration' Tests
+
+These tests send a payload to a real url, be careful where you point things if you're going to run these.
+
+These are not run as part of the regular unit tests. Use at your own risk
+
+#### How to run
+
+Pre-requirements:
+
+1) Have aws-vault installed and set up
+
+To run the integration tests in their entirety:
+
+1) From root dir, jump in to a venv: `virtualenv venv`
+2) Activate it: `source venv/bin/activate`
+3) Install pip requirements: `pip install -r lambda_functions/v1/requirements/dev-requirements.txt`
+4) Make sure $PYTHONPATH is set to root of directory.
+5) Ensure the integration tests run on the desired branch environment by updating the URLs in `lambda_functions/(v1)/integration_tests/conftest.py`  
+6) `cd` into integrations test folder and run `aws-vault exec identity -- python -m pytest -n2 --dist=loadfile --html=report.html --self-contained-html`
+7) Open `report.html` in a browser to see the results of the tests all laid out nicely
+
+#### Integration tests... still To Do
+
+* Local mock Sirius needs fixing so this can be included in these tests
+* AWS creds have to be pasted into `conftest.py` for now. Please don't commit these.
+* Only happy path tests right now
+* No checklist tests yet
+* Uploaded records could be formatted nicer making it easier to reconcile with Sirius if required
+
+### PACT
 
 To run pact locally, the easiest way to interact with it is to use the client tools.
 
