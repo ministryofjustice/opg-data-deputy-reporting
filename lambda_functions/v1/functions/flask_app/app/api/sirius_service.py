@@ -142,9 +142,6 @@ def new_submit_document_to_sirius(
 
 def new_format_sirius_response(sirius_response_code, sirius_response=None):
 
-    if sirius_response is None:
-        sirius_response = {}
-
     try:
         if sirius_response_code in [200, 201]:
 
@@ -167,15 +164,13 @@ def new_format_sirius_response(sirius_response_code, sirius_response=None):
             formatted_response = {"message": "URL params not right"}
 
         else:
-            formatted_status_code = 400
+            formatted_status_code = sirius_response_code
             formatted_response = (
                 f"sirius problem: {sirius_response_code} - {sirius_response}"
             )
     except Exception:
         formatted_status_code = 500
-        formatted_response = (
-            f"sirius problem: {sirius_response_code} - {sirius_response}"
-        )
+        formatted_response = f"sirius problem: 500 - {sirius_response}"
 
     return formatted_status_code, formatted_response
 

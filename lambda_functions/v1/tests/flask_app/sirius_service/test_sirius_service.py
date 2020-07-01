@@ -6,8 +6,27 @@ from jwt import DecodeError
 import boto3
 from botocore.exceptions import ClientError
 from moto import mock_secretsmanager
+from pytest_cases import cases_data, CaseDataGetter
 
 from lambda_functions.v1.functions.flask_app.app.api import sirius_service
+from lambda_functions.v1.functions.flask_app.app.api.sirius_service import (
+    new_format_sirius_response,
+)
+from lambda_functions.v1.tests.flask_app.sirius_service import (
+    cases_format_sirius_response,
+)
+
+"""
+Functions that require tests (* for done):
+
+* build_sirius_url
+* get_secret
+* build_sirius_headers
+new_post_to_sirius
+new_submit_document_to_sirius
+* new_format_sirius_response
+submit_document_to_sirius (superseded by the 'new_' functions above so ignoring)
+"""
 
 
 @pytest.mark.parametrize(
@@ -52,6 +71,8 @@ from lambda_functions.v1.functions.flask_app.app.api import sirius_service
     ],
 )
 def test_build_sirius_url(base_url, version, endpoint, url_params, expected_result):
+    # Copied directly from original
+    # "lambda_functions/v1/tests/reports/test_reports_sirius_service.py' test
     url = sirius_service.build_sirius_url(base_url, version, endpoint, url_params)
     try:
         assert urllib.parse.unquote(url) == expected_result
@@ -70,6 +91,8 @@ def test_build_sirius_url(base_url, version, endpoint, url_params, expected_resu
 def test_build_sirius_headers_content_type(
     patched_get_secret, test_content_type, test_secret_key, expected_content_type
 ):
+    # Copied directly from original
+    # "lambda_functions/v1/tests/reports/test_reports_sirius_service.py' test
     if test_content_type:
         headers = sirius_service.build_sirius_headers(content_type=test_content_type)
     else:
@@ -79,6 +102,8 @@ def test_build_sirius_headers_content_type(
 
 
 def test_build_sirius_headers_auth(patched_get_secret):
+    # Copied directly from original
+    # "lambda_functions/v1/tests/reports/test_reports_sirius_service.py' test
     headers = sirius_service.build_sirius_headers()
     token = headers["Authorization"].split()[1]
 
@@ -97,6 +122,8 @@ def test_build_sirius_headers_auth(patched_get_secret):
 )
 @mock_secretsmanager
 def test_get_secret(secret_code, environment, region):
+    # Copied directly from original
+    # "lambda_functions/v1/tests/reports/test_reports_sirius_service.py' test
 
     session = boto3.session.Session()
     client = session.client(service_name="secretsmanager", region_name=region)
@@ -106,3 +133,28 @@ def test_get_secret(secret_code, environment, region):
 
     with pytest.raises(ClientError):
         sirius_service.get_secret("not_a_real_environment")
+
+
+def new_post_to_sirius(url, data, headers, method):
+    pass
+
+
+def test_new_submit_document_to_sirius():
+    pass
+
+
+@cases_data(module=cases_format_sirius_response)
+def test_new_format_sirius_response(case_data: CaseDataGetter):
+    (
+        sirius_response_code,
+        sirius_response,
+        api_response_code,
+        api_response,
+    ) = case_data.get()
+
+    formatted_status_code, formatted_response_text = new_format_sirius_response(
+        sirius_response_code, sirius_response
+    )
+
+    assert formatted_response_text == api_response
+    assert formatted_status_code == api_response_code

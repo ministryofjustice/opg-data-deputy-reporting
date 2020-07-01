@@ -4,6 +4,7 @@ import pytest
 import requests
 
 import lambda_functions
+from lambda_functions.v1.functions.flask_app.app import api
 from lambda_functions.v1.functions.flask_app.app.api import sirius_service
 
 test_data = {
@@ -212,22 +213,6 @@ def patched_get_secret(monkeypatch):
     monkeypatch.setattr(sirius_service, "get_secret", mock_secret)
 
 
-# @pytest.fixture
-# def patched_validate_event_fail(monkeypatch):
-#     def mock_invalid(*args, **kwargs):
-#         return False, ["file_name", "file_type"]
-#
-#     monkeypatch.setattr(reports, "validate_event", mock_invalid)
-#
-#
-# @pytest.fixture
-# def patched_validate_event_success(monkeypatch):
-#     def mock_valid(*args, **kwargs):
-#         return True, []
-#
-#     monkeypatch.setattr(reports, "validate_event", mock_valid)
-
-
 @pytest.fixture
 def patched_send_get_to_sirius(monkeypatch):
     def mock_response(url):
@@ -302,4 +287,58 @@ def patched_submit_document_to_sirius(monkeypatch):
         lambda_functions.v1.functions.flask_app.app.api.sirius_service,
         "submit_document_to_sirius",
         mock_submit_document_to_sirius,
+    )
+
+
+valid_case_refs = ["1111", "2222", "3333"]
+
+
+@pytest.fixture(autouse=True)
+def patched_post(monkeypatch):
+    def mock_post_to_sirius(*args, **kwargs):
+        data = json.loads(kwargs["data"])
+        case_ref = data["caseRecNumber"]
+
+        mock_response = requests.Response()
+
+        if case_ref in valid_case_refs:
+            mock_response.status_code = 201
+            print(f"mock_response.status_code: {mock_response.status_code}")
+
+            def json_func():
+                doc_type = data["type"]
+                file_name = data["file"]["name"]
+                mimetype = data["file"]["type"]
+                metadata = data["metadata"]
+                return {
+                    "type": doc_type,
+                    "filename": file_name,
+                    "mimetype": mimetype,
+                    "metadata": metadata,
+                    "uuid": "5a8b1a26-8296-4373-ae61-f8d0b250e773",
+                    "parentUuid": "5a8b1a26-8296-4373-ae61-f8d0b250e773",
+                }
+
+            mock_response.json = json_func
+        else:
+            mock_response.status_code = 404
+            print(f"mock_response.status_code: {mock_response.status_code}")
+
+            def json_func():
+                return {"things": "stuff"}
+
+            mock_response.json = json_func
+        return mock_response.status_code, mock_response.json()
+
+    monkeypatch.setattr(api.sirius_service, "new_post_to_sirius", mock_post_to_sirius)
+
+
+@pytest.fixture(autouse=True)
+def patched_post_broken_sirius(monkeypatch):
+    def mock_post_to_broken_sirius(*args, **kwargs):
+
+        raise ConnectionError
+
+    monkeypatch.setattr(
+        api.sirius_service, "new_post_to_sirius", mock_post_to_broken_sirius
     )
