@@ -282,7 +282,7 @@ def patched_submit_document_to_sirius(monkeypatch):
 
         try:
             case_ref = json.loads(kwargs["data"])["caseRecNumber"]
-            print(f"case_ref: {case_ref}")
+            print(f"case_ref from conftest: {case_ref}")
         except (KeyError, TypeError) as e:
             print(f"error getting caseRecNumber: {e}")
 

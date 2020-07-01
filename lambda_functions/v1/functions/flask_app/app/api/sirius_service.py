@@ -8,8 +8,9 @@ import jwt
 import requests
 from botocore.exceptions import ClientError
 
-# Sirius API Service
 from .helpers import custom_logger, sirius_errors
+
+# Sirius API Service
 
 logger = custom_logger("sirius_service")
 
@@ -53,7 +54,7 @@ def get_secret(environment):
     Raises:
         ClientError
     """
-    print("REAL GET SECRET")
+
     secret_name = f"{environment}/jwt-key"
     region_name = "eu-west-1"
 
@@ -92,12 +93,91 @@ def build_sirius_headers(content_type="application/json"):
         algorithm="HS256",
     )
 
-    print(f"get_secret(environment): {get_secret(environment)}")
-
     return {
         "Content-Type": content_type,
         "Authorization": "Bearer " + encoded_jwt.decode("UTF8"),
     }
+
+
+def new_post_to_sirius(url, data, headers, method):
+    try:
+        if method == "PUT":
+            r = requests.put(url=url, data=data, headers=headers)
+        else:
+            r = requests.post(url=url, data=data, headers=headers)
+    except Exception as e:
+        print(f"e: {e}")
+
+    return r.status_code, json.loads(r.json())
+
+
+def new_submit_document_to_sirius(
+    data, method="POST", endpoint="documents", url_params=None
+):
+
+    try:
+        SIRIUS_BASE_URL = os.environ["SIRIUS_BASE_URL"]
+        API_VERSION = os.environ["API_VERSION"]
+    except KeyError as e:
+        logger.error(f"{e} not set")
+        return "internal server error", 500
+
+    sirius_api_url = build_sirius_url(
+        base_url=f"{SIRIUS_BASE_URL}/api/public",
+        version=API_VERSION,
+        endpoint=endpoint,
+        url_params=url_params,
+    )
+
+    headers = build_sirius_headers()
+
+    sirius_status_code, sirius_response = new_post_to_sirius(
+        url=sirius_api_url, data=data, headers=headers, method=method
+    )
+
+    return new_format_sirius_response(
+        sirius_response_code=sirius_status_code, sirius_response=sirius_response
+    )
+
+
+def new_format_sirius_response(sirius_response_code, sirius_response=None):
+
+    if sirius_response is None:
+        sirius_response = {}
+
+    try:
+        if sirius_response_code in [200, 201]:
+
+            formatted_status_code = sirius_response_code
+            formatted_response = {
+                "data": {
+                    "type": sirius_response["type"],
+                    "id": sirius_response["uuid"],
+                    "attributes": {
+                        "submission_id": sirius_response["metadata"]["submission_id"],
+                        "parent_id": sirius_response["parentUuid"]
+                        if "parentUuid" in sirius_response
+                        else None,
+                    },
+                }
+            }
+
+        elif sirius_response_code == 404:
+            formatted_status_code = 400
+            formatted_response = {"message": "URL params not right"}
+
+        else:
+            formatted_status_code = 400
+            formatted_response = (
+                f"sirius problem: {sirius_response_code} - {sirius_response}"
+            )
+    except Exception:
+        formatted_status_code = 500
+        formatted_response = (
+            f"sirius problem: {sirius_response_code} - {sirius_response}"
+        )
+
+    return formatted_status_code, formatted_response
 
 
 def submit_document_to_sirius(url, data, headers=None, method="POST"):
@@ -112,8 +192,6 @@ def submit_document_to_sirius(url, data, headers=None, method="POST"):
             r = requests.post(url=url, data=data, headers=headers)
     except Exception as e:
         print(f"e: {e}")
-
-    print(f"r: {r}")
 
     try:
         sirius_response_code = r.status_code
@@ -144,7 +222,6 @@ def format_sirius_response(sirius_response=None, sirius_response_code=500):
     if sirius_response is None:
         sirius_response = {}
 
-    print(sirius_response_code)
     try:
         if sirius_response_code in [200, 201]:
             response = {

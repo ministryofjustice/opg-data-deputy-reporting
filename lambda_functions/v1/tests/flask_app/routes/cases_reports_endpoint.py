@@ -78,8 +78,8 @@ def case_bad_params() -> CaseData:
 
     test_headers = {"Content-Type": "application/json"}
 
-    expected_response_status_code = 404
-    expected_response_data = None
+    expected_response_status_code = 400
+    expected_response_data = "OPGDATA-API-INVALIDREQUEST"
 
     return (
         test_data,
