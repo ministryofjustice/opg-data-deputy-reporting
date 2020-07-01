@@ -11,9 +11,11 @@ from pytest_cases import cases_data, CaseDataGetter
 from lambda_functions.v1.functions.flask_app.app.api import sirius_service
 from lambda_functions.v1.functions.flask_app.app.api.sirius_service import (
     new_format_sirius_response,
+    new_submit_document_to_sirius,
 )
 from lambda_functions.v1.tests.flask_app.sirius_service import (
     cases_format_sirius_response,
+    cases_submit_doc_to_sirius,
 )
 
 """
@@ -23,7 +25,7 @@ Functions that require tests (* for done):
 * get_secret
 * build_sirius_headers
 new_post_to_sirius
-new_submit_document_to_sirius
+* new_submit_document_to_sirius
 * new_format_sirius_response
 submit_document_to_sirius (superseded by the 'new_' functions above so ignoring)
 """
@@ -139,8 +141,28 @@ def new_post_to_sirius(url, data, headers, method):
     pass
 
 
-def test_new_submit_document_to_sirius():
-    pass
+@cases_data(module=cases_submit_doc_to_sirius)
+@pytest.mark.usefixtures("patched_get_secret", "patched_post")
+def test_new_submit_document_to_sirius(monkeypatch, case_data: CaseDataGetter):
+    (
+        data,
+        method,
+        endpoint,
+        url_params,
+        env_var,
+        expected_status_code,
+        expected_response,
+    ) = case_data.get()
+
+    if env_var:
+        monkeypatch.delenv(env_var)
+
+    status_code, response = new_submit_document_to_sirius(
+        data=data, method=method, endpoint=endpoint, url_params=url_params
+    )
+
+    assert status_code == expected_status_code
+    assert response == expected_response
 
 
 @cases_data(module=cases_format_sirius_response)

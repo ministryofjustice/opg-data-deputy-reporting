@@ -120,7 +120,7 @@ def new_submit_document_to_sirius(
         API_VERSION = os.environ["API_VERSION"]
     except KeyError as e:
         logger.error(f"{e} not set")
-        return "internal server error", 500
+        return 500, "something has gone wrong"
 
     sirius_api_url = build_sirius_url(
         base_url=f"{SIRIUS_BASE_URL}/api/public",
@@ -129,15 +129,23 @@ def new_submit_document_to_sirius(
         url_params=url_params,
     )
 
+    print(f"sirius_api_url: {sirius_api_url}")
+
     headers = build_sirius_headers()
+
+    print(f"headers: {headers}")
 
     sirius_status_code, sirius_response = new_post_to_sirius(
         url=sirius_api_url, data=data, headers=headers, method=method
     )
 
-    return new_format_sirius_response(
+    print(f"sirius_status_code: {sirius_status_code}")
+    print(f"sirius_response: {sirius_response}")
+    formatted_status_code, formatted_response = new_format_sirius_response(
         sirius_response_code=sirius_status_code, sirius_response=sirius_response
     )
+
+    return formatted_status_code, formatted_response
 
 
 def new_format_sirius_response(sirius_response_code, sirius_response=None):
