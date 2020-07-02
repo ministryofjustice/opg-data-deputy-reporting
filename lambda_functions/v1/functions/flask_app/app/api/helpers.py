@@ -85,8 +85,7 @@ def error_message(code, message):
                     "error": {
                         "code": sirius_errors[str(code)]["error_code"],
                         "title": sirius_errors[str(code)]["error_title"],
-                        "message": f"{sirius_errors[str(code)]['error_message']} "
-                        f"{message if message else ''}",
+                        "message": f"{sirius_errors[str(code)]['error_message']} ",
                     }
                 },
             }
