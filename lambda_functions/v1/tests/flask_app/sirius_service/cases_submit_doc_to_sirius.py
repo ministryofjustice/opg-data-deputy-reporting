@@ -1,6 +1,6 @@
 import json
 
-from pytest_cases import case_name, CaseData, cases_generator
+from pytest_cases import case_name, CaseData, cases_generator, case_tags
 
 test_data = {
     "caseRecNumber": "1111",
@@ -15,6 +15,7 @@ test_data = {
 }
 
 
+@case_tags("post_success")
 @case_name("Successful post to Sirius")
 def case_success() -> CaseData:
 
@@ -47,6 +48,27 @@ def case_success() -> CaseData:
     )
 
 
+@case_tags("post_error")
+@case_name("Successful post to Sirius, but Sirius returns an error code")
+def case_error() -> CaseData:
+
+    data = json.dumps(test_data)
+    method = "POST"
+    endpoint = "documents"
+    url_params = None
+
+    expected_responses = {
+        400: [
+            "Payload validation failed in Sirius",
+            "Could not verify URL params in Sirius",
+        ],
+        500: ["Unable to send document to Sirius", "Unknown error talking to Sirius"],
+    }
+
+    return (data, method, endpoint, url_params, expected_responses)
+
+
+@case_tags("post_success")
 @cases_generator(
     "Env var not set {env_var}", env_var=["SIRIUS_BASE_URL", "API_VERSION"]
 )
@@ -58,7 +80,7 @@ def case_missing_env_vars(env_var) -> CaseData:
     url_params = None
 
     expected_status_code = 500
-    expected_response = "something has gone wrong"
+    expected_response = f"Expected environment variables not set, details: '{env_var}'"
 
     return (
         data,

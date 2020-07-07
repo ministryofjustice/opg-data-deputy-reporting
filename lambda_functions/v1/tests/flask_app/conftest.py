@@ -293,51 +293,82 @@ def patched_submit_document_to_sirius(monkeypatch):
 valid_case_refs = ["1111", "2222", "3333"]
 
 
-@pytest.fixture(autouse=True)
-def patched_post(monkeypatch):
+@pytest.fixture(autouse=False, params=[200, 201])
+def patched_post(monkeypatch, request):
     def mock_post_to_sirius(*args, **kwargs):
         data = json.loads(kwargs["data"])
-        case_ref = data["caseRecNumber"]
 
         mock_response = requests.Response()
+        mock_response.status_code = request.param
 
-        if case_ref in valid_case_refs:
-            mock_response.status_code = 201
-            print(f"mock_response.status_code: {mock_response.status_code}")
+        def json_func():
+            doc_type = data["type"]
+            file_name = data["file"]["name"]
+            mimetype = data["file"]["type"]
+            metadata = data["metadata"]
+            return {
+                "type": doc_type,
+                "filename": file_name,
+                "mimetype": mimetype,
+                "metadata": metadata,
+                "uuid": "5a8b1a26-8296-4373-ae61-f8d0b250e773",
+                "parentUuid": "5a8b1a26-8296-4373-ae61-f8d0b250e773",
+            }
 
-            def json_func():
-                doc_type = data["type"]
-                file_name = data["file"]["name"]
-                mimetype = data["file"]["type"]
-                metadata = data["metadata"]
-                return {
-                    "type": doc_type,
-                    "filename": file_name,
-                    "mimetype": mimetype,
-                    "metadata": metadata,
-                    "uuid": "5a8b1a26-8296-4373-ae61-f8d0b250e773",
-                    "parentUuid": "5a8b1a26-8296-4373-ae61-f8d0b250e773",
-                }
+        mock_response.json = json_func
+        print(f"mock_response.json: {mock_response.json}")
 
-            mock_response.json = json_func
-        else:
-            mock_response.status_code = 404
-            print(f"mock_response.status_code: {mock_response.status_code}")
-
-            def json_func():
-                return {"things": "stuff"}
-
-            mock_response.json = json_func
         return mock_response.status_code, mock_response.json()
 
     monkeypatch.setattr(api.sirius_service, "new_post_to_sirius", mock_post_to_sirius)
 
 
-@pytest.fixture(autouse=True)
-def patched_post_broken_sirius(monkeypatch):
+@pytest.fixture(autouse=False, params=[400, 404, 500])
+def patched_post_broken_sirius(request, monkeypatch):
     def mock_post_to_broken_sirius(*args, **kwargs):
+        print("MOCK POST TO BROKEN SIRIUS")
 
-        raise ConnectionError
+        mock_response = requests.Response()
+        mock_response.status_code = request.param
+
+        if mock_response.status_code == 400:
+
+            def json_func():
+                return {
+                    "validation_errors": {},
+                    "type": "http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html",
+                    "title": "Bad Request",
+                    "status": "400",
+                    "detail": "Payload failed validation",
+                    "instance": "string",
+                }
+
+        elif mock_response.status_code == 404:
+
+            def json_func():
+                return {
+                    "validation_errors": {},
+                    "type": "http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html",
+                    "title": "Not Found",
+                    "status": "404",
+                    "detail": "Route does not exist",
+                    "instance": "string",
+                }
+
+        else:
+            return {
+                "validation_errors": {},
+                "type": "http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html",
+                "title": "Not Found",
+                "status": mock_response.status_code,
+                "detail": "This is a generic Sirius error",
+                "instance": "string",
+            }
+
+        mock_response.json = json_func
+        print(f"mock_response.json: {mock_response.json}")
+
+        return mock_response.status_code, mock_response.json()
 
     monkeypatch.setattr(
         api.sirius_service, "new_post_to_sirius", mock_post_to_broken_sirius
