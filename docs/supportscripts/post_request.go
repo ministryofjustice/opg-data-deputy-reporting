@@ -17,7 +17,7 @@ func main() {
 
 	roletoassume := "arn:aws:iam::248804316466:role/operator"
 	//url := "https://dev.deputy-reporting.api.opg.service.justice.gov.uk/v1/clients/25944618/reports/2d79c411-a8e0-4bda-b9b2-483b1487bc35/supportingdocuments"
-	url := "https://sq25usy81d.execute-api.eu-west-1.amazonaws.com/v1/clients/33205624/reports"
+	url := "https://dev.deputy-reporting.api.opg.service.justice.gov.uk/v1/flask/clients/97433235/reports"
 	mysession := session.Must(session.NewSession())
 	creds := stscreds.NewCredentials(mysession, roletoassume)
 	cfg := aws.Config{Credentials: creds,Region: aws.String("eu-west-1")}
@@ -46,13 +46,11 @@ func main() {
 	}
 
 	defer res.Body.Close()
-	if res.StatusCode != 200 {
-		fmt.Printf("ERROR: (%d): (%s)\n", res.StatusCode, res.Status)
-	}
 
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(res.Body)
 	newStr := buf.String()
-
+    fmt.Println(res.StatusCode)
+    fmt.Println(res.Status)
 	fmt.Println(newStr)
 }
