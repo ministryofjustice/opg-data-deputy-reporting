@@ -110,7 +110,7 @@ def new_post_to_sirius(url, data, headers, method):
             error_message="Unable to send document to Sirius", error_details=e
         )
 
-    return r.status_code, json.loads(r.json())
+    return r.status_code, r.json()
 
 
 def new_submit_document_to_sirius(
