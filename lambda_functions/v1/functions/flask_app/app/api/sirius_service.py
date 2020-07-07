@@ -108,7 +108,7 @@ def new_post_to_sirius(url, data, headers, method):
     except Exception as e:
         print(f"e: {e}")
 
-    return r.status_code, json.loads(r.json())
+    return r.status_code, r.json()
 
 
 def new_submit_document_to_sirius(
