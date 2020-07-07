@@ -321,6 +321,7 @@ def patched_post(monkeypatch, request):
             return payload
 
         mock_response.json = json_func
+        print(f"mock_response.json: {mock_response.json}")
 
         return mock_response.status_code, mock_response.json()
 
