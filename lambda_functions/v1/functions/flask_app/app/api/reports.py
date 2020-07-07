@@ -12,14 +12,9 @@ def endpoint_handler(data, caseref):
         data=data, caseref=caseref
     )
 
-    try:
-        api_status_code, api_response = sirius_service.new_submit_document_to_sirius(
-            data=sirius_payload
-        )
-
-    except ConnectionError:
-        api_status_code = 500
-        api_response = {"message": "can't connect to sirius"}
+    api_status_code, api_response = sirius_service.new_submit_document_to_sirius(
+        data=sirius_payload
+    )
 
     return api_response, api_status_code
 
