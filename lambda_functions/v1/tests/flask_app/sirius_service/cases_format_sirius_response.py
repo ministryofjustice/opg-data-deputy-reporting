@@ -48,7 +48,7 @@ def case_200_no_parents() -> CaseData:
         "data": {
             "type": "Report - General",
             "id": "5a8b1a26-8296-4373-ae61-f8d0b250e773",
-            "attributes": {"submission_id": 123, "parent_id": None},
+            "attributes": {"submission_id": 123},
         }
     }
 
