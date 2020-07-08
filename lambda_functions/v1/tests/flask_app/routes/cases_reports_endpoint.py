@@ -41,10 +41,7 @@ def case_success() -> CaseData:
     expected_response_status_code = 201
     expected_response_data = {
         "data": {
-            "attributes": {
-                "parent_id": "5a8b1a26-8296-4373-ae61-f8d0b250e773",
-                "submission_id": 12345,
-            },
+            "attributes": {"submission_id": 12345},
             "id": "5a8b1a26-8296-4373-ae61-f8d0b250e773",
             "type": "Report",
         }

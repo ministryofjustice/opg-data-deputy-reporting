@@ -9,9 +9,7 @@ from lambda_functions.v1.tests.flask_app.routes import cases_supporting_docs_end
 
 @pytest.mark.run(order=1)
 @pytest.mark.usefixtures(
-    "patched_get_secret",
-    "patched_submit_document_to_sirius",
-    "patched_send_get_to_sirius",
+    "patched_get_secret", "patched_post", "patched_send_get_to_sirius"
 )
 @cases_data(module=cases_supporting_docs_endpoint)
 def test_supporting_docs(server, case_data: CaseDataGetter):

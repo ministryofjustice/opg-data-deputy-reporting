@@ -293,9 +293,10 @@ def patched_submit_document_to_sirius(monkeypatch):
 valid_case_refs = ["1111", "2222", "3333"]
 
 
-@pytest.fixture(autouse=False, params=[200, 201])
+@pytest.fixture(autouse=False, params=[201])
 def patched_post(monkeypatch, request):
     def mock_post_to_sirius(*args, **kwargs):
+        print("Mock post to Sirius")
         data = json.loads(kwargs["data"])
 
         mock_response = requests.Response()
@@ -306,14 +307,17 @@ def patched_post(monkeypatch, request):
             file_name = data["file"]["name"]
             mimetype = data["file"]["type"]
             metadata = data["metadata"]
-            return {
+            payload = {
                 "type": doc_type,
                 "filename": file_name,
                 "mimetype": mimetype,
                 "metadata": metadata,
                 "uuid": "5a8b1a26-8296-4373-ae61-f8d0b250e773",
-                "parentUuid": "5a8b1a26-8296-4373-ae61-f8d0b250e773",
             }
+            if "parentUuid" in data:
+                payload["parentUuid"] = "5a8b1a26-8296-4373-ae61-f8d0b250e773"
+
+            return payload
 
         mock_response.json = json_func
 
