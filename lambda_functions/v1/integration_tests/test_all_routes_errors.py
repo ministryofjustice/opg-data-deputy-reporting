@@ -381,8 +381,9 @@ def test_bad_payload(case_data: CaseDataGetter, test_config):
 
     assert status == expected_status_code
     response_data = json.loads(response)
-    if "errors" in response_data["body"]:
-        for error in response_data["body"]["errors"]:
+    print(f"response_data: {response_data}")
+    if "errors" in response_data:
+        for error in response_data["errors"]:
             assert error["code"] == "OPGDATA-API-INVALIDREQUEST"
     else:
         assert response_data["body"]["error"]["code"] == "OPGDATA-API-INVALIDREQUEST"

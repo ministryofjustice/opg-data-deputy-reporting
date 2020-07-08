@@ -48,6 +48,8 @@ def case_success(test_data) -> CaseData:
     }
     if "parentUuid" in test_data:
         expected_response["data"]["attributes"]["parent_id"] = test_data["parentUuid"]
+    else:
+        expected_response["data"]["attributes"]["parent_id"] = None
 
     return (
         data,

@@ -21,35 +21,6 @@ def endpoint_handler(data, caseref, id):
 
     return api_response, api_status_code
 
-    # try:
-    #     SIRIUS_BASE_URL = os.environ["SIRIUS_BASE_URL"]
-    #     API_VERSION = os.environ["API_VERSION"]
-    # except KeyError as e:
-    #     logger.error(f"{e} not set")
-    #     return "internal server error", 500
-    #
-    # sirius_api_url = sirius_service.build_sirius_url(
-    #     base_url=f"{SIRIUS_BASE_URL}/api/public",
-    #     version=API_VERSION,
-    #     endpoint="documents",
-    # )
-    #
-    # parent_id = determine_document_parent_id(data=data, case_ref=caseref,
-    # report_id=id)
-    #
-    # sirius_payload = transform_payload_to_sirius_post_request(
-    #     data=data, caseref=caseref, id=id, parent_id=parent_id
-    # )
-    #
-    # sirius_headers = sirius_service.build_sirius_headers()
-    #
-    # (sirius_response_code, sirius_response,) = sirius_service.submit_document_
-    # to_sirius(
-    #     url=sirius_api_url, data=sirius_payload, headers=sirius_headers
-    # )
-    #
-    # return sirius_response, sirius_response_code
-
 
 def transform_payload_to_sirius_post_request(
     data, caseref=None, id=None, parent_id=None
