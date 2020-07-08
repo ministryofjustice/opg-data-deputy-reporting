@@ -11,7 +11,7 @@ from lambda_functions.v1.tests.flask_app.routes import (
 
 
 @pytest.mark.run(order=1)
-@pytest.mark.usefixtures("patched_get_secret", "patched_submit_document_to_sirius")
+@pytest.mark.usefixtures("patched_get_secret", "patched_post")
 @cases_data(module=cases_checklist_post_endpoint)
 def test_checklist_post(server, case_data: CaseDataGetter):
     (
@@ -42,7 +42,7 @@ def test_checklist_post(server, case_data: CaseDataGetter):
 
 
 @pytest.mark.run(order=1)
-@pytest.mark.usefixtures("patched_get_secret", "patched_submit_document_to_sirius")
+@pytest.mark.usefixtures("patched_get_secret", "patched_post")
 @cases_data(module=cases_checklist_put_endpoint)
 def test_checklist_put(server, case_data: CaseDataGetter):
     (

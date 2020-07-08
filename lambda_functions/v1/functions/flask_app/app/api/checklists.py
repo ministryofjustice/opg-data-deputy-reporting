@@ -1,5 +1,4 @@
 import json
-import os
 
 from . import sirius_service
 from .helpers import custom_logger
@@ -9,30 +8,17 @@ logger = custom_logger("checklists")
 
 def endpoint_handler(data, caseref, id, checklist_id, method):
 
-    try:
-        SIRIUS_BASE_URL = os.environ["SIRIUS_BASE_URL"]
-        API_VERSION = os.environ["API_VERSION"]
-    except KeyError as e:
-        logger.error(f"{e} not set")
-        return "internal server error", 500
-
-    sirius_api_url = sirius_service.build_sirius_url(
-        base_url=f"{SIRIUS_BASE_URL}/api/public",
-        version=API_VERSION,
-        endpoint=transform_payload_to_endpoint(checklist_id=checklist_id),
-    )
+    endpoint = transform_payload_to_endpoint(checklist_id=checklist_id)
 
     sirius_payload = transform_payload_to_sirius_post_request(
         data=data, caseref=caseref, id=id
     )
 
-    sirius_headers = sirius_service.build_sirius_headers()
-
-    (sirius_response_code, sirius_response,) = sirius_service.submit_document_to_sirius(
-        url=sirius_api_url, data=sirius_payload, headers=sirius_headers, method=method
+    api_status_code, api_response = sirius_service.new_submit_document_to_sirius(
+        data=sirius_payload, endpoint=endpoint, method=method
     )
 
-    return (sirius_response, sirius_response_code)
+    return api_response, api_status_code
 
 
 def transform_payload_to_sirius_post_request(
