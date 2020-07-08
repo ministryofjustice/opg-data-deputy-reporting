@@ -1,13 +1,13 @@
 import json
+import copy
 
 from . import sirius_service
-from .helpers import custom_logger
+from .helpers import custom_logger, handle_file_source
 
 logger = custom_logger("reports")
 
 
 def endpoint_handler(data, caseref):
-
     sirius_payload = transform_payload_data_to_sirius_request(
         data=data, caseref=caseref
     )
@@ -32,7 +32,7 @@ def transform_payload_data_to_sirius_request(data, caseref=None):
     metadata = request_body["report"]["data"]["attributes"]
     file_name = request_body["report"]["data"]["file"]["name"]
     file_type = request_body["report"]["data"]["file"]["mimetype"]
-    file_source = request_body["report"]["data"]["file"]["source"]
+    file_source = handle_file_source(file=request_body["report"]["data"]["file"])
 
     payload = {
         "type": "Report",
@@ -40,6 +40,9 @@ def transform_payload_data_to_sirius_request(data, caseref=None):
         "metadata": metadata,
         "file": {"name": file_name, "source": file_source, "type": file_type},
     }
-    logger.debug(f"Sirius Payload: {payload}")
+
+    debug_payload = copy.deepcopy(payload)
+    debug_payload["file"]["source"] = "REDACTED"
+    logger.debug(f"Sirius Payload: {debug_payload}")
 
     return json.dumps(payload)

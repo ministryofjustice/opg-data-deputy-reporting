@@ -1,0 +1,20 @@
+{
+  "report": {
+    "data": {
+      "type": "reports",
+      "attributes": {
+        "submission_id": 12345,
+        "reporting_period_from": "2019-01-01",
+        "reporting_period_to": "2019-12-31",
+        "year": 2019,
+        "date_submitted": "2020-01-03T09:30:00.001Z",
+        "type": "PF"
+      },
+      "file": {
+        "name": "integration_test_1mb.pdf",
+        "mimetype": "application/pdf",
+        "s3_reference": "integration_test_1mb.pdf"
+      }
+    }
+  }
+}

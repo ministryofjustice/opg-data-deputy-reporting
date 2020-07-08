@@ -1,0 +1,15 @@
+{
+  "supporting_document": {
+    "data": {
+      "type": "supportingdocuments",
+      "attributes": {
+        "submission_id": 12345
+      },
+      "file": {
+        "name": "suuportdoc_integration_test_10mb.pdf",
+        "mimetype": "application/pdf",
+        "s3_reference": "integration_test_10mb.pdf"
+      }
+    }
+  }
+}

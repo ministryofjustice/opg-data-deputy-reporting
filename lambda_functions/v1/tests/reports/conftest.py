@@ -73,6 +73,8 @@ def mock_env_setup(monkeypatch):
     monkeypatch.setenv("SIRIUS_BASE_URL", "http://sirius_url.com")
     monkeypatch.setenv("SIRIUS_PUBLIC_API_URL", "api/public/v1/")
     monkeypatch.setenv("LOGGER_LEVEL", "DEBUG")
+    monkeypatch.setenv("DIGIDEPS_S3_BUCKET", "some-s3-bucket")
+    monkeypatch.setenv("DIGIDEPS_S3_ROLE_ARN", "arn:aws:iam::123456789012:role/s3-read-role")
     monkeypatch.setenv("JWT_SECRET", "THIS_IS_MY_SECRET_KEY")
     monkeypatch.setenv("ENVIRONMENT", "development")
     monkeypatch.setenv("SESSION_DATA", "publicapi@opgtest.com")

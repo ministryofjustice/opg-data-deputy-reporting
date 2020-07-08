@@ -29,6 +29,8 @@ resource "aws_lambda_function" "lambda_function" {
       LOGGER_LEVEL          = var.account.logger_level
       API_VERSION           = var.openapi_version
       SESSION_DATA          = var.account.session_data
+      DIGIDEPS_S3_BUCKET    = var.account.digideps_s3_bucket
+      DIGIDEPS_S3_ROLE_ARN  = var.account.digideps_s3_role_arn
     }
   }
   tracing_config {
