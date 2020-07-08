@@ -199,12 +199,14 @@ def format_sirius_success(sirius_response_code, sirius_response=None):
             "id": sirius_response["uuid"],
             "attributes": {
                 "submission_id": sirius_response["metadata"]["submission_id"],
-                "parent_id": sirius_response["parentUuid"]
-                if "parentUuid" in sirius_response
-                else None,
             },
         }
     }
+
+    if "parentUuid" in sirius_response:
+        formatted_response["data"]["attributes"]["parent_id"] = sirius_response[
+            "parentUuid"
+        ]
 
     return formatted_status_code, formatted_response
 
