@@ -9,6 +9,11 @@ from lambda_functions.v1.tests.flask_app.routes import cases_custom_endpoint_err
 @pytest.mark.usefixtures(
     "patched_get_secret", "patched_post_broken_sirius", "patched_send_get_to_sirius",
 )
+@pytest.mark.parametrize(
+    "patched_post_broken_sirius",
+    [400, 404, 500],
+    indirect=["patched_post_broken_sirius"],
+)
 @cases_data(module=cases_custom_endpoint_errors, has_tag="endpoint")
 def test_custom_errors(server, case_data: CaseDataGetter):
     (

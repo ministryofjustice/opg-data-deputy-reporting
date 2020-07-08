@@ -159,7 +159,8 @@ def case_400_not_json(test_url) -> CaseData:
     )
 
 
-@case_tags("endpoint")
+# TODO add separate test for these - it can't handle the error code parameters
+@case_tags("endpoint, custom_message")
 @cases_generator("Test custom 400 bad url params for {test_url}", test_url=test_urls)
 def case_400_bad_url_params(test_url) -> CaseData:
 
