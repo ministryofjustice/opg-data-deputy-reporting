@@ -8,7 +8,7 @@ import jwt
 import requests
 from botocore.exceptions import ClientError
 
-from .helpers import custom_logger, sirius_errors
+from .helpers import custom_logger, custom_api_errors
 
 # Sirius API Service
 
@@ -37,7 +37,7 @@ def build_sirius_url(base_url, version, endpoint, url_params=None):
 
     if urlparse(url).scheme not in ["https", "http"]:
         logger.info("Unable to build Sirius URL")
-        return False
+        raise Exception
 
     return url
 
@@ -106,7 +106,9 @@ def new_post_to_sirius(url, data, headers, method):
         else:
             r = requests.post(url=url, data=data, headers=headers)
     except Exception as e:
-        print(f"e: {e}")
+        return handle_sirius_error(
+            error_message="Unable to send document to Sirius", error_details=e
+        )
 
     return r.status_code, r.json()
 
@@ -119,70 +121,95 @@ def new_submit_document_to_sirius(
         SIRIUS_BASE_URL = os.environ["SIRIUS_BASE_URL"]
         API_VERSION = os.environ["API_VERSION"]
     except KeyError as e:
-        logger.error(f"{e} not set")
-        return 500, "something has gone wrong"
-
-    sirius_api_url = build_sirius_url(
-        base_url=f"{SIRIUS_BASE_URL}/api/public",
-        version=API_VERSION,
-        endpoint=endpoint,
-        url_params=url_params,
-    )
-
-    print(f"sirius_api_url: {sirius_api_url}")
-
-    headers = build_sirius_headers()
-
-    print(f"headers: {headers}")
-
-    sirius_status_code, sirius_response = new_post_to_sirius(
-        url=sirius_api_url, data=data, headers=headers, method=method
-    )
-
-    print(f"sirius_status_code: {sirius_status_code}")
-    print(f"sirius_response: {sirius_response}")
-    formatted_status_code, formatted_response = new_format_sirius_response(
-        sirius_response_code=sirius_status_code, sirius_response=sirius_response
-    )
-
-    return formatted_status_code, formatted_response
-
-
-def new_format_sirius_response(sirius_response_code, sirius_response=None):
+        return handle_sirius_error(
+            error_message="Expected environment variables not set", error_details=e
+        )
 
     try:
-        if sirius_response_code in [200, 201]:
+        sirius_api_url = build_sirius_url(
+            base_url=f"{SIRIUS_BASE_URL}/api/public",
+            version=API_VERSION,
+            endpoint=endpoint,
+            url_params=url_params,
+        )
+    except Exception as e:
+        return handle_sirius_error(
+            error_message="Unable to build Siruis URL", error_details=e
+        )
 
-            formatted_status_code = sirius_response_code
-            formatted_response = {
-                "data": {
-                    "type": sirius_response["type"],
-                    "id": sirius_response["uuid"],
-                    "attributes": {
-                        "submission_id": sirius_response["metadata"]["submission_id"],
-                        "parent_id": sirius_response["parentUuid"]
-                        if "parentUuid" in sirius_response
-                        else None,
-                    },
-                }
-            }
+    try:
+        headers = build_sirius_headers()
+    except Exception as e:
+        return handle_sirius_error(
+            error_message="Unable to build Sirius headers", error_details=e
+        )
 
-        elif sirius_response_code == 404:
-            formatted_status_code = 400
-            formatted_response = {"message": "URL params not right"}
+    try:
+        sirius_status_code, sirius_response = new_post_to_sirius(
+            url=sirius_api_url, data=data, headers=headers, method=method
+        )
 
-        else:
-            formatted_status_code = sirius_response_code
-            formatted_response = (
-                f"sirius problem: {sirius_response_code} - {sirius_response}"
+    except Exception as e:
+        return handle_sirius_error(
+            error_message="Unable to send " "document to " "Sirius", error_details=e,
+        )
+
+    try:
+        if sirius_status_code in [200, 201]:
+            formatted_status_code, formatted_response = format_sirius_success(
+                sirius_response_code=sirius_status_code, sirius_response=sirius_response
             )
-    except Exception:
-        formatted_status_code = 500
-        formatted_response = f"sirius problem: 500 - {sirius_response}"
+        elif sirius_status_code == 404:
+            return handle_sirius_error(
+                error_code=400, error_message="Could not verify URL params in Sirius"
+            )
+        elif sirius_status_code == 400:
+            return handle_sirius_error(
+                error_code=400, error_message="Payload validation failed in Sirius"
+            )
+        else:
+            return handle_sirius_error(
+                error_code=sirius_status_code, error_message=sirius_response
+            )
+
+    except Exception as e:
+        return handle_sirius_error(error_details=e)
 
     return formatted_status_code, formatted_response
 
 
+def handle_sirius_error(error_code=None, error_message=None, error_details=None):
+    error_code = error_code if error_code else 500
+    error_message = (
+        error_message if error_message else "Unknown error talking to " "Sirius"
+    )
+    error_details = str(error_details) if len(str(error_details)) > 0 else "None"
+
+    message = f"{error_message}, details: {str(error_details)}"
+    logger.error(message)
+    return error_code, message
+
+
+def format_sirius_success(sirius_response_code, sirius_response=None):
+
+    formatted_status_code = sirius_response_code
+    formatted_response = {
+        "data": {
+            "type": sirius_response["type"],
+            "id": sirius_response["uuid"],
+            "attributes": {
+                "submission_id": sirius_response["metadata"]["submission_id"],
+                "parent_id": sirius_response["parentUuid"]
+                if "parentUuid" in sirius_response
+                else None,
+            },
+        }
+    }
+
+    return formatted_status_code, formatted_response
+
+
+# DEPRECATED - use new_submit_document_to_sirius instead
 def submit_document_to_sirius(url, data, headers=None, method="POST"):
     logger.info("SENDING DOC TO SIRIUS")
     if not headers:
@@ -221,6 +248,7 @@ def submit_document_to_sirius(url, data, headers=None, method="POST"):
     return (sirius_response_code, sirius_response)
 
 
+# DEPRECATED - use format_sirius_success and handle_sirius_error instead
 def format_sirius_response(sirius_response=None, sirius_response_code=500):
     if sirius_response is None:
         sirius_response = {}
@@ -243,9 +271,13 @@ def format_sirius_response(sirius_response=None, sirius_response_code=500):
             response = {
                 "errors": {
                     "id": "",
-                    "code": sirius_errors[str(sirius_response_code)]["error_code"],
-                    "title": sirius_errors[str(sirius_response_code)]["error_title"],
-                    "detail": sirius_errors[str(sirius_response_code)]["error_message"],
+                    "code": custom_api_errors[str(sirius_response_code)]["error_code"],
+                    "title": custom_api_errors[str(sirius_response_code)][
+                        "error_title"
+                    ],
+                    "detail": custom_api_errors[str(sirius_response_code)][
+                        "error_message"
+                    ],
                     "meta": {},
                 }
             }
@@ -254,9 +286,9 @@ def format_sirius_response(sirius_response=None, sirius_response_code=500):
         response = {
             "errors": {
                 "id": "",
-                "code": sirius_errors[str(sirius_response_code)]["error_code"],
-                "title": sirius_errors[str(sirius_response_code)]["error_title"],
-                "detail": sirius_errors[str(sirius_response_code)]["error_message"],
+                "code": custom_api_errors[str(sirius_response_code)]["error_code"],
+                "title": custom_api_errors[str(sirius_response_code)]["error_title"],
+                "detail": custom_api_errors[str(sirius_response_code)]["error_message"],
                 "meta": {"sirius_error": "Error validating Sirius Public API response"},
             }
         }

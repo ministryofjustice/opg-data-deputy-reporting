@@ -43,7 +43,7 @@ def handle_reports(caseref):
     if response_status in [201, 200]:
         return jsonify(response_data), response_status
     else:
-        abort(response_status, description=response_data["message"])
+        abort(response_status, description=response_data)
 
 
 @api.route("/clients/<caseref>/reports/<id>/supportingdocuments", methods=["POST"])

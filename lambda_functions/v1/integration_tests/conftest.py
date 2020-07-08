@@ -24,9 +24,10 @@ aws_dev_config = {
 
 aws_flask_config = {
     "name": "AWS Flask",
-    "url": "https://dev.deputy-reporting.api.opg.service.justice.gov.uk/v1/flask",
+    "url": "https://in263siriuserr.dev.deputy-reporting.api.opg.service.justice.gov"
+    ".uk/v1/flask",
     "security": "aws_signature",
-    "case_ref": "33205624",
+    "case_ref": "03707908",
     "report_id": "123",
     "sup_doc_id": "123",
     "submission_id": 12345,

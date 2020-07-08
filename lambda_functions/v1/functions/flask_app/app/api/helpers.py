@@ -23,7 +23,7 @@ def custom_logger(name):
     return logger
 
 
-sirius_errors = {
+custom_api_errors = {
     "400": {
         "error_code": "OPGDATA-API-INVALIDREQUEST",
         "error_message": "Invalid request, the data is incorrect",
@@ -75,6 +75,7 @@ sirius_errors = {
 
 
 def error_message(code, message):
+
     return (
         jsonify(
             {
@@ -83,9 +84,11 @@ def error_message(code, message):
                 "headers": {"Content-Type": "application/json"},
                 "body": {
                     "error": {
-                        "code": sirius_errors[str(code)]["error_code"],
-                        "title": sirius_errors[str(code)]["error_title"],
-                        "message": f"{sirius_errors[str(code)]['error_message']} ",
+                        "code": custom_api_errors[str(code)]["error_code"],
+                        "title": custom_api_errors[str(code)]["error_title"],
+                        "message": str(message)
+                        if message
+                        else custom_api_errors[str(code)]["error_message"],
                     }
                 },
             }
