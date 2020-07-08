@@ -206,11 +206,6 @@ def format_sirius_success(sirius_response_code, sirius_response=None):
         }
     }
 
-    # if "parentUuid" in sirius_response:
-    #     formatted_response["data"]["attributes"]["parent_id"] = sirius_response[
-    #         "parentUuid"
-    #     ]
-
     return formatted_status_code, formatted_response
 
 
