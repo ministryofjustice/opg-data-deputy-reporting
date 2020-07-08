@@ -161,11 +161,15 @@ def new_submit_document_to_sirius(
             )
         elif sirius_status_code == 404:
             return handle_sirius_error(
-                error_code=400, error_message="Could not verify URL params in Sirius"
+                error_code=400,
+                error_message="Could not verify URL params in " "Sirius",
+                error_details=sirius_response,
             )
         elif sirius_status_code == 400:
             return handle_sirius_error(
-                error_code=400, error_message="Payload validation failed in Sirius"
+                error_code=400,
+                error_message="Validation failed in Sirius",
+                error_details=sirius_response,
             )
         else:
             return handle_sirius_error(
@@ -183,7 +187,12 @@ def handle_sirius_error(error_code=None, error_message=None, error_details=None)
     error_message = (
         error_message if error_message else "Unknown error talking to " "Sirius"
     )
-    error_details = str(error_details) if len(str(error_details)) > 0 else "None"
+
+    try:
+        sirius_error_details = error_details["detail"]
+        error_details = sirius_error_details
+    except (KeyError, TypeError):
+        error_details = str(error_details) if len(str(error_details)) > 0 else "None"
 
     message = f"{error_message}, details: {str(error_details)}"
     logger.error(message)

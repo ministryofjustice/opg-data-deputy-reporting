@@ -64,7 +64,10 @@ def handle_supporting_docs(caseref, id):
         data=data, caseref=caseref, id=id
     )
 
-    return jsonify(response_data), response_status
+    if response_status in [201, 200]:
+        return jsonify(response_data), response_status
+    else:
+        abort(response_status, description=response_data)
 
 
 @api.route("/clients/<caseref>/reports/<id>/checklists/<checklistId>", methods=["PUT"])
@@ -87,7 +90,10 @@ def handle_checklists(caseref, id, checklistId=None):
         method=request.method,
     )
 
-    return jsonify(response_data), response_status
+    if response_status in [201, 200]:
+        return jsonify(response_data), response_status
+    else:
+        abort(response_status, description=response_data)
 
 
 @api.app_errorhandler(400)

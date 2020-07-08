@@ -332,19 +332,39 @@ def patched_post_broken_sirius(request, monkeypatch):
     def mock_post_to_broken_sirius(*args, **kwargs):
         print("MOCK POST TO BROKEN SIRIUS")
 
+        data = json.loads(kwargs["data"])
+        case_ref = data["caseRecNumber"]
+
         mock_response = requests.Response()
         mock_response.status_code = request.param
 
-        if mock_response.status_code == 400:
+        if case_ref in valid_case_refs:
+            mock_response.status_code = request.param
+
+        if mock_response.status_code == 400 and case_ref in valid_case_refs:
 
             def json_func():
-                return {
+                payload = {
                     "validation_errors": {},
                     "type": "http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html",
                     "title": "Bad Request",
                     "status": "400",
-                    "detail": "Payload failed validation",
+                    "detail": f"Payload failed validation, details of what failed "
+                    f"here {case_ref}",
                     "instance": "string",
+                }
+
+                return payload
+
+        elif mock_response.status_code == 400 and case_ref not in valid_case_refs:
+
+            def json_func():
+                return {
+                    "type": "http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html",
+                    "title": "Bad Request",
+                    "status": 400,
+                    "detail": f'Client referenced by court reference "{case_ref}" was '
+                    f"not found",
                 }
 
         elif mock_response.status_code == 404:
