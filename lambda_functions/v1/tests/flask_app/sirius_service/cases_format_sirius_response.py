@@ -1,6 +1,7 @@
-from pytest_cases import case_name, CaseData
+from pytest_cases import case_name, CaseData, case_tags
 
 
+@case_tags("success")
 @case_name("Sirius responds with 200")
 def case_200() -> CaseData:
 
@@ -29,6 +30,7 @@ def case_200() -> CaseData:
     return (sirius_response_code, sirius_response, api_response_code, api_response)
 
 
+@case_tags("success")
 @case_name("Sirius responds with 200 - no parent id")
 def case_200_no_parents() -> CaseData:
 
@@ -53,6 +55,7 @@ def case_200_no_parents() -> CaseData:
     return (sirius_response_code, sirius_response, api_response_code, api_response)
 
 
+@case_tags("success")
 @case_name("Sirius responds with 201")
 def case_201() -> CaseData:
 
@@ -81,57 +84,115 @@ def case_201() -> CaseData:
     return (sirius_response_code, sirius_response, api_response_code, api_response)
 
 
-@case_name("Sirius responds with 404 (bad url params)")
-def case_404_url_params() -> CaseData:
+#  TODO needs moving into new_submit_document_to_sirius test
+# @case_tags("error")
+# @case_name("Sirius responds with 404 (bad url params)")
+# def case_404_url_params() -> CaseData:
+#
+#     sirius_response_code = 404
+#     sirius_response = "it really doesn't matter what sirius thinks here"
 
-    sirius_response_code = 404
-    sirius_response = "it really doesn't matter what sirius thinks here"
-
-    # TODO check - I think this is currently a 404 so may need to change this?
-    # TODO this error message is rubbish
-    api_response_code = 400
-    api_response = {"message": "URL params not right"}
-
-    return (sirius_response_code, sirius_response, api_response_code, api_response)
+#     api_response_code = 400
+#     api_response = {"message": "URL params not right"}
+#
+#     return (sirius_response_code, sirius_response, api_response_code, api_response)
 
 
-@case_name("Sirius responds with 400")
-def case_400() -> CaseData:
+@case_tags("error")
+@case_name("Sirius responds with a code, message and details")
+def case_all() -> CaseData:
 
     sirius_response_code = 400
     sirius_response = "spurious sirius error message"
+    error_details = "here's some more details"
 
-    # TODO this error message should be in the format {"message": "blah"} to match
-    #  the other custom Sirius errors
     api_response_code = 400
-    api_response = "sirius problem: 400 - spurious sirius error message"
+    api_response = "spurious sirius error message, details: here's some more details"
 
-    return (sirius_response_code, sirius_response, api_response_code, api_response)
+    return (
+        sirius_response_code,
+        sirius_response,
+        error_details,
+        api_response_code,
+        api_response,
+    )
 
 
-@case_name("Sirius responds with 500")
-def case_500() -> CaseData:
+@case_tags("error")
+@case_name("Sirius responds with a message and details")
+def case_code_missing() -> CaseData:
 
-    sirius_response_code = 500
-    sirius_response = "something has gone terribly wrong"
+    sirius_response_code = None
+    sirius_response = "spurious sirius error message"
+    error_details = "here's some more details"
 
-    # TODO this error message should be in the format {"message": "blah"} to match
-    #  the other custom Sirius errors
     api_response_code = 500
-    api_response = "sirius problem: 500 - something has gone terribly wrong"
+    api_response = "spurious sirius error message, details: here's some more details"
 
-    return (sirius_response_code, sirius_response, api_response_code, api_response)
+    return (
+        sirius_response_code,
+        sirius_response,
+        error_details,
+        api_response_code,
+        api_response,
+    )
 
 
-@case_name("Sirius call does something unexpected")
-def case_500_exception() -> CaseData:
+@case_tags("error")
+@case_name("Sirius responds with a code and details")
+def case_message_missing() -> CaseData:
 
-    sirius_response_code = 200
-    sirius_response = "the data sirius has returned is all wrong"
+    sirius_response_code = 400
+    sirius_response = None
+    error_details = "here's some more details"
 
-    # TODO this error message should be in the format {"message": "blah"} to match
-    #  the other custom Sirius errors
-    api_response_code = 500
-    api_response = "sirius problem: 500 - the data sirius has returned is all wrong"
+    api_response_code = 400
+    api_response = "Unknown error talking to Sirius, details: here's some more details"
 
-    return (sirius_response_code, sirius_response, api_response_code, api_response)
+    return (
+        sirius_response_code,
+        sirius_response,
+        error_details,
+        api_response_code,
+        api_response,
+    )
+
+
+@case_tags("error")
+@case_name("Sirius responds with a code, message")
+def case_missing_details() -> CaseData:
+
+    sirius_response_code = 400
+    sirius_response = "spurious sirius error message"
+    error_details = None
+
+    api_response_code = 400
+    api_response = "spurious sirius error message, details: None"
+
+    return (
+        sirius_response_code,
+        sirius_response,
+        error_details,
+        api_response_code,
+        api_response,
+    )
+
+
+@case_tags("error")
+@case_name("Sirius responds with a code, message, empty details")
+def case_empty_details() -> CaseData:
+
+    sirius_response_code = 400
+    sirius_response = "spurious sirius error message"
+    error_details = ""
+
+    api_response_code = 400
+    api_response = "spurious sirius error message, details: None"
+
+    return (
+        sirius_response_code,
+        sirius_response,
+        error_details,
+        api_response_code,
+        api_response,
+    )

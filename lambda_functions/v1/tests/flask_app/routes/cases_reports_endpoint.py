@@ -10,7 +10,7 @@ bad secret
 """
 
 
-@case_tags("endpoint")
+@case_tags("endpoint", "success")
 @case_name("Successful post to Docs API")
 def case_success() -> CaseData:
 
@@ -39,7 +39,13 @@ def case_success() -> CaseData:
     test_headers = {"Content-Type": "application/json"}
 
     expected_response_status_code = 201
-    expected_response_data = {"uuid": "5a8b1a26-8296-4373-ae61-f8d0b250e773"}
+    expected_response_data = {
+        "data": {
+            "attributes": {"submission_id": 12345, "parent_id": None},
+            "id": "5a8b1a26-8296-4373-ae61-f8d0b250e773",
+            "type": "Report",
+        }
+    }
 
     return (
         test_data,
@@ -50,7 +56,7 @@ def case_success() -> CaseData:
     )
 
 
-@case_tags("endpoint")
+@case_tags("endpoint", "error")
 @case_name("Case ref doesn't exist in Sirius")
 def case_bad_params() -> CaseData:
 

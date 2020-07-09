@@ -1,21 +1,21 @@
+import logging
 import urllib
 
+import boto3
 import jwt
 import pytest
-from jwt import DecodeError
-import boto3
 from botocore.exceptions import ClientError
+from jwt import DecodeError
 from moto import mock_secretsmanager
 from pytest_cases import cases_data, CaseDataGetter
 
 from lambda_functions.v1.functions.flask_app.app.api import sirius_service
 from lambda_functions.v1.functions.flask_app.app.api.sirius_service import (
-    new_format_sirius_response,
-    new_submit_document_to_sirius,
+    format_sirius_success,
+    handle_sirius_error,
 )
 from lambda_functions.v1.tests.flask_app.sirius_service import (
     cases_format_sirius_response,
-    cases_submit_doc_to_sirius,
 )
 
 """
@@ -69,17 +69,27 @@ submit_document_to_sirius (superseded by the 'new_' functions above so ignoring)
             None,
             "http://www.fake_url.com/6.3.1/random/endpoint/",
         ),
-        ("banana", "30", "random/endpoint/", None, False,),
     ],
 )
 def test_build_sirius_url(base_url, version, endpoint, url_params, expected_result):
     # Copied directly from original
     # "lambda_functions/v1/tests/reports/test_reports_sirius_service.py' test
     url = sirius_service.build_sirius_url(base_url, version, endpoint, url_params)
-    try:
-        assert urllib.parse.unquote(url) == expected_result
-    except TypeError:
-        assert url == expected_result
+
+    assert urllib.parse.unquote(url) == expected_result
+
+
+def test_build_sirius_url_error():
+    base_url = "banana"
+    version = "30"
+    endpoint = "random/endpoint/"
+    url_params = None
+    with pytest.raises(Exception):
+        url = sirius_service.build_sirius_url(base_url, version, endpoint, url_params)
+
+        print(f"url: {url}")
+
+        assert 1 == 3
 
 
 @pytest.mark.parametrize(
@@ -137,35 +147,7 @@ def test_get_secret(secret_code, environment, region):
         sirius_service.get_secret("not_a_real_environment")
 
 
-def new_post_to_sirius(url, data, headers, method):
-    pass
-
-
-@cases_data(module=cases_submit_doc_to_sirius)
-@pytest.mark.usefixtures("patched_get_secret", "patched_post")
-def test_new_submit_document_to_sirius(monkeypatch, case_data: CaseDataGetter):
-    (
-        data,
-        method,
-        endpoint,
-        url_params,
-        env_var,
-        expected_status_code,
-        expected_response,
-    ) = case_data.get()
-
-    if env_var:
-        monkeypatch.delenv(env_var)
-
-    status_code, response = new_submit_document_to_sirius(
-        data=data, method=method, endpoint=endpoint, url_params=url_params
-    )
-
-    assert status_code == expected_status_code
-    assert response == expected_response
-
-
-@cases_data(module=cases_format_sirius_response)
+@cases_data(module=cases_format_sirius_response, has_tag="success")
 def test_new_format_sirius_response(case_data: CaseDataGetter):
     (
         sirius_response_code,
@@ -174,9 +156,30 @@ def test_new_format_sirius_response(case_data: CaseDataGetter):
         api_response,
     ) = case_data.get()
 
-    formatted_status_code, formatted_response_text = new_format_sirius_response(
+    formatted_status_code, formatted_response_text = format_sirius_success(
         sirius_response_code, sirius_response
     )
 
     assert formatted_response_text == api_response
     assert formatted_status_code == api_response_code
+
+
+@cases_data(module=cases_format_sirius_response, has_tag="error")
+def test_new_format_sirius_response_error(caplog, case_data: CaseDataGetter):
+    (
+        sirius_response_code,
+        sirius_response,
+        error_details,
+        api_response_code,
+        api_response,
+    ) = case_data.get()
+
+    formatted_status_code, formatted_response_text = handle_sirius_error(
+        sirius_response_code, sirius_response, error_details
+    )
+    print(f"formatted_response_text: {formatted_response_text}")
+    assert formatted_response_text == api_response
+    assert formatted_status_code == api_response_code
+
+    with caplog.at_level(logging.ERROR):
+        assert api_response in caplog.text
