@@ -1,8 +1,19 @@
 import json
 
-from pytest_cases import case_name, CaseData, cases_generator, case_tags
+from pytest_cases import CaseData, cases_generator, case_tags
 
-test_data = {
+report_test_data = {
+    "caseRecNumber": "1111",
+    "type": "Report",
+    "metadata": {"submission_id": 123},
+    "file": {
+        "name": "Report_1234567T_2018_2019_11111.pdf",
+        "type": "application/pdf",
+        "source": "string",
+    },
+}
+
+suppdoc_test_data = {
     "caseRecNumber": "1111",
     "parentUuid": "5a8b1a26-8296-4373-ae61-f8d0b250e773",
     "type": "Report - General",
@@ -16,41 +27,46 @@ test_data = {
 
 
 @case_tags("post_success")
-@case_name("Successful post to Sirius")
-def case_success() -> CaseData:
+@cases_generator(
+    "Successful post to Sirius: {test_data}",
+    test_data=[report_test_data, suppdoc_test_data],
+)
+def case_success(test_data) -> CaseData:
 
     data = json.dumps(test_data)
     method = "POST"
     endpoint = "documents"
     url_params = None
-    env_var = None
 
     expected_status_code = 201
     expected_response = {
         "data": {
-            "attributes": {
-                "parent_id": "5a8b1a26-8296-4373-ae61-f8d0b250e773",
-                "submission_id": 123,
-            },
+            "attributes": {"submission_id": test_data["metadata"]["submission_id"]},
             "id": "5a8b1a26-8296-4373-ae61-f8d0b250e773",
-            "type": "Report - General",
+            "type": test_data["type"],
         }
     }
+    if "parentUuid" in test_data:
+        expected_response["data"]["attributes"]["parent_id"] = test_data["parentUuid"]
+    else:
+        expected_response["data"]["attributes"]["parent_id"] = None
 
     return (
         data,
         method,
         endpoint,
         url_params,
-        env_var,
         expected_status_code,
         expected_response,
     )
 
 
 @case_tags("post_error")
-@case_name("Successful post to Sirius, but Sirius returns an error code")
-def case_error() -> CaseData:
+@cases_generator(
+    "Post to Sirius with errors: {test_data}",
+    test_data=[report_test_data, suppdoc_test_data],
+)
+def case_error(test_data) -> CaseData:
 
     data = json.dumps(test_data)
     method = "POST"
@@ -68,13 +84,13 @@ def case_error() -> CaseData:
     return (data, method, endpoint, url_params, expected_responses)
 
 
-@case_tags("post_success")
+@case_tags("env_vars")
 @cases_generator(
     "Env var not set {env_var}", env_var=["SIRIUS_BASE_URL", "API_VERSION"]
 )
 def case_missing_env_vars(env_var) -> CaseData:
 
-    data = json.dumps(test_data)
+    data = json.dumps(report_test_data)
     method = "POST"
     endpoint = "documents"
     url_params = None

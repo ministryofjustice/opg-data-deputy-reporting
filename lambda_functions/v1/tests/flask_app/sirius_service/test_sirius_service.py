@@ -12,12 +12,10 @@ from pytest_cases import cases_data, CaseDataGetter
 from lambda_functions.v1.functions.flask_app.app.api import sirius_service
 from lambda_functions.v1.functions.flask_app.app.api.sirius_service import (
     format_sirius_success,
-    new_submit_document_to_sirius,
     handle_sirius_error,
 )
 from lambda_functions.v1.tests.flask_app.sirius_service import (
     cases_format_sirius_response,
-    cases_submit_doc_to_sirius,
 )
 
 """
@@ -147,46 +145,6 @@ def test_get_secret(secret_code, environment, region):
 
     with pytest.raises(ClientError):
         sirius_service.get_secret("not_a_real_environment")
-
-
-@cases_data(module=cases_submit_doc_to_sirius, has_tag="post_success")
-@pytest.mark.usefixtures("patched_get_secret", "patched_post")
-def test_new_submit_document_to_sirius(monkeypatch, case_data: CaseDataGetter):
-    (
-        data,
-        method,
-        endpoint,
-        url_params,
-        env_var,
-        expected_status_code,
-        expected_response,
-    ) = case_data.get()
-
-    if env_var:
-        monkeypatch.delenv(env_var)
-
-    status_code, response = new_submit_document_to_sirius(
-        data=data, method=method, endpoint=endpoint, url_params=url_params
-    )
-
-    assert response == expected_response
-
-
-@cases_data(module=cases_submit_doc_to_sirius, has_tag="post_error")
-@pytest.mark.usefixtures("patched_get_secret", "patched_post_broken_sirius")
-def test_new_submit_document_to_sirius_errors(monkeypatch, case_data: CaseDataGetter):
-    (data, method, endpoint, url_params, expected_responses) = case_data.get()
-
-    status_code, response = new_submit_document_to_sirius(
-        data=data, method=method, endpoint=endpoint, url_params=url_params
-    )
-
-    print(f"status_code: {status_code}")
-    print(f"response: {response}")
-
-    assert (
-        any(message in response for message in expected_responses[status_code]) is True
-    )
 
 
 @cases_data(module=cases_format_sirius_response, has_tag="success")
