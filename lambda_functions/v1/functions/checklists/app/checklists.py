@@ -82,7 +82,7 @@ def validate_event(event):
     required_body_structure = {
         "checklist": {
             "data": {
-                "attributes": {"submission_id": 0},
+                "attributes": {},
                 "file": {"name": "string", "mimetype": "string", "source": "string"},
             }
         }
