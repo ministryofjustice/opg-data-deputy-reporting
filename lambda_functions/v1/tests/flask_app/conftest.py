@@ -350,7 +350,7 @@ def patched_post_broken_sirius(request, monkeypatch):
                     "type": "http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html",
                     "title": "Bad Request",
                     "status": "400",
-                    "detail": f"Payload failed validation, details of what failed here",
+                    "detail": "Payload failed validation, details of what failed here",
                     "instance": "string",
                 }
 
