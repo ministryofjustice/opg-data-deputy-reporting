@@ -44,7 +44,7 @@ def lambda_handler(event, context):
 
         try:
             sirius_response["data"]["type"] = "reports"
-        except KeyError:
+        except (KeyError, TypeError):
             pass
 
         lambda_response = {

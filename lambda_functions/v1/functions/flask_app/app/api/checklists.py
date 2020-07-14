@@ -20,7 +20,7 @@ def endpoint_handler(data, caseref, id, checklist_id, method):
 
     try:
         api_response["data"]["type"] = "checklists"
-    except KeyError:
+    except (KeyError, TypeError):
         pass
     return api_response, api_status_code
 

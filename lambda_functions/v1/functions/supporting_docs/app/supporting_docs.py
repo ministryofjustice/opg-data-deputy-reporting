@@ -50,7 +50,7 @@ def lambda_handler(event, context):
         )
         try:
             sirius_response["data"]["type"] = "supportingdocuments"
-        except KeyError:
+        except (KeyError, TypeError):
             pass
 
         lambda_response = {

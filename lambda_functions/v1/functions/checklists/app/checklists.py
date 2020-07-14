@@ -44,7 +44,7 @@ def lambda_handler(event, context):
 
         try:
             sirius_response["data"]["type"] = "checklists"
-        except KeyError:
+        except (KeyError, TypeError):
             pass
 
         lambda_response = {

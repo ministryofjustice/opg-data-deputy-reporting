@@ -18,7 +18,7 @@ def endpoint_handler(data, caseref):
 
     try:
         api_response["data"]["type"] = "reports"
-    except KeyError:
+    except (KeyError, TypeError):
         pass
 
     return api_response, api_status_code

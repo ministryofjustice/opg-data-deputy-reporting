@@ -20,7 +20,7 @@ def endpoint_handler(data, caseref, id):
     )
     try:
         api_response["data"]["type"] = "supportingdocuments"
-    except KeyError:
+    except (KeyError, TypeError):
         pass
     return api_response, api_status_code
 
