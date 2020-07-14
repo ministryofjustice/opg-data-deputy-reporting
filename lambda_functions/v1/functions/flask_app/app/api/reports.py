@@ -16,6 +16,11 @@ def endpoint_handler(data, caseref):
         data=sirius_payload
     )
 
+    try:
+        api_response["data"]["type"] = "reports"
+    except KeyError:
+        pass
+
     return api_response, api_status_code
 
 

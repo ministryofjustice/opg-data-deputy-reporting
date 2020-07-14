@@ -42,6 +42,11 @@ def lambda_handler(event, context):
             headers=sirius_headers,
         )
 
+        try:
+            sirius_response["data"]["type"] = "reports"
+        except KeyError:
+            pass
+
         lambda_response = {
             "isBase64Encoded": False,
             "statusCode": sirius_response_code,

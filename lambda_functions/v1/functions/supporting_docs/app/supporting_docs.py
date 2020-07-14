@@ -48,6 +48,10 @@ def lambda_handler(event, context):
             data=sirius_payload,
             headers=sirius_headers,
         )
+        try:
+            sirius_response["data"]["type"] = "supportingdocuments"
+        except KeyError:
+            pass
 
         lambda_response = {
             "isBase64Encoded": False,
