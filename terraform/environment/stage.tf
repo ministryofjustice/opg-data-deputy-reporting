@@ -47,6 +47,26 @@ module "deploy_v1" {
   domain_name = aws_api_gateway_domain_name.sirius_deputy_reporting
 }
 
+module "deploy_v2" {
+  source                = "./modules/stage"
+  environment           = local.environment
+  aws_subnet_ids        = data.aws_subnet_ids.private.ids
+  target_environment    = local.account.target_environment
+  vpc_id                = local.account.vpc_id
+  tags                  = local.default_tags
+  api_name              = local.api_name
+  openapi_version       = "v2"
+  reports_lambda        = module.lambda_reports_v2.lambda
+  healthcheck_lambda    = module.lamdba_healthcheck_v2.lambda
+  supportingdocs_lambda = module.lambda_supporting_docs_v2.lambda
+  checklists_lambda     = module.lambda_checklists_v2.lambda
+  //THIS IS JUST TEMPORARY
+  flaskapp_lambda = module.lamdba_flask_v2.lambda
+  //THIS IS JUST TEMPORARY
+  rest_api    = aws_api_gateway_rest_api.deputy_reporting
+  domain_name = aws_api_gateway_domain_name.sirius_deputy_reporting
+}
+
 //To Add New Version Copy and Paste Above and Modify Accordingly
 //Below takes the latest stage/deployment. Modify for new version.
 

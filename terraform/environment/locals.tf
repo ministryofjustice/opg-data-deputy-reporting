@@ -27,7 +27,7 @@ locals {
   }
 
   //Modify for new version of API
-  latest_openapi_version = "v1"
+  latest_openapi_version = "v2"
   openapispec            = file("../../${local.api_name}-openapi-${local.latest_openapi_version}.yml")
 }
 
