@@ -59,6 +59,22 @@ def default_report_request_body_flask():
 
 
 @pytest.fixture(autouse=True)
+def default_sirius_checklist_request(
+    default_request_case_ref, default_request_report_id
+):
+    return {
+        "type": "Report - Checklist",
+        "caseRecNumber": default_request_case_ref,
+        "metadata": {"submission_id": 231231, "report_id": default_request_report_id},
+        "file": {
+            "name": "Supporting_Document_111.pdf",
+            "source": "string",
+            "type": "application/pdf",
+        },
+    }
+
+
+@pytest.fixture(autouse=True)
 def default_sirius_supporting_docs_request(
     default_request_case_ref, default_request_report_id
 ):
