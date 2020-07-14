@@ -28,7 +28,6 @@ def case_success() -> CaseData:
         "data": {
             "attributes": {"parent_id": None, "submission_id": 12345},
             "id": "5a8b1a26-8296-4373-ae61-f8d0b250e773",
-            # "type": "Report - Checklist",
             "type": "checklists",
         }
     }
@@ -71,7 +70,7 @@ def case_success_no_submission_id() -> CaseData:
         "data": {
             "attributes": {"parent_id": None, "submission_id": None},
             "id": "5a8b1a26-8296-4373-ae61-f8d0b250e773",
-            "type": "Report - Checklist",
+            "type": "checklists",
         }
     }
 
