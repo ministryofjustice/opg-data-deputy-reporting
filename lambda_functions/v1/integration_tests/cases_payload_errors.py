@@ -61,7 +61,7 @@ default_checklist_payload = {
         "attributes/submission_id",
         "file/name",
         "file/mimetype",
-        "file/source",
+        # "file/source",
     ],
 )
 def case_reports_missing_fields(test_config: str, missing) -> CaseData:
@@ -112,7 +112,12 @@ def case_reports_empty_fields(test_config: str, missing) -> CaseData:
 
 @cases_generator(
     "Bad payload sent to supp docs POST endpoint - missing data: {missing}",
-    missing=["attributes/submission_id", "file/name", "file/mimetype", "file/source"],
+    missing=[
+        "attributes/submission_id",
+        "file/name",
+        "file/mimetype",
+        # "file/source"
+    ],
 )
 def case_suppdocs_missing_fields(test_config: str, missing) -> CaseData:
 
@@ -139,7 +144,12 @@ def case_suppdocs_missing_fields(test_config: str, missing) -> CaseData:
 
 @cases_generator(
     "Bad payload sent to supp docs POST endpoint - empty data: {missing}",
-    missing=["attributes/submission_id", "file/name", "file/mimetype", "file/source"],
+    missing=[
+        "attributes/submission_id",
+        "file/name",
+        "file/mimetype",
+        # "file/source"
+    ],
 )
 def case_suppdocs_empty_fields(test_config: str, missing) -> CaseData:
 
@@ -166,7 +176,12 @@ def case_suppdocs_empty_fields(test_config: str, missing) -> CaseData:
 
 @cases_generator(
     "Bad payload sent to checklist POST endpoint - missing data: {missing}",
-    missing=["attributes/submission_id", "file/name", "file/mimetype", "file/source"],
+    missing=[
+        "attributes/submission_id",
+        "file/name",
+        "file/mimetype",
+        # "file/source"
+    ],
 )
 def case_checklist_missing_fields(test_config: str, missing) -> CaseData:
 
@@ -191,7 +206,12 @@ def case_checklist_missing_fields(test_config: str, missing) -> CaseData:
 
 @cases_generator(
     "Bad payload sent to checklist POST endpoint - empty data: {missing}",
-    missing=["attributes/submission_id", "file/name", "file/mimetype", "file/source"],
+    missing=[
+        "attributes/submission_id",
+        "file/name",
+        "file/mimetype",
+        # "file/source"
+    ],
 )
 def case_checklist_empty_fields(test_config: str, missing) -> CaseData:
 
@@ -216,7 +236,12 @@ def case_checklist_empty_fields(test_config: str, missing) -> CaseData:
 
 @cases_generator(
     "Bad payload sent to checklist PUT endpoint - missing data: {missing}",
-    missing=["attributes/submission_id", "file/name", "file/mimetype", "file/source"],
+    missing=[
+        "attributes/submission_id",
+        "file/name",
+        "file/mimetype",
+        # "file/source"
+    ],
 )
 def case_checklist_update_missing_fields(test_config: str, missing) -> CaseData:
 
@@ -244,7 +269,12 @@ def case_checklist_update_missing_fields(test_config: str, missing) -> CaseData:
 
 @cases_generator(
     "Bad payload sent to checklist PUT endpoint - empty data: {missing}",
-    missing=["attributes/submission_id", "file/name", "file/mimetype", "file/source"],
+    missing=[
+        "attributes/submission_id",
+        "file/name",
+        "file/mimetype",
+        # "file/source"
+    ],
 )
 def case_checklist_update_empty_fields(test_config: str, missing) -> CaseData:
 

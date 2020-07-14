@@ -43,7 +43,8 @@ def case_success() -> CaseData:
         "data": {
             "attributes": {"submission_id": 12345, "parent_id": None},
             "id": "5a8b1a26-8296-4373-ae61-f8d0b250e773",
-            "type": "Report",
+            # "type": "Report",
+            "type": "reports",
         }
     }
 
