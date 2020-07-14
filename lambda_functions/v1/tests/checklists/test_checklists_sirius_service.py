@@ -14,46 +14,6 @@ from lambda_functions.v1.functions.checklists.app.sirius_service import (
     send_get_to_sirius,
 )
 
-
-# import boto3
-# from aws_xray_sdk.core import xray_recorder
-# from botocore.exceptions import ClientError
-# from moto import mock_secretsmanager
-
-
-# TODO this does not work through CI, something to do with aws xray,
-#  see https://github.com/aws/aws-xray-sdk-python/issues/155
-# @pytest.mark.parametrize(
-#     "secret_code, environment, region",
-#     [("i_am_a_secret_code", "development", "eu-west-1")],
-# )
-# @mock_secretsmanager
-# def test_get_secret(secret_code, environment, region):
-#     # Disable sampling for tests, see github issue:
-#     # https://github.com/aws/aws-xray-sdk-python/issues/155
-#     xray_recorder.configure(sampling=False)
-#
-#     session = boto3.session.Session()
-#     client = session.client(service_name="secretsmanager", region_name=region)
-#
-#     client.create_secret(Name=f"{environment}/jwt-key", SecretString=secret_code)
-#     assert get_secret(environment) == secret_code
-#
-#     with pytest.raises(ClientError):
-#         get_secret("not_a_real_environment")
-
-
-# TODO this does not work through CI, something to do with aws xray,
-#  see https://github.com/aws/aws-xray-sdk-python/issues/155
-# def test_sirius_does_not_exist(monkeypatch, default_sirius_supporting_docs_request):
-#     headers = {"Content-Type": "application/json"}
-#     body = default_sirius_supporting_docs_request
-#
-#     response = submit_document_to_sirius(
-#         url="http://this_url_does_not_exist/", data=body, headers=headers
-#     )
-#
-#     assert response["statusCode"] == 404
 from lambda_functions.v1.tests.helpers.use_test_data import is_valid_schema
 
 
