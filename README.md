@@ -137,4 +137,3 @@ curl -X POST -d '@./mock_integration_rest_api/example_supporting_doc.json' \
 -H 'Content-Type: application/json' \
 http://localhost:4343/v1/clients/1234567T/reports/33ea0382-cfc9-4776-9036-667eeb68fa4b/supportingdocuments
 ```
-
