@@ -14,6 +14,8 @@ Tests to add:
 * DIGIDEPS_S3_BUCKET is not set FAILS
 * get_encoded_s3_object fails FAILS
 * get_digideps_s3_client fails FAILS
+
+can't think of any more, this is just a commit to test Circle CI
 """
 
 
