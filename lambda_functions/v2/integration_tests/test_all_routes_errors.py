@@ -5,12 +5,12 @@ import os
 import pytest
 from pytest_cases import cases_data, CaseDataGetter
 
-from lambda_functions.v1.integration_tests import cases_payload_errors
-from lambda_functions.v1.integration_tests.conftest import (
+from lambda_functions.v2.integration_tests import cases_payload_errors
+from lambda_functions.v2.integration_tests.conftest import (
     configs_to_test,
     generate_file_name,
 )
-from lambda_functions.v1.integration_tests.conftest import send_a_request
+from lambda_functions.v2.integration_tests.conftest import send_a_request
 
 default_report_payload = {
     "report": {

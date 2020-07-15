@@ -4,8 +4,8 @@ import pytest
 import requests
 
 import lambda_functions
-from lambda_functions.v1.functions.flask_app.app import api
-from lambda_functions.v1.functions.flask_app.app.api import sirius_service
+from lambda_functions.v2.functions.flask_app.app import api
+from lambda_functions.v2.functions.flask_app.app.api import sirius_service
 
 test_data = {
     "valid_clients": ["valid_client_id", "0319392T", "12345678", "22814959"],
@@ -144,7 +144,7 @@ def mock_env_setup(monkeypatch):
     monkeypatch.setenv("JWT_SECRET", "THIS_IS_MY_SECRET_KEY")
     monkeypatch.setenv("ENVIRONMENT", "development")
     monkeypatch.setenv("SESSION_DATA", "publicapi@opgtest.com")
-    monkeypatch.setenv("API_VERSION", "flask")
+    monkeypatch.setenv("API_VERSION", "v2")
 
 
 sirius_report_response = json.dumps(
@@ -300,7 +300,7 @@ def patched_submit_document_to_sirius(monkeypatch):
         return (response_code, response_data)
 
     monkeypatch.setattr(
-        lambda_functions.v1.functions.flask_app.app.api.sirius_service,
+        lambda_functions.v2.functions.flask_app.app.api.sirius_service,
         "submit_document_to_sirius",
         mock_submit_document_to_sirius,
     )

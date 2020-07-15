@@ -3,7 +3,7 @@ import json
 import pytest
 import requests
 
-from lambda_functions.v1.functions.checklists.app import sirius_service, checklists
+from lambda_functions.v2.functions.checklists.app import sirius_service, checklists
 
 test_data = {
     "valid_clients": ["valid_client_id", "0319392T", "12345678", "22814959"],
@@ -104,7 +104,7 @@ def mock_env_setup(monkeypatch):
     monkeypatch.setenv("JWT_SECRET", "THIS_IS_MY_SECRET_KEY")
     monkeypatch.setenv("ENVIRONMENT", "development")
     monkeypatch.setenv("SESSION_DATA", "publicapi@opgtest.com")
-    monkeypatch.setenv("API_VERSION", "v1")
+    monkeypatch.setenv("API_VERSION", "v2")
 
 
 sirius_checklists_response = json.dumps(

@@ -1,6 +1,6 @@
 {
 	"resource": "/clients/{caseref}/reports",
-	"path": "/v1/clients/22814959/reports",
+	"path": "/v2/clients/22814959/reports",
 	"httpMethod": "POST",
 	"headers": {
 		"accept-encoding": "gzip",
@@ -30,9 +30,9 @@
 	"multiValueQueryStringParameters": null,
 	"pathParameters": {},
 	"stageVariables": {
-		"supporting_docs_name": "sirius-supporting_docs-in149-v1",
-		"healthcheck_function_name": "sirius-healthcheck-in149-v1",
-		"reports_function_name": "sirius-reports-in149-v1"
+		"supporting_docs_name": "sirius-supporting_docs-in149-v2",
+		"healthcheck_function_name": "sirius-healthcheck-in149-v2",
+		"reports_function_name": "sirius-reports-in149-v2"
 	},
 	"requestContext": {
 		"resourceId": "jskg4r",
@@ -41,10 +41,10 @@
 		"httpMethod": "POST",
 		"extendedRequestId": "KdD8oGvtDoEFhew=",
 		"requestTime": "04/Apr/2020:09:02:21 +0000",
-		"path": "/v1/clients/22814959/reports",
+		"path": "/v2/clients/22814959/reports",
 		"accountId": "288342028542",
 		"protocol": "HTTP/1.1",
-		"stage": "v1",
+		"stage": "v2",
 		"domainPrefix": "in149",
 		"requestTimeEpoch": 1585990941501,
 		"requestId": "bf3d8078-28e9-43ec-9114-05603af3c881",

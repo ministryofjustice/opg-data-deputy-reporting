@@ -13,7 +13,7 @@ from requests_aws4auth import AWS4Auth
 
 aws_dev_config = {
     "name": "AWS Dev",
-    "url": "https://dev.deputy-reporting.api.opg.service.justice.gov.uk/v1",
+    "url": "https://dev.deputy-reporting.api.opg.service.justice.gov.uk/v2",
     "security": "aws_signature",
     "case_ref": "33205624",
     "report_id": "123",
@@ -25,7 +25,7 @@ aws_dev_config = {
 aws_flask_config = {
     "name": "AWS Flask",
     "url": "https://in245reporttyp.dev.deputy-reporting.api.opg.service.justice.gov"
-    ".uk/v1/flask",
+    ".uk/v2/flask",
     "security": "aws_signature",
     "case_ref": "46099306",
     "report_id": "123",
@@ -36,7 +36,7 @@ aws_flask_config = {
 
 mock_config = {
     "name": "Local Mock APG Gateway",
-    "url": "http://0.0.0.0:4343/v1",
+    "url": "http://0.0.0.0:4343/v2",
     "security": "token",
     "case_ref": "1234567T",
     "report_id": "33ea0382-cfc9-4776-9036-667eeb68fa4b",

@@ -9,7 +9,7 @@ import time
 import pytest
 from flask import Flask
 
-from lambda_functions.v1.functions.flask_app.app import api, create_app
+from lambda_functions.v2.functions.flask_app.app import api, create_app
 
 
 class StreamToLogger(object):

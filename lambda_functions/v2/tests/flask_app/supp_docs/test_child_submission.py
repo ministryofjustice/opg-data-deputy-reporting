@@ -1,6 +1,6 @@
 import pytest
 
-from lambda_functions.v1.functions.flask_app.app.api.supporting_docs import (
+from lambda_functions.v2.functions.flask_app.app.api.supporting_docs import (
     determine_document_parent_id,
 )
 

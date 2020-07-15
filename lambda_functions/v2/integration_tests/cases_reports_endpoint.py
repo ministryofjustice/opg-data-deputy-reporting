@@ -2,7 +2,7 @@ from pytest_cases import CaseData, case_name
 
 
 # submission_id = config["SUBMISSION_ID"]
-from lambda_functions.v1.integration_tests.conftest import generate_file_name
+from lambda_functions.v2.integration_tests.conftest import generate_file_name
 
 
 @case_name("Successful post to reports endpoint")

@@ -3,13 +3,13 @@ import json
 import pytest
 from pytest_cases import cases_data, CaseDataGetter
 
-from lambda_functions.v1.integration_tests import (
+from lambda_functions.v2.integration_tests import (
     cases_reports_endpoint,
     cases_supporting_docs_endpoint,
     cases_new_checklist_endpoint,
     cases_update_checklist_endpoint,
 )
-from lambda_functions.v1.integration_tests.conftest import (
+from lambda_functions.v2.integration_tests.conftest import (
     send_a_request,
     is_valid_uuid,
     configs_to_test,

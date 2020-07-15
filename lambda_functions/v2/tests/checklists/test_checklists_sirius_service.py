@@ -5,7 +5,7 @@ import jwt
 import pytest
 from jwt import DecodeError
 
-from lambda_functions.v1.functions.checklists.app.sirius_service import (
+from lambda_functions.v2.functions.checklists.app.sirius_service import (
     submit_document_to_sirius,
     build_sirius_url,
     build_sirius_headers,
@@ -14,7 +14,7 @@ from lambda_functions.v1.functions.checklists.app.sirius_service import (
     send_get_to_sirius,
 )
 
-from lambda_functions.v1.tests.helpers.use_test_data import is_valid_schema
+from lambda_functions.v2.tests.helpers.use_test_data import is_valid_schema
 
 
 @pytest.mark.parametrize(

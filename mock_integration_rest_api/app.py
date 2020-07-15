@@ -7,17 +7,18 @@ from flask import Response
 from connexion.exceptions import OAuthProblem
 from moto import mock_secretsmanager
 
-from lambda_functions.v1.functions.reports.app.reports import (
+from lambda_functions.v2.functions.reports.app.reports import (
     lambda_handler as rep_lambda_handler,
 )
 
-from lambda_functions.v1.functions.supporting_docs.app.supporting_docs import (
+from lambda_functions.v2.functions.supporting_docs.app.supporting_docs import (
     lambda_handler as sup_lambda_handler,
 )
 
 # Env variable set here for consistency across CI and local env.
 # MOCKING_ENV set externally
 mocking_environment = os.environ.get("MOCKING_ENV")
+rest_api_version = os.environ.get("REST_API_VERSION")
 os.environ["BASE_URL"] = "http://localhost:4343"
 os.environ["SIRIUS_BASE_URL"] = "http://" + mocking_environment + ":5001"
 os.environ["SIRIUS_PUBLIC_API_URL"] = "api/public/v1/"
@@ -29,7 +30,7 @@ os.environ["AWS_ACCESS_KEY_ID"] = "testing"
 os.environ["AWS_SECRET_ACCESS_KEY"] = "testing"
 os.environ["AWS_SECURITY_TOKEN"] = "testing"
 os.environ["AWS_SESSION_TOKEN"] = "testing"
-os.environ["API_VERSION"] = "v1"
+os.environ["API_VERSION"] = rest_api_version
 
 
 def healthcheck():

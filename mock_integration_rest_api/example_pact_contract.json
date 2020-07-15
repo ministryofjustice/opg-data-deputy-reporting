@@ -11,7 +11,7 @@
       "description": "A submitted report",
       "request": {
         "method": "POST",
-        "path": "/v1/clients/1234567T/reports",
+        "path": "/v2/clients/1234567T/reports",
         "headers": {
           "Content-Type": "application/json"
         },
@@ -87,7 +87,7 @@
       "description": "A submitted supporting document",
       "request": {
         "method": "POST",
-        "path": "/v1/clients/1234567T/reports/33ea0382-cfc9-4776-9036-667eeb68fa4b/supportingdocuments",
+        "path": "/v2/clients/1234567T/reports/33ea0382-cfc9-4776-9036-667eeb68fa4b/supportingdocuments",
         "headers": {
           "Content-Type": "application/json"
         },

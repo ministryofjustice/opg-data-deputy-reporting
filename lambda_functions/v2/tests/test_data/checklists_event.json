@@ -1,6 +1,6 @@
 {
 	"resource": "/clients/{caseref}/reports/{id}/checklists",
-	"path": "/v1/clients/22814959/reports/99999999-9999-9999-9999-999999999999/checklists",
+	"path": "/v2/clients/22814959/reports/99999999-9999-9999-9999-999999999999/checklists",
 	"httpMethod": "POST",
 	"headers": {
 		"accept-encoding": "gzip",
@@ -33,10 +33,10 @@
 		"id": "99999999-9999-9999-9999-999999999999"
 	},
 	"stageVariables": {
-		"supporting_docs_name": "sirius-supporting_docs-in235-v1",
-		"healthcheck_function_name": "sirius-healthcheck-in235-v1",
-		"reports_function_name": "sirius-reports-in235-v1",
-		"checklists_function_name": "sirius-checklists-in235-v1"
+		"supporting_docs_name": "sirius-supporting_docs-in235-v2",
+		"healthcheck_function_name": "sirius-healthcheck-in235-v2",
+		"reports_function_name": "sirius-reports-in235-v2",
+		"checklists_function_name": "sirius-checklists-in235-v2"
 	},
 	"requestContext": {
 		"resourceId": "5h9841",
@@ -45,10 +45,10 @@
 		"httpMethod": "POST",
 		"extendedRequestId": "KaucoFSTDoEFmcQ=",
 		"requestTime": "03/Apr/2020:16:01:46 +0000",
-		"path": "/v1/clients/22814959/reports/99999999-9999-9999-9999-999999999999/checklists",
+		"path": "/v2/clients/22814959/reports/99999999-9999-9999-9999-999999999999/checklists",
 		"accountId": "288342028542",
 		"protocol": "HTTP/1.1",
-		"stage": "v1",
+		"stage": "v2",
 		"domainPrefix": "in235",
 		"requestTimeEpoch": 1585929706337,
 		"requestId": "5b3e334d-e983-44e0-9b69-e9d87b12e7e9",

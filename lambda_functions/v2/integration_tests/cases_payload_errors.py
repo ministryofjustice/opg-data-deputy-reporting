@@ -2,7 +2,7 @@ import copy
 
 from pytest_cases import CaseData, cases_generator
 
-from lambda_functions.v1.integration_tests.conftest import generate_file_name
+from lambda_functions.v2.integration_tests.conftest import generate_file_name
 
 default_report_payload = {
     "report": {

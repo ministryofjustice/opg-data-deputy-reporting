@@ -1,10 +1,10 @@
 import pytest
 from pytest_cases import cases_data, CaseDataGetter
 
-from lambda_functions.v1.functions.flask_app.app.api.sirius_service import (
+from lambda_functions.v2.functions.flask_app.app.api.sirius_service import (
     new_submit_document_to_sirius,
 )
-from lambda_functions.v1.tests.flask_app.sirius_service import (
+from lambda_functions.v2.tests.flask_app.sirius_service import (
     cases_submit_doc_to_sirius,
 )
 

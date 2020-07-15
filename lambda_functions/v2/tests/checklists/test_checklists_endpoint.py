@@ -5,17 +5,17 @@ from pytest_cases import (
     CaseDataGetter,
 )
 
-from lambda_functions.v1.functions.checklists.app.checklists import (
+from lambda_functions.v2.functions.checklists.app.checklists import (
     lambda_handler,
     transform_event_to_sirius_payload,
     validate_event,
 )
-from lambda_functions.v1.tests.helpers.use_test_data import (
+from lambda_functions.v2.tests.helpers.use_test_data import (
     is_valid_schema,
     load_data,
     build_aws_event,
 )
-from lambda_functions.v1.tests.checklists import (
+from lambda_functions.v2.tests.checklists import (
     checklists_endpoint_test_cases,
 )
 

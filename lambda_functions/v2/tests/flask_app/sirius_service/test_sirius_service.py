@@ -9,12 +9,12 @@ from jwt import DecodeError
 from moto import mock_secretsmanager
 from pytest_cases import cases_data, CaseDataGetter
 
-from lambda_functions.v1.functions.flask_app.app.api import sirius_service
-from lambda_functions.v1.functions.flask_app.app.api.sirius_service import (
+from lambda_functions.v2.functions.flask_app.app.api import sirius_service
+from lambda_functions.v2.functions.flask_app.app.api.sirius_service import (
     format_sirius_success,
     handle_sirius_error,
 )
-from lambda_functions.v1.tests.flask_app.sirius_service import (
+from lambda_functions.v2.tests.flask_app.sirius_service import (
     cases_format_sirius_response,
 )
 
@@ -73,7 +73,7 @@ submit_document_to_sirius (superseded by the 'new_' functions above so ignoring)
 )
 def test_build_sirius_url(base_url, version, endpoint, url_params, expected_result):
     # Copied directly from original
-    # "lambda_functions/v1/tests/reports/test_reports_sirius_service.py' test
+    # "lambda_functions/v2/tests/reports/test_reports_sirius_service.py' test
     url = sirius_service.build_sirius_url(base_url, version, endpoint, url_params)
 
     assert urllib.parse.unquote(url) == expected_result
@@ -104,7 +104,7 @@ def test_build_sirius_headers_content_type(
     patched_get_secret, test_content_type, test_secret_key, expected_content_type
 ):
     # Copied directly from original
-    # "lambda_functions/v1/tests/reports/test_reports_sirius_service.py' test
+    # "lambda_functions/v2/tests/reports/test_reports_sirius_service.py' test
     if test_content_type:
         headers = sirius_service.build_sirius_headers(content_type=test_content_type)
     else:
@@ -115,7 +115,7 @@ def test_build_sirius_headers_content_type(
 
 def test_build_sirius_headers_auth(patched_get_secret):
     # Copied directly from original
-    # "lambda_functions/v1/tests/reports/test_reports_sirius_service.py' test
+    # "lambda_functions/v2/tests/reports/test_reports_sirius_service.py' test
     headers = sirius_service.build_sirius_headers()
     token = headers["Authorization"].split()[1]
 
@@ -135,7 +135,7 @@ def test_build_sirius_headers_auth(patched_get_secret):
 @mock_secretsmanager
 def test_get_secret(secret_code, environment, region):
     # Copied directly from original
-    # "lambda_functions/v1/tests/reports/test_reports_sirius_service.py' test
+    # "lambda_functions/v2/tests/reports/test_reports_sirius_service.py' test
 
     session = boto3.session.Session()
     client = session.client(service_name="secretsmanager", region_name=region)

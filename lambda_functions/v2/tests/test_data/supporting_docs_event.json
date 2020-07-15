@@ -1,6 +1,6 @@
 {
 	"resource": "/clients/{caseref}/reports/{id}/supportingdocuments",
-	"path": "/v1/clients/22814959/reports/d89c26de-0734-47ed-af4f-75f103118ed1/supportingdocuments",
+	"path": "/v2/clients/22814959/reports/d89c26de-0734-47ed-af4f-75f103118ed1/supportingdocuments",
 	"httpMethod": "POST",
 	"headers": {
 		"accept-encoding": "gzip",
@@ -33,9 +33,9 @@
 		"id": "d89c26de-0734-47ed-af4f-75f103118ed1"
 	},
 	"stageVariables": {
-		"supporting_docs_name": "sirius-supporting_docs-in149-v1",
-		"healthcheck_function_name": "sirius-healthcheck-in149-v1",
-		"reports_function_name": "sirius-reports-in149-v1"
+		"supporting_docs_name": "sirius-supporting_docs-in149-v2",
+		"healthcheck_function_name": "sirius-healthcheck-in149-v2",
+		"reports_function_name": "sirius-reports-in149-v2"
 	},
 	"requestContext": {
 		"resourceId": "5h9841",
@@ -44,10 +44,10 @@
 		"httpMethod": "POST",
 		"extendedRequestId": "KaucoFSTDoEFmcQ=",
 		"requestTime": "03/Apr/2020:16:01:46 +0000",
-		"path": "/v1/clients/22814959/reports/d89c26de-0734-47ed-af4f-75f103118ed1/supportingdocuments",
+		"path": "/v2/clients/22814959/reports/d89c26de-0734-47ed-af4f-75f103118ed1/supportingdocuments",
 		"accountId": "288342028542",
 		"protocol": "HTTP/1.1",
-		"stage": "v1",
+		"stage": "v2",
 		"domainPrefix": "in149",
 		"requestTimeEpoch": 1585929706337,
 		"requestId": "5b3e334d-e983-44e0-9b69-e9d87b12e7e9",

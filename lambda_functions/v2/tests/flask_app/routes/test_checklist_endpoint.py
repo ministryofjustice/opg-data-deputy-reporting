@@ -4,7 +4,7 @@ import pytest
 import requests
 from pytest_cases import cases_data, CaseDataGetter
 
-from lambda_functions.v1.tests.flask_app.routes import (
+from lambda_functions.v2.tests.flask_app.routes import (
     cases_checklist_post_endpoint,
     cases_checklist_put_endpoint,
 )

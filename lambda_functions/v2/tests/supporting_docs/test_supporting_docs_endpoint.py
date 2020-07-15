@@ -5,17 +5,17 @@ from pytest_cases import (
     CaseDataGetter,
 )
 
-from lambda_functions.v1.functions.supporting_docs.app.supporting_docs import (
+from lambda_functions.v2.functions.supporting_docs.app.supporting_docs import (
     lambda_handler,
     transform_event_to_sirius_post_request,
     validate_event,
 )
-from lambda_functions.v1.tests.helpers.use_test_data import (
+from lambda_functions.v2.tests.helpers.use_test_data import (
     is_valid_schema,
     load_data,
     build_aws_event,
 )
-from lambda_functions.v1.tests.supporting_docs import (
+from lambda_functions.v2.tests.supporting_docs import (
     supporting_docs_endpoint_test_cases,
 )
 

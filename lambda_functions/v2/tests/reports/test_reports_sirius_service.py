@@ -5,14 +5,14 @@ import jwt
 import pytest
 from jwt import DecodeError
 
-from lambda_functions.v1.functions.reports.app.sirius_service import (
+from lambda_functions.v2.functions.reports.app.sirius_service import (
     submit_document_to_sirius,
     build_sirius_url,
     build_sirius_headers,
     # get_secret,
     format_sirius_response,
 )
-from lambda_functions.v1.functions.supporting_docs.app.supporting_docs import (
+from lambda_functions.v2.functions.supporting_docs.app.supporting_docs import (
     build_sirius_url as build_sirius_url_supporting_docs,
 )
 
@@ -56,7 +56,7 @@ from lambda_functions.v1.functions.supporting_docs.app.supporting_docs import (
 #     )
 #
 #     assert response["statusCode"] == 404
-from lambda_functions.v1.tests.helpers.use_test_data import is_valid_schema
+from lambda_functions.v2.tests.helpers.use_test_data import is_valid_schema
 
 
 @pytest.mark.parametrize(

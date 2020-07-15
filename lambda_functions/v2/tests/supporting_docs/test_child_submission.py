@@ -1,9 +1,9 @@
 import pytest
 
-from lambda_functions.v1.functions.supporting_docs.app.sirius_service import (
+from lambda_functions.v2.functions.supporting_docs.app.sirius_service import (
     build_sirius_url,
 )
-from lambda_functions.v1.functions.supporting_docs.app.supporting_docs import (
+from lambda_functions.v2.functions.supporting_docs.app.supporting_docs import (
     determine_document_parent_id,
 )
 
