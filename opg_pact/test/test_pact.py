@@ -1,9 +1,6 @@
 import pytest
 
-from opg_pact.check_pact_deployable import (
-    get_secret,
-    run_can_i_deploy
-)
+from opg_pact.check_pact_deployable import PactDeploymentCheck
 
 import boto3
 from moto import (mock_secretsmanager, mock_sts)
@@ -21,8 +18,6 @@ def test_get_secret(secret_code, environment, region):
 
     client.create_secret(Name=f"pactbroker_admin", SecretString=secret_code)
 
-    assert get_secret("pactbroker_admin") == secret_code
-    assert get_secret("local") == "dummy_password"
-
-def test_run_can_i_deploy():
+    assert PactDeploymentCheck.get_secret("pactbroker_admin") == secret_code
+    assert PactDeploymentCheck.get_secret("local") == "dummy_password"
 
