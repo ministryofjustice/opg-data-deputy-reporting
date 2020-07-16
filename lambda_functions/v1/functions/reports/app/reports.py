@@ -2,7 +2,7 @@ import json
 import os
 import copy
 
-from .helpers import compare_two_dicts, custom_logger, handle_file_source
+from .helpers import compare_two_dicts, custom_logger
 from .sirius_service import (
     build_sirius_url,
     build_sirius_headers,
@@ -90,30 +90,16 @@ def validate_event(event):
         }
     }
 
-    required_body_structure_s3 = {
-        "report": {
-            "data": {
-                "type": "string",
-                "attributes": {"submission_id": 1},
-                "file": {"name": "string", "mimetype": "string", "s3_reference": "string"},
-            }
-        }
-    }
-
     errors = compare_two_dicts(
         required_body_structure, json.loads(event["body"]), missing=[]
     )
 
-    errors_s3 = compare_two_dicts(
-        required_body_structure_s3, json.loads(event["body"]), missing=[]
-    )
-
-    if len(errors) > 0 and len(errors_s3) > 0:
+    if len(errors) > 0:
         logger.debug(f"Validation failed: {', '.join(errors)}")
         return False, errors
     else:
         logger.debug("Validation passed")
-        return True, errors
+        return True, []
 
 
 def transform_event_to_sirius_request(event):
@@ -133,7 +119,7 @@ def transform_event_to_sirius_request(event):
     metadata = request_body["report"]["data"]["attributes"]
     file_name = request_body["report"]["data"]["file"]["name"]
     file_type = request_body["report"]["data"]["file"]["mimetype"]
-    file_source = handle_file_source(file=request_body["report"]["data"]["file"])
+    file_source = request_body["report"]["data"]["file"]["source"]
 
     payload = {
         "type": "Report",

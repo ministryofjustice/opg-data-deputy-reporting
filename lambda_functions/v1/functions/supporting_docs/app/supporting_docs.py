@@ -3,7 +3,7 @@ import os
 import copy
 
 from . import sirius_service
-from .helpers import compare_two_dicts, custom_logger, handle_file_source
+from .helpers import compare_two_dicts, custom_logger
 from .sirius_service import (
     build_sirius_url,
     submit_document_to_sirius,
@@ -94,27 +94,14 @@ def validate_event(event):
         }
     }
 
-    required_body_structure_s3 = {
-        "supporting_document": {
-            "data": {
-                "attributes": {"submission_id": 0},
-                "file": {"name": "string", "mimetype": "string", "s3_reference": "string"},
-            }
-        }
-    }
-
     errors = compare_two_dicts(
         required_body_structure, json.loads(event["body"]), missing=[]
     )
 
-    errors_s3 = compare_two_dicts(
-        required_body_structure_s3, json.loads(event["body"]), missing=[]
-    )
-
-    if len(errors) > 0 and len(errors_s3) > 0:
+    if len(errors) > 0:
         return False, errors
     else:
-        return True, errors
+        return True, []
 
 
 def transform_event_to_sirius_get_url(event):
@@ -157,7 +144,7 @@ def transform_event_to_sirius_post_request(event, parent_id=None):
     metadata["report_id"] = report_id
     file_name = request_body["supporting_document"]["data"]["file"]["name"]
     file_type = request_body["supporting_document"]["data"]["file"]["mimetype"]
-    file_source = handle_file_source(file=request_body["supporting_document"]["data"]["file"])
+    file_source = request_body["supporting_document"]["data"]["file"]["source"]
 
     payload = {
         "type": "Report - General",
