@@ -263,7 +263,6 @@ class PactDeploymentCheck:
 
         return message, fail_build, pact_msg
 
-    # @staticmethod
     def run_pact_verifier(
         self,
         provider_base_url,
@@ -330,7 +329,6 @@ class PactDeploymentCheck:
 
         return failed_verify, message
 
-    # @staticmethod
     def run_can_i_deploy(
         self,
         pact_broker_url,
@@ -380,10 +378,11 @@ class PactDeploymentCheck:
                 pact_path_prefix=self.pact_path_prefix,
             )
 
-        # print(command)
+        #
         command_response = subprocess.Popen(
             command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
         )
+
         fail_build = True
         for line in command_response.stdout.readlines():
             if "Computer says yes" in str(line):

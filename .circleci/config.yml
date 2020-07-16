@@ -181,25 +181,18 @@ jobs:
           name: run flake8 - python PEP8 linter, complexity checker
           command: |
             flake8 lambda_functions
-      - digideps-data/pact_install
-      - run:
-          name: run pact provider in background
-          command: python mock_provider_flask.py
-          working_directory: ~/project/pact_provider/test
-          background: true
       - run:
           name: run pact tests
           command: |
-            export PYTHONPATH=~/project
             docker-compose up -d
             sleep 3
-            python -m pytest
+            docker-compose run python_tests python -m pytest
             docker-compose down
           working_directory: ~/project/pact_provider/test
       - run:
           name: run unit tests (with pytest)
           command: |
-            python -m pytest -m "not smoke_test" -m "not pact_test"
+            python -m pytest -m "not (smoke_test or pact_test)"
       - run:
           name: intgration tests
           command: |

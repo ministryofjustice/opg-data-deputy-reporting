@@ -1203,6 +1203,7 @@ components:
       required:
         - name
         - mimetype
+        - source
       properties:
         name:
           type: string
@@ -1216,11 +1217,6 @@ components:
           type: string
           pattern: '.*'
           description: The base64 encoded file
-        s3_reference:
-          type: string
-          pattern: '.*'
-          example: dd_doc_98765_01234567890123
-          description: The filename only of the Amazon AWS S3 link to the document file in the Digideps bucket
     Response201:
       type: object
       required:

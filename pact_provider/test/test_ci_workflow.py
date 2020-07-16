@@ -3,9 +3,9 @@ import requests
 import pytest
 from pact_provider.check_pact_deployable import PactDeploymentCheck
 
-provider_base_url = "http://localhost:5000"
+provider_base_url = "http://local.mock:5000"
 provider_custom_header = "Authorization: asdf1234567890"
-pact_broker_url = "http://localhost:9292"
+pact_broker_url = "http://local.broker:9292"
 broker_user_name = "admin"
 broker_secret_name = "local"  # pactbroker_admin
 consumer_pacticipant = "OPGExampleApp"
