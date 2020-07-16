@@ -2,8 +2,8 @@
 set -e
 PACT_BROKER_ADMIN="admin"
 PACT_BASE_URL="pact-broker.api.opg.service.justice.gov.uk"
-PROVIDER="OPG%20Data"
-CONSUMER="Complete%20the%20deputy%20report"
+PROVIDER="OPG Data"
+CONSUMER="Complete the deputy report"
 DIGIDEPS_URL="api.github.com/repos/ministryofjustice/opg-digideps"
 ACCOUNT="997462338508"
 

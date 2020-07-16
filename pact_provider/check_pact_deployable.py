@@ -36,10 +36,16 @@ class PactDeploymentCheck:
         self.git_commit_provider = git_commit_provider
 
         current_folder = os.path.basename(os.path.normpath(os.getcwd()))
-        if current_folder == "test":
-            self.pact_path_prefix = "../../../"
+        if "CI" in os.environ:
+            if current_folder == "test":
+                self.pact_path_prefix = "../../"
+            else:
+                self.pact_path_prefix = "../"
         else:
-            self.pact_path_prefix = "../../"
+            if current_folder == "test":
+                self.pact_path_prefix = "../../../"
+            else:
+                self.pact_path_prefix = "../../"
 
     def consumer_can_i_deploy(self):
 
