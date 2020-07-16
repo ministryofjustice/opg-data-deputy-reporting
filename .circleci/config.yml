@@ -107,7 +107,7 @@ orbs:
     executors:
       python_with_tfvars:
         docker:
-          - image: circleci/python:3.8.1
+          - image: circleci/python:3
         environment:
           TF_VERSION: 0.12.26
           TF_SHA256SUM: 607bc802b1c6c2a5e62cc48640f38aaa64bef1501b46f0ae4829feb51594b257
@@ -118,7 +118,7 @@ orbs:
           TF_VAR_default_role: sirius-ci
       python:
         docker:
-          - image: circleci/python:3.8.1
+          - image: circleci/python:3
     commands:
       terraform_install:
         steps:
@@ -156,6 +156,7 @@ jobs:
     executor: digideps-data/python
     steps:
       - checkout
+      - setup_remote_docker
       - run:
           name: install all requirements locally
           command: |
@@ -188,7 +189,12 @@ jobs:
           background: true
       - run:
           name: run pact tests
-          command: sleep 2 && python -m pytest
+          command: |
+            export PYTHONPATH=~/project
+            docker-compose up -d
+            sleep 3
+            python -m pytest
+            docker-compose down
           working_directory: ~/project/pact_provider/test
       - run:
           name: run unit tests (with pytest)

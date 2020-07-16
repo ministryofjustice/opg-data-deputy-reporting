@@ -5,6 +5,7 @@ import argparse
 import json
 import re
 import os
+import urllib.parse
 from boto3 import Session
 from boto3 import exceptions
 
@@ -513,14 +514,16 @@ def main():
     )
 
     args = parser.parse_args()
+    consumer_pacticipant = urllib.parse.unquote(args.consumer_pacticipant)
+    provider_pacticipant = urllib.parse.unquote(args.provider_pacticipant)
     pact_check = PactDeploymentCheck(
         args.provider_base_url,
         args.provider_custom_header,
         args.pact_broker_url,
         args.broker_user_name,
         args.broker_secret_name,
-        args.consumer_pacticipant,
-        args.provider_pacticipant,
+        consumer_pacticipant,
+        provider_pacticipant,
         args.api_version,
         args.git_commit_consumer,
         args.git_commit_provider,
