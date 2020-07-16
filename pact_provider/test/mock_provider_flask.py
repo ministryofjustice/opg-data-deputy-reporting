@@ -1,9 +1,11 @@
 from flask import Flask, Response
 import json
+
 app = Flask(__name__)
 
 
-@app.route('/case/<id>')
+# This is to test the deploy logic, not pact logic so this can be very basic
+@app.route("/case/<id>")
 def case(id):
     if id == "123":
         response_msg = {"name": "Joe Bloggs"}
@@ -18,5 +20,5 @@ def case(id):
     return response
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run()

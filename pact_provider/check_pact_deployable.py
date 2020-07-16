@@ -10,18 +10,19 @@ from boto3 import exceptions
 
 
 class PactDeploymentCheck:
-
-    def __init__(self,
-                 provider_base_url,
-                 provider_custom_header,
-                 pact_broker_url,
-                 broker_user_name,
-                 broker_secret_name,
-                 consumer_pacticipant,
-                 provider_pacticipant,
-                 api_version,
-                 git_commit_consumer,
-                 git_commit_provider):
+    def __init__(
+        self,
+        provider_base_url,
+        provider_custom_header,
+        pact_broker_url,
+        broker_user_name,
+        broker_secret_name,
+        consumer_pacticipant,
+        provider_pacticipant,
+        api_version,
+        git_commit_consumer,
+        git_commit_provider,
+    ):
 
         self.provider_base_url = provider_base_url
         self.provider_custom_header = provider_custom_header
@@ -34,6 +35,12 @@ class PactDeploymentCheck:
         self.git_commit_consumer = git_commit_consumer
         self.git_commit_provider = git_commit_provider
 
+        current_folder = os.path.basename(os.path.normpath(os.getcwd()))
+        if current_folder == "test":
+            self.pact_path_prefix = "../../../"
+        else:
+            self.pact_path_prefix = "../../"
+
     def consumer_can_i_deploy(self):
 
         broker_password = self.get_secret(self.broker_secret_name)
@@ -43,7 +50,7 @@ class PactDeploymentCheck:
             self.consumer_pacticipant,
             self.git_commit_consumer,
             self.broker_user_name,
-            broker_password
+            broker_password,
         )
         if not success:
             return consumer_api_version
@@ -68,7 +75,7 @@ class PactDeploymentCheck:
             # This is intended as we only want to allow changes that will work against the 'live' provider
             # There is an issue that what we're comparing against may be in master but not prod but it's a fringe case
 
-            verify_response, verify_last_line = self.run_pact_verifier(
+            failed_verify, message = self.run_pact_verifier(
                 provider_base_url=self.provider_base_url,
                 custom_header=self.provider_custom_header,
                 pact_broker_url=self.pact_broker_url,
@@ -91,52 +98,63 @@ class PactDeploymentCheck:
             )
 
         if (
-                f"No version with tag {consumer_api_version} exists for {self.provider_pacticipant}"
-                in last_line
+            f"No version with tag {consumer_api_version} exists for {self.provider_pacticipant}"
+            in last_line
         ):
-            message, fail_build = (
+            message, fail_build, pact_msg = (
                 f"Consumer Side 'Can I Deploy' Failed! No matching provider pact with {consumer_api_version} tag!",
                 True,
+                last_line,
             )
         elif (
-                f"No version with tag {consumer_api_version}_production exists for {self.provider_pacticipant}"
-                in last_line
+            f"No version with tag {consumer_api_version}_production exists for {self.provider_pacticipant}"
+            in last_line
         ):
-            message, fail_build = (
+            message, fail_build, pact_msg = (
                 f"Consumer Side 'Can I Deploy' Failed! No matching provider pact with {consumer_api_version}_production tag!",
                 True,
+                last_line,
             )
         elif (
             f"No pacts or verifications have been published for version {self.git_commit_consumer} of {self.provider_pacticipant}"
             in last_line
-
         ):
-            message, fail_build = (
+            message, fail_build, pact_msg = (
                 f"Consumer Side 'Can I Deploy' Failed! No pacts or verifications have been published for version {self.git_commit_consumer}",
                 True,
+                last_line,
             )
         elif "failed" in last_line:
-            message, fail_build = "Provider Side 'Can I Deploy' Failed!", True
-        elif "successful" in last_line:
-            message, fail_build = "Provider Side 'Can I Deploy' Successful", False
-        else:
-            message, fail_build = (
-                "Provider Side 'Can I Deploy' returned unknown response",
+            message, fail_build, pact_msg = (
+                "Consumer Side 'Can I Deploy' Failed!",
                 True,
+                last_line,
+            )
+        elif "successful" in last_line:
+            message, fail_build, pact_msg = (
+                "Consumer Side 'Can I Deploy' Successful",
+                False,
+                last_line,
+            )
+        else:
+            message, fail_build, pact_msg = (
+                "Consumer Side 'Can I Deploy' returned unknown response",
+                True,
+                last_line,
             )
 
-        return message, fail_build
+        return message, fail_build, pact_msg
 
     def provider_can_i_deploy(self):
 
         broker_password = self.get_secret(self.broker_secret_name)
         fallback_tag = False
 
-        api_version = os.getenv('API_VERSION')
+        api_version = os.getenv("API_VERSION")
         if api_version is None or len(api_version) == 0:
             api_version = "v1"
 
-        verified, message = self.run_pact_verifier(
+        failed_verify, message = self.run_pact_verifier(
             provider_base_url=self.provider_base_url,
             custom_header=self.provider_custom_header,
             pact_broker_url=self.pact_broker_url,
@@ -147,9 +165,9 @@ class PactDeploymentCheck:
             git_commit_provider=self.git_commit_provider,
         )
 
-        if not verified and message == "Failure! No verification processed":
+        if failed_verify and message == "Failure! No verification processed":
             # Run against non production consumer as this could be a new version!
-            verified, message = self.run_pact_verifier(
+            failed_verify, message = self.run_pact_verifier(
                 provider_base_url=self.provider_base_url,
                 custom_header=self.provider_custom_header,
                 pact_broker_url=self.pact_broker_url,
@@ -158,12 +176,11 @@ class PactDeploymentCheck:
                 provider=self.provider_pacticipant,
                 consumer_api_version=api_version,
                 git_commit_provider=self.git_commit_provider,
-                provider_api_version=api_version
+                provider_api_version=api_version,
             )
 
-        if not verified:
-            return message, verified
-
+        if failed_verify:
+            return message, failed_verify, "Failed Verification Step"
 
         # Canideploy with provider git_commit against latest consumer tagged with v<x>_production
         can_i_deploy, last_line = self.run_can_i_deploy(
@@ -177,8 +194,8 @@ class PactDeploymentCheck:
         )
 
         if (
-                f"No version with tag {self.api_version}_production exists for {self.consumer_pacticipant}"
-                in last_line
+            f"No version with tag {self.api_version}_production exists for {self.consumer_pacticipant}"
+            in last_line
         ):
             fallback_tag = True
             # Canideploy with provider git_commit against latest consumer tagged with v<x>
@@ -193,50 +210,67 @@ class PactDeploymentCheck:
             )
 
         if (
-                f"No version with tag {api_version} exists for {self.consumer_pacticipant}"
-                in last_line
+            f"No version with tag {api_version} exists for {self.consumer_pacticipant}"
+            in last_line
         ):
-            message, fail_build = (
+            message, fail_build, pact_msg = (
                 "Provider Side 'Can I Deploy' Failed! No matching consumer pact!",
                 True,
+                last_line,
             )
         elif "No pacts or verifications have been published" in last_line:
-            message, fail_build = (
+            message, fail_build, pact_msg = (
                 "Provider Side 'Can I Deploy' Failed! No pacts or verifications published!",
                 True,
+                last_line,
             )
         elif "failed" in last_line:
-            message, fail_build = "Provider Side 'Can I Deploy' Failed!", True
+            message, fail_build, pact_msg = (
+                "Provider Side 'Can I Deploy' Failed!",
+                True,
+                last_line,
+            )
         elif "There are no missing dependencies" in last_line:
-            message, fail_build = (
+            message, fail_build, pact_msg = (
                 "Provider Side 'Can I Deploy' Successful! Pact already exists and verified!",
                 False,
+                last_line,
             )
         elif "successful" in last_line and fallback_tag:
-            message, fail_build = "Provider Side 'Can I Deploy' Successful but against non production tag", False
-        elif "successful" in last_line:
-            message, fail_build = "Provider Side 'Can I Deploy' Successful", False
-        else:
-            message, fail_build = (
+            message, fail_build, pact_msg = (
+                "Provider Side 'Can I Deploy' Successful but against non production tag",
+                False,
                 last_line,
-                can_i_deploy
+            )
+        elif "successful" in last_line:
+            message, fail_build, pact_msg = (
+                "Provider Side 'Can I Deploy' Successful",
+                False,
+                last_line,
+            )
+        else:
+            message, fail_build, pact_msg = (
+                "Unknown Failure",
+                can_i_deploy,
+                last_line,
             )
 
-        return message, fail_build
+        return message, fail_build, pact_msg
 
-    @staticmethod
+    # @staticmethod
     def run_pact_verifier(
-            provider_base_url,
-            custom_header,
-            pact_broker_url,
-            broker_user_name,
-            broker_password,
-            provider,
-            consumer_api_version,
-            git_commit_provider,
-            provider_api_version="None",
+        self,
+        provider_base_url,
+        custom_header,
+        pact_broker_url,
+        broker_user_name,
+        broker_password,
+        provider,
+        consumer_api_version,
+        git_commit_provider,
+        provider_api_version="None",
     ):
-        command = '''../../pact/bin/pact-provider-verifier \\
+        command = '''{pact_path_prefix}pact/bin/pact-provider-verifier \\
             --provider-base-url=\"{provider_base_url}\" \\
             --custom-provider-header '{custom_header}' \\
             --pact-broker-base-url=\"{pact_broker_url}\" \\
@@ -253,11 +287,12 @@ class PactDeploymentCheck:
             provider=provider,
             consumer_api_version=consumer_api_version,
             git_commit_provider=git_commit_provider,
+            pact_path_prefix=self.pact_path_prefix,
         )
 
         if provider_api_version != "None":
             command = command + f" --provider-version-tag={provider_api_version}"
-
+        print(command)
         command_response = subprocess.Popen(
             command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
         )
@@ -278,31 +313,32 @@ class PactDeploymentCheck:
         failures = int(re.search(r"[0-9]+", (clean_str.split(sep=", ")[1])).group())
 
         if interactions > 0 and failures == 0:
-            verified = True
+            failed_verify = False
             message = f"Success! {clean_str}"
         elif interactions > 0 and failures > 0:
-            verified = False
+            failed_verify = True
             message = f"Failure! {clean_str}"
         else:
-            verified = False
+            failed_verify = True
             message = "Failure! No verification processed"
 
-        return verified, message
+        return failed_verify, message
 
-    @staticmethod
+    # @staticmethod
     def run_can_i_deploy(
-            pact_broker_url,
-            broker_user_name,
-            broker_password,
-            consumer_pacticipant,
-            provider_pacticipant,
-            latest,
-            git_commit_provider=None,
-            git_commit_consumer=None
+        self,
+        pact_broker_url,
+        broker_user_name,
+        broker_password,
+        consumer_pacticipant,
+        provider_pacticipant,
+        latest,
+        git_commit_provider=None,
+        git_commit_consumer=None,
     ):
 
         if git_commit_provider is None and git_commit_consumer is not None:
-            command = '''../../pact/bin/pact-broker can-i-deploy \\
+            command = '''{pact_path_prefix}pact/bin/pact-broker can-i-deploy \\
                 --broker-base-url=\"{pact_broker_url}\" \\
                 --broker-username=\"{broker_user_name}\" \\
                 --broker-password=\"{broker_password}\" \\
@@ -317,9 +353,10 @@ class PactDeploymentCheck:
                 provider_pacticipant=provider_pacticipant,
                 latest=latest,
                 git_commit_consumer=git_commit_consumer,
+                pact_path_prefix=self.pact_path_prefix,
             )
         elif git_commit_consumer is None and git_commit_provider is not None:
-            command = '''../../pact/bin/pact-broker can-i-deploy \\
+            command = '''{pact_path_prefix}pact/bin/pact-broker can-i-deploy \\
                 --broker-base-url=\"{pact_broker_url}\" \\
                 --broker-username=\"{broker_user_name}\" \\
                 --broker-password=\"{broker_password}\" \\
@@ -334,9 +371,10 @@ class PactDeploymentCheck:
                 provider_pacticipant=provider_pacticipant,
                 latest=latest,
                 git_commit_provider=git_commit_provider,
+                pact_path_prefix=self.pact_path_prefix,
             )
 
-        print(command)
+        # print(command)
         command_response = subprocess.Popen(
             command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
         )
@@ -345,23 +383,29 @@ class PactDeploymentCheck:
             if "Computer says yes" in str(line):
                 fail_build = False
             pass
-        last_line = str(line)
 
-        return fail_build, last_line
+        ansi_escape_8bit = re.compile(
+            br"(?:\x1B[@-Z\\-_]|[\x80-\x9A\x9C-\x9F]|(?:\x1B\[|\x9B)[0-?]*[ -/]*[@-~])"
+        )
+        last_line = ansi_escape_8bit.sub(b"", line)
+
+        return fail_build, str(last_line).replace("\\n'", "").replace("b'", "")
 
     @staticmethod
     def get_consumer_version(
-            pact_broker_url,
-            consumer_pacticipant,
-            git_commit_consumer,
-            broker_user_name,
-            broker_password,
+        pact_broker_url,
+        consumer_pacticipant,
+        git_commit_consumer,
+        broker_user_name,
+        broker_password,
     ):
         # Get the API version from the tag associated with consumer commit
         full_url = f"{pact_broker_url}/pacticipants/{consumer_pacticipant}/versions/{git_commit_consumer}"
         pact_response = requests.get(full_url, auth=(broker_user_name, broker_password))
 
-        tags = [tag["name"] for tag in json.loads(pact_response.text)["_embedded"]["tags"]]
+        tags = [
+            tag["name"] for tag in json.loads(pact_response.text)["_embedded"]["tags"]
+        ]
         if len(tags) == 0:
             tag = "Consumer has no Tags"
             success = False
@@ -410,40 +454,58 @@ class PactDeploymentCheck:
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Check if pact contract is deployable.")
-    parser.add_argument("--consumer_triggered",
-                        default=False,
-                        help="Whether job has been triggered by the consumer or provider side.")
-    parser.add_argument("--provider_base_url",
-                        default="http://localhost:5000",
-                        help="Base URL of the provider (usually a mock).")
-    parser.add_argument("--provider_custom_header",
-                        default="Authorization: asdf1234567890",
-                        help="Custom headers to include.")
-    parser.add_argument("--pact_broker_url",
-                        default="http://localhost:9292",
-                        help="Base URL for the pact broker.")
-    parser.add_argument("--broker_user_name",
-                        default="admin",
-                        help="The user to log in to pact broker with.")
-    parser.add_argument("--broker_secret_name",
-                        default="local", #pactbroker_admin
-                        help="Name of the secret to use to get the password.")
-    parser.add_argument("--consumer_pacticipant",
-                        default="OPGExampleApp",
-                        help="Name of the consumer of the API.")
-    parser.add_argument("--provider_pacticipant",
-                        default="OPGExampleAPI",
-                        help="Name of the provider of the API.")
-    parser.add_argument("--api_version",
-                        default="v1",
-                        help="Version of the API that you want to verify.")
-    parser.add_argument("--git_commit_consumer",
-                        default="x123456",
-                        help="Short hash of the consumers git commit.")
-    parser.add_argument("--git_commit_provider",
-                        default="z123456",
-                        help="Short hash of the providers git commit.")
+        description="Check if pact contract is deployable."
+    )
+    parser.add_argument(
+        "--provider_base_url",
+        default="http://localhost:5000",
+        help="Base URL of the provider (usually a mock).",
+    )
+    parser.add_argument(
+        "--provider_custom_header",
+        default="Authorization: asdf1234567890",
+        help="Custom headers to include.",
+    )
+    parser.add_argument(
+        "--pact_broker_url",
+        default="http://localhost:9292",
+        help="Base URL for the pact broker.",
+    )
+    parser.add_argument(
+        "--broker_user_name",
+        default="admin",
+        help="The user to log in to pact broker with.",
+    )
+    parser.add_argument(
+        "--broker_secret_name",
+        default="local",
+        help="Name of the secret to use to get the password.",
+    )
+    parser.add_argument(
+        "--consumer_pacticipant",
+        default="OPGExampleApp",
+        help="Name of the consumer of the API.",
+    )
+    parser.add_argument(
+        "--provider_pacticipant",
+        default="OPGExampleAPI",
+        help="Name of the provider of the API.",
+    )
+    parser.add_argument(
+        "--api_version",
+        default="v1",
+        help="Version of the API that you want to verify.",
+    )
+    parser.add_argument(
+        "--git_commit_consumer",
+        default="x123456",
+        help="Short hash of the consumers git commit.",
+    )
+    parser.add_argument(
+        "--git_commit_provider",
+        default="z123456",
+        help="Short hash of the providers git commit.",
+    )
 
     args = parser.parse_args()
     pact_check = PactDeploymentCheck(
@@ -456,15 +518,18 @@ def main():
         args.provider_pacticipant,
         args.api_version,
         args.git_commit_consumer,
-        args.git_commit_provider
+        args.git_commit_provider,
     )
-    if args.consumer_triggered:
-        message, fail_build = pact_check.consumer_can_i_deploy()
+    # Whether the consumer git commit is present, decides on type of check
+    if args.git_commit_consumer is not None and len(args.git_commit_consumer) > 0:
+        message, fail_build, pact_msg = pact_check.consumer_can_i_deploy()
     else:
-        message, fail_build = pact_check.provider_can_i_deploy()
+        message, fail_build, pact_msg = pact_check.provider_can_i_deploy()
 
     print(message)
-    print(fail_build)
+    print(pact_msg)
+    if fail_build:
+        exit(1)
 
 
 if __name__ == "__main__":
