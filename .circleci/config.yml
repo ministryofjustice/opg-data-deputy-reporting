@@ -107,7 +107,7 @@ orbs:
     executors:
       python_with_tfvars:
         docker:
-          - image: circleci/python:3.8.1
+          - image: circleci/python:3
         environment:
           TF_VERSION: 0.12.26
           TF_SHA256SUM: 607bc802b1c6c2a5e62cc48640f38aaa64bef1501b46f0ae4829feb51594b257
@@ -118,7 +118,7 @@ orbs:
           TF_VAR_default_role: sirius-ci
       python:
         docker:
-          - image: circleci/python:3.8.1
+          - image: circleci/python:3
     commands:
       terraform_install:
         steps:
@@ -141,12 +141,22 @@ orbs:
               command: |
                 pip3 install awscli --upgrade --user
                 aws --version
-
+      pact_install:
+        steps:
+          - run:
+              name: Set up ready for pact tests
+              command: |
+                wget https://github.com/pact-foundation/pact-ruby-standalone/releases/download/v1.82.3/pact-1.82.3-linux-x86_64.tar.gz
+                tar xzf pact-1.82.3-linux-x86_64.tar.gz
+                chmod 755 ~/project/.circleci/pact_verifier.sh
+                chmod 755 ~/project/.circleci/check_pact_deployable.sh
+              working_directory: ~/project
 jobs:
   build_lambda:
     executor: digideps-data/python
     steps:
       - checkout
+      - setup_remote_docker
       - run:
           name: install all requirements locally
           command: |
@@ -172,9 +182,17 @@ jobs:
           command: |
             flake8 lambda_functions
       - run:
+          name: run pact tests
+          command: |
+            docker-compose up -d
+            sleep 3
+            docker-compose run python_tests python -m pytest
+            docker-compose down
+          working_directory: ~/project/pact_provider/test
+      - run:
           name: run unit tests (with pytest)
           command: |
-            python -m pytest -m "not smoke_test"
+            python -m pytest -m "not (smoke_test or pact_test)"
       - run:
           name: intgration tests
           command: |
@@ -402,38 +420,18 @@ jobs:
             else
             echo "Sirius Backend Service Not Started"
             fi
+      - digideps-data/pact_install
       - run:
-          name: Set up ready for pact tests
+          name: verify pact
           command: |
-            wget https://github.com/pact-foundation/pact-ruby-standalone/releases/download/v1.82.3/pact-1.82.3-linux-x86_64.tar.gz
-            tar xzf pact-1.82.3-linux-x86_64.tar.gz
-            chmod 755 ~/project/.circleci/pact_verifier.sh
-            chmod 755 ~/project/.circleci/check_pact_deployable.sh
-      - run:
-          name: verify pact and update github
-          command: |
-            export SCRIPT_PATH="/home/circleci/project/.circleci"
-            if [ "${GIT_COMMIT_CONSUMER}" == "" ]
-            then
-              printf "\n\nProcess kicked off by commit to data-deputy-reporting\n\n"
-              if [ "$TF_WORKSPACE" != "development" ] && [ "$TF_WORKSPACE" != "preproduction" ] && [ "$TF_WORKSPACE" != "production" ]
-              then
-                printf "\n\nSetting CONSUMER_TRIGGERED to false\n\n"
-                export CONSUMER_TRIGGERED=false
-                printf "\n\nOn working branch, performing pact verification\n\n"
-                "${SCRIPT_PATH}"/pact_verifier.sh
-                printf "\n\nChecking if we can deploy with can-i-deploy\n\n"
-                "${SCRIPT_PATH}"/check_pact_deployable.sh
-              else
-                printf "\n\nOn master branch for data-deputy-reporting, no need to perform verification\n\n"
-              fi
-            elif [ "${GIT_COMMIT_CONSUMER}" != "" ]
-            then
-              printf "\n\nSetting CONSUMER_TRIGGERED to true\n\n"
-              export CONSUMER_TRIGGERED=true
-              printf "Process kicked off by commit %b to digideps\n\n" "${CONSUMER_VER}"
-              printf "\n\nChecking if we can deploy with can-i-deploy\n\n"
-              "${SCRIPT_PATH}"/check_pact_deployable.sh
-            else
-              printf "\n\nSomething has gone wrong! Check what CONSUMER_VER is set to\n\n"
-            fi
+            python check_pact_deployable.py \
+            --provider_base_url="http://localhost:4343" \
+            --pact_broker_url="${PACT_BROKER_BASE_URL}" \
+            --broker_user_name="admin" \
+            --broker_secret_name="pactbroker_admin" \
+            --consumer_pacticipant="${PACT_CONSUMER}" \
+            --provider_pacticipant="${PACT_PROVIDER}" \
+            --api_version="${API_VERSION}" \
+            --git_commit_consumer="${GIT_COMMIT_CONSUMER}" \
+            --git_commit_provider="${GIT_COMMIT_PROVIDER}"
+          working_directory: ~/project/pact_provider
