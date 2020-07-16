@@ -42,6 +42,11 @@ def lambda_handler(event, context):
             headers=sirius_headers,
         )
 
+        try:
+            sirius_response["data"]["type"] = "checklists"
+        except (KeyError, TypeError):
+            pass
+
         lambda_response = {
             "isBase64Encoded": False,
             "statusCode": sirius_response_code,
@@ -77,7 +82,7 @@ def validate_event(event):
     required_body_structure = {
         "checklist": {
             "data": {
-                "attributes": {"submission_id": 0},
+                "attributes": {},
                 "file": {"name": "string", "mimetype": "string", "source": "string"},
             }
         }

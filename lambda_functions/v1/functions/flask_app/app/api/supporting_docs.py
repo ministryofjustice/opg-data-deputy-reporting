@@ -18,7 +18,10 @@ def endpoint_handler(data, caseref, id):
     api_status_code, api_response = sirius_service.new_submit_document_to_sirius(
         data=sirius_payload
     )
-
+    try:
+        api_response["data"]["type"] = "supportingdocuments"
+    except (KeyError, TypeError):
+        pass
     return api_response, api_status_code
 
 

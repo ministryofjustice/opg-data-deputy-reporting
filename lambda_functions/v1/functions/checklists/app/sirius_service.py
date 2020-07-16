@@ -141,12 +141,7 @@ def format_sirius_response(sirius_response=None, sirius_response_code=500):
                 "data": {
                     "type": sirius_response["type"],
                     "id": sirius_response["uuid"],
-                    "attributes": {
-                        "submission_id": sirius_response["metadata"]["submission_id"],
-                        "parent_id": sirius_response["parentUuid"]
-                        if "parentUuid" in sirius_response
-                        else None,
-                    },
+                    "attributes": sirius_response["metadata"]
                 }
             }
         else:
