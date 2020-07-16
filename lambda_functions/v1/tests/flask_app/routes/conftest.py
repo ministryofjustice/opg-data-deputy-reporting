@@ -63,7 +63,7 @@ def wait_until(predicate, timeout=5, interval=0.05, *args, **kwargs):
     return False
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def server():
 
     version = os.environ.get("API_VERSION")

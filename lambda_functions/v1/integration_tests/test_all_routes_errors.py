@@ -1,7 +1,6 @@
 import copy
 import json
 import os
-from json import JSONDecodeError
 
 import pytest
 from pytest_cases import cases_data, CaseDataGetter
@@ -364,10 +363,10 @@ def test_503(test_config,):
         assert response_data["errors"]["code"] == "OPGDATA-API-UNAVAILABLE"
 
 
-@pytest.mark.xfail(
-    raises=(AssertionError, JSONDecodeError, TypeError),
-    reason="Not all required fields are " "validated by API Gateway'",
-)
+# @pytest.mark.xfail(
+#     raises=(AssertionError, JSONDecodeError, TypeError),
+#     reason="Not all required fields are " "validated by API Gateway'",
+# )
 @pytest.mark.smoke_test
 @pytest.mark.run(order=10)
 @pytest.mark.parametrize("test_config", configs_to_test)
