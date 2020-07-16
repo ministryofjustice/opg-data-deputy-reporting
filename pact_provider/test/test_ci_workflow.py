@@ -380,7 +380,6 @@ def test_old_working_prod_pact():
     pact_check.provider_can_i_deploy()
     tag_prod_provider_pact(git_commit_provider, provider_pacticipant)
     message, fail_build, actual_message = pact_check.consumer_can_i_deploy()
-    print(message)
     assert message == "Consumer Side 'Can I Deploy' Successful"
     tag_prod_consumer_pact(git_commit_consumer, consumer_pacticipant)
     create_pact(
@@ -392,12 +391,8 @@ def test_old_working_prod_pact():
         fail_build,
         actual_message,
     ) = pact_check_new_consumer.consumer_can_i_deploy()
-    print(message)
     assert message == "Consumer Side 'Can I Deploy' Failed!"
     message, fail_build, actual_message = pact_check.provider_can_i_deploy()
-    print("last message")
-    print(message)
-    print(actual_message)
     assert message == "Provider Side 'Can I Deploy' Successful"
     assert (
         actual_message

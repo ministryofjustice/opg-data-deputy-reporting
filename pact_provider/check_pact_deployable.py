@@ -65,7 +65,6 @@ class PactDeploymentCheck:
             provider_pacticipant=self.provider_pacticipant,
             latest=f"{consumer_api_version}_production",
         )
-        print(last_line)
 
         if "There is no verified pact" in last_line:
             print("Running verification as this is a new pact!")
@@ -292,7 +291,7 @@ class PactDeploymentCheck:
 
         if provider_api_version != "None":
             command = command + f" --provider-version-tag={provider_api_version}"
-        print(command)
+
         command_response = subprocess.Popen(
             command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
         )
