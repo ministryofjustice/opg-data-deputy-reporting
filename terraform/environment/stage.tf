@@ -5,7 +5,7 @@ locals {
 
 resource "aws_api_gateway_method_settings" "global_gateway_settings" {
   rest_api_id = aws_api_gateway_rest_api.deputy_reporting.id
-  stage_name  = module.deploy_v1.stage.stage_name
+  stage_name  = module.deploy_v2.stage.stage_name
   method_path = "*/*"
 
   settings {
