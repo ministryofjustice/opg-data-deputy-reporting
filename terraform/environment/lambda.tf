@@ -50,17 +50,16 @@ module "lambda_checklists_v1" {
   account                = local.account
 }
 
-//To Add New Version Copy and Paste Above and Modify Accordingly
-
-module "lamdba_flask_v2" {
-  source                 = "./modules/lambda"
-  environment            = local.environment
-  aws_subnet_ids         = data.aws_subnet_ids.private.ids
-  lambda_prefix          = "deputy-reporting"
-  handler                = "app.docs.lambda_handler"
-  lambda_function_subdir = "documents"
-  tags                   = local.default_tags
-  openapi_version        = "v2"
-  rest_api               = aws_api_gateway_rest_api.deputy_reporting
-  account                = local.account
-}
+//Modify here for new version
+//module "lamdba_flask_v2" {
+//  source                 = "./modules/lambda"
+//  environment            = local.environment
+//  aws_subnet_ids         = data.aws_subnet_ids.private.ids
+//  lambda_prefix          = "deputy-reporting"
+//  handler                = "app.docs.lambda_handler"
+//  lambda_function_subdir = "documents"
+//  tags                   = local.default_tags
+//  openapi_version        = "v2"
+//  rest_api               = aws_api_gateway_rest_api.deputy_reporting
+//  account                = local.account
+//}

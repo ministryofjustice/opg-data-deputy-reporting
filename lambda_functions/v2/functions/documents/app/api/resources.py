@@ -6,7 +6,7 @@ from . import reports, supporting_docs, checklists, healthcheck
 from .helpers import error_message
 
 version = os.getenv("API_VERSION")
-api = Blueprint("api", __name__, url_prefix=f"/{version}/flask")
+api = Blueprint("api", __name__, url_prefix=f"/{version}")
 
 
 @api.route("/reporting_healthcheck", methods=["HEAD", "GET"])

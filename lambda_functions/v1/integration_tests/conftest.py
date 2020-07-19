@@ -44,7 +44,7 @@ mock_config = {
     "checklist_id": "123",
 }
 
-configs_to_test = [aws_flask_config]
+configs_to_test = [aws_dev_config]
 
 
 # Data persisted between tests

@@ -101,12 +101,10 @@ def build_sirius_headers(content_type="application/json"):
 def submit_document_to_sirius(method, url, data, headers=None):
     if not headers:
         headers = build_sirius_headers()
-
     if method == "PUT":
         r = requests.put(url=url, data=data, headers=headers)
     else:
         r = requests.post(url=url, data=data, headers=headers)
-
     try:
         sirius_response_code = r.status_code
         if r.status_code in [201, 200]:
@@ -141,7 +139,7 @@ def format_sirius_response(sirius_response=None, sirius_response_code=500):
                 "data": {
                     "type": sirius_response["type"],
                     "id": sirius_response["uuid"],
-                    "attributes": sirius_response["metadata"]
+                    "attributes": sirius_response["metadata"],
                 }
             }
         else:

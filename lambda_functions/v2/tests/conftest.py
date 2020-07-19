@@ -139,7 +139,6 @@ def default_request_report_id():
 def mock_env_setup(monkeypatch):
     monkeypatch.setenv("BASE_URL", "http://localhost:8080")
     monkeypatch.setenv("SIRIUS_BASE_URL", "http://not-really-sirius.com")
-    monkeypatch.setenv("SIRIUS_PUBLIC_API_URL", "api/public/v1/")
     monkeypatch.setenv("LOGGER_LEVEL", "DEBUG")
     monkeypatch.setenv("JWT_SECRET", "THIS_IS_MY_SECRET_KEY")
     monkeypatch.setenv("ENVIRONMENT", "development")

@@ -18,7 +18,11 @@ def default_sirius_checklists_request(
     return {
         "type": "Report - Checklist",
         "caseRecNumber": default_request_case_ref,
-        "metadata": {"submission_id": 231231, "report_id": default_request_report_id, "is_checklist": "true"},
+        "metadata": {
+            "submission_id": 231231,
+            "report_id": default_request_report_id,
+            "is_checklist": "true",
+        },
         "file": {
             "name": "checklist.pdf",
             "source": "string",
@@ -29,8 +33,7 @@ def default_sirius_checklists_request(
 
 @pytest.fixture(autouse=True)
 def sirius_checklists_request_with_no_report_submission(
-    default_request_case_ref,
-    nondigital_request_report_id
+    default_request_case_ref, nondigital_request_report_id
 ):
     return {
         "type": "Report - Checklist",
@@ -99,7 +102,6 @@ def nondigital_request_report_id():
 def mock_env_setup(monkeypatch):
     monkeypatch.setenv("BASE_URL", "http://localhost:8080")
     monkeypatch.setenv("SIRIUS_BASE_URL", "http://sirius_url.com")
-    monkeypatch.setenv("SIRIUS_PUBLIC_API_URL", "api/public/v1/")
     monkeypatch.setenv("LOGGER_LEVEL", "DEBUG")
     monkeypatch.setenv("JWT_SECRET", "THIS_IS_MY_SECRET_KEY")
     monkeypatch.setenv("ENVIRONMENT", "development")
@@ -113,7 +115,7 @@ sirius_checklists_response = json.dumps(
         "filename": "b11a291e6dae6_checklist.pdf",
         "mimeType": "application/pdf",
         "metadata": {"submission_id": 12345},
-        "uuid": "16aae069-99b9-494f-948b-4c2057ec5551"
+        "uuid": "16aae069-99b9-494f-948b-4c2057ec5551",
     }
 )
 
