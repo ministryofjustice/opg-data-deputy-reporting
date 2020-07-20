@@ -9,6 +9,7 @@ import time
 import pytest
 from flask import Flask
 
+
 from lambda_functions.v1.functions.flask_app.app import api, create_app
 
 
@@ -171,7 +172,7 @@ def patched_send_get_to_sirius_healthcheck(monkeypatch):
     )
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture()
 def patched_s3_client(monkeypatch):
     def mock_s3_client(*args, **kwargs):
         print("Mock get_digideps_s3_client")
@@ -180,7 +181,7 @@ def patched_s3_client(monkeypatch):
     monkeypatch.setattr(api.helpers, "get_digideps_s3_client", mock_s3_client)
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture()
 def patched_s3_file(monkeypatch):
     def mock_s3_file(*args, **kwargs):
         print("Mock s3_file")

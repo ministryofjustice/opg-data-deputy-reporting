@@ -29,6 +29,7 @@ def test_reports(server, case_data: CaseDataGetter):
             data=json.dumps(test_data),
         )
         print(f"r.json(): {r.json()}")
+        assert r.status_code == expected_response_status_code
         assert r.json() == expected_response_data
 
 
