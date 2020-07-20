@@ -1,6 +1,8 @@
 #!/bin/bash
-latest_ver=$(ls -d ../lambda_functions/v*/ | awk -F'/' '{print $3}' | grep '^v[1-9]\+' | sort -r | head -n1)
-openapi_latest="deputy-reporting-openapi-${latest_ver}.yml"
-openapi="deputy-reporting-openapi.yml"
-cp ../"${openapi_latest}" ./"${openapi}"
-echo "copied in.. ${openapi_latest} from ${openapi}"
+#latest_ver=$(ls -d ../lambda_functions/v*/ | awk -F'/' '{print $3}' | grep '^v[1-9]\+' | sort -r | head -n1)
+#openapi_latest="deputy-reporting-openapi-${latest_ver}.yml"
+#openapi="deputy-reporting-openapi.yml"
+#cp ../"${openapi_latest}" ./"${openapi}"
+#echo "copied in.. ${openapi_latest} from ${openapi}"
+cp ../lambda_functions/v1/openapi/deputy-reporting-openapi.yml .
+echo "copied in v1"

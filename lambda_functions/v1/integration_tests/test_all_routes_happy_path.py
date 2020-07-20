@@ -44,6 +44,7 @@ def test_post_a_report(case_data: CaseDataGetter, test_config):
         assert is_valid_uuid(r["data"]["id"])
         returned_submission_id = r["data"]["attributes"]["submission_id"]
         assert returned_submission_id == expected_response_data["submission_id"]
+
         assert (
             r["data"]["attributes"]["parent_id"] == expected_response_data["parent_id"]
         )
@@ -103,7 +104,6 @@ def test_post_a_new_checklist(case_data: CaseDataGetter, test_config):
     assert type(response) == str
     if status == 201:
         r = json.loads(response)
-
         test_config["checklist_id"] = r["data"]["id"]
 
         assert r["data"]["type"] == expected_response_data["type"]
