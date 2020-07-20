@@ -1,6 +1,6 @@
 locals {
-  openapi_sha               = var.openapi_version == "v1" ? "fixed" : substr(replace(base64sha256(data.local_file.openapispec.content_base64), "/[^0-9A-Za-z_]/", ""), 0, 5)
-  lambda_version_folder_sha = var.openapi_version == "v1" ? "fixed" : substr(replace(base64sha256(data.local_file.lambda_version_folder_sha.content_base64), "/[^0-9A-Za-z_]/", ""), 0, 5)
+  openapi_sha               = var.openapi_version == "v1" ? "fixed_variable" : substr(replace(base64sha256(data.local_file.openapispec.content_base64), "/[^0-9A-Za-z_]/", ""), 0, 5)
+  lambda_version_folder_sha = var.openapi_version == "v1" ? "fixed_variable" : substr(replace(base64sha256(data.local_file.lambda_version_folder_sha.content_base64), "/[^0-9A-Za-z_]/", ""), 0, 5)
 }
 
 data "local_file" "openapispec" {

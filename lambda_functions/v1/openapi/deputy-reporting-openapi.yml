@@ -415,7 +415,7 @@ paths:
                     - data
                   properties:
                     data:
-                      $ref: '#/components/schemas/ReportSupportingDocument'
+                      $ref: '#/components/schemas/ReportChecklist'
       responses:
         201:
           description: Document created
@@ -531,7 +531,7 @@ paths:
                     - data
                   properties:
                     data:
-                      $ref: '#/components/schemas/ReportSupportingDocument'
+                      $ref: '#/components/schemas/ReportChecklist'
       responses:
         200:
           description: Document updated
@@ -653,6 +653,26 @@ components:
               example: "PF"
         file:
           $ref: '#/components/schemas/file'
+    ReportChecklist:
+      type: object
+      required:
+        - type
+        - attributes
+        - file
+      properties:
+        type:
+          type: string
+          pattern: '^checklists$'
+          example: checklists
+        id:
+          $ref: '#/components/schemas/DocumentUuid'
+        attributes:
+          type: object
+          properties:
+            submission_id:
+              $ref: '#/components/schemas/submissionId'
+        file:
+          $ref: '#/components/schemas/file'
     ReportSupportingDocument:
       type: object
       required:
@@ -662,7 +682,7 @@ components:
       properties:
         type:
           type: string
-          pattern: '^supportingdocuments|checklists$'
+          pattern: '^supportingdocuments'
           example: supportingdocuments
         id:
           $ref: '#/components/schemas/DocumentUuid'
