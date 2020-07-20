@@ -144,6 +144,7 @@ def mock_env_setup(monkeypatch):
     monkeypatch.setenv("ENVIRONMENT", "development")
     monkeypatch.setenv("SESSION_DATA", "publicapi@opgtest.com")
     monkeypatch.setenv("API_VERSION", "flask")
+    monkeypatch.setenv("SIRIUS_API_VERSION", "flask")
 
 
 sirius_report_response = json.dumps(
