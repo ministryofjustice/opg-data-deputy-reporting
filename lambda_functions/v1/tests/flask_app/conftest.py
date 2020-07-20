@@ -360,7 +360,7 @@ def patched_post(monkeypatch, request):
 
 
 # @pytest.fixture(autouse=False, params=[400, 404, 500])
-@pytest.fixture(autouse=False)
+@pytest.fixture(autouse=False, params=[400])
 def patched_post_broken_sirius(request, monkeypatch):
     def mock_post_to_broken_sirius(*args, **kwargs):
         print("MOCK POST TO BROKEN SIRIUS")

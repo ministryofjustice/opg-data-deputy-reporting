@@ -74,10 +74,7 @@ def case_error(test_data) -> CaseData:
     url_params = None
 
     expected_responses = {
-        400: [
-            "Payload validation failed in Sirius",
-            "Could not verify URL params in Sirius",
-        ],
+        400: ["Validation failed in Sirius", "Could not verify URL params in Sirius"],
         500: ["Unable to send document to Sirius", "Unknown error talking to Sirius"],
     }
 
