@@ -30,7 +30,7 @@ WORKSPACE=${WORKSPACE//[^[:alnum:]]/}
 WORKSPACE=${WORKSPACE,,}
 WORKSPACE=${WORKSPACE:0:14}
 #PROVIDER_VER=$(ls -d lambda_functions/v*/ | awk -F'/' '{print $2}' | grep '^v[1-9]\+$' | sort -r | head -n1)
-PROVIDER_VER="v1"
+PROVIDER_VER="v2"
 GIT_COMMIT=${CIRCLE_SHA1:0:7}
 
 echo "export GIT_COMMIT_PROVIDER=${GIT_COMMIT}"

@@ -63,7 +63,7 @@ def transform_payload_to_sirius_get_url(data, case_ref, report_id):
 
     url = sirius_service.build_sirius_url(
         base_url=f'{os.environ["SIRIUS_BASE_URL"]}/api/public',
-        version=os.environ["API_VERSION"],
+        version=os.environ["SIRIUS_API_VERSION"],
         endpoint="documents",
         url_params={
             "caserecnumber": case_ref,
