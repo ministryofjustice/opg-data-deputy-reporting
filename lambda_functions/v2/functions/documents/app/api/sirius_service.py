@@ -119,7 +119,7 @@ def new_submit_document_to_sirius(
 
     try:
         SIRIUS_BASE_URL = os.environ["SIRIUS_BASE_URL"]
-        API_VERSION = os.environ["API_VERSION"]
+        API_VERSION = os.environ["SIRIUS_API_VERSION"]
     except KeyError as e:
         return handle_sirius_error(
             error_message="Expected environment variables not set", error_details=e

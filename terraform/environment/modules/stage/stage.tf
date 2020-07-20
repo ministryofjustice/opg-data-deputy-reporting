@@ -6,10 +6,10 @@ locals {
     checklists_name : var.checklists_lambda.function_name
   }
   //Modify here for new version
-  //  v2 = {
-  //    flask_app_name : var.flaskapp_lambda.function_name
-  //  }
-  //  stage_vars = var.openapi_version == "v1" ? local.v1 : local.v2
+  v2 = {
+    flask_app_name : var.flaskapp_lambda.function_name
+  }
+  stage_vars = var.openapi_version == "v1" ? local.v1 : local.v2
 }
 
 resource "aws_api_gateway_stage" "currentstage" {
@@ -20,8 +20,8 @@ resource "aws_api_gateway_stage" "currentstage" {
   xray_tracing_enabled = false
   tags                 = var.tags
   //Modify here for new version
-  variables = local.v1
-  // variables = local.stage_vars
+  //variables = local.v1
+  variables = local.stage_vars
 
   access_log_settings {
     destination_arn = aws_cloudwatch_log_group.deputy_reporting.arn

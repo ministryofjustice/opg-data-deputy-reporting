@@ -10,7 +10,7 @@ def endpoint_handler():
 
     try:
         SIRIUS_BASE_URL = os.environ["SIRIUS_BASE_URL"]
-        API_VERSION = os.environ["API_VERSION"]
+        API_VERSION = os.environ["SIRIUS_API_VERSION"]
     except KeyError as e:
         logger.error(f"{e} not set")
         return "internal server error", 500
