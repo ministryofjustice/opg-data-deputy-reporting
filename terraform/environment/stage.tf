@@ -72,16 +72,16 @@ module "deploy_v2" {
 //Below takes the latest stage/deployment. Modify for new version.
 
 //Modify here for new version
-resource "aws_api_gateway_base_path_mapping" "mapping" {
-  api_id      = aws_api_gateway_rest_api.deputy_reporting.id
-  stage_name  = module.deploy_v1.deployment.stage_name
-  domain_name = aws_api_gateway_domain_name.sirius_deputy_reporting.domain_name
-  base_path   = module.deploy_v1.deployment.stage_name
-}
-
-//resource "aws_api_gateway_base_path_mapping" "mapping_v2" {
+//resource "aws_api_gateway_base_path_mapping" "mapping" {
 //  api_id      = aws_api_gateway_rest_api.deputy_reporting.id
-//  stage_name  = module.deploy_v2.deployment.stage_name
+//  stage_name  = module.deploy_v1.deployment.stage_name
 //  domain_name = aws_api_gateway_domain_name.sirius_deputy_reporting.domain_name
-//  base_path   = module.deploy_v2.deployment.stage_name
+//  base_path   = module.deploy_v1.deployment.stage_name
 //}
+
+resource "aws_api_gateway_base_path_mapping" "mapping_v2" {
+  api_id      = aws_api_gateway_rest_api.deputy_reporting.id
+  stage_name  = module.deploy_v2.deployment.stage_name
+  domain_name = aws_api_gateway_domain_name.sirius_deputy_reporting.domain_name
+  base_path   = module.deploy_v2.deployment.stage_name
+}
