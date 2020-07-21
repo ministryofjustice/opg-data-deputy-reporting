@@ -117,7 +117,7 @@ def get_digideps_s3_client():
     sts = master_session.client("sts")
     role_arn = os.environ["DIGIDEPS_S3_ROLE_ARN"]
     assume_role_response = sts.assume_role(
-        RoleArn=role_arn, RoleSessionName="lambda-in235"
+        RoleArn=role_arn, RoleSessionName="data-deputy-reporting"
     )
 
     if "Credentials" in assume_role_response:
