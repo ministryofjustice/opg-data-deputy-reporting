@@ -27,7 +27,9 @@ def build_sirius_url(base_url, version, endpoint, url_params=None):
         string: url
     """
 
-    sirius_url = f"{base_url}/{version}/{endpoint}"
+    url_parts = [base_url, version, endpoint]
+
+    sirius_url = "/".join([i for i in url_parts if i is not None])
 
     if url_params:
         encoded_params = urlencode(url_params)
@@ -328,4 +330,4 @@ def send_get_to_sirius(url, headers=None):
         logger.info(f"Unable to send request to Sirius, server not available: {e}")
         sirius_response = None
 
-    return sirius_response
+    return r.status_code, sirius_response
