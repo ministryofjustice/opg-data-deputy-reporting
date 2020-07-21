@@ -42,6 +42,14 @@ submit_document_to_sirius (superseded by the 'new_' functions above so ignoring)
         ),
         (
             "https://frontend-feature5.dev.sirius.opg.digital/api/public",
+            None,
+            "health-check/service-status",
+            None,
+            "https://frontend-feature5.dev.sirius.opg.digital/api/public/"
+            "health-check/service-status",
+        ),
+        (
+            "https://frontend-feature5.dev.sirius.opg.digital/api/public",
             "v1",
             "clients/12345678/reports/7230e5a2-312b-4b50-bc09-f9c00c6b7f1d",
             None,

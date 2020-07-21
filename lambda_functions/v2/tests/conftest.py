@@ -265,7 +265,7 @@ def patched_send_get_to_sirius(monkeypatch):
         except KeyError:
             mock_response = None
 
-        return mock_response
+        return 200, mock_response
 
     monkeypatch.setattr(sirius_service, "send_get_to_sirius", mock_response)
 

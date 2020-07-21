@@ -81,7 +81,7 @@ def determine_document_parent_id(data, case_ref, report_id):
 
     parent_id = None
 
-    submission_entries = sirius_service.send_get_to_sirius(url)
+    status_code, submission_entries = sirius_service.send_get_to_sirius(url)
 
     if submission_entries is not None:
 
