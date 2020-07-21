@@ -27,6 +27,8 @@ def endpoint_handler():
         )
 
     except Exception as e:
+        sirius_response = f"Error sending request to Sirius: {e}"
+        sirius_response_code = 500
         logger.error(f"Error sending request to Sirius: {e}")
 
     return sirius_response, sirius_response_code
