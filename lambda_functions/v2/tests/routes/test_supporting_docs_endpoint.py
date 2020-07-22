@@ -45,7 +45,11 @@ def test_supporting_docs(server, case_data: CaseDataGetter):
 
 @pytest.mark.run(order=1)
 @pytest.mark.usefixtures(
-    "patched_s3_client", "patched_s3_file", "patched_get_secret", "patched_post"
+    "patched_s3_client",
+    "patched_s3_file",
+    "patched_get_secret",
+    "patched_post_broken_sirius",
+    "patched_send_get_to_sirius",
 )
 @cases_data(module=cases_supporting_docs_endpoint, has_tag="error")
 def test_supporting_docs_errors(server, case_data: CaseDataGetter):

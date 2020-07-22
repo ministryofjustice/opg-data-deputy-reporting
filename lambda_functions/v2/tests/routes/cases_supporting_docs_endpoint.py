@@ -1,4 +1,3 @@
-import pytest
 from pytest_cases import case_name, CaseData, case_tags
 
 
@@ -129,7 +128,6 @@ def case_success_s3_and_source() -> CaseData:
     )
 
 
-@pytest.mark.xfail(reason="No error handling")
 @case_tags("endpoint", "error")
 @case_name("Successful post to supporting docs endpoint with neither source or s3 ref")
 def case_error_missing_s3_and_source() -> CaseData:

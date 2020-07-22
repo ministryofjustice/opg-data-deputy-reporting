@@ -39,7 +39,7 @@ can't think of any more, this is just a commit to test Circle CI
         ),
         pytest.param(
             {"name": "test_file_name", "type": "application/pdf"},
-            "this is a base64 encoded file from s3",
+            None,
             marks=pytest.mark.xfail(reason="Not handled"),
         ),
         (
@@ -105,14 +105,14 @@ def test_env_var_not_set(monkeypatch):
 
     result = handle_file_source(test_dict)
 
-    assert result == "nice error handling ere"
+    assert result is None
 
 
 @pytest.mark.xfail(reason="No error handling")
 def test_get_encoded_s3_object_fails(monkeypatch):
     def mock_get_encoded_s3_object_fails(*args, **kwwargs):
         print("mock_get_encoded_s3_object")
-        raise Exception
+        return None
 
     monkeypatch.setattr(
         api.helpers, "get_encoded_s3_object", mock_get_encoded_s3_object_fails
@@ -136,7 +136,7 @@ def test_get_encoded_s3_object_fails(monkeypatch):
 
     result = handle_file_source(test_dict)
 
-    assert result == "nice error handling here"
+    assert result is None
 
 
 @pytest.mark.xfail(reason="No error handling")
@@ -167,4 +167,4 @@ def test_get_digideps_s3_client_fails(monkeypatch):
 
     result = handle_file_source(test_dict)
 
-    assert result == "nice error handling here"
+    assert result is None

@@ -15,7 +15,7 @@ aws_dev_v2_config = {
     "name": "AWS v2 Dev",
     "url": "https://dev.deputy-reporting.api.opg.service.justice.gov.uk/v2",
     "security": "aws_signature",
-    "case_ref": "42206375",
+    "case_ref": "86622299",
     "report_id": "123",
     "sup_doc_id": "123",
     "submission_id": 12345,
