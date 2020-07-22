@@ -15,7 +15,7 @@ To set up for the integration tests you should check a few things first:
  - In `conftest.py`, check that the branch you are pointing to is correct.
  - In `conftest.py`, check that the `configs_to_test` is set to what you want to test against.
  - In `conftest.py`, take note of the case number you will be testing against.
-
+ - Open sirius (in env you are testing against) and make sure the case exists. Create it if not.
 
  ### Run the tests
  create a virtualenv:
