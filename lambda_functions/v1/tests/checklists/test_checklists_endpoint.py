@@ -15,9 +15,7 @@ from lambda_functions.v1.tests.helpers.use_test_data import (
     load_data,
     build_aws_event,
 )
-from lambda_functions.v1.tests.checklists import (
-    checklists_endpoint_test_cases,
-)
+from lambda_functions.v1.tests.checklists import checklists_endpoint_test_cases
 
 
 def test_lambda_handler(
@@ -61,7 +59,7 @@ def test_transform_event_to_sirius_request(
     default_checklists_request_body,
     default_request_case_ref,
     default_request_report_id,
-    default_sirius_checklists_request
+    default_sirius_checklists_request,
 ):
     path_params = {"caseref": default_request_case_ref, "id": default_request_report_id}
     event = build_aws_event(
@@ -80,9 +78,12 @@ def test_transform_event_to_sirius_request_with_no_report_submission(
     default_request_case_ref,
     nondigital_request_report_id,
     checklists_request_body_with_no_report_submission,
-    sirius_checklists_request_with_no_report_submission
+    sirius_checklists_request_with_no_report_submission,
 ):
-    path_params = {"caseref": default_request_case_ref, "id": nondigital_request_report_id}
+    path_params = {
+        "caseref": default_request_case_ref,
+        "id": nondigital_request_report_id,
+    }
     event = build_aws_event(
         event_body=json.dumps(checklists_request_body_with_no_report_submission),
         event_path_parementers=path_params,
@@ -101,7 +102,9 @@ def test_sirius_request_has_report_id_from_path(
     default_request_report_id,
     default_sirius_checklists_request,
 ):
-    default_checklists_request_body["checklist"]["data"]["attributes"]["report_id"] = "uuid_from_attributes"
+    default_checklists_request_body["checklist"]["data"]["attributes"][
+        "report_id"
+    ] = "uuid_from_attributes"
     path_params = {"caseref": default_request_case_ref, "id": "uuid_from_path"}
     event = build_aws_event(
         event_body=json.dumps(default_checklists_request_body),

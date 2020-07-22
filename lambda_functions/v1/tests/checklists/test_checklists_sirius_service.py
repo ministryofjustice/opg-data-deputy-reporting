@@ -29,7 +29,7 @@ from lambda_functions.v1.tests.helpers.use_test_data import is_valid_schema
                 "metadata": {
                     "submission_id": 12345,
                     "report_id": "b6279263-9834-40a6-84c1-a0e7d7e13dbf",
-                    "is_checklist": True
+                    "is_checklist": True,
                 },
                 "uuid": "16aae069-99b9-494f-948b-4c2057ec5551",
             },
@@ -40,7 +40,7 @@ from lambda_functions.v1.tests.helpers.use_test_data import is_valid_schema
                     "attributes": {
                         "submission_id": 12345,
                         "report_id": "b6279263-9834-40a6-84c1-a0e7d7e13dbf",
-                        "is_checklist": True
+                        "is_checklist": True,
                     },
                 }
             },
@@ -51,18 +51,14 @@ from lambda_functions.v1.tests.helpers.use_test_data import is_valid_schema
                 "type": "Report - Checklist",
                 "filename": "b11a291e6dae6_supportingDoc123.pdf",
                 "mimeType": "application/pdf",
-                "metadata": {
-                    "is_checklist": True
-                },
+                "metadata": {"is_checklist": True},
                 "uuid": "99999999-9999-9999-9999-999999999999",
             },
             {
                 "data": {
                     "type": "Report - Checklist",
                     "id": "99999999-9999-9999-9999-999999999999",
-                    "attributes": {
-                        "is_checklist": True
-                    },
+                    "attributes": {"is_checklist": True},
                 }
             },
         ),
@@ -104,9 +100,7 @@ def test_format_sirius_response(
                 "data": {
                     "type": "Report - Checklist",
                     "id": "16aae069-99b9-494f-948b-4c2057ec5551",
-                    "attributes": {
-                        "submission_id": 12345,
-                    },
+                    "attributes": {"submission_id": 12345},
                 }
             },
             201,
