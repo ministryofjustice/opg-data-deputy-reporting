@@ -1,4 +1,5 @@
 import json
+import os
 
 import pytest
 import requests
@@ -6,6 +7,17 @@ import requests
 import lambda_functions
 from lambda_functions.v2.functions.documents.app import api
 from lambda_functions.v2.functions.documents.app.api import sirius_service
+
+
+@pytest.fixture(autouse=True)
+def aws_credentials():
+    os.environ["AWS_ACCESS_KEY_ID"] = "testing"
+    os.environ["AWS_SECRET_ACCESS_KEY"] = "testing"
+    os.environ["AWS_SECURITY_TOKEN"] = "testing"
+    os.environ["AWS_SESSION_TOKEN"] = "testing"
+    os.environ["AWS_DEFAULT_REGION"] = "eu-west-1"
+    os.environ["AWS_XRAY_CONTEXT_MISSING"] = "LOG_ERROR"
+
 
 test_data = {
     "valid_clients": ["valid_client_id", "0319392T", "12345678", "22814959"],
@@ -139,7 +151,12 @@ def default_request_report_id():
 def mock_env_setup(monkeypatch):
     monkeypatch.setenv("BASE_URL", "http://localhost:8080")
     monkeypatch.setenv("SIRIUS_BASE_URL", "http://not-really-sirius.com")
+    monkeypatch.setenv("SIRIUS_PUBLIC_API_URL", "api/public/v1/")
     monkeypatch.setenv("LOGGER_LEVEL", "DEBUG")
+    monkeypatch.setenv("DIGIDEPS_S3_BUCKET", "some-s3-bucket")
+    monkeypatch.setenv(
+        "DIGIDEPS_S3_ROLE_ARN", "arn:aws:iam::123456789012:role/s3-read-role"
+    )
     monkeypatch.setenv("JWT_SECRET", "THIS_IS_MY_SECRET_KEY")
     monkeypatch.setenv("ENVIRONMENT", "development")
     monkeypatch.setenv("SESSION_DATA", "publicapi@opgtest.com")
@@ -344,7 +361,7 @@ def patched_post(monkeypatch, request):
 
 
 # @pytest.fixture(autouse=False, params=[400, 404, 500])
-@pytest.fixture(autouse=False)
+@pytest.fixture(autouse=False, params=[400])
 def patched_post_broken_sirius(request, monkeypatch):
     def mock_post_to_broken_sirius(*args, **kwargs):
         print("MOCK POST TO BROKEN SIRIUS")

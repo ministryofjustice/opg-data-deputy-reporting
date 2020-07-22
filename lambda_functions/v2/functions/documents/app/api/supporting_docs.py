@@ -1,8 +1,9 @@
 import json
 import os
+import copy
 
 from . import sirius_service
-from .helpers import custom_logger
+from .helpers import custom_logger, handle_file_source
 
 logger = custom_logger("supporting_docs")
 
@@ -36,7 +37,9 @@ def transform_payload_to_sirius_post_request(
     metadata["report_id"] = report_id
     file_name = request_body["supporting_document"]["data"]["file"]["name"]
     file_type = request_body["supporting_document"]["data"]["file"]["mimetype"]
-    file_source = request_body["supporting_document"]["data"]["file"]["source"]
+    file_source = handle_file_source(
+        file=request_body["supporting_document"]["data"]["file"]
+    )
 
     payload = {
         "type": "Report - General",
@@ -48,7 +51,10 @@ def transform_payload_to_sirius_post_request(
     if parent_id:
         payload["parentUuid"] = parent_id
 
-    logger.debug(f"Sirius Payload: {payload}")
+    debug_payload = copy.deepcopy(payload)
+    debug_payload["file"]["source"] = "REDACTED"
+
+    logger.debug(f"Sirius Payload: {debug_payload}")
 
     return json.dumps(payload)
 
