@@ -23,12 +23,14 @@ resource "aws_lambda_function" "lambda_function" {
   }
   environment {
     variables = {
-      SIRIUS_BASE_URL    = "http://api.${var.account.target_environment}.ecs"
-      SIRIUS_API_VERSION = "v1"
-      ENVIRONMENT        = var.account.account_mapping
-      LOGGER_LEVEL       = var.account.logger_level
-      API_VERSION        = var.openapi_version
-      SESSION_DATA       = var.account.session_data
+      SIRIUS_BASE_URL      = "http://api.${var.account.target_environment}.ecs"
+      SIRIUS_API_VERSION   = "v1"
+      ENVIRONMENT          = var.account.account_mapping
+      LOGGER_LEVEL         = var.account.logger_level
+      API_VERSION          = var.openapi_version
+      SESSION_DATA         = var.account.session_data
+      DIGIDEPS_S3_BUCKET   = var.account.s3_bucket_name
+      DIGIDEPS_S3_ROLE_ARN = "arn:aws:iam::${var.account.digideps_account_id}:role/integrations-s3-read-${var.account.account_mapping}"
     }
   }
   tracing_config {
