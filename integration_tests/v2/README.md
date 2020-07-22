@@ -26,7 +26,26 @@ To set up for the integration tests you should check a few things first:
  `cd` into this folder and run `pip install -r ../../lambda_functions/v2/requirements/dev-requirements` or
  whatever requirements you need for your version.
 
- Run `aws-vault exec identity -- python -m pytest` and all integration tests will run against your setup.
+ Run `aws-vault exec identity -- python -m pytest -n2 --dist=loadfile --html=report.html --self-contained-html` and all integration tests will run against your setup.
+
+### Running the magic script
+
+There is also a script that will check/create your specified caseref in Sirius for you, so you don't have to go do anything.
+Before first run you must install the requirements (`pip3 install -r requirements.txt`) then the firefox geckodriver (for selenium):
+```
+wget https://github.com/mozilla/geckodriver/releases/download/v0.19.1/geckodriver-v0.19.1-linux64.tar.gz
+tar xvfz geckodriver-v0.19.1-linux64.tar.gz
+mv geckodriver ~/.local/bin
+```
+
+Then you can `cd integration_tests/v2` and run `python3 get_caseref.py` to check/create a given caseref.
+
+Or, `cd integration_tests/v2` and run `sh run_integration_tests.sh` to run the check/create then run the tests for you.
+This has one parameter, `-v`, which is optional. `sh run_integration_tests.sh -v "MoJ VPN` will connect to your VPN, sort out the caseref
+and disconnect for you. If you do not supply your VPN name you'll have to press all those buttons by yourself.
+
+Hint: if you keep the caseref in the `conftest.py` file the same as the one you use in the check/create script it will all just work.
+
 
  ### Gotchas
 
