@@ -1,6 +1,8 @@
 # Helpers
 import logging
 import os
+import boto3
+import base64
 
 from flask import jsonify
 
@@ -95,3 +97,45 @@ def error_message(code, message):
         ),
         code,
     )
+
+
+def handle_file_source(file):
+    if "source" not in file and "s3_reference" in file:
+        source = get_encoded_s3_object(
+            get_digideps_s3_client(),
+            os.environ["DIGIDEPS_S3_BUCKET"],
+            file["s3_reference"],
+        )
+    else:
+        source = file["source"]
+
+    return source
+
+
+def get_digideps_s3_client():
+    master_session = boto3.session.Session()
+    sts = master_session.client("sts")
+    role_arn = os.environ["DIGIDEPS_S3_ROLE_ARN"]
+    assume_role_response = sts.assume_role(
+        RoleArn=role_arn, RoleSessionName="data-deputy-reporting"
+    )
+
+    if "Credentials" in assume_role_response:
+        assumed_session = boto3.Session(
+            aws_access_key_id=assume_role_response["Credentials"]["AccessKeyId"],
+            aws_secret_access_key=assume_role_response["Credentials"][
+                "SecretAccessKey"
+            ],
+            aws_session_token=assume_role_response["Credentials"]["SessionToken"],
+        )
+
+    return assumed_session.client("s3")
+
+
+def get_encoded_s3_object(s3_client, bucket, key):
+    s3_client.download_file(bucket, key, "/tmp/{}".format(key))
+    image = open("/tmp/{}".format(key), "rb")
+    image_read = image.read()
+    image_64_encode = base64.b64encode(image_read).decode("utf-8")
+
+    return image_64_encode
