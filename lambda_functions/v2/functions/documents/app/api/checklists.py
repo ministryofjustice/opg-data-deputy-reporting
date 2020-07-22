@@ -1,4 +1,5 @@
 import json
+import copy
 
 from . import sirius_service
 from .helpers import custom_logger
@@ -45,7 +46,10 @@ def transform_payload_to_sirius_post_request(
         "file": {"name": file_name, "source": file_source, "type": file_type},
     }
 
-    logger.debug(f"Sirius Payload: {payload}")
+    debug_payload = copy.deepcopy(payload)
+    debug_payload["file"]["source"] = "REDACTED"
+
+    logger.debug(f"Sirius Payload: {debug_payload}")
 
     return json.dumps(payload)
 

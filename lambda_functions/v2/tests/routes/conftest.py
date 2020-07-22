@@ -169,3 +169,22 @@ def patched_send_get_to_sirius_healthcheck(monkeypatch):
     monkeypatch.setattr(
         api.sirius_service, "send_get_to_sirius", mock_send_get_to_sirius
     )
+
+
+@pytest.fixture()
+def patched_s3_client(monkeypatch):
+    def mock_s3_client(*args, **kwargs):
+        print("Mock get_digideps_s3_client")
+        return "valid_client"
+
+    monkeypatch.setattr(api.helpers, "get_digideps_s3_client", mock_s3_client)
+
+
+@pytest.fixture()
+def patched_s3_file(monkeypatch):
+    def mock_s3_file(*args, **kwargs):
+        print("Mock s3_file")
+
+        return "bas64 encoded string"
+
+    monkeypatch.setattr(api.helpers, "get_encoded_s3_object", mock_s3_file)
