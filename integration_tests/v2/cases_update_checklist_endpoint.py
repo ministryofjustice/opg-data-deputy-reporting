@@ -1,6 +1,5 @@
 import random
 
-import pytest
 from pytest_cases import CaseData, cases_generator
 
 from integration_tests.v2.conftest import generate_file_name
@@ -8,7 +7,6 @@ from integration_tests.v2.conftest import generate_file_name
 new_submission_id = random.randint(10000, 99999)
 
 
-@pytest.mark.xfail(reason="OpenAPI spec problems")
 @cases_generator(
     "Successful multiple updates of a checklist with different "
     "submission_ids: {sub_id}",
@@ -30,7 +28,7 @@ def case_success_original_IN_112(test_config: str, sub_id: int) -> CaseData:
     payload = {
         "checklist": {
             "data": {
-                "type": "supportingdocuments",
+                "type": "checklists",
                 "attributes": {"submission_id": submission_id},
                 "file": {
                     "name": f"{generate_file_name()}.pdf",
