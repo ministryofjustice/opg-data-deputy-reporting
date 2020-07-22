@@ -1,6 +1,5 @@
 import random
 
-import pytest
 from pytest_cases import CaseData, case_name
 
 from integration_tests.v2.conftest import generate_file_name
@@ -8,7 +7,6 @@ from integration_tests.v2.conftest import generate_file_name
 new_submission_id = random.randint(10000, 99999)
 
 
-@pytest.mark.xfail(reason="OpenAPI spec problems")
 @case_name(
     "Successful post to new checklist endpoint - checklist is child of existing "
     "report sent in the same submission"
@@ -29,7 +27,7 @@ def case_success_original_IN_112(test_config: str) -> CaseData:
     payload = {
         "checklist": {
             "data": {
-                "type": "supportingdocuments",
+                "type": "checklists",
                 "attributes": {"submission_id": submission_id},
                 "file": {
                     "name": f"{generate_file_name()}.pdf",
@@ -52,7 +50,6 @@ def case_success_original_IN_112(test_config: str) -> CaseData:
     return url, method, payload, expected_status_code, expected_response_data
 
 
-@pytest.mark.xfail(reason="OpenAPI spec problems")
 @case_name(
     "Successful post to new checklist endpoint - checklist is child of existing "
     "report sent in a different submission"
@@ -72,7 +69,7 @@ def case_success_new_submission_IN_112(test_config: str) -> CaseData:
     payload = {
         "checklist": {
             "data": {
-                "type": "supportingdocuments",
+                "type": "checklists",
                 "attributes": {"submission_id": submission_id},
                 "file": {
                     "name": f"{generate_file_name()}.pdf",

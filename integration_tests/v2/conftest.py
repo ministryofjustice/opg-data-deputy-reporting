@@ -11,20 +11,9 @@ from requests_aws4auth import AWS4Auth
 # Setup Data
 
 
-aws_dev_config = {
-    "name": "AWS Dev",
-    "url": "https://in299.dev.deputy-reporting.api.opg.service.justice.gov.uk/v1",
-    "security": "aws_signature",
-    "case_ref": "42206375",
-    "report_id": "123",
-    "sup_doc_id": "123",
-    "submission_id": 12345,
-    "checklist_id": "123",
-}
-
 aws_dev_v2_config = {
-    "name": "AWS v2 IN-299",
-    "url": "https://in298.dev.deputy-reporting.api.opg.service.justice.gov.uk/v2",
+    "name": "AWS v2 Dev",
+    "url": "https://dev.deputy-reporting.api.opg.service.justice.gov.uk/v2",
     "security": "aws_signature",
     "case_ref": "42206375",
     "report_id": "123",
