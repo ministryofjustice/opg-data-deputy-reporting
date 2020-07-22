@@ -1,4 +1,3 @@
-import pytest
 from pytest_cases import CaseData, case_name, case_tags, cases_generator
 
 """
@@ -151,7 +150,6 @@ def case_both_s3_and_file() -> CaseData:
     )
 
 
-@pytest.mark.xfail(reason="No error handling")
 @case_tags("endpoint", "error")
 @case_name("Fail post to Docs API - with neither source nor s3 ref")
 def case_neither_s3_nor_file() -> CaseData:
@@ -180,13 +178,7 @@ def case_neither_s3_nor_file() -> CaseData:
     test_headers = {"Content-Type": "application/json"}
 
     expected_response_status_code = 400
-    expected_response_data = {
-        "data": {
-            "attributes": {"submission_id": 12345, "parent_id": None},
-            "id": "5a8b1a26-8296-4373-ae61-f8d0b250e773",
-            "type": "reports",
-        }
-    }
+    expected_response_data = "OPGDATA-API-INVALIDREQUEST"
 
     return (
         test_data,
@@ -237,11 +229,10 @@ def case_bad_params() -> CaseData:
     )
 
 
-@pytest.mark.xfail(reason="No error handling around DIGIDEPS_S3_BUCKET")
 @case_tags("environment")
 @cases_generator(
     "Missing environment variables - {ev}",
-    ev=["SIRIUS_BASE_URL", "API_VERSION", "DIGIDEPS_S3_BUCKET"],
+    ev=["SIRIUS_BASE_URL", "SIRIUS_API_VERSION"],
 )
 def case_missing_env_vars(ev) -> CaseData:
 

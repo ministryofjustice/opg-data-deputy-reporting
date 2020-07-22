@@ -23,21 +23,7 @@ try to get file but opening locally fails
 
 @pytest.mark.parametrize(
     "test_bucket, test_key, expected_result",
-    [
-        ("valid_bucket", "test_file_on_aws.txt", "overwritten by test"),
-        pytest.param(
-            "invalid_bucket",
-            "test_file_on_aws.txt",
-            "overwritten by test",
-            marks=pytest.mark.xfail(reason="Not handled"),
-        ),
-        pytest.param(
-            "valid_bucket",
-            "not_a_file_on_aws.txt",
-            "overwritten by test",
-            marks=pytest.mark.xfail(reason="Not handled"),
-        ),
-    ],
+    [("valid_bucket", "test_file_on_aws.txt", "overwritten by test")],
 )
 def test_get_encoded_s3_object(test_bucket, test_key, expected_result):
     path_to_current_file = os.path.realpath(__file__)
@@ -55,35 +41,29 @@ def test_get_encoded_s3_object(test_bucket, test_key, expected_result):
         result = get_encoded_s3_object(
             s3_client=s3_client, bucket=test_bucket, key=test_key
         )
-
+        print(f"result: {result}")
         assert result == expected_result
 
 
-@pytest.mark.xfail(reason="No error handling")
-def test_broken_encoding(monkeypatch):
-    test_bucket = "valid_bucket"
-    test_key = "test_file_on_aws.txt"
-
-    def mock_broken_base64encode(*args, **kwargs):
-        print("Mock b64encode")
-        return "I am not encoded"
-
-    monkeypatch.setattr(base64, "b64encode", mock_broken_base64encode)
-
+@pytest.mark.parametrize(
+    "test_bucket, test_key, expected_result",
+    [
+        ("invalid_bucket", "test_file_on_aws.txt", None),
+        ("valid_bucket", "not_a_file_on_aws.txt", None),
+    ],
+)
+def test_get_encoded_s3_object_error(test_bucket, test_key, expected_result):
     path_to_current_file = os.path.realpath(__file__)
     current_directory = os.path.split(path_to_current_file)[0]
     test_file = os.path.join(current_directory, "test_file.txt")
 
-    with open(test_file, "rb") as image_file:
-        expected_result = base64.b64encode(image_file.read()).decode("utf-8")
-
     with mock_s3():
         s3_client = boto3.client("s3", region_name="eu-west-1")
-        s3_client.create_bucket(Bucket=test_bucket)
-        s3_client.upload_file(test_file, test_bucket, test_key)
+        s3_client.create_bucket(Bucket="valid_bucket")
+        s3_client.upload_file(test_file, "valid_bucket", "test_file_on_aws.txt")
 
         result = get_encoded_s3_object(
             s3_client=s3_client, bucket=test_bucket, key=test_key
         )
-
+        print(f"result: {result}")
         assert result == expected_result

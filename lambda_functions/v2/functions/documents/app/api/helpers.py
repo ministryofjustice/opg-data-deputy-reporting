@@ -1,9 +1,9 @@
 # Helpers
+import base64
 import logging
 import os
-import boto3
-import base64
 
+import boto3
 from flask import jsonify
 
 
@@ -23,6 +23,9 @@ def custom_logger(name):
         logger.setLevel("INFO")
     logger.addHandler(handler)
     return logger
+
+
+logger = custom_logger("helpers")
 
 
 custom_api_errors = {
@@ -100,15 +103,22 @@ def error_message(code, message):
 
 
 def handle_file_source(file):
+
+    try:
+        bucket = os.environ["DIGIDEPS_S3_BUCKET"]
+        s3_client = get_digideps_s3_client()
+    except Exception as e:
+        logger.error(f"Error handing file: {e}")
+        return None
+
     if "source" not in file and "s3_reference" in file:
         source = get_encoded_s3_object(
-            get_digideps_s3_client(),
-            os.environ["DIGIDEPS_S3_BUCKET"],
-            file["s3_reference"],
+            s3_client=s3_client, bucket=bucket, key=file["s3_reference"],
         )
-    else:
+    elif "source" in file:
         source = file["source"]
-
+    else:
+        source = None
     return source
 
 
@@ -133,9 +143,20 @@ def get_digideps_s3_client():
 
 
 def get_encoded_s3_object(s3_client, bucket, key):
-    s3_client.download_file(bucket, key, "/tmp/{}".format(key))
-    image = open("/tmp/{}".format(key), "rb")
-    image_read = image.read()
-    image_64_encode = base64.b64encode(image_read).decode("utf-8")
+
+    try:
+        s3_client.download_file(bucket, key, "/tmp/{}".format(key))
+    except Exception as e:
+        logger.error(f"Error downloading file from S3: {e}")
+        return None
+
+    try:
+        image = open("/tmp/{}".format(key), "rb")
+
+        image_read = image.read()
+        image_64_encode = base64.b64encode(image_read).decode("utf-8")
+    except Exception as e:
+        image_64_encode = None
+        logger.error(f"Error reading file from S3: {e}")
 
     return image_64_encode
