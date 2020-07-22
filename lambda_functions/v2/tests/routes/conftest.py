@@ -153,7 +153,7 @@ def patched_submit_document_to_sirius(monkeypatch):
 def patched_send_get_to_sirius(monkeypatch):
     def mock_send_get_to_sirius(*args, **kwargs):
         print("FAKE GET TO SIRIUS")
-        return None
+        return 200, None
 
     monkeypatch.setattr(
         api.sirius_service, "send_get_to_sirius", mock_send_get_to_sirius
