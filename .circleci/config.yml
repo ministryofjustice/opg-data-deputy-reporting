@@ -133,13 +133,6 @@ orbs:
           - run:
               name: Install Terraform
               command: sudo unzip terraform_${TF_VERSION}_linux_amd64.zip -d /bin
-      aws_cli_install:
-        steps:
-          - run:
-              name: install aws cli
-              command: |
-                pip3 install awscli --upgrade --user
-                aws --version
       pact_install:
         steps:
           - run:
@@ -150,19 +143,22 @@ orbs:
                 chmod 755 ~/project/.circleci/pact_verifier.sh
                 chmod 755 ~/project/.circleci/check_pact_deployable.sh
               working_directory: ~/project
+      python_requirements:
+        steps:
+          - run:
+              name: install all requirements locally
+              command: |
+                for i in $(ls -d lambda_functions/*/ | awk -F'/' '{print $2}')
+                do
+                  pip3 install -r ./lambda_functions/"${i}"/requirements/dev-requirements.txt
+                done
 jobs:
   build_lambda:
     executor: digideps-data/python
     steps:
       - checkout
       - setup_remote_docker
-      - run:
-          name: install all requirements locally
-          command: |
-            for i in $(ls -d lambda_functions/*/ | awk -F'/' '{print $2}')
-            do
-              pip3 install -r ./lambda_functions/"${i}"/requirements/dev-requirements.txt
-            done
+      - digideps-data/python_requirements
       - run:
           name: list all pacakges
           command: pip freeze
@@ -273,7 +269,6 @@ jobs:
       - attach_workspace:
           at: ~/project
       - digideps-data/terraform_install
-      - digideps-data/aws_cli_install
       - run:
           name: unzip artifact
           command: unzip ./opg-data-deputy-reporting.zip -d .
@@ -315,22 +310,19 @@ jobs:
       - when:
           condition: << parameters.pact_tag_production >>
           steps:
+            - digideps-data/python_requirements
             - run:
                 name: tag pact commit with v<x>_production
                 command: |
-                  echo "applying tag on version ${GIT_COMMIT_PROVIDER}"
-                  STATUS_CODE=$(curl -I -s -X GET -u "${PACT_BROKER_HTTP_AUTH_USER}":"${PACT_BROKER_HTTP_AUTH_PASS}" \
-                  https://"${PACT_BROKER_BASE_URL}"/pacticipants/"${PACT_PROVIDER}"/versions/"${GIT_COMMIT_PROVIDER}" | grep "HTTP" | awk '{print $2}')
-
-                  if [ "${STATUS_CODE}" -eq "200" ]
-                  then
-                    STATUS_CODE=$(curl -I -s -X PUT -u "${PACT_BROKER_HTTP_AUTH_USER}":"${PACT_BROKER_HTTP_AUTH_PASS}" -H "Content-Type: application/json" \
-                    https://"${PACT_BROKER_BASE_URL}"/pacticipants/"${PACT_PROVIDER}"/versions/"${GIT_COMMIT_PROVIDER}"/tags/"${API_VERSION}_production" \
-                     | grep "HTTP" | awk '{print $2}')
-                    echo "Pact tagging completed with status code: ${STATUS_CODE}"
-                  else
-                    echo "version of provider with git commit ${GIT_COMMIT_PROVIDER}, not found"
-                  fi
+                  echo ${API_VERSION}
+                  python tag_pact.py \
+                  --pact_broker_url"${PACT_BROKER_BASE_URL}" \
+                  --broker_user_name="admin" \
+                  --broker_secret_name="pactbroker_admin" \
+                  --pacticipant="${PACT_PROVIDER}" \
+                  --tag="${API_VERSION}_production" \
+                  --git_commit="${GIT_COMMIT_PROVIDER}"
+                working_directory: ~/project/pact_provider
   pact_verification:
     executor: digideps-data/python_with_tfvars
     working_directory: ~/project
@@ -343,7 +335,6 @@ jobs:
       - run:
           name: setup environment
           command: ./.circleci/setup.sh
-      - digideps-data/aws_cli_install
       - run:
           name: Set BASH_ENV
           command: ~/project/.circleci/set_env.sh >> $BASH_ENV

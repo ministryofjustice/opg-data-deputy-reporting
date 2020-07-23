@@ -29,7 +29,7 @@ resource "aws_lambda_function" "lambda_function" {
       LOGGER_LEVEL         = var.account.logger_level
       API_VERSION          = var.openapi_version
       SESSION_DATA         = var.account.session_data
-      DIGIDEPS_S3_BUCKET   = var.account.s3_bucket_name
+      DIGIDEPS_S3_BUCKET   = var.account.digideps_bucket_name
       DIGIDEPS_S3_ROLE_ARN = "arn:aws:iam::${var.account.digideps_account_id}:role/integrations-s3-read-${var.account.account_mapping}"
     }
   }
