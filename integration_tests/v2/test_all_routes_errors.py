@@ -84,7 +84,7 @@ def all_routes(case_ref, report_id, checklist_id):
         )
         return_values.append(
             {
-                "route": f"/lients/{case_ref}/reports/{report_id}/checklists",
+                "route": f"clients/{case_ref}/reports/{report_id}/checklists",
                 "method": "POST",
                 "payload": copy.deepcopy(default_checklist_payload),
             }
@@ -101,41 +101,6 @@ def all_routes(case_ref, report_id, checklist_id):
     return return_values
 
 
-@pytest.mark.xfail(
-    reason="Works differently now we're using creds from the environment"
-)
-@pytest.mark.smoke_test
-@pytest.mark.run(order=10)
-@pytest.mark.parametrize("test_config", configs_to_test)
-def test_403(test_config, monkeypatch):
-
-    monkeypatch.setenv("AWS_ACCESS_KEY_ID", "not_real")
-    monkeypatch.setenv("AWS_SECRET_ACCESS_KEY", "not_real")
-    monkeypatch.setenv("AWS_SESSION_TOKEN", "not_real")
-
-    routes = all_routes(
-        case_ref=test_config["case_ref"],
-        report_id=test_config["report_id"],
-        checklist_id=test_config["checklist_id"],
-    )
-
-    for route in routes:
-
-        url = f"{test_config['url']}/{route['route']}"
-        status, response = send_a_request(
-            url=url,
-            method=route["method"],
-            payload=route["payload"],
-            test_config=test_config,
-        )
-
-        assert status == 403
-        response_data = json.loads(response)
-        assert response_data["errors"]["code"] == "OPGDATA-API-INVALIDREQUEST"
-
-
-@pytest.mark.xfail(reason="Is actually 404")
-@pytest.mark.skipif(os.getenv("AWS_SESSION_TOKEN") == "", reason="AWS creds not set")
 @pytest.mark.smoke_test
 @pytest.mark.run(order=10)
 @pytest.mark.parametrize("test_config", configs_to_test)
@@ -179,7 +144,14 @@ def test_400_bad_url_params(test_config):
         response_data = json.loads(response)
 
         # Need to also check its not payload error here as that gets checked first
-        assert response_data["errors"]["code"] == "OPGDATA-API-INVALIDREQUEST"
+
+        if "errors" in response_data:
+            error_codes = [x["code"] for x in response_data["errors"]]
+            assert "OPGDATA-API-INVALIDREQUEST" in error_codes
+        else:
+            assert (
+                response_data["body"]["error"]["code"] == "OPGDATA-API-INVALIDREQUEST"
+            )
 
 
 @pytest.mark.skipif(os.getenv("AWS_SESSION_TOKEN") == "", reason="AWS creds not set")
@@ -271,7 +243,6 @@ def test_413(test_config):
         assert response_data["errors"]["code"] == "OPGDATA-API-FILESIZELIMIT"
 
 
-@pytest.mark.xfail(raises=KeyError, reason="Badly formatted response'")
 @pytest.mark.smoke_test
 @pytest.mark.run(order=10)
 @pytest.mark.parametrize("test_config", configs_to_test)
@@ -295,11 +266,16 @@ def test_415(test_config, monkeypatch):
         )
         assert status == 415
         response_data = json.loads(response)
-        assert response_data["errors"]["code"] == "OPGDATA-API-MEDIA"
+        if "errors" in response_data:
+            error_codes = [x["code"] for x in response_data["errors"]]
+            assert "OPGDATA-API-MEDIA" in error_codes
+        else:
+            assert response_data["body"]["error"]["code"] == "OPGDATA-API-MEDIA"
+
+        # assert response_data["errors"]["code"] == "OPGDATA-API-MEDIA"
 
 
-@pytest.mark.xfail(reason="Custom headers not implemented (yet)'")
-@pytest.mark.skipif(os.getenv("AWS_SESSION_TOKEN") == "", reason="AWS creds not set")
+@pytest.mark.skip(reason="Custom headers not implemented'")
 @pytest.mark.smoke_test
 @pytest.mark.run(order=10)
 @pytest.mark.parametrize("test_config", configs_to_test)
@@ -331,8 +307,7 @@ def test_500(test_config,):
         assert response_data["errors"]["code"] == "OPGDATA-API-SERVERERROR"
 
 
-@pytest.mark.xfail(reason="Custom headers not implemented (yet)'")
-@pytest.mark.skipif(os.getenv("AWS_SESSION_TOKEN") == "", reason="AWS creds not set")
+@pytest.mark.skip(reason="Custom headers not implemented'")
 @pytest.mark.smoke_test
 @pytest.mark.run(order=10)
 @pytest.mark.parametrize("test_config", configs_to_test)
@@ -364,10 +339,6 @@ def test_503(test_config,):
         assert response_data["errors"]["code"] == "OPGDATA-API-UNAVAILABLE"
 
 
-# @pytest.mark.xfail(
-#     raises=(AssertionError, JSONDecodeError, TypeError),
-#     reason="Not all required fields are " "validated by API Gateway'",
-# )
 @pytest.mark.smoke_test
 @pytest.mark.run(order=10)
 @pytest.mark.parametrize("test_config", configs_to_test)
