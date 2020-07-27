@@ -15,11 +15,15 @@ aws_dev_v2_config = {
     "name": "AWS v2 Dev",
     "url": "https://dev.deputy-reporting.api.opg.service.justice.gov.uk/v2",
     "security": "aws_signature",
-    "case_ref": "86622299",
+    "case_ref": "79906377",
     "report_id": "123",
     "sup_doc_id": "123",
     "submission_id": 12345,
     "checklist_id": "123",
+    "s3_object_key": "dd_doc_62_15916290546271",
+    "s3_test_file": "integration_test_1mb",
+    "s3_bucket_name": "pa-uploads-beth",
+    "aws_region": "eu-west-1",
 }
 
 mock_config = {
@@ -30,6 +34,10 @@ mock_config = {
     "report_id": "33ea0382-cfc9-4776-9036-667eeb68fa4b",
     "submission_id": 12345,
     "checklist_id": "123",
+    "s3_object_key": "objectkey",
+    "s3_test_file": "integration_test_1mb",
+    "s3_bucket_name": "valid-bucket",
+    "aws_region": "eu-west-1",
 }
 
 configs_to_test = [aws_dev_v2_config]
@@ -37,6 +45,67 @@ configs_to_test = [aws_dev_v2_config]
 
 # Data persisted between tests
 all_records = []
+
+
+def get_role_name():
+    return "sirius-ci" if "CI" in os.environ else "operator"
+
+
+def filter_none_values(kwargs: dict) -> dict:
+    """Returns a new dictionary excluding items where value was None"""
+    return {k: v for k, v in kwargs.items() if v is not None}
+
+
+def assume_session(
+    role_session_name: str,
+    role_arn: str,
+    region_name: str,
+    duration_seconds: int = None,
+) -> boto3.Session:
+    """
+    Returns a session with the given name and role.
+    If not specified, duration will be set by AWS, probably at 1 hour.
+    Region can be overridden by each client or resource spawned from this session.
+    """
+    assume_role_kwargs = filter_none_values(
+        {
+            "RoleSessionName": role_session_name,
+            "RoleArn": role_arn,
+            "DurationSeconds": duration_seconds,
+        }
+    )
+    credentials = boto3.client("sts").assume_role(**assume_role_kwargs)["Credentials"]
+    create_session_kwargs = filter_none_values(
+        {
+            "aws_access_key_id": credentials["AccessKeyId"],
+            "aws_secret_access_key": credentials["SecretAccessKey"],
+            "aws_session_token": credentials["SessionToken"],
+            "region_name": region_name,
+        }
+    )
+    return boto3.Session(**create_session_kwargs)
+
+
+def upload_test_doc(test_config):
+    session = assume_session(
+        "assumed_role_session",
+        f"arn:aws:iam::248804316466:role/{get_role_name()}",
+        region_name=test_config['aws_region'],
+    )
+    s3_client = session.client(service_name='s3')
+
+    with open(test_config['s3_test_file'], 'rb') as f:
+        s3_client.upload_fileobj(f, test_config["s3_bucket_name"], test_config["s3_object_key"])
+
+
+def teardown_test_doc(test_config):
+    session = assume_session(
+        "assumed_role_session",
+        f"arn:aws:iam::248804316466:role/{get_role_name()}",
+        region_name=test_config['aws_region'],
+    )
+    s3_resource = session.resource(service_name='s3')
+    s3_resource.Object(test_config["s3_bucket_name"], test_config["s3_object_key"]).delete()
 
 
 def send_a_request(
@@ -64,31 +133,13 @@ def send_a_request(
         if os.getenv("AWS_ACCESS_KEY_ID") == "testing":
             print("Your AWS creds are not set properly")
 
-    if "CI" in os.environ:
-        role_name = "sirius-ci"
-    else:
-        role_name = "operator"
+    boto3.setup_default_session(region_name=test_config['aws_region'],)
 
-    boto3.setup_default_session(region_name="eu-west-1",)
-
-    client = boto3.client("sts")
-    client.get_caller_identity()["Account"]
-
-    role_to_assume = f"arn:aws:iam::288342028542:role/{role_name}"
-
-    response = client.assume_role(
-        RoleArn=role_to_assume, RoleSessionName="assumed_role"
+    session = assume_session(
+        "assumed_role_session",
+        f"arn:aws:iam::288342028542:role/{get_role_name()}",
+        region_name=test_config['aws_region'],
     )
-
-    session = Session(
-        aws_access_key_id=response["Credentials"]["AccessKeyId"],
-        aws_secret_access_key=response["Credentials"]["SecretAccessKey"],
-        aws_session_token=response["Credentials"]["SessionToken"],
-    )
-
-    client = session.client("sts")
-    client.get_caller_identity()["Account"]
-
     credentials = session.get_credentials()
 
     credentials = credentials.get_frozen_credentials()
@@ -97,7 +148,7 @@ def send_a_request(
     token = credentials.token
 
     auth = AWS4Auth(
-        access_key, secret_key, "eu-west-1", "execute-api", session_token=token,
+        access_key, secret_key, test_config['aws_region'], "execute-api", session_token=token,
     )
 
     response = requests.request(method, url, auth=auth, data=body, headers=headers)

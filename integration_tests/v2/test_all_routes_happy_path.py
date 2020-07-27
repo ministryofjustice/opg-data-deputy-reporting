@@ -10,14 +10,23 @@ from integration_tests.v2 import (
     cases_update_checklist_endpoint,
 )
 from integration_tests.v2.conftest import (
+    upload_test_doc,
+    teardown_test_doc,
     send_a_request,
     is_valid_uuid,
     configs_to_test,
 )
 
 
+# @pytest.mark.smoke_test
+# @pytest.mark.run(order=1)
+# @pytest.mark.parametrize("test_config", configs_to_test)
+# def test_setup(test_config):
+#     upload_test_doc(test_config=test_config)
+
+
 @pytest.mark.smoke_test
-@pytest.mark.run(order=1)
+@pytest.mark.run(order=2)
 @pytest.mark.parametrize("test_config", configs_to_test)
 @cases_data(module=cases_reports_endpoint)
 def test_post_a_report(case_data: CaseDataGetter, test_config):
@@ -51,7 +60,7 @@ def test_post_a_report(case_data: CaseDataGetter, test_config):
 
 
 @pytest.mark.smoke_test
-@pytest.mark.run(order=2)
+@pytest.mark.run(order=3)
 @pytest.mark.parametrize("test_config", configs_to_test)
 @cases_data(module=cases_supporting_docs_endpoint)
 def test_post_a_supporting_doc(case_data: CaseDataGetter, test_config):
@@ -84,7 +93,7 @@ def test_post_a_supporting_doc(case_data: CaseDataGetter, test_config):
 
 
 @pytest.mark.smoke_test
-@pytest.mark.run(order=3)
+@pytest.mark.run(order=4)
 @pytest.mark.parametrize("test_config", configs_to_test)
 @cases_data(module=cases_new_checklist_endpoint)
 def test_post_a_new_checklist(case_data: CaseDataGetter, test_config):
@@ -116,7 +125,7 @@ def test_post_a_new_checklist(case_data: CaseDataGetter, test_config):
 
 
 @pytest.mark.smoke_test
-@pytest.mark.run(order=4)
+@pytest.mark.run(order=5)
 @pytest.mark.parametrize("test_config", configs_to_test)
 @cases_data(module=cases_update_checklist_endpoint)
 def test_post_an_updated_checklist(case_data: CaseDataGetter, test_config):
@@ -144,7 +153,7 @@ def test_post_an_updated_checklist(case_data: CaseDataGetter, test_config):
 
 
 @pytest.mark.smoke_test
-@pytest.mark.run(order=1)
+@pytest.mark.run(order=6)
 @pytest.mark.parametrize("test_config", configs_to_test)
 def test_get_healthcheck(test_config):
 
@@ -160,3 +169,10 @@ def test_get_healthcheck(test_config):
 
     assert status == expected_status_code
     assert type(response) == str
+
+
+# @pytest.mark.smoke_test
+# @pytest.mark.run(order=10)
+# @pytest.mark.parametrize("test_config", configs_to_test)
+# def test_teardown(test_config):
+#     teardown_test_doc(test_config=test_config)

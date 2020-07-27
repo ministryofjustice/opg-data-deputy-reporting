@@ -62,6 +62,20 @@ To run the integration tests in their entirety:
 6) `cd` into integrations test folder and run `aws-vault exec identity -- python -m pytest -n2 --dist=loadfile --html=report.html --self-contained-html`
 7) Open `report.html` in a browser to see the results of the tests all laid out nicely
 
+To run specific integration test(s), use Pytest Markers:
+
+1) Add your new marker name to pytest.ini to avoid warnings, in the form `new_marker_name: description`
+2) Add marker decorations to the test(s) you want to run:
+
+```
+@pytest.mark.new_marker_name
+def test_my_lovely_test():
+    ...
+```
+
+3)  Run like `aws-vault exec identity -- python -m pytest test_all_routes_happy_path.py -k "new_marker_name" -n2 -s --dist=loadfile --html=report.html --self-contained-html`
+4) Open `report.html` in a browser to see the results of the tests all laid out nicely
+
 #### Integration tests... still To Do
 
 * Local mock Sirius needs fixing so this can be included in these tests
