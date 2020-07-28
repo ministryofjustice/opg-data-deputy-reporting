@@ -44,7 +44,7 @@ class PactTagPacticipant:
         else:
             tagged = False
             print(
-                f"Could not tag pacticipant {self.pacticipant} with version {self.git_commit} "
+                f"Could not tag pacticipant {self.pacticipant} with version {self.git_commit}"
             )
             print(f"Status Code: {pact_response.status_code}")
         return tagged

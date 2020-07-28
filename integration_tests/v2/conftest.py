@@ -4,7 +4,6 @@ import uuid
 
 import boto3
 import requests
-from boto3.session import Session
 from faker import Faker
 from requests_aws4auth import AWS4Auth
 
@@ -13,9 +12,9 @@ from requests_aws4auth import AWS4Auth
 
 aws_dev_v2_config = {
     "name": "AWS v2 Dev",
-    "url": "https://dev.deputy-reporting.api.opg.service.justice.gov.uk/v2",
+    "url": "https://in300.dev.deputy-reporting.api.opg.service.justice.gov.uk/v2",
     "security": "aws_signature",
-    "case_ref": "79906377",
+    "case_ref": "86622299",
     "report_id": "123",
     "sup_doc_id": "123",
     "submission_id": 12345,
@@ -45,6 +44,24 @@ configs_to_test = [aws_dev_v2_config]
 
 # Data persisted between tests
 all_records = []
+
+
+def pytest_sessionstart(session):
+    """
+    Called after the Session object has been created and
+    before performing collection and entering the run test loop.
+    """
+    for test_config in configs_to_test:
+        upload_test_doc(test_config=test_config)
+
+
+def pytest_sessionfinish(session, exitstatus):
+    """
+    Called after whole test run finished, right before
+    returning the exit status to the system.
+    """
+    for test_config in configs_to_test:
+        teardown_test_doc(test_config=test_config)
 
 
 def get_role_name():
@@ -90,22 +107,29 @@ def upload_test_doc(test_config):
     session = assume_session(
         "assumed_role_session",
         f"arn:aws:iam::248804316466:role/{get_role_name()}",
-        region_name=test_config['aws_region'],
+        region_name=test_config["aws_region"],
     )
-    s3_client = session.client(service_name='s3')
+    s3_client = session.client(service_name="s3")
 
-    with open(test_config['s3_test_file'], 'rb') as f:
-        s3_client.upload_fileobj(f, test_config["s3_bucket_name"], test_config["s3_object_key"])
+    with open(test_config["s3_test_file"], "rb") as f:
+        s3_client.put_object(
+            Body=f,
+            Bucket=test_config["s3_bucket_name"],
+            Key=test_config["s3_object_key"],
+            ServerSideEncryption="AES256",
+        )
 
 
 def teardown_test_doc(test_config):
     session = assume_session(
         "assumed_role_session",
         f"arn:aws:iam::248804316466:role/{get_role_name()}",
-        region_name=test_config['aws_region'],
+        region_name=test_config["aws_region"],
     )
-    s3_resource = session.resource(service_name='s3')
-    s3_resource.Object(test_config["s3_bucket_name"], test_config["s3_object_key"]).delete()
+    s3_resource = session.resource(service_name="s3")
+    s3_resource.Object(
+        test_config["s3_bucket_name"], test_config["s3_object_key"]
+    ).delete()
 
 
 def send_a_request(
@@ -133,12 +157,12 @@ def send_a_request(
         if os.getenv("AWS_ACCESS_KEY_ID") == "testing":
             print("Your AWS creds are not set properly")
 
-    boto3.setup_default_session(region_name=test_config['aws_region'],)
+    boto3.setup_default_session(region_name=test_config["aws_region"],)
 
     session = assume_session(
         "assumed_role_session",
         f"arn:aws:iam::288342028542:role/{get_role_name()}",
-        region_name=test_config['aws_region'],
+        region_name=test_config["aws_region"],
     )
     credentials = session.get_credentials()
 
@@ -148,7 +172,11 @@ def send_a_request(
     token = credentials.token
 
     auth = AWS4Auth(
-        access_key, secret_key, test_config['aws_region'], "execute-api", session_token=token,
+        access_key,
+        secret_key,
+        test_config["aws_region"],
+        "execute-api",
+        session_token=token,
     )
 
     response = requests.request(method, url, auth=auth, data=body, headers=headers)

@@ -1,7 +1,5 @@
 from pytest_cases import CaseData, case_name
 
-
-# submission_id = config["SUBMISSION_ID"]
 from integration_tests.v2.conftest import generate_file_name
 
 
@@ -9,7 +7,7 @@ from integration_tests.v2.conftest import generate_file_name
     "Successful post to reports endpoint "
     "Digideps S3 bucket ref sent instead of file source"
 )
-def case_success_original_s3(test_config: str) -> CaseData:
+def case_success_s3(test_config: str) -> CaseData:
 
     submission_id = 11111
 

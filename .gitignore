@@ -40,3 +40,6 @@ process.yml
 
 *.log
 log/pact.log
+
+*report.html
+*__init__.pyc
