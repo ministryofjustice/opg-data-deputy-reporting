@@ -186,14 +186,14 @@ jobs:
           working_directory: ~/project/pact_provider/test
       - run:
           name: run unit tests (with pytest)
-          command: |
-            python -m pytest -m "not (smoke_test or pact_test)"
+          command: python -m pytest lambda_functions
       - run:
           name: intgration tests
           command: |
             export COMMIT_MESSAGE="\"$(git log --format=oneline -n 1 $CIRCLE_SHA1)\""
             if [[ "$COMMIT_MESSAGE" == *"[int-test]"* ]]
-              then python -m pytest
+              then
+              python -m pytest
             else
               echo "Integration tests not chosen to run"
             fi

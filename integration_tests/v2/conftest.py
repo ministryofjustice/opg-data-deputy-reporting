@@ -4,6 +4,7 @@ import uuid
 
 import boto3
 import requests
+import pytest
 from faker import Faker
 from requests_aws4auth import AWS4Auth
 
@@ -46,6 +47,7 @@ configs_to_test = [aws_dev_v2_config]
 all_records = []
 
 
+@pytest.mark.smoke_test
 def pytest_sessionstart(session):
     """
     Called after the Session object has been created and
@@ -55,6 +57,7 @@ def pytest_sessionstart(session):
         upload_test_doc(test_config=test_config)
 
 
+@pytest.mark.smoke_test
 def pytest_sessionfinish(session, exitstatus):
     """
     Called after whole test run finished, right before
