@@ -40,6 +40,13 @@ endpoints locally. You can use getcreds.go script with aws-vault (aws-vault exec
 go run getcreds.go) and paste the outputs into appropriate section
 of your GUI API testing tools (like postman) to test the endpoints that way.
 
+### Unit tests
+
+Unit tests can be run by creating a `virtual env` (see below for some instructions), installing the test requirements
+and running `python -m pytest lambda_functions` from the root directory.
+
+You may also need to update your `PYTHONPATH` env var to point to the root of the repo.
+
 ### 'Integration' Tests
 
 These tests send a payload to a real url, be careful where you point things if you're going to run these.
@@ -62,12 +69,23 @@ To run the integration tests in their entirety:
 6) `cd` into integrations test folder and run `aws-vault exec identity -- python -m pytest -n2 --dist=loadfile --html=report.html --self-contained-html`
 7) Open `report.html` in a browser to see the results of the tests all laid out nicely
 
+To run specific integration test(s), use Pytest Markers:
+
+1) Add your new marker name to pytest.ini to avoid warnings, in the form `new_marker_name: description`
+2) Add marker decorations to the test(s) you want to run:
+
+```
+@pytest.mark.new_marker_name
+def test_my_lovely_test():
+    ...
+```
+
+3)  Run like `aws-vault exec identity -- python -m pytest test_all_routes_happy_path.py -k "new_marker_name" -n2 -s --dist=loadfile --html=report.html --self-contained-html`
+4) Open `report.html` in a browser to see the results of the tests all laid out nicely
+
 #### Integration tests... still To Do
 
 * Local mock Sirius needs fixing so this can be included in these tests
-* AWS creds have to be pasted into `conftest.py` for now. Please don't commit these.
-* Only happy path tests right now
-* No checklist tests yet
 * Uploaded records could be formatted nicer making it easier to reconcile with Sirius if required
 
 ### PACT

@@ -144,7 +144,7 @@ def test_post_an_updated_checklist(case_data: CaseDataGetter, test_config):
 
 
 @pytest.mark.smoke_test
-@pytest.mark.run(order=1)
+@pytest.mark.run(order=5)
 @pytest.mark.parametrize("test_config", configs_to_test)
 def test_get_healthcheck(test_config):
 
