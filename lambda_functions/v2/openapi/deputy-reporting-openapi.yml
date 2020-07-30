@@ -1,14 +1,14 @@
 ---
 openapi: 3.0.0
 info:
-  version: 1.0.0
+  version: 2.0.0
   title: deputy-reporting-${environment}
   description: "Access to OPG Data"
   contact:
     name: API Support
 
 servers:
-  - url: /v1
+  - url: /v2
     description: localmock
 tags:
   - name: deputy-reporting
