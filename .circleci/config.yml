@@ -84,13 +84,13 @@ workflows:
          requires: [preprod apply]
          filters: {branches:{only:[master]}}
       - terraform_pre_checks:
-         name: terraform prod preflight checks
+         name: terraform production preflight checks
          requires: [approve release to production]
          tf_workspace: production
          filters: {branches:{only:[master]}}
       - terraform_action:
          name: production apply
-         requires: [terraform prod preflight checks]
+         requires: [terraform production preflight checks]
          tf_command: apply --auto-approve
          tf_workspace: production
          applycheck: true
@@ -107,6 +107,7 @@ orbs:
       python_with_tfvars:
         docker:
           - image: circleci/python:3
+        resource_class: small
         environment:
           TF_VERSION: 0.12.26
           TF_SHA256SUM: 607bc802b1c6c2a5e62cc48640f38aaa64bef1501b46f0ae4829feb51594b257
@@ -140,23 +141,48 @@ orbs:
               command: |
                 wget https://github.com/pact-foundation/pact-ruby-standalone/releases/download/v1.82.3/pact-1.82.3-linux-x86_64.tar.gz
                 tar xzf pact-1.82.3-linux-x86_64.tar.gz
-                chmod 755 ~/project/.circleci/pact_verifier.sh
-                chmod 755 ~/project/.circleci/check_pact_deployable.sh
               working_directory: ~/project
       python_requirements:
         steps:
           - run:
               name: install all requirements locally
               command: |
-                for i in $(ls -d lambda_functions/*/ | awk -F'/' '{print $2}')
+                for i in $(ls -d lambda_functions/*/ | awk -F'/' '{print $2}'  | grep '^v[1-9]\+')
                 do
                   pip3 install -r ./lambda_functions/"${i}"/requirements/dev-requirements.txt
                 done
+      cancel_redundant_builds:
+        steps:
+          - run:
+              name: install aws cli
+              command: |
+                pip3 install awscli --upgrade --user
+          - run:
+              name: login to code artifact for pip
+              command: ./login_code_artifact.sh -a 288342028542 -t pip
+              working_directory: ~/project/docs/ci_scripts
+          - run:
+              name: install cancel build requirements
+              command: pip3 install -r requirements.txt
+              working_directory: ~/project/docs/ci_scripts
+          - run:
+              name: cancel previous builds
+              command: |
+                python3 cancel_builds.py \
+                --circle_project_username="${CIRCLE_PROJECT_USERNAME}" \
+                --circle_project_reponame="${CIRCLE_PROJECT_REPONAME}" \
+                --circle_branch="${CIRCLE_BRANCH}" \
+                --circle_builds_token="${CIRCLE_BUILDS_TOKEN}" \
+                --terms_to_waitfor="apply,plan,terraform,destroy" \
+                --prod_job_terms="production ,integration ,pact"
+              working_directory: ~/project/docs/ci_scripts
 jobs:
   build_lambda:
     executor: digideps-data/python
+    resource_class: small
     steps:
       - checkout
+      - digideps-data/cancel_redundant_builds
       - setup_remote_docker
       - digideps-data/python_requirements
       - run:
@@ -217,6 +243,7 @@ jobs:
             - opg-data-deputy-reporting.zip
   terraform_pre_checks:
     executor: digideps-data/python_with_tfvars
+    resource_class: small
     parameters:
       tf_workspace:
         description: terraform workspace
@@ -241,6 +268,7 @@ jobs:
           command: cd ./terraform/environment; terraform validate
   terraform_action:
     executor: digideps-data/python_with_tfvars
+    resource_class: small
     parameters:
       tf_workspace:
         description: terraform workspace
@@ -325,6 +353,7 @@ jobs:
                 working_directory: ~/project/pact_provider
   pact_verification:
     executor: digideps-data/python_with_tfvars
+    resource_class: small
     working_directory: ~/project
     parameters:
     environment:
