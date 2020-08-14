@@ -666,6 +666,9 @@ components:
           properties:
             submission_id:
               $ref: '#/components/schemas/submissionId'
+            submitter_email:
+              type: string
+              example: "donald.draper@digital.justice.gov.uk"
             reporting_period_from:
               $ref: '#/components/schemas/dateISO8601'
             reporting_period_to:
