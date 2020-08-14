@@ -658,11 +658,6 @@ components:
           $ref: '#/components/schemas/DocumentUuid'
         attributes:
           type: object
-          required:
-            - reporting_period_from
-            - reporting_period_to
-            - year
-            - type
           properties:
             submission_id:
               $ref: '#/components/schemas/submissionId'
