@@ -10,6 +10,7 @@ def case_success() -> CaseData:
                 "type": "checklists",
                 "attributes": {
                     "submission_id": 12345,
+                    "submitter_email": "donald.draper@digital.justice.gov.uk",
                     "reporting_period_from": "2019-01-01",
                     "reporting_period_to": "2019-12-31",
                     "year": 2019,
@@ -55,6 +56,7 @@ def case_success_no_submission_id() -> CaseData:
             "data": {
                 "type": "checklists",
                 "attributes": {
+                    "submitter_email": "donald.draper@digital.justice.gov.uk",
                     "reporting_period_from": "2019-01-01",
                     "reporting_period_to": "2019-12-31",
                     "year": 2019,
