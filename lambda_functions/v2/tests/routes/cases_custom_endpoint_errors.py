@@ -60,7 +60,14 @@ test_urls = [
             "checklist": {
                 "data": {
                     "type": "supportingdocuments",
-                    "attributes": {"submission_id": 12345},
+                    "attributes": {
+                        "submission_id": 12345,
+                        "submitter_email": "donald.draper@digital.justice.gov.uk",
+                        "reporting_period_from": "2019-01-01",
+                        "reporting_period_to": "2019-12-31",
+                        "year": 2019,
+                        "type": "PF",
+                    },
                     "file": {
                         "name": "Report_1234567T_2018_2019_11111.pdf",
                         "mimetype": "application/pdf",
@@ -79,7 +86,14 @@ test_urls = [
             "checklist": {
                 "data": {
                     "type": "supportingdocuments",
-                    "attributes": {"submission_id": 12345},
+                    "attributes": {
+                        "submission_id": 12345,
+                        "submitter_email": "donald.draper@digital.justice.gov.uk",
+                        "reporting_period_from": "2019-01-01",
+                        "reporting_period_to": "2019-12-31",
+                        "year": 2019,
+                        "type": "PF",
+                    },
                     "file": {
                         "name": "Report_1234567T_2018_2019_11111.pdf",
                         "mimetype": "application/pdf",

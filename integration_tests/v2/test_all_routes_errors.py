@@ -52,7 +52,13 @@ default_checklist_payload = {
     "checklist": {
         "data": {
             "type": "supportingdocuments",
-            "attributes": {"submission_id": 1234},
+            "attributes": {
+                "submission_id": 1234,
+                "reporting_period_from": "2019-01-01",
+                "reporting_period_to": "2019-12-31",
+                "year": 2019,
+                "type": "PF",
+            },
             "file": {
                 "name": f"{generate_file_name()}.pdf",
                 "mimetype": "application/pdf",

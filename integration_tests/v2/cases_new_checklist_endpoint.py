@@ -28,7 +28,14 @@ def case_success_original_IN_112(test_config: str) -> CaseData:
         "checklist": {
             "data": {
                 "type": "checklists",
-                "attributes": {"submission_id": submission_id},
+                "attributes": {
+                    "submission_id": submission_id,
+                    "submitter_email": "donald.draper@digital.justice.gov.uk",
+                    "reporting_period_from": "2019-01-01",
+                    "reporting_period_to": "2019-12-31",
+                    "year": 2019,
+                    "type": "PF",
+                },
                 "file": {
                     "name": f"{generate_file_name()}.pdf",
                     "mimetype": "application/pdf",
@@ -70,7 +77,14 @@ def case_success_new_submission_IN_112(test_config: str) -> CaseData:
         "checklist": {
             "data": {
                 "type": "checklists",
-                "attributes": {"submission_id": submission_id},
+                "attributes": {
+                    "submission_id": submission_id,
+                    "submitter_email": "donald.draper@digital.justice.gov.uk",
+                    "reporting_period_from": "2019-01-01",
+                    "reporting_period_to": "2019-12-31",
+                    "year": 2019,
+                    "type": "PF"
+                },
                 "file": {
                     "name": f"{generate_file_name()}.pdf",
                     "mimetype": "application/pdf",

@@ -6,6 +6,7 @@ PROVIDER="OPG%20Data"
 CONSUMER="Complete%20the%20deputy%20report"
 DIGIDEPS_URL="api.github.com/repos/ministryofjustice/opg-digideps"
 ACCOUNT="997462338508"
+FLASK_ENV="development"
 
 WORKSPACE=${WORKSPACE:-$CIRCLE_BRANCH}
 WORKSPACE=${WORKSPACE//[^[:alnum:]]/}
@@ -15,6 +16,7 @@ API_VERSION="v2"
 GIT_COMMIT=${CIRCLE_SHA1:0:7}
 
 echo "export GIT_COMMIT_PROVIDER=${GIT_COMMIT}"
+echo "export FLASK_ENV=${FLASK_ENV}"
 echo "export TF_WORKSPACE=${WORKSPACE}"
 echo "export API_VERSION=${API_VERSION}"
 echo "export PACT_PROVIDER=${PROVIDER}"

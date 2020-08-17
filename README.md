@@ -135,22 +135,6 @@ You can verify the pact as follows (assuming your path to pact-provider-verifier
 --provider-app-version=z12345
 ```
 
-If you wish to run as it would run in CI (which requires uses our check_pact_deployable script) and
-runs from a container on the same network:
-
-```
-docker-compose exec pact-verifier python3 ../check_pact_deployable.py \
---provider_base_url="http://mock-aws-rest-api:4343" \
---pact_broker_url="http://broker-app:9292" \
---broker_user_name="admin" \
---broker_secret_name="local" \
---consumer_pacticipant="Complete the deputy report" \
---provider_pacticipant="OPG Data" \
---api_version="v2" \
---git_commit_consumer="" \
---git_commit_provider="z12345"
-```
-
 Further examples of posting adhoc payloads to the endpoint via curl can be seen below.
 This may help in development of further integrations.
 

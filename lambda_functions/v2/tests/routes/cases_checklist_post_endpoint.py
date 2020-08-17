@@ -8,7 +8,14 @@ def case_success() -> CaseData:
         "checklist": {
             "data": {
                 "type": "checklists",
-                "attributes": {"submission_id": 12345},
+                "attributes": {
+                    "submission_id": 12345,
+                    "submitter_email": "donald.draper@digital.justice.gov.uk",
+                    "reporting_period_from": "2019-01-01",
+                    "reporting_period_to": "2019-12-31",
+                    "year": 2019,
+                    "type": "PF",
+                },
                 "file": {
                     "name": "Checklist.pdf",
                     "mimetype": "application/pdf",
@@ -48,7 +55,13 @@ def case_success_no_submission_id() -> CaseData:
         "checklist": {
             "data": {
                 "type": "checklists",
-                "attributes": {},
+                "attributes": {
+                    "submitter_email": "donald.draper@digital.justice.gov.uk",
+                    "reporting_period_from": "2019-01-01",
+                    "reporting_period_to": "2019-12-31",
+                    "year": 2019,
+                    "type": "PF",
+                },
                 "file": {
                     "name": "Checklist.pdf",
                     "mimetype": "application/pdf",
