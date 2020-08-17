@@ -3,7 +3,7 @@ openapi: 3.0.0
 info:
   version: 2.0.0
   title: deputy-reporting-${environment}
-  description: "Access to OPG Data"
+  description: "OPG Data (deputy reporting integration)"
   contact:
     name: API Support
 
@@ -91,7 +91,7 @@ paths:
     get:
       summary: Sirius healthcheck
       description: Client report
-      operationId: app.healthcheckFlask
+      operationId: app.healthcheck
       tags:
         - "deputy-reporting"
       security:
@@ -159,7 +159,7 @@ paths:
     post:
       summary: Add a client report file
       description: Add a client report file
-      operationId: app.addReportDocumentFlask
+      operationId: app.addReportDocument
       tags:
         - "deputy-reporting"
       parameters:
@@ -263,7 +263,7 @@ paths:
     post:
       summary: Add a document to Supervision which supports a report
       description: Add a document to Supervision which supports a report
-      operationId: app.addReportSupportingDocumentFlask
+      operationId: app.addReportSupportingDocument
       tags:
         - "deputy-reporting"
       parameters:
@@ -373,7 +373,7 @@ paths:
     post:
       summary: Add a report lodging or review checklist
       description: Add a report lodging or review checklist
-      operationId: app.addReportChecklistFlask
+      operationId: app.addReportChecklist
       tags:
         - "deputy-reporting"
       parameters:
@@ -483,7 +483,7 @@ paths:
     put:
       summary: Update a report lodging or review checklist
       description: Update a report lodging or review checklist
-      operationId: app.updateReportChecklistFlask
+      operationId: app.updateReportChecklist
       tags:
         - "deputy-reporting"
       parameters:
@@ -631,26 +631,16 @@ components:
             submission_id:
               $ref: '#/components/schemas/submissionId'
             reporting_period_from:
-              type: string
-              example: "2019-01-01"
+              $ref: '#/components/schemas/dateISO8601'
             reporting_period_to:
-              type: string
-              example: "2019-12-31"
+              $ref: '#/components/schemas/dateISO8601'
             year:
-              type: integer
-              minimum: 999
-              maximum: 9999
-              example: 2019
+              $ref: '#/components/schemas/reportingYear'
             date_submitted:
               type: string
               example: "2020-01-03T09:30:00.001Z"
             type:
-              type: string
-              enum:
-                - "PF"
-                - "HW"
-                - "NDR"
-              example: "PF"
+              $ref: '#/components/schemas/reportType'
         file:
           $ref: '#/components/schemas/file'
     ReportChecklist:
@@ -671,6 +661,17 @@ components:
           properties:
             submission_id:
               $ref: '#/components/schemas/submissionId'
+            submitter_email:
+              type: string
+              example: "donald.draper@digital.justice.gov.uk"
+            reporting_period_from:
+              $ref: '#/components/schemas/dateISO8601'
+            reporting_period_to:
+              $ref: '#/components/schemas/dateISO8601'
+            year:
+              $ref: '#/components/schemas/reportingYear'
+            type:
+              $ref: '#/components/schemas/reportType'
         file:
           $ref: '#/components/schemas/file'
     ReportSupportingDocument:
@@ -708,6 +709,22 @@ components:
     submissionId:
       type: integer
       example: 12345
+    dateISO8601:
+      type: string
+      example: "2019-12-31"
+    reportingYear:
+      type: integer
+      minimum: 2015
+      maximum: 2150
+      example: 2019
+    reportType:
+      type: string
+      enum:
+        - "PF"
+        - "HW"
+        - "NDR"
+        - "COMBINED"
+      example: "PF"
     file:
       type: object
       required:
