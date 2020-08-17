@@ -4,10 +4,10 @@ version: 2.1
 parameters:
   run_pull_request:
     type: boolean
-    default: true
+    default: false
   run_commit_to_master:
     type: boolean
-    default: true
+    default: false
   run_verify_pact:
     type: boolean
     default: true
@@ -223,7 +223,7 @@ jobs:
             else
               echo "Integration tests not chosen to run"
             fi
-          working_directory: ~/project/lambda_functions/v1/integration_tests
+          working_directory: ~/integration_tests/v2
       - run:
           name: install requirements for all lambda layers
           command: |
@@ -361,6 +361,7 @@ jobs:
       GIT_COMMIT_CONSUMER: << pipeline.parameters.consumerversion >>
     steps:
       - checkout
+      - setup_remote_docker
       - run:
           name: setup environment
           command: ./.circleci/setup.sh
@@ -372,63 +373,70 @@ jobs:
           command: |
             cd ./mock_integration_rest_api
             ./getopenapidoc
+#      - run:
+#          name: install requirements mock rest api
+#          command: |
+#            cd ./mock_integration_rest_api
+#            pip3 install -r requirements.txt
+#      - run:
+#          name: spin up mock rest api
+#          command: |
+#            export PYTHONPATH="${PYTHONPATH}:/home/circleci/project"
+#            cd ./mock_integration_rest_api
+#            python3 app.py
+#          background: true
+#      - run:
+#          name: check mock rest api started
+#          command: |
+#            sleep 3
+#            if [ `netstat -tulpn | grep 4343 | wc -l` -gt 0 ]
+#            then
+#            echo "Digideps Rest API Service Started Correctly"
+#            else
+#            echo "Digideps Rest API Service Not Started"
+#            fi
+#      - run:
+#          name: install requirements mock sirius backend
+#          command: |
+#            cd ./mock_sirius_backend
+#            pip3 install -r ./requirements.txt
+#      - run:
+#          name: spin up mock sirius backend
+#          command: |
+#            export PYTHONPATH="${PYTHONPATH}:/home/circleci/project"
+#            cd ./mock_sirius_backend
+#            python3 app.py
+#          background: true
+#      - run:
+#          name: check mock sirius backend started
+#          command: |
+#            sleep 3
+#            if [ `netstat -tulpn | grep 5001 | wc -l` -gt 0 ]
+#            then
+#            echo "Sirius Backend Service Started Correctly"
+#            else
+#            echo "Sirius Backend Service Not Started"
+#            fi
+#      - digideps-data/pact_install
       - run:
-          name: install requirements mock rest api
-          command: |
-            cd ./mock_integration_rest_api
-            pip3 install -r requirements.txt
+          name: copy in lambda functions
+          command: cp -R lambda_functions mock_integration_rest_api/lambda_functions
+          working_directory: ~/project
       - run:
-          name: spin up mock rest api
-          command: |
-            export PYTHONPATH="${PYTHONPATH}:/home/circleci/project"
-            cd ./mock_integration_rest_api
-            python3 app.py
-          background: true
-      - run:
-          name: check mock rest api started
-          command: |
-            sleep 3
-            if [ `netstat -tulpn | grep 4343 | wc -l` -gt 0 ]
-            then
-            echo "Digideps Rest API Service Started Correctly"
-            else
-            echo "Digideps Rest API Service Not Started"
-            fi
-      - run:
-          name: install requirements mock sirius backend
-          command: |
-            cd ./mock_sirius_backend
-            pip3 install -r ./requirements.txt
-      - run:
-          name: spin up mock sirius backend
-          command: |
-            export PYTHONPATH="${PYTHONPATH}:/home/circleci/project"
-            cd ./mock_sirius_backend
-            python3 app.py
-          background: true
-      - run:
-          name: check mock sirius backend started
-          command: |
-            sleep 3
-            if [ `netstat -tulpn | grep 5001 | wc -l` -gt 0 ]
-            then
-            echo "Sirius Backend Service Started Correctly"
-            else
-            echo "Sirius Backend Service Not Started"
-            fi
-      - digideps-data/pact_install
+          name: bring up the stack!
+          command: docker-compose -f docker-compose.ci.yml up -d
+          working_directory: ~/project
       - run:
           name: verify pact
           command: |
             echo ${API_VERSION}
-            python check_pact_deployable.py \
-            --provider_base_url="http://localhost:4343" \
+            docker-compose exec pact-verifier python3 check_pact_deployable.py \
+            --provider_base_url="http://mock-aws-rest-api:4343" \
             --pact_broker_url="${PACT_BROKER_BASE_URL}" \
             --broker_user_name="admin" \
             --broker_secret_name="pactbroker_admin" \
             --consumer_pacticipant="${PACT_CONSUMER}" \
             --provider_pacticipant="${PACT_PROVIDER}" \
             --api_version="${API_VERSION}" \
-            --git_commit_consumer="${GIT_COMMIT_CONSUMER}" \
-            --git_commit_provider="${GIT_COMMIT_PROVIDER}" || echo "Failed but because no V2 yet"
-          working_directory: ~/project/pact_provider
+            --git_commit_provider="${GIT_COMMIT_PROVIDER}"
+          working_directory: ~/project

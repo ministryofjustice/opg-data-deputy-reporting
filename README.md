@@ -103,7 +103,7 @@ of the `docker-compose up -d` command and you can push in a contract manually fr
 by using the below command (example json included in this repo):
 
 ```
-curl -i -X PUT -d '@./mock_integration_rest_api/example_pact_contract.json' \
+curl -i -X PUT -d '@./docs/pact/example/digideps-pact-v2.json' \
 -H 'Content-Type: application/json' \
 http://localhost:9292/pacts/provider/OPG%20Data/consumer/Complete%20the%20deputy%20report/version/x12345
 ```
@@ -115,7 +115,7 @@ the verification command is best used with tags:
 
 ```
 curl -i -X PUT -H 'Content-Type: application/json' \
-http://localhost:9292/pacticipants/Complete%20the%20deputy%20report/versions/x12345/tags/v1
+http://localhost:9292/pacticipants/Complete%20the%20deputy%20report/versions/x12345/tags/v2
 ```
 
 You can check it has worked here:
@@ -129,10 +129,26 @@ You can verify the pact as follows (assuming your path to pact-provider-verifier
 --custom-provider-header 'Authorization: asdf1234567890' \
 --pact-broker-base-url="http://localhost:9292" \
 --provider="OPG Data" \
---consumer-version-tag=v1 \
---provider-version-tag=v1 \
+--consumer-version-tag=v2 \
+--provider-version-tag=v2 \
 --publish-verification-results \
---provider-app-version=1.2.3
+--provider-app-version=z12345
+```
+
+If you wish to run as it would run in CI (which requires uses our check_pact_deployable script) and
+runs from a container on the same network:
+
+```
+docker-compose exec pact-verifier python3 ../check_pact_deployable.py \
+--provider_base_url="http://mock-aws-rest-api:4343" \
+--pact_broker_url="http://broker-app:9292" \
+--broker_user_name="admin" \
+--broker_secret_name="local" \
+--consumer_pacticipant="Complete the deputy report" \
+--provider_pacticipant="OPG Data" \
+--api_version="v2" \
+--git_commit_consumer="" \
+--git_commit_provider="z12345"
 ```
 
 Further examples of posting adhoc payloads to the endpoint via curl can be seen below.
@@ -144,7 +160,7 @@ Post an example report to the endpoint
 curl -X POST -d '@./mock_integration_rest_api/example_report.json' \
 -H 'Authorization: asdf1234567890' \
 -H 'Content-Type: application/json' \
-http://localhost:4343/v1/clients/1234567T/reports
+http://localhost:4343/v2/clients/1234567T/reports
 ```
 
 Post to an example supporting document to the endpoint

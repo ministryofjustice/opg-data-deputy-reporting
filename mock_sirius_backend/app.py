@@ -37,6 +37,7 @@ def provider_states():
     mapping = {
         "a submitted report": setup_report,
         "submitted supporting docs": setup_supporting_docs,
+        "a submitted checklist pdf": setup_checklist,
     }
     mapping[request.json["state"]]()
     return jsonify({"result": request.json["state"]})
@@ -57,10 +58,23 @@ def setup_report():
         },
         "uuid": "33ea0382-cfc9-4776-9036-667eeb68fa4b",
     }
-    print(fake_db)
 
 
 def setup_supporting_docs():
+    fake_db["33ea0382-cfc9-4776-9036-667eeb68fa4b"] = {
+        "type": "Report - General",
+        "filename": "101856f51959a_supportingDoc.pdf",
+        "mimeType": "application/pdf",
+        "metadata": {
+            "submission_id": 12345,
+            "report_id": "887deae4-ed28-4c4e-8986-f7616e1b7d36",
+        },
+        "parentUuid": "887deae4-ed28-4c4e-8986-f7616e1b7d36",
+        "uuid": "33ea0382-cfc9-4776-9036-667eeb68fa4b",
+    }
+
+
+def setup_checklist():
     fake_db["33ea0382-cfc9-4776-9036-667eeb68fa4b"] = {
         "type": "Report - General",
         "filename": "101856f51959a_supportingDoc.pdf",

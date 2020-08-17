@@ -4,5 +4,5 @@
 #openapi="deputy-reporting-openapi.yml"
 #cp ../"${openapi_latest}" ./"${openapi}"
 #echo "copied in.. ${openapi_latest} from ${openapi}"
-cp ../lambda_functions/v1/openapi/deputy-reporting-openapi.yml .
-echo "copied in v1"
+cp ../lambda_functions/v2/openapi/deputy-reporting-openapi.yml .
+echo "copied in v2"

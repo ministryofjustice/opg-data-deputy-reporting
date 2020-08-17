@@ -1,0 +1,16 @@
+# our base image
+FROM python:3.6-slim
+
+WORKDIR /var/www/
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY lambda_functions/ lambda_functions/
+CMD mkdir mock_integration_rest_api && chmod 755 mock_integration_rest_api
+WORKDIR /var/www/mock_integration_rest_api/
+COPY app.py .
+COPY deputy-reporting-openapi.yml .
+WORKDIR /var/www/
+ENV FLASK_APP=app.py
+ENV FLASK_ENV=development
+ENV PYTHONPATH=/var/www
+CMD ["python", "mock_integration_rest_api/app.py"]
