@@ -5,13 +5,12 @@
   "provider": {
     "name": "OPG Data"
   },
-  "interactions": [
-    {
-      "_id": "9e10b3b49a49136a8191ff461795c9dd7f0645ea",
+  "interactions": [{
+      "_id": "18897f0abd780a0b55018b4c396dcb229e6f563b",
       "description": "A submitted report",
       "request": {
         "method": "POST",
-        "path": "/v1/clients/1234567T/reports",
+        "path": "/v2/clients/1234567T/reports",
         "headers": {
           "Content-Type": "application/json"
         },
@@ -30,7 +29,7 @@
               "file": {
                 "name": "test.pdf",
                 "mimetype": "application/pdf",
-                "source": "ZmFrZV9jb250ZW50cw=="
+                "s3_reference": "dd_doc_98765_01234567890123"
               }
             }
           }
@@ -57,10 +56,6 @@
           },
           "$.body.report.data.attributes.submission_id": {
             "match": "type"
-          },
-          "$.body.report.data.file.source": {
-            "match": "regex",
-            "regex": ".+"
           }
         }
       },
@@ -81,13 +76,12 @@
           }
         }
       }
-    },
-    {
-      "_id": "79b89042cb699a3ab4de84e7e7741db3557963c0",
+    }, {
+      "_id": "259024da215b6c3c89b6ce706989b55defb61f25",
       "description": "A submitted supporting document",
       "request": {
         "method": "POST",
-        "path": "/v1/clients/1234567T/reports/33ea0382-cfc9-4776-9036-667eeb68fa4b/supportingdocuments",
+        "path": "/v2/clients/1234567T/reports/33ea0382-cfc9-4776-9036-667eeb68fa4b/supportingdocuments",
         "headers": {
           "Content-Type": "application/json"
         },
@@ -101,7 +95,7 @@
               "file": {
                 "name": "test.pdf",
                 "mimetype": "application/pdf",
-                "source": "ZmFrZV9jb250ZW50cw=="
+                "s3_reference": "dd_doc_98765_01234567890123"
               }
             }
           }
@@ -109,10 +103,6 @@
         "matchingRules": {
           "$.body.supporting_document.data.attributes.submission_id": {
             "match": "type"
-          },
-          "$.body.supporting_document.data.file.source": {
-            "match": "regex",
-            "regex": ".+"
           }
         }
       },
@@ -133,12 +123,58 @@
           }
         }
       }
-    }
-  ],
+    }, {
+      "_id": "b7b3fd28c57c28af59e53b58fd9b5544f1343a5b",
+      "description": "A submitted checklist pdf",
+      "request": {
+        "method": "POST",
+        "path": "/v2/clients/1234567T/reports/33ea0382-cfc9-4776-9036-667eeb68fa4b/checklists",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "checklist": {
+            "data": {
+              "type": "checklists",
+              "attributes": {
+              },
+              "file": {
+                "name": "test.pdf",
+                "mimetype": "application/pdf",
+                "source": "ZmFrZV9jb250ZW50cw=="
+              }
+            }
+          }
+        },
+        "matchingRules": {
+          "$.body.checklist.data.file.source": {
+            "match": "regex",
+            "regex": ".+"
+          }
+        }
+      },
+      "response": {
+        "status": 201,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "data": {
+            "id": "9c0cb55e-718d-4ffb-9599-f3164e132ab5"
+          }
+        },
+        "matchingRules": {
+          "$.body.data.id": {
+            "match": "regex",
+            "regex": "^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$"
+          }
+        }
+      }
+    }],
   "metadata": {
     "pactSpecification": {
       "version": "2.0.0"
     }
   },
-  "createdAt": "2020-06-11T10:37:38+00:00"
+  "createdAt": "2020-08-12T16:35:08+00:00"
 }

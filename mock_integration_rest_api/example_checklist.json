@@ -1,0 +1,14 @@
+{
+  "checklist": {
+    "data": {
+      "type": "checklists",
+      "attributes": {
+      },
+      "file": {
+        "name": "test.pdf",
+        "mimetype": "application/pdf",
+        "source": "ZmFrZV9jb250ZW50cw=="
+      }
+    }
+  }
+}

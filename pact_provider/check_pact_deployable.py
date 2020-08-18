@@ -156,10 +156,6 @@ class PactDeploymentCheck:
         broker_password = self.get_secret(self.broker_secret_name)
         fallback_tag = False
 
-        api_version = os.getenv("API_VERSION")
-        if api_version is None or len(api_version) == 0:
-            api_version = "v1"
-
         failed_verify, message = self.run_pact_verifier(
             provider_base_url=self.provider_base_url,
             custom_header=self.provider_custom_header,
@@ -167,7 +163,7 @@ class PactDeploymentCheck:
             broker_user_name=self.broker_user_name,
             broker_password=broker_password,
             provider=self.provider_pacticipant,
-            consumer_api_version=f"{api_version}_production",
+            consumer_api_version=f"{self.api_version}_production",
             git_commit_provider=self.git_commit_provider,
         )
 
@@ -180,9 +176,9 @@ class PactDeploymentCheck:
                 broker_user_name=self.broker_user_name,
                 broker_password=broker_password,
                 provider=self.provider_pacticipant,
-                consumer_api_version=api_version,
+                consumer_api_version=self.api_version,
                 git_commit_provider=self.git_commit_provider,
-                provider_api_version=api_version,
+                provider_api_version=self.api_version,
             )
 
         if failed_verify:
@@ -195,7 +191,7 @@ class PactDeploymentCheck:
             broker_password=broker_password,
             consumer_pacticipant=self.consumer_pacticipant,
             provider_pacticipant=self.provider_pacticipant,
-            latest=f"{api_version}_production",
+            latest=f"{self.api_version}_production",
             git_commit_provider=self.git_commit_provider,
         )
 
@@ -211,12 +207,12 @@ class PactDeploymentCheck:
                 broker_password=broker_password,
                 consumer_pacticipant=self.consumer_pacticipant,
                 provider_pacticipant=self.provider_pacticipant,
-                latest=f"{api_version}",
+                latest=f"{self.api_version}",
                 git_commit_provider=self.git_commit_provider,
             )
 
         if (
-            f"No version with tag {api_version} exists for {self.consumer_pacticipant}"
+            f"No version with tag {self.api_version} exists for {self.consumer_pacticipant}"
             in last_line
         ):
             message, fail_build, pact_msg = (
@@ -513,6 +509,7 @@ def main():
     )
 
     args = parser.parse_args()
+
     consumer_pacticipant = urllib.parse.unquote(args.consumer_pacticipant)
     provider_pacticipant = urllib.parse.unquote(args.provider_pacticipant)
     pact_check = PactDeploymentCheck(
@@ -527,6 +524,7 @@ def main():
         args.git_commit_consumer,
         args.git_commit_provider,
     )
+
     # Whether the consumer git commit is present, decides on type of check
     if args.git_commit_consumer is not None and len(args.git_commit_consumer) > 0:
         message, fail_build, pact_msg = pact_check.consumer_can_i_deploy()

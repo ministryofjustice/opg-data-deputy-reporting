@@ -223,7 +223,7 @@ jobs:
             else
               echo "Integration tests not chosen to run"
             fi
-          working_directory: ~/project/lambda_functions/v1/integration_tests
+          working_directory: ~/integration_tests/v2
       - run:
           name: install requirements for all lambda layers
           command: |
@@ -362,9 +362,6 @@ jobs:
     steps:
       - checkout
       - run:
-          name: setup environment
-          command: ./.circleci/setup.sh
-      - run:
           name: Set BASH_ENV
           command: ~/project/.circleci/set_env.sh >> $BASH_ENV
       - run:
@@ -430,5 +427,5 @@ jobs:
             --provider_pacticipant="${PACT_PROVIDER}" \
             --api_version="${API_VERSION}" \
             --git_commit_consumer="${GIT_COMMIT_CONSUMER}" \
-            --git_commit_provider="${GIT_COMMIT_PROVIDER}" || echo "Failed but because no V2 yet"
+            --git_commit_provider="${GIT_COMMIT_PROVIDER}"
           working_directory: ~/project/pact_provider

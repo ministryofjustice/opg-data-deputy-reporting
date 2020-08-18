@@ -9,7 +9,7 @@ info:
 
 servers:
   - url: /v2
-    description: localmock
+    description: deputy_reporting
 tags:
   - name: deputy-reporting
     description: API operations relating to the deputy-reporting integration
@@ -91,7 +91,7 @@ paths:
     get:
       summary: Sirius healthcheck
       description: Client report
-      operationId: app.healthcheck
+      operationId: app.reporting_healthcheck
       tags:
         - "deputy-reporting"
       security:

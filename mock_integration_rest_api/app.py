@@ -5,14 +5,12 @@ import os
 import json
 from flask import Response
 from connexion.exceptions import OAuthProblem
-from moto import mock_secretsmanager
+from moto import mock_secretsmanager, mock_s3, mock_sts
 
-from lambda_functions.v1.functions.reports.app.reports import (
-    lambda_handler as rep_lambda_handler,
-)
-
-from lambda_functions.v1.functions.supporting_docs.app.supporting_docs import (
-    lambda_handler as sup_lambda_handler,
+from lambda_functions.v2.functions.documents.app.api import (
+    reports,
+    supporting_docs,
+    checklists,
 )
 
 # Env variable set here for consistency across CI and local env.
@@ -29,12 +27,10 @@ os.environ["AWS_ACCESS_KEY_ID"] = "testing"
 os.environ["AWS_SECRET_ACCESS_KEY"] = "testing"
 os.environ["AWS_SECURITY_TOKEN"] = "testing"
 os.environ["AWS_SESSION_TOKEN"] = "testing"
-os.environ["API_VERSION"] = "v1"
-
-
-def healthcheck():
-    return "healthy"
-
+os.environ["API_VERSION"] = "v2"
+os.environ["SIRIUS_API_VERSION"] = "v1"
+os.environ["DIGIDEPS_S3_BUCKET"] = "local_bucket"
+os.environ["DIGIDEPS_S3_ROLE_ARN"] = "arn:aws:iam::123456789012:role/s3-read-role"
 
 TOKEN_DB = {"asdf1234567890": {"uid": 100}}
 
@@ -48,76 +44,79 @@ def apikey_auth(token, required_scopes):
     return info
 
 
+def reporting_healthcheck(body):
+    formatted_response = Response("OK", status=200, mimetype="application/json")
+    return formatted_response
+
+
+@mock_sts
+@mock_s3
 @mock_secretsmanager
 def addReportDocument(caseref, body):
-    conn = boto3.client("secretsmanager", region_name="eu-west-1")
-    conn.create_secret(Name="local/jwt-key", SecretString="mock_jwt_token")
-    event = {
-        "headers": "fake headers",
-        "httpMethod": "POST",
-        "pathParameters": {"caseref": caseref},
-        "body": json.dumps(body),
-    }
+    conn_secrets = boto3.client("secretsmanager", region_name="eu-west-1")
+    conn_secrets.create_secret(Name="local/jwt-key", SecretString="mock_jwt_token")
 
-    response = rep_lambda_handler(event, "fakecontext")
+    conn_s3 = boto3.resource("s3", region_name="eu-west-1")
+    conn_s3.create_bucket(Bucket="local_bucket")
+    s3 = boto3.client("s3", region_name="eu-east-1")
+    s3.put_object(
+        Bucket="local_bucket",
+        Key="dd_doc_98765_01234567890123",
+        Body="ZmFrZV9jb250ZW50cw==",
+    )
 
-    print(response)
-    print(response["body"])
+    api_response, api_status_code = reports.endpoint_handler(body, caseref)
+
     formatted_response = Response(
-        response["body"], status=201, mimetype="application/json"
+        json.dumps(api_response), status=api_status_code, mimetype="application/json"
     )
 
     return formatted_response
 
 
+@mock_sts
+@mock_s3
 @mock_secretsmanager
 def addReportSupportingDocument(caseref, id, body):
     conn = boto3.client("secretsmanager", region_name="eu-west-1")
     conn.create_secret(Name="local/jwt-key", SecretString="mock_jwt_token")
-    event = {
-        "headers": "fake headers",
-        "httpMethod": "POST",
-        "pathParameters": {"caseref": caseref, "id": id},
-        "body": json.dumps(body),
-    }
 
-    response = sup_lambda_handler(event, "fakecontext")
+    conn_s3 = boto3.resource("s3", region_name="eu-west-1")
+    conn_s3.create_bucket(Bucket="local_bucket")
+    s3 = boto3.client("s3", region_name="eu-east-1")
+    s3.put_object(
+        Bucket="local_bucket",
+        Key="dd_doc_98765_01234567890123",
+        Body="ZmFrZV9jb250ZW50cw==",
+    )
+
+    api_response, api_status_code = supporting_docs.endpoint_handler(body, caseref, id)
 
     formatted_response = Response(
-        response["body"], status=201, mimetype="application/json"
+        json.dumps(api_response), status=api_status_code, mimetype="application/json"
     )
 
     return formatted_response
 
 
-def addReportChecklist():
-    return "Coming soon"
+@mock_secretsmanager
+def addReportChecklist(body, caseref, id):
+    conn = boto3.client("secretsmanager", region_name="eu-west-1")
+    conn.create_secret(Name="local/jwt-key", SecretString="mock_jwt_token")
+
+    api_response, api_status_code = checklists.endpoint_handler(
+        body, caseref, id, None, "POST"
+    )
+
+    formatted_response = Response(
+        json.dumps(api_response), status=api_status_code, mimetype="application/json"
+    )
+
+    return formatted_response
 
 
 def updateReportChecklist():
-    return "Coming soon"
-
-
-# Flask endpoints (no need for them to return anything real yet
-# as pact wont test against them with current paths
-def healthcheckFlask():
-    return "healthy"
-
-
-def addReportDocumentFlask():
-    return "Coming soon"
-
-
-def addReportSupportingDocumentFlask():
-    return "Coming soon"
-
-
-def addReportChecklistFlask():
-    return "Coming soon"
-
-
-def updateReportChecklistFlask():
-    return "Coming soon"
+    return "Not needed for PACT checks currently"
 
 
 sirius_server = connexion.App(__name__)
