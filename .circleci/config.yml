@@ -352,7 +352,7 @@ jobs:
                   --git_commit="${GIT_COMMIT_PROVIDER}"
                 working_directory: ~/project/pact_provider
   pact_verification:
-    executor: digideps-data/python_with_tfvars
+    executor: amazon/aws-cli:latest
     resource_class: small
     working_directory: ~/project
     parameters:
@@ -414,6 +414,10 @@ jobs:
             echo "Sirius Backend Service Not Started"
             fi
       - digideps-data/pact_install
+      - run:
+          name: login to code artifact for pip
+          command: ./login_code_artifact.sh -a 288342028542 -t pip
+          working_directory: ~/project/docs/ci_scripts
       - run:
           name: verify pact
           command: |
