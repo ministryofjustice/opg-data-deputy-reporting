@@ -33,7 +33,7 @@ module "deploy_v1" {
   source                = "./modules/stage"
   environment           = local.environment
   aws_subnet_ids        = data.aws_subnet_ids.private.ids
-  target_environment    = local.account.target_environment
+  target_environment    = local.target_environment
   vpc_id                = local.account.vpc_id
   tags                  = local.default_tags
   api_name              = local.api_name
@@ -54,7 +54,7 @@ module "deploy_v2" {
   source                = "./modules/stage"
   environment           = local.environment
   aws_subnet_ids        = data.aws_subnet_ids.private.ids
-  target_environment    = local.account.target_environment
+  target_environment    = local.target_environment
   vpc_id                = local.account.vpc_id
   tags                  = local.default_tags
   api_name              = local.api_name

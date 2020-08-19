@@ -151,7 +151,7 @@ orbs:
                 do
                   pip3 install -r ./lambda_functions/"${i}"/requirements/dev-requirements.txt
                 done
-      cancel_redundant_builds:
+      login_codeartifact:
         steps:
           - run:
               name: install aws cli
@@ -161,6 +161,8 @@ orbs:
               name: login to code artifact for pip
               command: ./login_code_artifact.sh -a 288342028542 -t pip
               working_directory: ~/project/docs/ci_scripts
+      cancel_redundant_builds:
+        steps:
           - run:
               name: install cancel build requirements
               command: pip3 install -r requirements.txt
@@ -182,8 +184,8 @@ jobs:
     resource_class: small
     steps:
       - checkout
+      - digideps-data/login_codeartifact
       - digideps-data/cancel_redundant_builds
-      - setup_remote_docker
       - digideps-data/python_requirements
       - run:
           name: list all pacakges
@@ -202,14 +204,6 @@ jobs:
           name: run flake8 - python PEP8 linter, complexity checker
           command: |
             flake8 lambda_functions
-      - run:
-          name: run pact tests
-          command: |
-            docker-compose up -d
-            sleep 3
-            docker-compose run python_tests python -m pytest
-            docker-compose down
-          working_directory: ~/project/pact_provider/test
       - run:
           name: run unit tests (with pytest)
           command: python -m pytest lambda_functions
@@ -338,7 +332,11 @@ jobs:
       - when:
           condition: << parameters.pact_tag_production >>
           steps:
-            - digideps-data/python_requirements
+            - digideps-data/login_codeartifact
+            - run:
+                name: install ci requirements
+                command: pip3 install -r requirements.txt
+                working_directory: ~/project/pact
             - run:
                 name: tag pact commit with v<x>_production
                 command: |
@@ -350,9 +348,9 @@ jobs:
                   --pacticipant="${PACT_PROVIDER}" \
                   --tag="${API_VERSION}_production" \
                   --git_commit="${GIT_COMMIT_PROVIDER}"
-                working_directory: ~/project/pact_provider
+                working_directory: ~/project/pact
   pact_verification:
-    executor: amazon/aws-cli:latest
+    executor: digideps-data/python_with_tfvars
     resource_class: small
     working_directory: ~/project
     parameters:
@@ -414,10 +412,11 @@ jobs:
             echo "Sirius Backend Service Not Started"
             fi
       - digideps-data/pact_install
+      - digideps-data/login_codeartifact
       - run:
-          name: login to code artifact for pip
-          command: ./login_code_artifact.sh -a 288342028542 -t pip
-          working_directory: ~/project/docs/ci_scripts
+          name: install ci requirements
+          command: pip3 install -r requirements.txt
+          working_directory: ~/project/pact
       - run:
           name: verify pact
           command: |
@@ -432,4 +431,4 @@ jobs:
             --api_version="${API_VERSION}" \
             --git_commit_consumer="${GIT_COMMIT_CONSUMER}" \
             --git_commit_provider="${GIT_COMMIT_PROVIDER}"
-          working_directory: ~/project/pact_provider
+          working_directory: ~/project/pact

@@ -25,3 +25,5 @@ variable "openapi_version" {}
 variable "rest_api" {}
 
 variable "account" {}
+
+variable "target_environment" {}
