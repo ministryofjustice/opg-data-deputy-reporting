@@ -22,7 +22,7 @@ aws_dev_v2_config = {
     "checklist_id": "123",
     "s3_object_key": "dd_doc_62_15916290546271",
     "s3_test_file": "integration_test_1mb",
-    "s3_bucket_name": "pa-uploads-beth",
+    "s3_bucket_name": "pa-uploads-development",
     "aws_region": "eu-west-1",
 }
 
