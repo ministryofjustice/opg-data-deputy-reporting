@@ -103,7 +103,7 @@ of the `docker-compose up -d` command and you can push in a contract manually fr
 by using the below command (example json included in this repo):
 
 ```
-curl -i -X PUT -d '@./docs/pact/example/digideps-pact-v2.json' \
+curl -i -X PUT -d '@./pact/example/digideps-pact-v2.json' \
 -H 'Content-Type: application/json' \
 http://localhost:9292/pacts/provider/OPG%20Data/consumer/Complete%20the%20deputy%20report/version/x12345
 ```

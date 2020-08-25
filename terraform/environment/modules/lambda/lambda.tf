@@ -23,7 +23,7 @@ resource "aws_lambda_function" "lambda_function" {
   }
   environment {
     variables = {
-      SIRIUS_BASE_URL      = "http://api.${var.account.target_environment}.ecs"
+      SIRIUS_BASE_URL      = "http://api.${var.target_environment}.ecs"
       SIRIUS_API_VERSION   = "v1"
       ENVIRONMENT          = var.account.account_mapping
       LOGGER_LEVEL         = var.account.logger_level
@@ -51,7 +51,7 @@ resource "aws_lambda_permission" "lambda_permission" {
 resource "aws_lambda_layer_version" "lambda_layer" {
   filename         = data.archive_file.lambda_layer_archive.output_path
   source_code_hash = data.archive_file.lambda_layer_archive.output_base64sha256
-  layer_name       = "requirement_${var.account.target_environment}"
+  layer_name       = "requirement_${var.target_environment}"
 
   compatible_runtimes = ["python3.7"]
 

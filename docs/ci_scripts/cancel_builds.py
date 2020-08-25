@@ -1,3 +1,3 @@
-from opg_integrations_shared.cancel_redundant_builds import main
+from opg_circleci.cancel_redundant_builds import main
 
 main()

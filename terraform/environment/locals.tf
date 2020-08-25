@@ -26,6 +26,7 @@ locals {
     account_id  = local.account.account_id
   }
 
+  target_environment = local.branch_build_flag ? "dev" : local.account.target_environment
   //Modify here for new version
   //latest_openapi_version = "v1"
   latest_openapi_version = "v2"
