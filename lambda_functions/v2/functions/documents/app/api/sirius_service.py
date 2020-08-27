@@ -111,7 +111,10 @@ def new_post_to_sirius(url, data, headers, method):
         return handle_sirius_error(
             error_message="Unable to send document to Sirius", error_details=e
         )
-
+    print("LITERAL SIRIUS RESPONSE")
+    print(r.json())
+    print(r.headers)
+    print(r.text)
     return r.status_code, r.json()
 
 
@@ -136,7 +139,7 @@ def new_submit_document_to_sirius(
         )
     except Exception as e:
         return handle_sirius_error(
-            error_message="Unable to build Siruis URL", error_details=e
+            error_message="Unable to build Sirius URL", error_details=e
         )
 
     try:
@@ -191,8 +194,14 @@ def handle_sirius_error(error_code=None, error_message=None, error_details=None)
     )
 
     try:
-        sirius_error_details = error_details["detail"]
-        error_details = sirius_error_details
+        if "validation_errors" in error_details:
+            sirius_error_details = (
+                f'{error_details["detail"]} - {str(error_details["validation_errors"])}'
+            )
+            error_details = sirius_error_details
+        else:
+            sirius_error_details = error_details["detail"]
+            error_details = sirius_error_details
     except (KeyError, TypeError):
         error_details = str(error_details) if len(str(error_details)) > 0 else "None"
 

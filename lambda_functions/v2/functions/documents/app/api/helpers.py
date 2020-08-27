@@ -103,9 +103,8 @@ def error_message(code, message):
 
 
 def handle_file_source(file):
-
+    s3_error = None
     if "source" not in file and "s3_reference" in file:
-
         try:
             bucket = os.environ["DIGIDEPS_S3_BUCKET"]
             s3_client = get_digideps_s3_client()
@@ -113,14 +112,14 @@ def handle_file_source(file):
             logger.error(f"Error handing file: {e}")
             return None
 
-        source = get_encoded_s3_object(
+        source, err = get_encoded_s3_object(
             s3_client=s3_client, bucket=bucket, key=file["s3_reference"],
         )
     elif "source" in file:
         source = file["source"]
     else:
         source = None
-    return source
+    return source, s3_error
 
 
 def get_digideps_s3_client():
@@ -149,7 +148,7 @@ def get_encoded_s3_object(s3_client, bucket, key):
         s3_client.download_file(bucket, key, "/tmp/{}".format(key))
     except Exception as e:
         logger.error(f"Error downloading file from S3: {e}")
-        return None
+        return None, "ACCESS_ERROR"
 
     try:
         image = open("/tmp/{}".format(key), "rb")
@@ -159,5 +158,6 @@ def get_encoded_s3_object(s3_client, bucket, key):
     except Exception as e:
         image_64_encode = None
         logger.error(f"Error reading file from S3: {e}")
+        return None, "READ_ERROR"
 
-    return image_64_encode
+    return image_64_encode, None
