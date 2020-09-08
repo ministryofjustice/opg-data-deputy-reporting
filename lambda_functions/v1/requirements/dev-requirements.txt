@@ -5,8 +5,8 @@ requests
 black
 yamllint
 pyjwt
-boto3
-moto
+boto3==1.14.56
+moto==1.3.14
 pytest-cases==1.17.0
 pytest-ordering
 flask
