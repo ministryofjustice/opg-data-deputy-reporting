@@ -10,6 +10,7 @@ module "lamdba_healthcheck_v1" {
   rest_api               = aws_api_gateway_rest_api.deputy_reporting
   account                = local.account
   target_environment     = local.target_environment
+  memory                 = 128
 }
 
 module "lambda_reports_v1" {
@@ -24,6 +25,7 @@ module "lambda_reports_v1" {
   rest_api               = aws_api_gateway_rest_api.deputy_reporting
   account                = local.account
   target_environment     = local.target_environment
+  memory                 = 128
 }
 
 module "lambda_supporting_docs_v1" {
@@ -38,6 +40,7 @@ module "lambda_supporting_docs_v1" {
   rest_api               = aws_api_gateway_rest_api.deputy_reporting
   account                = local.account
   target_environment     = local.target_environment
+  memory                 = 128
 }
 
 module "lambda_checklists_v1" {
@@ -52,6 +55,7 @@ module "lambda_checklists_v1" {
   rest_api               = aws_api_gateway_rest_api.deputy_reporting
   account                = local.account
   target_environment     = local.target_environment
+  memory                 = 128
 }
 
 //Modify here for new version
@@ -67,4 +71,5 @@ module "lamdba_flask_v2" {
   rest_api               = aws_api_gateway_rest_api.deputy_reporting
   account                = local.account
   target_environment     = local.target_environment
+  memory                 = 1024
 }

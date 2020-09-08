@@ -27,3 +27,5 @@ variable "rest_api" {}
 variable "account" {}
 
 variable "target_environment" {}
+
+variable "memory" {}
