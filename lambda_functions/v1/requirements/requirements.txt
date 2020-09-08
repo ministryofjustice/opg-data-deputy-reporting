@@ -1,7 +1,7 @@
 #Update this date to trigger update of layers: 200629
 requests
 pyjwt
-boto3
+boto3==1.14.56
 requests-toolbelt
 flask
 flask-lambda

@@ -13,8 +13,9 @@ resource "aws_lambda_function" "lambda_function" {
   function_name    = local.lambda
   role             = aws_iam_role.lambda_role.arn
   handler          = var.handler
+  memory_size      = var.memory
   runtime          = "python3.7"
-  timeout          = 10
+  timeout          = 30
   depends_on       = [aws_cloudwatch_log_group.lambda]
   layers           = [aws_lambda_layer_version.lambda_layer.arn]
   vpc_config {
