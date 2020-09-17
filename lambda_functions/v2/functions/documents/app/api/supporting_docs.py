@@ -54,7 +54,7 @@ def transform_payload_to_sirius_post_request(
     debug_payload = copy.deepcopy(payload)
     debug_payload["file"]["source"] = "REDACTED"
 
-    logger.debug(f"Sirius Payload: {debug_payload}")
+    logger.info(f"Sirius Payload: {debug_payload}")
 
     return json.dumps(payload)
 
