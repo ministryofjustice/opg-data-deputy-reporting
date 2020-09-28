@@ -3,7 +3,9 @@ import os
 from flask import Blueprint, abort, request, jsonify
 
 from . import reports, supporting_docs, checklists, healthcheck
-from .helpers import error_message
+from .helpers import custom_logger, error_message
+
+logger = custom_logger("resources")
 
 version = os.getenv("API_VERSION")
 api = Blueprint("api", __name__, url_prefix=f"/{version}")
@@ -29,7 +31,6 @@ def handle_reports(caseref):
 
     try:
         data = request.get_json()
-        print(f"data: {data}")
     except Exception as e:
         abort(400, e)
 
@@ -39,6 +40,8 @@ def handle_reports(caseref):
     response_data, response_status = reports.endpoint_handler(
         data=data, caseref=caseref
     )
+
+    logger.info(f"Path: {request.url}, Response: {response_status}")
 
     if response_status in [201, 200]:
         return jsonify(response_data), response_status
@@ -53,7 +56,6 @@ def handle_supporting_docs(caseref, id):
 
     try:
         data = request.get_json()
-        print(f"data: {data}")
     except Exception as e:
         abort(400, e)
 
@@ -63,6 +65,8 @@ def handle_supporting_docs(caseref, id):
     response_data, response_status = supporting_docs.endpoint_handler(
         data=data, caseref=caseref, id=id
     )
+
+    logger.info(f"Path: {request.url}, Response: {response_status}")
 
     if response_status in [201, 200]:
         return jsonify(response_data), response_status
@@ -75,7 +79,6 @@ def handle_supporting_docs(caseref, id):
 def handle_checklists(caseref, id, checklistId=None):
     try:
         data = request.get_json()
-        print(f"data: {data}")
     except Exception as e:
         abort(400, e)
 
@@ -89,6 +92,8 @@ def handle_checklists(caseref, id, checklistId=None):
         checklist_id=checklistId,
         method=request.method,
     )
+
+    logger.info(f"Path: {request.url}, Response: {response_status}")
 
     if response_status in [201, 200]:
         return jsonify(response_data), response_status
