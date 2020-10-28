@@ -102,11 +102,24 @@ workflows:
       - pact_verification:
           name: verify the latest pact
 orbs:
+  dockerhub_helper:
+    orbs:
+      docker: circleci/docker@1.4.0
+    commands:
+      dockerhub_login:
+        steps:
+          - docker/install-docker-credential-helper
+          - docker/check:
+              docker-password: DOCKER_ACCESS_TOKEN
+              docker-username: DOCKER_USER
   digideps-data:
     executors:
       python_with_tfvars:
         docker:
           - image: circleci/python:3
+            auth:
+              username: $DOCKER_USER
+              password: $DOCKER_ACCESS_TOKEN
         resource_class: small
         environment:
           TF_VERSION: 0.12.26
@@ -119,6 +132,9 @@ orbs:
       python:
         docker:
           - image: circleci/python:3
+            auth:
+              username: $DOCKER_USER
+              password: $DOCKER_ACCESS_TOKEN
     commands:
       terraform_install:
         steps:
