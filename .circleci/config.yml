@@ -22,32 +22,32 @@ workflows:
       - build_lambda:
           name: build and artifact
           filters: {branches:{ignore:[master]}}
-      - terraform_pre_checks:
-          name: terraform branch preflight checks
-          requires: [build and artifact]
-          filters: {branches:{ignore:[master]}}
-      - terraform_action:
-          name: plan branch environment
-          requires: [terraform branch preflight checks]
-          tf_command: plan
-          filters: {branches:{ignore:[master]}}
-      - terraform_action:
-          name: apply branch environment
-          requires: [plan branch environment]
-          tf_command: apply
-          applycheck: true
-          filters: {branches:{ignore:[master]}}
-      - cleanup:
-          name: approve destroy environment
-          type: approval
-          requires: [apply branch environment]
-          filters: {branches:{ignore:[master]}}
-      - terraform_action:
-          name: destroy branch environment
-          requires: [approve destroy environment]
-          tf_command: destroy
-          destroy_workspace: true
-          filters: {branches:{ignore:[master]}}
+#      - terraform_pre_checks:
+#          name: terraform branch preflight checks
+#          requires: [build and artifact]
+#          filters: {branches:{ignore:[master]}}
+#      - terraform_action:
+#          name: plan branch environment
+#          requires: [terraform branch preflight checks]
+#          tf_command: plan
+#          filters: {branches:{ignore:[master]}}
+#      - terraform_action:
+#          name: apply branch environment
+#          requires: [plan branch environment]
+#          tf_command: apply
+#          applycheck: true
+#          filters: {branches:{ignore:[master]}}
+#      - cleanup:
+#          name: approve destroy environment
+#          type: approval
+#          requires: [apply branch environment]
+#          filters: {branches:{ignore:[master]}}
+#      - terraform_action:
+#          name: destroy branch environment
+#          requires: [approve destroy environment]
+#          tf_command: destroy
+#          destroy_workspace: true
+#          filters: {branches:{ignore:[master]}}
   commit_to_master:
     when: << pipeline.parameters.run_commit_to_master >>
     jobs:
@@ -116,7 +116,7 @@ orbs:
     executors:
       python_with_tfvars:
         docker:
-          - image: circleci/python:3
+          - image: circleci/python:3.8
             auth:
               username: $DOCKER_USER
               password: $DOCKER_ACCESS_TOKEN

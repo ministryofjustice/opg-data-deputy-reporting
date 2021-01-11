@@ -1,0 +1,14 @@
+{
+	"body": {
+		"error": {
+			"code": "OPGDATA-API-INVALIDREQUEST",
+			"message": "400 Bad Request: Validation failed in Sirius - Payload failed validation - {'file -> source': {'isEmpty': \"Value is required and can't be empty\"}}",
+			"title": "Invalid Request"
+		}
+	},
+	"headers": {
+		"Content-Type": "application/json"
+	},
+	"isBase64Encoded": false,
+	"statusCode": 400
+}
