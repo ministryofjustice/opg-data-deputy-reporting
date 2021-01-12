@@ -135,6 +135,46 @@ You can verify the pact as follows (assuming your path to pact-provider-verifier
 --provider-app-version=z12345
 ```
 
+To test with our full `check_pact_deployable.py` script that has all the version control embedded in it:
+
+First you will want to pretend that `OPG Data` side has been tagged for production.
+
+```
+curl -i -X PUT -H 'Content-Type: application/json' http://localhost:9292/pacticipants/OPG%20Data/versions/z12345/tags/v2_production
+```
+
+You should do all of this in a virtual env (`virtualenv venv && source ./venv/bin/activate`)
+
+You can then login to code artifact to pull the pact package (and logout again):
+
+```
+aws-vault exec sirius-dev -- aws codeartifact login \
+--tool pip \
+--repository opg-pip-shared-code-dev \
+--domain opg-moj \
+--domain-owner 288342028542 \
+--region eu-west-1
+
+pip3 install -r /pact/requirements.txt
+
+pip config unset global.index-url
+```
+
+You can now run the script against your spun up environment:
+
+```
+aws-vault exec identity -- python3 check_pact_deployable.py \
+--provider_base_url="http://localhost:4343" \
+--pact_broker_url="http://localhost:9292" \
+--broker_user_name="admin" \
+--broker_secret_name="local" \
+--consumer_pacticipant="Complete%20the%20deputy%20report" \
+--provider_pacticipant="OPG%20Data" \
+--api_version="v2" \
+--git_commit_consumer="x12345" \
+--git_commit_provider="z12345"
+```
+
 Further examples of posting adhoc payloads to the endpoint via curl can be seen below.
 This may help in development of further integrations.
 

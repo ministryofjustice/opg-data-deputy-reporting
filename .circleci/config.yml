@@ -22,32 +22,32 @@ workflows:
       - build_lambda:
           name: build and artifact
           filters: {branches:{ignore:[master]}}
-#      - terraform_pre_checks:
-#          name: terraform branch preflight checks
-#          requires: [build and artifact]
-#          filters: {branches:{ignore:[master]}}
-#      - terraform_action:
-#          name: plan branch environment
-#          requires: [terraform branch preflight checks]
-#          tf_command: plan
-#          filters: {branches:{ignore:[master]}}
-#      - terraform_action:
-#          name: apply branch environment
-#          requires: [plan branch environment]
-#          tf_command: apply
-#          applycheck: true
-#          filters: {branches:{ignore:[master]}}
-#      - cleanup:
-#          name: approve destroy environment
-#          type: approval
-#          requires: [apply branch environment]
-#          filters: {branches:{ignore:[master]}}
-#      - terraform_action:
-#          name: destroy branch environment
-#          requires: [approve destroy environment]
-#          tf_command: destroy
-#          destroy_workspace: true
-#          filters: {branches:{ignore:[master]}}
+      - terraform_pre_checks:
+          name: terraform branch preflight checks
+          requires: [build and artifact]
+          filters: {branches:{ignore:[master]}}
+      - terraform_action:
+          name: plan branch environment
+          requires: [terraform branch preflight checks]
+          tf_command: plan
+          filters: {branches:{ignore:[master]}}
+      - terraform_action:
+          name: apply branch environment
+          requires: [plan branch environment]
+          tf_command: apply
+          applycheck: true
+          filters: {branches:{ignore:[master]}}
+      - cleanup:
+          name: approve destroy environment
+          type: approval
+          requires: [apply branch environment]
+          filters: {branches:{ignore:[master]}}
+      - terraform_action:
+          name: destroy branch environment
+          requires: [approve destroy environment]
+          tf_command: destroy
+          destroy_workspace: true
+          filters: {branches:{ignore:[master]}}
   commit_to_master:
     when: << pipeline.parameters.run_commit_to_master >>
     jobs:
@@ -172,7 +172,7 @@ orbs:
           - run:
               name: install aws cli
               command: |
-                pip3 install awscli --upgrade --user
+                pip3 install awscli==1.18.212 --user
           - run:
               name: login to code artifact for pip
               command: ./login_code_artifact.sh -a 288342028542 -t pip
