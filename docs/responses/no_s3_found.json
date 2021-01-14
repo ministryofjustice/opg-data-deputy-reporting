@@ -1,0 +1,14 @@
+{
+	"body": {
+		"error": {
+			"code": "OPGDATA-API-INVALIDREQUEST",
+			"message": "400 Bad Request: S3 Error, details: Object not accessible",
+			"title": "Invalid Request"
+		}
+	},
+	"headers": {
+		"Content-Type": "application/json"
+	},
+	"isBase64Encoded": false,
+	"statusCode": 400
+}

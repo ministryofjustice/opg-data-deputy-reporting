@@ -116,7 +116,7 @@ orbs:
     executors:
       python_with_tfvars:
         docker:
-          - image: circleci/python:3
+          - image: circleci/python:3.8
             auth:
               username: $DOCKER_USER
               password: $DOCKER_ACCESS_TOKEN
@@ -172,7 +172,7 @@ orbs:
           - run:
               name: install aws cli
               command: |
-                pip3 install awscli --upgrade --user
+                pip3 install awscli==1.18.212 --user
           - run:
               name: login to code artifact for pip
               command: ./login_code_artifact.sh -a 288342028542 -t pip

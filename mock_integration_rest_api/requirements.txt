@@ -1,7 +1,7 @@
-connexion
-swagger-ui-bundle
-requests
-flask
-boto3==1.14.56
+connexion==2.7.0
+swagger-ui-bundle==0.0.8
+requests==2.24.0
+flask==1.1.2
+boto3==1.16.52
 moto==1.3.14
-pyjwt
+pyjwt==1.7.1

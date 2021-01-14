@@ -1,2 +1,2 @@
-requests
-opg-circleci
+requests==2.24.0
+opg-circleci==0.0.3

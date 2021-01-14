@@ -48,9 +48,3 @@ services:
       - ./mock_sirius_backend/:/var/www/mock_sirius_backend/
     ports:
       - "5001:5001"
-  pact-verifier:
-    build:
-      context: ./pact_provider
-      dockerfile: Dockerfile
-    volumes:
-      - ./pact_provider:/pact_provider
