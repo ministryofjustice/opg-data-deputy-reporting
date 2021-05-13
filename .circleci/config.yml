@@ -269,13 +269,16 @@ jobs:
           command: unzip ./opg-data-deputy-reporting.zip -d .
       - run:
           name: initialize terraform - environment
-          command: cd ./terraform/environment; terraform init
+          command: terraform init
+          working_directory: ~/project/terraform/environment
       - run:
           name: terraform check formatting - environment
-          command: cd ./terraform/environment; terraform fmt -diff -check -recursive
+          command: terraform fmt -diff -check -recursive
+          working_directory: ~/project/terraform/environment
       - run:
           name: validate terraform - environment
-          command: cd ./terraform/environment; terraform validate
+          command: terraform validate
+          working_directory: ~/project/terraform/environment
   terraform_action:
     executor: digideps-data/python_with_tfvars
     resource_class: small
@@ -312,7 +315,8 @@ jobs:
           command: unzip ./opg-data-deputy-reporting.zip -d .
       - run:
           name: initialize terraform - environment
-          command: cd ./terraform/environment; terraform init
+          command: terraform init
+          working_directory: ~/project/terraform/environment
       - run:
           name: Set BASH_ENV
           command: ~/project/.circleci/set_env.sh >> $BASH_ENV
@@ -322,7 +326,8 @@ jobs:
             eval $(cat $BASH_ENV)
       - run:
           name: terraform << parameters.tf_command >> - environment
-          command: cd ./terraform/environment; terraform << parameters.tf_command >>
+          command: terraform << parameters.tf_command >>
+          working_directory: ~/project/terraform/environment
       # https://github.com/terraform-providers/terraform-provider-aws/issues/5364
       - when:
           condition: << parameters.applycheck >>
