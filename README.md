@@ -51,7 +51,7 @@ You may also need to update your `PYTHONPATH` env var to point to the root of th
 
 These tests send a payload to a real url, be careful where you point things if you're going to run these.
 
-These are not run as part of the regular unit tests. Use at your own risk
+These are not run as part of the regular unit tests. Use at your own risk.
 
 #### How to run
 
