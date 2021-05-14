@@ -314,7 +314,7 @@ jobs:
           name: unzip artifact
           command: unzip ./opg-data-deputy-reporting.zip -d .
       - run:
-          name: initialize terraform - default
+          name: initialize terraform
           command: terraform init
           working_directory: ~/project/terraform/environment
       - run:
@@ -324,10 +324,6 @@ jobs:
           name: Set Environment variables
           command: |
             eval $(cat $BASH_ENV)
-      - run:
-          name: initialize terraform - environment (needed for tf upgrades)
-          command: terraform init
-          working_directory: ~/project/terraform/environment
       - run:
           name: terraform << parameters.tf_command >> - environment
           command: terraform << parameters.tf_command >>
