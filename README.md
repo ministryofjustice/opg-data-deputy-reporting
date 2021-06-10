@@ -1,4 +1,7 @@
 # opg-data-deputy-reporting
+
+[![CircleCI](https://circleci.com/gh/ministryofjustice/opg-data-deputy-reporting/tree/master.svg?style=svg)](https://circleci.com/gh/ministryofjustice/opg-data-deputy-reporting/tree/master)
+
 Deputy reporting integration with OPG Data: Managed by opg-org-infra &amp; Terraform
 
 ### Path specific naming conventions
@@ -23,13 +26,16 @@ New certs aren't created per branch as the sub branches use the wildcard cert fo
 The rest APIs deploy through a circleci job. The deployments are separate for each branch
 and the uri for your branch will follow the pattern above.
 
-The environment is deployed on a push to a branch and to raise a PR, you must
-pass the branch destroy approval step. Please be aware that even if you decide to delete
-your branch you should click on this step before doing so. This will stop us having orphaned
-environments.
+The environment is deployed on raising a PR.
 
 On merge of the PR the changes are applied into development and preproduction and after
 a further approval, production.
+
+### Destruction of environment
+
+Environments are protected by default for the remainder of the current day until midnight the subsequent day.
+They are then deleted by a job that runs that night. If you need environments to last longer than this then you can
+update the TTL in for your branch in workspace protection table in dynamodb.
 
 ### Authentication and local testing
 
@@ -51,7 +57,7 @@ You may also need to update your `PYTHONPATH` env var to point to the root of th
 
 These tests send a payload to a real url, be careful where you point things if you're going to run these.
 
-These are not run as part of the regular unit tests. Use at your own risk.
+These are not run as part of the regular pipeline tests. Use at your own risk.
 
 #### How to run
 
