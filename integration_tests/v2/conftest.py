@@ -68,7 +68,7 @@ def pytest_sessionfinish(session, exitstatus):
 
 
 def get_role_name():
-    return "sirius-ci" if "CI" in os.environ else "operator"
+    return "integrations-ci" if "CI" in os.environ else "operator"
 
 
 def filter_none_values(kwargs: dict) -> dict:
