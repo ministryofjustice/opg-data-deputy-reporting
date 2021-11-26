@@ -138,7 +138,7 @@ orbs:
           TF_VAR_default_role: integrations-ci
       python:
         docker:
-          - image: circleci/python:3
+          - image: circleci/python:3.7
             auth:
               username: $DOCKER_USER
               password: $DOCKER_ACCESS_TOKEN
