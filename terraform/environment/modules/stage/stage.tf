@@ -45,3 +45,14 @@ resource "aws_cloudwatch_log_group" "deputy_reporting" {
   retention_in_days = 30
   tags              = var.tags
 }
+
+
+data "aws_wafv2_web_acl" "integrations" {
+  name  = "integrations-${var.account_name}-${var.region_name}-web-acl"
+  scope = "REGIONAL"
+}
+
+resource "aws_wafv2_web_acl_association" "api_gateway_stage" {
+  resource_arn = aws_api_gateway_stage.currentstage.arn
+  web_acl_arn  = data.aws_wafv2_web_acl.integrations.arn
+}

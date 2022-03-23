@@ -32,41 +32,45 @@ resource "aws_api_gateway_domain_name" "sirius_deputy_reporting" {
 
 module "deploy_v1" {
   source                = "./modules/stage"
-  environment           = local.environment
+  api_name              = local.api_name
+  account_name          = local.account.account_mapping
   aws_subnet_ids        = data.aws_subnet_ids.private.ids
+  checklists_lambda     = module.lambda_checklists_v1.lambda
+  environment           = local.environment
+  healthcheck_lambda    = module.lamdba_healthcheck_v1.lambda
+  openapi_version       = "v1"
+  region_name           = data.aws_region.region.name
+  reports_lambda        = module.lambda_reports_v1.lambda
+  supportingdocs_lambda = module.lambda_supporting_docs_v1.lambda
+  tags                  = local.default_tags
   target_environment    = local.target_environment
   vpc_id                = local.account.vpc_id
-  tags                  = local.default_tags
-  api_name              = local.api_name
-  openapi_version       = "v1"
-  reports_lambda        = module.lambda_reports_v1.lambda
-  healthcheck_lambda    = module.lamdba_healthcheck_v1.lambda
-  supportingdocs_lambda = module.lambda_supporting_docs_v1.lambda
-  checklists_lambda     = module.lambda_checklists_v1.lambda
   //Modify here for new version
   //flaskapp_lambda = "non existant"
+  domain_name     = aws_api_gateway_domain_name.sirius_deputy_reporting
   flaskapp_lambda = module.lamdba_flask_v2.lambda
   rest_api        = aws_api_gateway_rest_api.deputy_reporting
-  domain_name     = aws_api_gateway_domain_name.sirius_deputy_reporting
 }
 
 //Modify here for new version
 module "deploy_v2" {
   source                = "./modules/stage"
-  environment           = local.environment
+  account_name          = local.account.account_mapping
+  api_name              = local.api_name
   aws_subnet_ids        = data.aws_subnet_ids.private.ids
+  checklists_lambda     = module.lambda_checklists_v1.lambda
+  domain_name           = aws_api_gateway_domain_name.sirius_deputy_reporting
+  environment           = local.environment
+  flaskapp_lambda       = module.lamdba_flask_v2.lambda
+  healthcheck_lambda    = module.lamdba_healthcheck_v1.lambda
+  openapi_version       = "v2"
+  region_name           = data.aws_region.region.name
+  reports_lambda        = module.lambda_reports_v1.lambda
+  rest_api              = aws_api_gateway_rest_api.deputy_reporting
+  supportingdocs_lambda = module.lambda_supporting_docs_v1.lambda
+  tags                  = local.default_tags
   target_environment    = local.target_environment
   vpc_id                = local.account.vpc_id
-  tags                  = local.default_tags
-  api_name              = local.api_name
-  openapi_version       = "v2"
-  reports_lambda        = module.lambda_reports_v1.lambda
-  healthcheck_lambda    = module.lamdba_healthcheck_v1.lambda
-  supportingdocs_lambda = module.lambda_supporting_docs_v1.lambda
-  checklists_lambda     = module.lambda_checklists_v1.lambda
-  flaskapp_lambda       = module.lamdba_flask_v2.lambda
-  rest_api              = aws_api_gateway_rest_api.deputy_reporting
-  domain_name           = aws_api_gateway_domain_name.sirius_deputy_reporting
 }
 
 //To Add New Version Copy and Paste Above and Modify Accordingly
