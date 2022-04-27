@@ -24,6 +24,7 @@ locals {
     region      = "eu-west-1"
     environment = local.environment
     account_id  = local.account.account_id
+    allowed_roles = join(", ", local.account.allowed_roles)
   }
 
   target_environment = local.branch_build_flag ? "dev" : local.account.target_environment
