@@ -56,19 +56,21 @@ def make_environ(event):
     environ["REQUEST_METHOD"] = event["httpMethod"]
     environ["PATH_INFO"] = event["path"]
     environ["QUERY_STRING"] = urlencode(qs) if qs else ""
-    environ["REMOTE_ADDR"] = event["requestContext"]["identity"]["sourceIp"]
+
+    environ["REMOTE_ADDR"] = environ.get("X_FORWARDED_FOR")
+
     environ["HOST"] = "{}:{}".format(
         environ.get("HTTP_HOST", ""), environ.get("HTTP_X_FORWARDED_PORT", ""),
     )
     environ["SCRIPT_NAME"] = ""
     environ["SERVER_NAME"] = "SERVER_NAME"
 
-    environ["SERVER_PORT"] = environ["HTTP_X_FORWARDED_PORT"]
+    environ["SERVER_PORT"] = environ.get("HTTP_X_FORWARDED_PORT", "")
     environ["SERVER_PROTOCOL"] = "HTTP/1.1"
 
     environ["CONTENT_LENGTH"] = str(len(event["body"]) if event["body"] else "")
 
-    environ["wsgi.url_scheme"] = environ["HTTP_X_FORWARDED_PROTO"]
+    environ["wsgi.url_scheme"] = environ.get("HTTP_X_FORWARDED_PROTO")
     environ["wsgi.input"] = StringIO(event["body"] or "")
     environ["wsgi.version"] = (1, 0)
     environ["wsgi.errors"] = sys.stderr
@@ -93,6 +95,7 @@ class LambdaResponse(object):
 
 class FlaskLambda(Flask):
     def __call__(self, event, context):
+
         try:
             if "httpMethod" not in event:
                 print("call as flask app")
@@ -104,7 +107,7 @@ class FlaskLambda(Flask):
             print("call as aws lambda")
             response = LambdaResponse()
 
-            body = next(self.wsgi_app(make_environ(event), response.start_response))
+            body = b''.join(self.wsgi_app(make_environ(event), response.start_response))
 
             return {
                 "statusCode": response.status,

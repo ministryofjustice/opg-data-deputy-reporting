@@ -14,10 +14,10 @@ from lambda_functions.v2.functions.documents.app import api, create_app
 
 class StreamToLogger(object):
     """
-   Fake file-like stream object that redirects writes to a logger instance.
-   Not actually used by tests, but if the tests fail the logger messages from the flask
-   server thread are output to the out.log file, which is super handy
-   """
+    Fake file-like stream object that redirects writes to a logger instance.
+    Not actually used by tests, but if the tests fail the logger messages from the flask
+    server thread are output to the out.log file, which is super handy
+    """
 
     def __init__(self, logger, log_level=logging.INFO):
         self.logger = logger
@@ -46,7 +46,7 @@ sys.stderr = sl
 
 
 def get_open_port():
-    """ Find free port on a local system """
+    """Find free port on a local system"""
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind(("", 0))
     port = s.getsockname()[1]
@@ -109,7 +109,7 @@ def aws_credentials():
     os.environ["AWS_SECRET_ACCESS_KEY"] = "testing"
     os.environ["AWS_SECURITY_TOKEN"] = "testing"
     os.environ["AWS_SESSION_TOKEN"] = "testing"
-    os.environ["AWS_DEFAULT_REGION"] = "eu-west-1"
+    os.environ["AWS_DEFAULT_REGION"] = "us-east-1"
     os.environ["AWS_XRAY_CONTEXT_MISSING"] = "LOG_ERROR"
 
 

@@ -8,6 +8,7 @@ from connexion.exceptions import OAuthProblem
 from moto import mock_secretsmanager, mock_s3, mock_sts
 
 from lambda_functions.v2.functions.documents.app.api import (
+    healthcheck,
     reports,
     supporting_docs,
     checklists,
@@ -44,7 +45,7 @@ def apikey_auth(token, required_scopes):
     return info
 
 
-def reporting_healthcheck(body):
+def reporting_healthcheck():
     formatted_response = Response("OK", status=200, mimetype="application/json")
     return formatted_response
 
@@ -56,9 +57,9 @@ def addReportDocument(caseref, body):
     conn_secrets = boto3.client("secretsmanager", region_name="eu-west-1")
     conn_secrets.create_secret(Name="local/jwt-key", SecretString="mock_jwt_token")
 
-    conn_s3 = boto3.resource("s3", region_name="eu-west-1")
+    conn_s3 = boto3.resource("s3")
     conn_s3.create_bucket(Bucket="local_bucket")
-    s3 = boto3.client("s3", region_name="eu-east-1")
+    s3 = boto3.client("s3")
     s3.put_object(
         Bucket="local_bucket",
         Key="dd_doc_98765_01234567890123",
@@ -81,9 +82,9 @@ def addReportSupportingDocument(caseref, id, body):
     conn = boto3.client("secretsmanager", region_name="eu-west-1")
     conn.create_secret(Name="local/jwt-key", SecretString="mock_jwt_token")
 
-    conn_s3 = boto3.resource("s3", region_name="eu-west-1")
+    conn_s3 = boto3.resource("s3")
     conn_s3.create_bucket(Bucket="local_bucket")
-    s3 = boto3.client("s3", region_name="eu-east-1")
+    s3 = boto3.client("s3")
     s3.put_object(
         Bucket="local_bucket",
         Key="dd_doc_98765_01234567890123",

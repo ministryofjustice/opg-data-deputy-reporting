@@ -21,9 +21,9 @@ locals {
   api_name = "deputy-reporting"
 
   api_template_vars = {
-    region      = "eu-west-1"
-    environment = local.environment
-    account_id  = local.account.account_id
+    region        = "eu-west-1"
+    environment   = local.environment
+    account_id    = local.account.account_id
     allowed_roles = join(", ", local.account.allowed_roles)
   }
 

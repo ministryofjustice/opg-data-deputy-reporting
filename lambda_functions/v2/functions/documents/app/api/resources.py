@@ -29,13 +29,13 @@ def handle_healthcheck():
 def handle_reports(caseref):
     print(f"caseref: {caseref}")
 
+    if "application/json" not in request.headers["Content-Type"]:
+        abort(415)
+
     try:
         data = request.get_json()
     except Exception as e:
         abort(400, e)
-
-    if "application/json" not in request.headers["Content-Type"]:
-        abort(415)
 
     response_data, response_status = reports.endpoint_handler(
         data=data, caseref=caseref
@@ -54,13 +54,13 @@ def handle_supporting_docs(caseref, id):
 
     print(f"request.method: {request.method}")
 
+    if "application/json" not in request.headers["Content-Type"]:
+        abort(415)
+
     try:
         data = request.get_json()
     except Exception as e:
         abort(400, e)
-
-    if "application/json" not in request.headers["Content-Type"]:
-        abort(415)
 
     response_data, response_status = supporting_docs.endpoint_handler(
         data=data, caseref=caseref, id=id
@@ -77,13 +77,13 @@ def handle_supporting_docs(caseref, id):
 @api.route("/clients/<caseref>/reports/<id>/checklists/<checklistId>", methods=["PUT"])
 @api.route("/clients/<caseref>/reports/<id>/checklists", methods=["POST"])
 def handle_checklists(caseref, id, checklistId=None):
+    if "application/json" not in request.headers["Content-Type"]:
+        abort(415)
+
     try:
         data = request.get_json()
     except Exception as e:
         abort(400, e)
-
-    if "application/json" not in request.headers["Content-Type"]:
-        abort(415)
 
     response_data, response_status = checklists.endpoint_handler(
         data=data,

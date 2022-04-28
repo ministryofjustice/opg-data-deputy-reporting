@@ -1,8 +1,8 @@
 #Update this date to trigger update of layers: 200629
 requests==2.24.0
 pyjwt==1.7.1
-boto3==1.16.52
+boto3==1.22.2
 requests-toolbelt==0.8.0
-flask==1.1.2
+flask==2.1.1
 flask-lambda==0.0.4
 flask-lambda-python36==0.1.0

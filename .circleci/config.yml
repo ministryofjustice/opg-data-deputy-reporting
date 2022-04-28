@@ -177,11 +177,7 @@ orbs:
         steps:
           - run:
               name: install all requirements locally
-              command: |
-                for i in $(ls -d lambda_functions/*/ | awk -F'/' '{print $2}'  | grep '^v[1-9]\+')
-                do
-                  pip3 install -r ./lambda_functions/"${i}"/requirements/dev-requirements.txt
-                done
+              command:  pip3 install -r ./lambda_functions/v2/requirements/dev-requirements.txt
       login_codeartifact:
         steps:
           - run:
@@ -238,7 +234,7 @@ jobs:
             flake8 lambda_functions
       - run:
           name: run unit tests (with pytest)
-          command: python -m pytest lambda_functions
+          command: python -m pytest lambda_functions/v2
       # - run: These don't work
       #     name: integration tests
       #     working_directory: ~/integration_tests/v2
