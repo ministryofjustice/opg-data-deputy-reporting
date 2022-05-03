@@ -35,7 +35,6 @@ workflows:
           name: apply branch environment
           requires: [plan branch environment]
           tf_command: apply
-          applycheck: true
           filters: {branches:{ignore:[main]}}
       - workspace_protection:
           name: protect current workspace
@@ -61,7 +60,6 @@ workflows:
           requires: [terraform dev preflight checks]
           tf_command: apply --auto-approve
           tf_workspace: development
-          applycheck: true
           filters: {branches:{only:[main]}}
       - terraform_pre_checks:
          name: terraform preprod preflight checks
@@ -73,7 +71,6 @@ workflows:
          requires: [terraform preprod preflight checks, development apply]
          tf_command: apply --auto-approve
          tf_workspace: preproduction
-         applycheck: true
          filters: {branches:{only:[main]}}
       - approve:
          name: approve release to production
@@ -90,7 +87,6 @@ workflows:
          requires: [terraform production preflight checks]
          tf_command: apply --auto-approve
          tf_workspace: production
-         applycheck: true
          pact_tag_production: true
          filters: {branches:{only:[main]}}
   verify_pact:
@@ -177,7 +173,7 @@ orbs:
         steps:
           - run:
               name: install all requirements locally
-              command:  pip3 install -r ./lambda_functions/v2/requirements/dev-requirements.txt
+              command: pip3 install -r ./lambda_functions/v2/requirements/dev-requirements.txt
       login_codeartifact:
         steps:
           - run:
@@ -297,10 +293,6 @@ jobs:
         description: terraform command
         default: plan
         type: string
-      applycheck:
-        description: workaround for rest api provider
-        type: boolean
-        default: false
       destroy_workspace:
         description: whether to destroy the empty workspace
         type: boolean
@@ -334,18 +326,6 @@ jobs:
           name: terraform << parameters.tf_command >> - environment
           command: terraform << parameters.tf_command >>
           working_directory: ~/project/terraform/environment
-      # https://github.com/terraform-providers/terraform-provider-aws/issues/5364
-      - when:
-          condition: << parameters.applycheck >>
-          steps:
-            - run:
-                name: conditionally reapply if gateway policy is missing
-                command: |
-                  cd ./terraform/environment
-                  if [ `terraform output policy | wc -m` -gt 1 ]
-                  then echo "policy attached, doing nothing"
-                  else terraform << parameters.tf_command >>
-                  fi
       - when:
           condition: << parameters.destroy_workspace >>
           steps:

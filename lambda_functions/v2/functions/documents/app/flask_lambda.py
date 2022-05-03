@@ -31,7 +31,7 @@ except ImportError:
     except ImportError:
         from io import StringIO
 
-from werkzeug.wrappers import BaseRequest
+from werkzeug.wrappers import Request
 
 
 __version__ = "0.0.4"
@@ -60,7 +60,8 @@ def make_environ(event):
     environ["REMOTE_ADDR"] = environ.get("X_FORWARDED_FOR")
 
     environ["HOST"] = "{}:{}".format(
-        environ.get("HTTP_HOST", ""), environ.get("HTTP_X_FORWARDED_PORT", ""),
+        environ.get("HTTP_HOST", ""),
+        environ.get("HTTP_X_FORWARDED_PORT", ""),
     )
     environ["SCRIPT_NAME"] = ""
     environ["SERVER_NAME"] = "SERVER_NAME"
@@ -78,7 +79,7 @@ def make_environ(event):
     environ["wsgi.run_once"] = True
     environ["wsgi.multiprocess"] = False
 
-    BaseRequest(environ)
+    Request(environ)
 
     return environ
 
@@ -107,7 +108,7 @@ class FlaskLambda(Flask):
             print("call as aws lambda")
             response = LambdaResponse()
 
-            body = b''.join(self.wsgi_app(make_environ(event), response.start_response))
+            body = b"".join(self.wsgi_app(make_environ(event), response.start_response))
 
             return {
                 "statusCode": response.status,

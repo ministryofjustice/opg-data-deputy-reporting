@@ -48,18 +48,3 @@ services:
       - ./mock_sirius_backend/:/var/www/mock_sirius_backend/
     ports:
       - "5001:5001"
-#  mock-sirius_prism:
-#    image: mock-sirius:latest
-#    container_name: mock-sirius
-#    build:
-#      context: .
-#      dockerfile: mock_sirius/Dockerfile
-#    command:
-#      - "mock"
-#      - "-h"
-#      - "0.0.0.0"
-#      - "/app/openapi.yml"
-#    volumes:
-#      - "./mock_sirius:/app"
-#    ports:
-#      - "4010:4010"
