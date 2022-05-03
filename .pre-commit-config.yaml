@@ -1,25 +1,26 @@
 ---
-- repo: git://github.com/antonbabenko/pre-commit-terraform
-  rev: v1.19.0
-  hooks:
-    - id: terraform_fmt
-    - id: terraform_validate
-- repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v2.4.0
-  hooks:
-    - id: trailing-whitespace
-    - id: detect-private-key
-    - id: flake8
-      args: ['--ignore=W503', '--exclude=docs/supportscripts/*', '--max-line-length=150']
-    - id: trailing-whitespace
-      args: [--markdown-linebreak-ext=md]
-- repo: https://github.com/ambv/black
-  rev: stable
-  hooks:
-    - id: black
-      language_version: python3
-- repo: https://github.com/adrienverge/yamllint.git
-  rev: v1.17.0
-  hooks:
-    - id: yamllint
-      args: [-c=./.yamllint]
+repos:
+  - repo: git://github.com/antonbabenko/pre-commit-terraform
+    rev: v1.56.0
+    hooks:
+      - id: terraform_fmt
+      - id: terraform_validate
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v2.4.0
+    hooks:
+      - id: trailing-whitespace
+      - id: detect-private-key
+      - id: flake8
+        args: ['--ignore=W503', '--exclude=docs/supportscripts/*', '--max-line-length=150']
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
+  - repo: https://github.com/ambv/black
+    rev: 22.3.0
+    hooks:
+      - id: black
+        language_version: python3
+  - repo: https://github.com/adrienverge/yamllint.git
+    rev: v1.17.0
+    hooks:
+      - id: yamllint
+        args: [-c=./.yamllint]

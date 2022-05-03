@@ -153,7 +153,8 @@ def new_submit_document_to_sirius(
 
     except Exception as e:
         return handle_sirius_error(
-            error_message="Unable to send " "document to " "Sirius", error_details=e,
+            error_message="Unable to send " "document to " "Sirius",
+            error_details=e,
         )
 
     try:

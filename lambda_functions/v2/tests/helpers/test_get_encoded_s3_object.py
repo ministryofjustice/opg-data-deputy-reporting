@@ -34,7 +34,7 @@ def test_get_encoded_s3_object(test_bucket, test_key, expected_result):
         expected_result = base64.b64encode(image_file.read()).decode("utf-8")
 
     with mock_s3():
-        s3_client = boto3.client("s3", region_name="eu-west-1")
+        s3_client = boto3.client("s3", region_name="us-east-1")
         s3_client.create_bucket(Bucket="valid_bucket")
         s3_client.upload_file(test_file, "valid_bucket", "test_file_on_aws.txt")
 
@@ -58,7 +58,7 @@ def test_get_encoded_s3_object_error(test_bucket, test_key, expected_result):
     test_file = os.path.join(current_directory, "test_file.txt")
 
     with mock_s3():
-        s3_client = boto3.client("s3", region_name="eu-west-1")
+        s3_client = boto3.client("s3", region_name="us-east-1")
         s3_client.create_bucket(Bucket="valid_bucket")
         s3_client.upload_file(test_file, "valid_bucket", "test_file_on_aws.txt")
 

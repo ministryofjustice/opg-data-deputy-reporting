@@ -199,5 +199,5 @@ Post to an example supporting document to the endpoint
 curl -X POST -d '@./mock_integration_rest_api/example_supporting_doc.json' \
 -H 'Authorization: asdf1234567890' \
 -H 'Content-Type: application/json' \
-http://localhost:4343/v1/clients/1234567T/reports/33ea0382-cfc9-4776-9036-667eeb68fa4b/supportingdocuments
+http://localhost:4343/v2/clients/1234567T/reports/33ea0382-cfc9-4776-9036-667eeb68fa4b/supportingdocuments
 ```

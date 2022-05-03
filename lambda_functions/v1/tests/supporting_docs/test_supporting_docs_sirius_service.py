@@ -229,7 +229,13 @@ def test_submit_document_to_sirius(
             None,
             "http://www.fake_url.com/6.3.1/random/endpoint/",
         ),
-        ("banana", "30", "random/endpoint/", None, False,),
+        (
+            "banana",
+            "30",
+            "random/endpoint/",
+            None,
+            False,
+        ),
     ],
 )
 def test_build_sirius_url(base_url, version, endpoint, url_params, expected_result):
@@ -280,7 +286,10 @@ def test_build_sirius_headers_auth(patched_get_secret):
     ],
 )
 def test_get_endpoint(
-    patched_requests, patched_get_secret, url, expected_result,
+    patched_requests,
+    patched_get_secret,
+    url,
+    expected_result,
 ):
     result = send_get_to_sirius(url)
     print(result)

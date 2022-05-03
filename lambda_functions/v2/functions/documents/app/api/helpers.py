@@ -114,7 +114,9 @@ def handle_file_source(file):
             return None
 
         source = get_encoded_s3_object(
-            s3_client=s3_client, bucket=bucket, key=file["s3_reference"],
+            s3_client=s3_client,
+            bucket=bucket,
+            key=file["s3_reference"],
         )
     elif "source" in file:
         source = file["source"]

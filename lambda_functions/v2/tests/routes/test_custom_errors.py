@@ -7,7 +7,9 @@ from lambda_functions.v2.tests.routes import cases_custom_endpoint_errors
 
 @pytest.mark.run(order=1)
 @pytest.mark.usefixtures(
-    "patched_get_secret", "patched_post_broken_sirius", "patched_send_get_to_sirius",
+    "patched_get_secret",
+    "patched_post_broken_sirius",
+    "patched_send_get_to_sirius",
 )
 @pytest.mark.parametrize(
     "patched_post_broken_sirius",
@@ -35,14 +37,18 @@ def test_custom_errors(server, case_data: CaseDataGetter):
             data = test_data
 
             r = requests.put(
-                f"{server.url}/clients/{test_url}", headers=test_headers, data=data,
+                f"{server.url}/clients/{test_url}",
+                headers=test_headers,
+                data=data,
             )
         else:
 
             data = test_data
 
             r = requests.post(
-                f"{server.url}/clients/{test_url}", headers=test_headers, data=data,
+                f"{server.url}/clients/{test_url}",
+                headers=test_headers,
+                data=data,
             )
 
         print(f"r.text: {r.text}")

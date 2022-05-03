@@ -134,7 +134,7 @@ def case_405(test_url) -> CaseData:
 def case_415(test_url) -> CaseData:
 
     test_headers = {"Content-Type": "chipmunk/alvin"}
-    test_data = ""
+    test_data = json.dumps(test_url["test_data"])
     test_method = test_url["method"]
 
     expected_response_status_code = 415

@@ -27,7 +27,9 @@ def endpoint_handler(data, caseref, id, checklist_id, method):
 
 
 def transform_payload_to_sirius_post_request(
-    data, caseref=None, id=None,
+    data,
+    caseref=None,
+    id=None,
 ):
     report_id = id
     case_ref = caseref
