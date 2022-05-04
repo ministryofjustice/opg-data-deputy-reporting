@@ -1,7 +1,4 @@
 #!/bin/bash
 cp ../lambda_functions/v2/openapi/deputy-reporting-openapi.yml .
-sed "s/\${allowed_roles}/'allowed_roles'/" deputy-reporting-openapi.yml > deputy-reporting-openapi.yml.new
-mv deputy-reporting-openapi.yml deputy-reporting-openapi.yml.bak
-mv deputy-reporting-openapi.yml.new deputy-reporting-openapi.yml
-rm deputy-reporting-openapi.yml.bak
+
 echo "copied in v2"

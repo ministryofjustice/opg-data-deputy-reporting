@@ -323,6 +323,11 @@ jobs:
           command: |
             eval $(cat $BASH_ENV)
       - run:
+          name: modify openapispec
+          command:
+            sed -i "s/\"\${allowed_roles}\"/\${allowed_roles}/" deputy-reporting-openapi.yml
+          working_directory: ~/project/lambda_functions/v2/openapi
+      - run:
           name: terraform << parameters.tf_command >> - environment
           command: terraform << parameters.tf_command >>
           working_directory: ~/project/terraform/environment
