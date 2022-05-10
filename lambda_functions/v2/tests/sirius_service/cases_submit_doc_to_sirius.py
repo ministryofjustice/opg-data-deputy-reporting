@@ -82,9 +82,7 @@ def case_error(test_data) -> CaseData:
 
 
 @case_tags("env_vars")
-@cases_generator(
-    "Env var not set {env_var}", env_var=["SIRIUS_BASE_URL", "SIRIUS_API_VERSION"]
-)
+@cases_generator("Env var not set {env_var}", env_var=["SIRIUS_BASE_URL"])
 def case_missing_env_vars(env_var) -> CaseData:
 
     data = json.dumps(report_test_data)

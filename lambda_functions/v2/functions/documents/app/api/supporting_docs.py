@@ -3,7 +3,7 @@ import os
 import copy
 
 from . import sirius_service
-from .helpers import custom_logger, handle_file_source
+from .helpers import custom_logger, handle_file_source, get_sirius_base_url
 
 logger = custom_logger("supporting_docs")
 
@@ -68,8 +68,8 @@ def transform_payload_to_sirius_get_url(data, case_ref, report_id):
     ]
 
     url = sirius_service.build_sirius_url(
-        base_url=f'{os.environ["SIRIUS_BASE_URL"]}/api/public',
-        version=os.environ["SIRIUS_API_VERSION"],
+        base_url=get_sirius_base_url(os.environ["SIRIUS_BASE_URL"]),
+        version=os.getenv("SIRIUS_API_VERSION"),
         endpoint="documents",
         url_params={
             "caserecnumber": case_ref,

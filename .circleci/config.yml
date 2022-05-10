@@ -89,11 +89,11 @@ workflows:
          tf_workspace: production
          pact_tag_production: true
          filters: {branches:{only:[main]}}
-  verify_pact:
-    when: << pipeline.parameters.run_verify_pact >>
-    jobs:
-      - pact_verification:
-          name: verify the latest pact
+#  verify_pact:
+#    when: << pipeline.parameters.run_verify_pact >>
+#    jobs:
+#      - pact_verification:
+#          name: verify the latest pact
   nightly_workspace_deletion:
     triggers:
       - schedule:
@@ -169,11 +169,6 @@ orbs:
                 wget https://github.com/pact-foundation/pact-ruby-standalone/releases/download/v1.82.3/pact-1.82.3-linux-x86_64.tar.gz
                 tar xzf pact-1.82.3-linux-x86_64.tar.gz
               working_directory: ~/project
-      python_requirements:
-        steps:
-          - run:
-              name: install all requirements locally
-              command: pip3 install -r ./lambda_functions/v2/requirements/dev-requirements.txt
       login_codeartifact:
         steps:
           - run:
@@ -206,36 +201,25 @@ jobs:
   build_lambda:
     executor: digideps-data/python
     resource_class: small
+    environment:
+      AWS_REGISTRY: 311462405659.dkr.ecr.eu-west-1.amazonaws.com
+      VERSION: depreptest
     steps:
       - checkout
       - digideps-data/login_codeartifact
       - digideps-data/cancel_redundant_builds
-      - digideps-data/python_requirements
       - run:
-          name: list all pacakges
-          command: pip freeze
+          name: build validation and unit test image
+          command: docker-compose build unit-tests
       - run:
-          name: run black - python code formatter
-          command: |
-            black lambda_functions
+          name: run validation and unit tests
+          command: docker-compose up unit-tests
       - run:
-          name: setup environment
-          command: ./.circleci/setup.sh
-#      - run:
-#          name: run yamllint
-#          command: yamllint -c ./.yamllint .
+          name: build lambda container
+          command: docker-compose -f docker-compose.ci.yml build --parallel
       - run:
-          name: run flake8 - python PEP8 linter, complexity checker
-          command: |
-            flake8 lambda_functions
-      - run:
-          name: run unit tests (with pytest)
-          command: python -m pytest lambda_functions/v2
-      # - run: These don't work
-      #     name: integration tests
-      #     working_directory: ~/integration_tests/v2
-      #     command: |
-      #       python -m pytest
+          name: push images to ecr
+          command: docker-compose -f docker-compose.ci.yml push
       - run:
           name: install requirements for all lambda layers
           command: |

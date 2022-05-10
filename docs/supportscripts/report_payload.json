@@ -18,3 +18,20 @@
     }
   }
 }
+
+
+curl -i -X 'POST' \
+  'http://0.0.0.0:5000/documents' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "caseRecNumber": "0319392T",
+  "parentUuid": "5a8b1a26-8296-4373-ae61-f8d0b250e773",
+  "type": "Report - General",
+  "metadata": {},
+  "file": {
+    "name": "Report_1234567T_2018_2019_11111.pdf",
+    "type": "application/pdf",
+    "source": "string"
+  }
+}'

@@ -2,49 +2,98 @@
 version: '3'
 
 services:
-  postgres:
-    image: postgres
-    ports:
-      - "8765:5432"
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: postgres
-  broker-app:
-    image: pactfoundation/pact-broker
-    ports:
-      - "9897:80"
-      - "9292:9292"
-    links:
-      - postgres
-    depends_on:
-      - postgres
-    environment:
-      PACT_BROKER_DATABASE_USERNAME: postgres
-      PACT_BROKER_DATABASE_PASSWORD: password
-      PACT_BROKER_DATABASE_HOST: postgres
-      PACT_BROKER_DATABASE_NAME: postgres
-      # Uncomment these two options for debugging purposes:
-      # PACT_BROKER_WEBHOOK_HOST_WHITELIST: circleci.com
-      # PACT_BROKER_LOG_LEVEL: DEBUG
-  mock-aws-rest-api:
+  mock-lambda:
     build:
-      context: ./mock_integration_rest_api
+      context: ./lambda_functions/v2
       dockerfile: Dockerfile
-    environment:
-      MOCKING_ENV: mock-sirius
-    volumes:
-      - ./lambda_functions/:/var/www/lambda_functions/
-      - ./mock_integration_rest_api/:/var/www/mock_integration_rest_api/
     ports:
-      - "4343:4343"
+      - "9000:8080"
+    depends_on:
+      - mock-sirius
+      - localstack
+    environment:
+      SIRIUS_BASE_URL: http://mock-sirius:5000
+      ENVIRONMENT: local
+      LOGGER_LEVEL: DEBUG
+      API_VERSION: v2
+      SESSION_DATA: publicapi@opgtest.com
+      DIGIDEPS_S3_BUCKET: pa-uploads-branch-replication
+      DIGIDEPS_S3_ROLE_ARN: arn:aws:iam::248804316466:role/integrations-s3-read-development
+      AWS_ACCESS_KEY_ID: FAKE
+      AWS_SECRET_ACCESS_KEY: FAKE
   mock-sirius:
     build:
-      context: ./mock_sirius_backend
+      context: ./mock_sirius
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+  localstack:
+    build:
+      context: ./localstack_initialisation
       dockerfile: Dockerfile
     environment:
-      - MOCKING_ENV
-    volumes:
-      - ./mock_sirius_backend/:/var/www/mock_sirius_backend/
+      - SERVICES=s3,secretsmanager
+      - DEFAULT_REGION=eu-west-1
+      - USE_SINGLE_REGION=1
+      - DEBUG=1
     ports:
-      - "5001:5001"
+      - "4566:4566"
+  unit-tests:
+    build:
+      context: ./lambda_functions/v2
+      dockerfile: Dockerfile-unittests
+    environment:
+      FLASK_DEBUG: "0"
+      FLASK_APP: "docs_mock.py"
+      FLASK_ENV: "development"
+      API_VERSION: "v1"
+      SIRIUS_BASE_URL: "http://not-really-sirius.com"
+      ENVIRONMENT: "dev"
+      SESSION_DATA: ""
+      AWS_XRAY_CONTEXT_MISSING: "LOG_ERROR"
+#  postgres:
+#    image: postgres
+#    ports:
+#      - "8765:5432"
+#    environment:
+#      POSTGRES_USER: postgres
+#      POSTGRES_PASSWORD: password
+#      POSTGRES_DB: postgres
+#  broker-app:
+#    image: pactfoundation/pact-broker
+#    ports:
+#      - "9897:80"
+#      - "9292:9292"
+#    links:
+#      - postgres
+#    depends_on:
+#      - postgres
+#    environment:
+#      PACT_BROKER_DATABASE_USERNAME: postgres
+#      PACT_BROKER_DATABASE_PASSWORD: password
+#      PACT_BROKER_DATABASE_HOST: postgres
+#      PACT_BROKER_DATABASE_NAME: postgres
+#      # Uncomment these two options for debugging purposes:
+#      # PACT_BROKER_WEBHOOK_HOST_WHITELIST: circleci.com
+#      # PACT_BROKER_LOG_LEVEL: DEBUG
+#  mock-aws-rest-api:
+#    build:
+#      context: ./mock_integration_rest_api
+#      dockerfile: Dockerfile
+#    environment:
+#      MOCKING_ENV: mock-sirius
+#    volumes:
+#      - ./lambda_functions/:/var/www/lambda_functions/
+#      - ./mock_integration_rest_api/:/var/www/mock_integration_rest_api/
+#    ports:
+#      - "4343:4343"
+#  mock-sirius:
+#    build:
+#      context: ./mock_sirius_backend
+#      dockerfile: Dockerfile
+#    environment:
+#      - MOCKING_ENV
+#    volumes:
+#      - ./mock_sirius_backend/:/var/www/mock_sirius_backend/
+#    ports:
+#      - "5001:5001"

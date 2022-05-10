@@ -1,0 +1,9 @@
+FROM python:3.7-slim
+COPY requirements/dev-requirements.txt requirements.txt
+RUN pip3 install -r requirements.txt
+COPY functions lambda_functions/v2/functions
+COPY tests lambda_functions/v2/tests
+COPY test-app.sh test-app.sh
+RUN chmod +x test-app.sh
+
+CMD ["./test-app.sh"]

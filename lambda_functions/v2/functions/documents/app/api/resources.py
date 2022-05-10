@@ -8,6 +8,7 @@ from .helpers import custom_logger, error_message
 logger = custom_logger("resources")
 
 version = os.getenv("API_VERSION")
+# version = 'v2'
 api = Blueprint("api", __name__, url_prefix=f"/{version}")
 
 
@@ -113,6 +114,8 @@ def handle405(error=None):
 
 @api.app_errorhandler(404)
 def handle404(error=None):
+    print("JIMMYHHIHI")
+    print(api)
     return error_message(404, error)
 
 

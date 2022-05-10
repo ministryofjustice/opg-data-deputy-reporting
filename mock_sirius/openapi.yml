@@ -1,0 +1,280 @@
+swagger: '2.0'
+info:
+  version: 1.0.0
+  title: Sirius Public API
+  description: |
+    Public API
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+basePath: /api/public/v1
+schemes:
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /pact/provider_states:
+    post:
+      description: Pact provider state setup
+      operationId: app.provider_states
+      parameters:
+        - name: state
+          in: body
+          description: The state to setup
+          required: true
+          schema:
+            type: object
+            required:
+              - state
+              - consumer
+            properties:
+              state:
+                type: string
+                pattern: '(.*?)'
+                example: 'submitted supporting docs'
+              consumer:
+                type: string
+                pattern: '(.*?)'
+                example: 'OPG DATA'
+      responses:
+        '201':
+          description: State created
+          schema:
+            properties:
+              result:
+                type: string
+                description: result
+                pattern: '(.*?)'
+                example: 'some result'
+        '400':
+          description: Invalid query
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Unexpected error
+  /documents:
+    post:
+      description: Post a document to be stored within Sirius
+      operationId: app.createDeputyDocument
+      parameters:
+        - name: document
+          in: body
+          description: The document and associated metadata
+          required: true
+          schema:
+            type: object
+            required:
+              - caseRecNumber
+              - type
+              - metadata
+              - file
+            properties:
+              caseRecNumber:
+                $ref: '#/definitions/CaseRecNumber'
+              parentUuid:
+                $ref: '#/definitions/DocumentUuid'
+              type:
+                $ref: '#/definitions/NoteType'
+              metadata:
+                type: object
+                description: Metadata to be stored along with the document
+              file:
+                $ref: '#/definitions/DeputyDocumentFile'
+      responses:
+        '201':
+          description: The document was created
+          schema:
+            $ref: '#/definitions/DeputyDocumentResponse'
+        '400':
+          description: Invalid query
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Unexpected error
+    get:
+      description: |
+        This endpoint retrieves a list of documents for a client identified by casenumber, filtered by metadata
+        <br />
+        Retrieve documents by Client caseref: `/api/public/v1/documents?caserecnumber={caseref}&metadata[submission_id]={Digideps submission Id}&metadata[report_id]={UUID of parent document}`
+        <br />
+        e.g. `/api/public/v1/documents?caserecnumber=1681346T&metadata[submission_id]=11111&metadata[report_id]=94f2c3e7-34b8-47ff-bb6e-aa645f1e2c5d
+      operationId: app.getDeputyDocuments
+      parameters:
+          - name: caserecnumber
+            in: query
+            type: string
+            description: Case record number assigned to the client
+            required: true
+            pattern: '^([0-9]{7}T|[0-9]{8})$'
+          - name: metadata[submission_id]
+            in: query
+            type: integer
+            description: the Digideps submission id filter
+            required: true
+          - name: metadata[report_id]
+            in: query
+            type: string
+            description: the Digideps report id filter
+            required: true
+      responses:
+        '200':
+          description: List retrieved
+          schema:
+            $ref: '#/definitions/DeputyDocumentResponseCollection'
+        '400':
+          description: Invalid query
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Unexpected error
+    put:
+      description: Update a document stored within Sirius
+      operationId: app.updateDeputyDocument
+      parameters:
+        - name: uuid
+          in: query
+          type: string
+          format: uuid
+          pattern: '^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$'
+          description: The uuid of the document to be updated
+          required: true
+        - name: document
+          in: body
+          description: The document and associated metadata
+          required: true
+          schema:
+            type: object
+            required:
+              - caseRecNumber
+              - type
+              - metadata
+              - file
+            properties:
+              caseRecNumber:
+                $ref: '#/definitions/CaseRecNumber'
+              type:
+                $ref: '#/definitions/NoteType'
+              metadata:
+                type: object
+                description: Metadata to be stored along with the document
+              file:
+                $ref: '#/definitions/DeputyDocumentFile'
+      responses:
+        '200':
+          description: The document was updated
+          schema:
+            $ref: '#/definitions/DeputyDocumentResponse'
+        '400':
+          description: Invalid query
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Unexpected error
+definitions:
+  Error:
+    type: object
+    required:
+      - validation_errors
+      - status
+      - detail
+    properties:
+      validation_errors:
+        type: object
+        description: All validation errors are returned in this property. There is a child property named after the request property that faled validation e.g. appointmentType which itself has a property for each type of failed validation with a description
+      type:
+        type: string
+        description: a URL to a document describing the error condition (optional, and "about:blank" is assumed if none is provided; should resolve to a human-readable document; Apigility always provides this)
+        example: http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
+      title:
+        type: string
+        description: a brief title for the error condition (required; and should be the same for every problem of the same type; Apigility always provides this)
+        example: Bad Request
+      status:
+        type: string
+        description: the HTTP status code for the current request (optional; Apigility always provides this)
+        example: '400'
+      detail:
+        type: string
+        description: error details specific to this request (optional; Apigility requires it for each problem)
+        example: Payload failed validation
+      instance:
+        type: string
+        description: URI identifying the specific instance of this problem (optional; Apigility currently does not provide this)
+  NoteType:
+    type: string
+    enum:
+      - Call
+      - Case note
+      - Complaint
+      - Confidential
+      - Correspondence
+      - Email
+      - Finance
+      - Finance - Correspondence
+      - Finance - Direct debits
+      - Finance - Remissions
+      - FOI/Information assurance
+      - Investigation
+      - Order
+      - Report
+      - Report - Financial evidence
+      - Report - Checklist
+      - Report - General
+      - Report - New Deputy Report
+      - Safeguarding
+      - Visit
+    example: 'Report - General'
+  DeputyDocumentResponseCollection:
+    type: array
+    minItems: 0
+    items:
+      $ref: '#/definitions/DeputyDocumentResponse'
+  DeputyDocumentResponse:
+    type: object
+    required:
+      - uuid
+    properties:
+      type:
+        $ref: '#/definitions/NoteType'
+      filename:
+        type: string
+        example: 'Report_1234567T_2018_2019_11111.pdf'
+      mimetype:
+        type: string
+        example: 'application/pdf'
+      metadata:
+        type: object
+        description: Metadata matches the metadata received in the request
+      uuid:
+        $ref: '#/definitions/DocumentUuid'
+      parentUuid:
+        $ref: '#/definitions/DocumentUuid'
+  DeputyDocumentFile:
+    type: object
+    description: The base64 encoded file
+    required:
+      - name
+      - type
+      - source
+    properties:
+      name:
+        type: string
+        example: Report_1234567T_2018_2019_11111.pdf
+      type:
+        type: string
+        example: application/pdf
+      source:
+        type: string
+        description: The base64 encoded file
+  CaseRecNumber:
+    type: string
+    pattern: '^([0-9]{7}T|[0-9]{8})$'
+    example: '0319392T'
+  DocumentUuid:
+    type: string
+    format: uuid
+    description: Document UUID
+    pattern: '^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$'
+    example: '5a8b1a26-8296-4373-ae61-f8d0b250e773'

@@ -8,16 +8,18 @@ resource "aws_cloudwatch_log_group" "lambda" {
 }
 
 resource "aws_lambda_function" "lambda_function" {
-  filename         = data.archive_file.lambda_archive.output_path
-  source_code_hash = data.archive_file.lambda_archive.output_base64sha256
-  function_name    = local.lambda
-  role             = aws_iam_role.lambda_role.arn
-  handler          = var.handler
-  memory_size      = var.memory
-  runtime          = "python3.7"
-  timeout          = 30
-  depends_on       = [aws_cloudwatch_log_group.lambda]
-  layers           = [aws_lambda_layer_version.lambda_layer.arn]
+  #  filename         = data.archive_file.lambda_archive.output_path
+  #  source_code_hash = data.archive_file.lambda_archive.output_base64sha256
+  image_uri     = "311462405659.dkr.ecr.eu-west-1.amazonaws.com/casrec-migration/etl0:depreptest"
+  package_type  = "Image"
+  function_name = local.lambda
+  role          = aws_iam_role.lambda_role.arn
+  handler       = var.handler
+  memory_size   = var.memory
+  runtime       = "python3.7"
+  timeout       = 30
+  depends_on    = [aws_cloudwatch_log_group.lambda]
+  #  layers           = [aws_lambda_layer_version.lambda_layer.arn]
   vpc_config {
     subnet_ids         = var.aws_subnet_ids
     security_group_ids = [data.aws_security_group.lambda_api_ingress.id]
