@@ -1,7 +1,7 @@
 version: '3'
 services:
   etl0:
-    image: ${AWS_REGISTRY}/casrec-migration/etl0:${VERSION}
+    image: ${AWS_REGISTRY}/deputy-reporting-lambda:${VERSION}
     build:
       context: ./lambda_functions/v2
       dockerfile: Dockerfile

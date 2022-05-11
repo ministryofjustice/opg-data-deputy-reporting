@@ -1,82 +1,39 @@
-locals {
-  lambda = "${var.lambda_prefix}-${var.environment}-${var.openapi_version}"
-}
-
 resource "aws_cloudwatch_log_group" "lambda" {
-  name = "/aws/lambda/${local.lambda}"
+  name = "/aws/lambda/${var.lambda_name}"
   tags = var.tags
 }
 
 resource "aws_lambda_function" "lambda_function" {
-  #  filename         = data.archive_file.lambda_archive.output_path
-  #  source_code_hash = data.archive_file.lambda_archive.output_base64sha256
-  image_uri     = "311462405659.dkr.ecr.eu-west-1.amazonaws.com/casrec-migration/etl0:depreptest"
-  package_type  = "Image"
-  function_name = local.lambda
+  function_name = var.lambda_name
+  image_uri     = var.image_uri
+  package_type  = var.package_type
   role          = aws_iam_role.lambda_role.arn
-  handler       = var.handler
+  timeout       = var.timeout
   memory_size   = var.memory
-  runtime       = "python3.7"
-  timeout       = 30
   depends_on    = [aws_cloudwatch_log_group.lambda]
-  #  layers           = [aws_lambda_layer_version.lambda_layer.arn]
+
   vpc_config {
     subnet_ids         = var.aws_subnet_ids
     security_group_ids = [data.aws_security_group.lambda_api_ingress.id]
   }
-  environment {
-    variables = {
-      SIRIUS_BASE_URL      = "http://api.${var.target_environment}.ecs"
-      SIRIUS_API_VERSION   = "v1"
-      ENVIRONMENT          = var.account.account_mapping
-      LOGGER_LEVEL         = var.account.logger_level
-      API_VERSION          = var.openapi_version
-      SESSION_DATA         = var.account.session_data
-      DIGIDEPS_S3_BUCKET   = var.account.digideps_bucket_name
-      DIGIDEPS_S3_ROLE_ARN = "arn:aws:iam::${var.account.digideps_account_id}:role/integrations-s3-read-${var.account.account_mapping}"
-    }
-  }
+
   tracing_config {
     mode = "Active"
   }
-  tags = var.tags
+
+  dynamic "environment" {
+    for_each = length(keys(var.environment_variables)) == 0 ? [] : [true]
+    content {
+      variables = var.environment_variables
+    }
+  }
 }
 
 resource "aws_lambda_permission" "lambda_permission" {
-  statement_id  = "AllowApiDeputyReportingGatewayInvoke_${var.environment}-${var.openapi_version}-${var.lambda_function_subdir}"
+  statement_id  = "AllowApiDeputyReportingGatewayInvoke_${var.environment}"
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.lambda_function.function_name
   principal     = "apigateway.amazonaws.com"
 
   source_arn = "${var.rest_api.execution_arn}/*/*/*"
-}
-
-resource "aws_lambda_layer_version" "lambda_layer" {
-  filename         = data.archive_file.lambda_layer_archive.output_path
-  source_code_hash = data.archive_file.lambda_layer_archive.output_base64sha256
-  layer_name       = "requirement_${var.target_environment}"
-
-  compatible_runtimes = ["python3.7"]
-
-  lifecycle {
-    ignore_changes = [
-      source_code_hash
-    ]
-  }
-}
-
-data "local_file" "requirements" {
-  filename = "../../lambda_functions/${var.openapi_version}/requirements/requirements.txt"
-}
-
-data "archive_file" "lambda_archive" {
-  type        = "zip"
-  source_dir  = "../../lambda_functions/${var.openapi_version}/functions/${var.lambda_function_subdir}"
-  output_path = "./lambda_${var.lambda_function_subdir}.zip"
-}
-
-data "archive_file" "lambda_layer_archive" {
-  type        = "zip"
-  source_dir  = "../../lambda_functions/${var.openapi_version}/lambda_layers"
-  output_path = "./lambda_layers_${var.lambda_function_subdir}_${substr(replace(base64sha256(data.local_file.requirements.content_base64), "/[^0-9A-Za-z_]/", ""), 0, 5)}.zip"
 }

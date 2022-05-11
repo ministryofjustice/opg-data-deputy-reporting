@@ -161,8 +161,8 @@ def main():
     headers = {
         "Content-Type": "application/json",
     }
-    branch_prefix = "ddpb9999"
-    casereference = "12345678"
+    branch_prefix = "ddpb4082"
+    casereference = "37421040"
     ver = "v2"
 
     session = get_role_session("sirius-dev", "breakglass")
@@ -170,7 +170,7 @@ def main():
     auth = get_request_auth(credentials)
 
     report_payload = get_report_payload(latest_s3_ref)
-    report_url = f"https://dev.deputy-reporting.api.opg.service.justice.gov.uk/{ver}/clients/{casereference}/reports"
+    report_url = f"https://{branch_prefix}.dev.deputy-reporting.api.opg.service.justice.gov.uk/{ver}/clients/{casereference}/reports"
     response, status = handle_request("POST", report_url, auth, report_payload, headers)
     parent_id = validate_response(status, 201, "annual report", "POST", response, True)
 

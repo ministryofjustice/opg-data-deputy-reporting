@@ -6,6 +6,10 @@ variable "management_role" {
   default = "integrations-ci"
 }
 
+variable "image_tag" {
+  default = "latest"
+}
+
 variable "accounts" {
   type = map(
     object({

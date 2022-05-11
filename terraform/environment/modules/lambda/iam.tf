@@ -1,5 +1,5 @@
 resource "aws_iam_role" "lambda_role" {
-  name               = local.lambda
+  name               = var.lambda_name
   assume_role_policy = data.aws_iam_policy_document.lambda_assume.json
   lifecycle {
     create_before_destroy = true
@@ -42,6 +42,28 @@ data "aws_iam_policy_document" "lambda" {
       "logs:CreateLogStream",
       "logs:PutLogEvents",
       "logs:DescribeLogStreams"
+    ]
+  }
+
+  statement {
+    sid       = "AllowECRAccess"
+    effect    = "Allow"
+    resources = [var.ecr_arn]
+    actions = [
+      "ecr:SetRepositoryPolicy",
+      "ecr:GetRepositoryPolicy",
+      "ecr:GetDownloadUrlForLayer",
+      "ecr:BatchGetImage",
+      "ecr:BatchCheckLayerAvailability",
+      "ecr:GetAuthorizationToken",
+      "ecr:BatchGetImage",
+      "ecr:DescribeImages",
+      "ecr:DescribeRepositories",
+      "ecr:ListImages",
+      "ecr:PutImage",
+      "ecr:InitiateLayerUpload",
+      "ecr:UploadLayerPart",
+      "ecr:CompleteLayerUpload",
     ]
   }
 
