@@ -155,17 +155,17 @@ def validate_response(
 
 def main():
     latest_s3_ref = get_latest_s3_ref(
-        "pa-uploads-branch-replication", "digideps-dev", "breakglass"
+        "pa-uploads-branch-replication", "digideps-dev", "operator"
     )
 
     headers = {
         "Content-Type": "application/json",
     }
-    branch_prefix = "ddpb4082"
-    casereference = "37421040"
+    branch_prefix = "ddpb9999"
+    casereference = "12345678"
     ver = "v2"
 
-    session = get_role_session("sirius-dev", "breakglass")
+    session = get_role_session("sirius-dev", "operator")
     credentials = session.get_credentials()
     auth = get_request_auth(credentials)
 

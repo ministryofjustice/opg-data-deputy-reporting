@@ -1,0 +1,12 @@
+# our base image
+FROM python:3.8-slim
+
+WORKDIR /var/www/
+COPY /lambda_functions/ /var/www/lambda_functions/
+COPY /mock_integration_rest_api/ /var/www/mock_integration_rest_api/
+RUN pip install -r mock_integration_rest_api/requirements.txt
+
+ENV FLASK_APP=app.py
+ENV FLASK_ENV=development
+ENV PYTHONPATH=/var/www
+CMD ["python", "mock_integration_rest_api/app.py"]

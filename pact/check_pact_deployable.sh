@@ -3,7 +3,7 @@ set -e
 
 echo "API version is: ${API_VERSION}"
 python check_pact_deployable.py \
---provider_base_url="http://localhost:4343" \
+--provider_base_url="${PROVIDER_API_URL}" \
 --pact_broker_url="${PACT_BROKER_BASE_URL}" \
 --broker_user_name="admin" \
 --broker_secret_name="pactbroker_admin" \

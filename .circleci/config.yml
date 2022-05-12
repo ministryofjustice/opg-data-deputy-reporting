@@ -89,11 +89,11 @@ workflows:
          tf_workspace: production
          pact_tag_production: true
          filters: {branches:{only:[main]}}
-#  verify_pact:
-#    when: << pipeline.parameters.run_verify_pact >>
-#    jobs:
-#      - pact_verification:
-#          name: verify the latest pact
+  verify_pact:
+    when: << pipeline.parameters.run_verify_pact >>
+    jobs:
+      - pact_verification:
+          name: verify the latest pact
   nightly_workspace_deletion:
     triggers:
       - schedule:
@@ -349,7 +349,7 @@ jobs:
                   --git_commit="${GIT_COMMIT_PROVIDER}"
                 working_directory: ~/project/pact
   pact_verification:
-    executor: digideps-data/python_with_tfvars
+    executor: digideps-data/python
     resource_class: small
     working_directory: ~/project
     parameters:
@@ -358,6 +358,7 @@ jobs:
       GIT_COMMIT_CONSUMER: << pipeline.parameters.consumerversion >>
     steps:
       - checkout
+      - setup_remote_docker
       - run:
           name: Set BASH_ENV
           command: ~/project/.circleci/set_env.sh >> $BASH_ENV
@@ -367,70 +368,16 @@ jobs:
             cd ./mock_integration_rest_api
             ./getopenapidoc
       - run:
-          name: install requirements mock rest api
-          command: |
-            cd ./mock_integration_rest_api
-            pip3 install -r requirements.txt
+          name: build images needed
+          command: docker-compose -f docker-compose.pact.yml build mock-aws-rest-api check-pact-deployable mock-sirius
       - run:
-          name: spin up mock rest api
+          name: bring up mocks
           command: |
-            export PYTHONPATH="${PYTHONPATH}:/home/circleci/project"
-            cd ./mock_integration_rest_api
-            python3 app.py
-          background: true
+            docker-compose -f docker-compose.pact.yml up -d mock-aws-rest-api
+            sleep 10
       - run:
-          name: check mock rest api started
-          command: |
-            sleep 3
-            if [ `netstat -tulpn | grep 4343 | wc -l` -gt 0 ]
-            then
-            echo "Digideps Rest API Service Started Correctly"
-            else
-            echo "Digideps Rest API Service Not Started"
-            fi
-      - run:
-          name: install requirements mock sirius backend
-          command: |
-            cd ./mock_sirius_backend
-            pip3 install -r ./requirements.txt
-      - run:
-          name: spin up mock sirius backend
-          command: |
-            export PYTHONPATH="${PYTHONPATH}:/home/circleci/project"
-            cd ./mock_sirius_backend
-            python3 app.py
-          background: true
-      - run:
-          name: check mock sirius backend started
-          command: |
-            sleep 3
-            if [ `netstat -tulpn | grep 5001 | wc -l` -gt 0 ]
-            then
-            echo "Sirius Backend Service Started Correctly"
-            else
-            echo "Sirius Backend Service Not Started"
-            fi
-      - digideps-data/pact_install
-      - digideps-data/login_codeartifact
-      - run:
-          name: install ci requirements
-          command: pip3 install -r requirements.txt
-          working_directory: ~/project/pact
-      - run:
-          name: verify pact
-          command: |
-            echo ${API_VERSION}
-            python check_pact_deployable.py \
-            --provider_base_url="http://localhost:4343" \
-            --pact_broker_url="${PACT_BROKER_BASE_URL}" \
-            --broker_user_name="admin" \
-            --broker_secret_name="pactbroker_admin" \
-            --consumer_pacticipant="${PACT_CONSUMER}" \
-            --provider_pacticipant="${PACT_PROVIDER}" \
-            --api_version="${API_VERSION}" \
-            --git_commit_consumer="${GIT_COMMIT_CONSUMER}" \
-            --git_commit_provider="${GIT_COMMIT_PROVIDER}"
-          working_directory: ~/project/pact
+          name: run check pact
+          command: docker-compose -f docker-compose.pact.yml up check-pact-deployable
   workspace_protection:
     executor: digideps-data/python_with_tfvars
     resource_class: small

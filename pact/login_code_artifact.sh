@@ -12,8 +12,19 @@ do
   esac
 done
 
+export CURRENT_USER=$(aws sts get-caller-identity | jq -r '.Arn' | awk -F'/' '{print $2}')
+
+echo "current user is: ${CURRENT_USER}"
+
+if [ "${CURRENT_USER}" == "integrations-ci" ]
+then
+  export ROLE="integrations-ci"
+else
+  export ROLE="operator"
+fi
+
 export SECRET_STRING=$(aws sts assume-role \
---role-arn "arn:aws:iam::${ACCOUNT}:role/integrations-ci" \
+--role-arn "arn:aws:iam::${ACCOUNT}:role/${ROLE}" \
 --role-session-name AWSCLI-Session | \
 jq -r '.Credentials.SessionToken + " " + .Credentials.SecretAccessKey + " " + .Credentials.AccessKeyId')
 

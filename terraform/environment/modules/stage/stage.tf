@@ -1,10 +1,4 @@
 locals {
-  #  v1 = {
-  #    healthcheck_function_name : var.healthcheck_lambda.function_name
-  #    reports_function_name : var.reports_lambda.function_name
-  #    supporting_docs_name : var.supportingdocs_lambda.function_name
-  #    checklists_name : var.checklists_lambda.function_name
-  #  }
   //Modify here for new version
   v2 = {
     flask_app_name : var.flaskapp_lambda.function_name

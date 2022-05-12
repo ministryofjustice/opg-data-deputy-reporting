@@ -29,23 +29,18 @@ services:
       # PACT_BROKER_LOG_LEVEL: DEBUG
   mock-aws-rest-api:
     build:
-      context: ./mock_integration_rest_api
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: Dockerfile-rest-api
     environment:
       MOCKING_ENV: mock-sirius
-    volumes:
-      - ./lambda_functions/:/var/www/lambda_functions/
-      - ./mock_integration_rest_api/:/var/www/mock_integration_rest_api/
     ports:
       - "4343:4343"
+    depends_on:
+      - mock-sirius
   mock-sirius:
     build:
       context: ./mock_sirius_backend
       dockerfile: Dockerfile
-    environment:
-      - MOCKING_ENV
-    volumes:
-      - ./mock_sirius_backend/:/var/www/mock_sirius_backend/
     ports:
       - "5001:5001"
   check-pact-deployable:
@@ -56,3 +51,17 @@ services:
         AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
         AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
         AWS_SESSION_TOKEN: $AWS_SESSION_TOKEN
+    environment:
+      AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
+      AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
+      AWS_SESSION_TOKEN: $AWS_SESSION_TOKEN
+      PACT_BROKER_ADMIN: "admin"
+      PROVIDER_API_URL: "http://mock-aws-rest-api:4343"
+      PACT_BROKER_BASE_URL: "https://pact-broker.api.opg.service.justice.gov.uk"
+      PACT_PROVIDER: "OPG%20Data"
+      PACT_CONSUMER: "Complete%20the%20deputy%20report"
+      API_VERSION: "v2"
+      GIT_COMMIT_PROVIDER: $GIT_COMMIT_PROVIDER
+      GIT_COMMIT_CONSUMER: ""
+    depends_on:
+      - mock-aws-rest-api

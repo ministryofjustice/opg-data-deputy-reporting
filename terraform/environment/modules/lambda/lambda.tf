@@ -30,7 +30,7 @@ resource "aws_lambda_function" "lambda_function" {
 }
 
 resource "aws_lambda_permission" "lambda_permission" {
-  statement_id  = "AllowApiDeputyReportingGatewayInvoke_${var.environment}"
+  statement_id  = "AllowApiDeputyReportingGatewayInvoke_${var.environment}_${var.api_version}"
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.lambda_function.function_name
   principal     = "apigateway.amazonaws.com"

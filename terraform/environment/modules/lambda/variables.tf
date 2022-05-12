@@ -2,7 +2,7 @@ variable "environment" {
   description = "The environment lambda is being deployed to."
   type        = string
 }
-#
+
 variable "aws_subnet_ids" {
   description = "A list of subnet ids for vpc connectivity."
   type        = list(string)
@@ -83,4 +83,10 @@ variable "working_directory" {
   description = "The working directory for the docker image."
   type        = string
   default     = null
+}
+
+variable "api_version" {
+  description = "The version deployed."
+  type        = string
+  default     = "v2"
 }
