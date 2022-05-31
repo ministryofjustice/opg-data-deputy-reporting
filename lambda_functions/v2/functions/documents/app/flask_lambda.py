@@ -96,7 +96,6 @@ class LambdaResponse(object):
 
 class FlaskLambda(Flask):
     def __call__(self, event, context):
-
         try:
             if "httpMethod" not in event:
                 print("call as flask app")

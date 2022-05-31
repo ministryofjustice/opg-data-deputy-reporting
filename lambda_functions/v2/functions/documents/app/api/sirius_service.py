@@ -8,7 +8,7 @@ import jwt
 import requests
 from botocore.exceptions import ClientError
 
-from .helpers import custom_logger, custom_api_errors
+from .helpers import custom_logger, custom_api_errors, get_sirius_base_url
 
 # Sirius API Service
 
@@ -61,7 +61,17 @@ def get_secret(environment):
     region_name = "eu-west-1"
 
     session = boto3.session.Session()
-    client = session.client(service_name="secretsmanager", region_name=region_name)
+
+    if os.environ["ENVIRONMENT"] == "local":
+        client = session.client(
+            service_name="secretsmanager",
+            region_name=region_name,
+            endpoint_url="http://localstack:4566",
+            aws_access_key_id="fake",
+            aws_secret_access_key="fake",  # pragma: allowlist secret
+        )
+    else:
+        client = session.client(service_name="secretsmanager", region_name=region_name)
 
     try:
         get_secret_value_response = client.get_secret_value(SecretId=secret_name)
@@ -121,7 +131,7 @@ def new_submit_document_to_sirius(
 
     try:
         SIRIUS_BASE_URL = os.environ["SIRIUS_BASE_URL"]
-        API_VERSION = os.environ["SIRIUS_API_VERSION"]
+        API_VERSION = os.getenv("SIRIUS_API_VERSION")
     except KeyError as e:
         return handle_sirius_error(
             error_message="Expected environment variables not set", error_details=e
@@ -129,7 +139,7 @@ def new_submit_document_to_sirius(
 
     try:
         sirius_api_url = build_sirius_url(
-            base_url=f"{SIRIUS_BASE_URL}/api/public",
+            base_url=get_sirius_base_url(SIRIUS_BASE_URL),
             version=API_VERSION,
             endpoint=endpoint,
             url_params=url_params,

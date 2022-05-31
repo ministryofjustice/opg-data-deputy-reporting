@@ -102,13 +102,29 @@ def error_message(code, message):
     )
 
 
-def handle_file_source(file):
+def get_sirius_base_url(base_url):
+    return (
+        f"{base_url}"
+        if os.environ["ENVIRONMENT"] == "local"
+        else f"{base_url}/api/public"
+    )
 
+
+def handle_file_source(file):
     if "source" not in file and "s3_reference" in file:
 
         try:
             bucket = os.environ["DIGIDEPS_S3_BUCKET"]
-            s3_client = get_digideps_s3_client()
+            if os.environ["ENVIRONMENT"] == "local":
+                s3_session = boto3.session.Session()
+                s3_client = s3_session.client(
+                    "s3",
+                    endpoint_url="http://localstack:4566",
+                    aws_access_key_id="fake",
+                    aws_secret_access_key="fake",  # pragma: allowlist secret
+                )
+            else:
+                s3_client = get_digideps_s3_client()
         except Exception as e:
             logger.error(f"Error handing file: {e}")
             return None

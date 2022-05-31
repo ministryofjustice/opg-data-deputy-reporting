@@ -1,75 +1,31 @@
-module "lamdba_healthcheck_v1" {
-  source                 = "./modules/lambda"
-  environment            = local.environment
-  aws_subnet_ids         = data.aws_subnet_ids.private.ids
-  lambda_prefix          = "sirius-healthcheck"
-  handler                = "healthcheck.lambda_handler"
-  lambda_function_subdir = "healthcheck"
-  tags                   = local.default_tags
-  openapi_version        = "v1"
-  rest_api               = aws_api_gateway_rest_api.deputy_reporting
-  account                = local.account
-  target_environment     = local.target_environment
-  memory                 = 128
-}
-
-module "lambda_reports_v1" {
-  source                 = "./modules/lambda"
-  environment            = local.environment
-  aws_subnet_ids         = data.aws_subnet_ids.private.ids
-  lambda_prefix          = "sirius-reports"
-  handler                = "app.reports.lambda_handler"
-  lambda_function_subdir = "reports"
-  tags                   = local.default_tags
-  openapi_version        = "v1"
-  rest_api               = aws_api_gateway_rest_api.deputy_reporting
-  account                = local.account
-  target_environment     = local.target_environment
-  memory                 = 128
-}
-
-module "lambda_supporting_docs_v1" {
-  source                 = "./modules/lambda"
-  environment            = local.environment
-  aws_subnet_ids         = data.aws_subnet_ids.private.ids
-  lambda_prefix          = "sirius-supporting_docs"
-  handler                = "app.supporting_docs.lambda_handler"
-  lambda_function_subdir = "supporting_docs"
-  tags                   = local.default_tags
-  openapi_version        = "v1"
-  rest_api               = aws_api_gateway_rest_api.deputy_reporting
-  account                = local.account
-  target_environment     = local.target_environment
-  memory                 = 128
-}
-
-module "lambda_checklists_v1" {
-  source                 = "./modules/lambda"
-  environment            = local.environment
-  aws_subnet_ids         = data.aws_subnet_ids.private.ids
-  lambda_prefix          = "sirius-checklists"
-  handler                = "app.checklists.lambda_handler"
-  lambda_function_subdir = "checklists"
-  tags                   = local.default_tags
-  openapi_version        = "v1"
-  rest_api               = aws_api_gateway_rest_api.deputy_reporting
-  account                = local.account
-  target_environment     = local.target_environment
-  memory                 = 128
+data "aws_ecr_repository" "deputy_reporting" {
+  provider = aws.management
+  name     = "deputy-reporting-lambda"
 }
 
 //Modify here for new version
 module "lamdba_flask_v2" {
-  source                 = "./modules/lambda"
-  environment            = local.environment
-  aws_subnet_ids         = data.aws_subnet_ids.private.ids
-  lambda_prefix          = "deputy-reporting"
-  handler                = "app.docs.lambda_handler"
-  lambda_function_subdir = "documents"
-  tags                   = local.default_tags
-  openapi_version        = "v2"
-  rest_api               = aws_api_gateway_rest_api.deputy_reporting
-  account                = local.account
-  target_environment     = local.target_environment
-  memory                 = 1024
+  source            = "./modules/lambda"
+  lambda_name       = "deputy-reporting-${local.environment}-v2"
+  description       = "Function to take manage documents from digideps to sirius"
+  working_directory = "/var/task"
+  environment_variables = {
+    SIRIUS_BASE_URL      = "http://api.${local.target_environment}.ecs"
+    SIRIUS_API_VERSION   = "v1"
+    ENVIRONMENT          = local.account.account_mapping
+    LOGGER_LEVEL         = local.account.logger_level
+    API_VERSION          = "v2"
+    SESSION_DATA         = local.account.session_data
+    DIGIDEPS_S3_BUCKET   = local.account.digideps_bucket_name
+    DIGIDEPS_S3_ROLE_ARN = "arn:aws:iam::${local.account.digideps_account_id}:role/integrations-s3-read-${local.account.account_mapping}"
+  }
+  image_uri          = "${data.aws_ecr_repository.deputy_reporting.repository_url}:${var.image_tag}"
+  ecr_arn            = data.aws_ecr_repository.deputy_reporting.arn
+  tags               = local.default_tags
+  account            = local.account
+  environment        = local.environment
+  rest_api           = aws_api_gateway_rest_api.deputy_reporting
+  target_environment = local.target_environment
+  aws_subnet_ids     = data.aws_subnet_ids.private.ids
+  memory             = 1024
 }

@@ -4,17 +4,17 @@ RUN apt-get update && \
     apt-get install --no-install-suggests --no-install-recommends --yes python3-venv libpq-dev gcc libpython3-dev && \
     python3 -m venv /venv && \
     /venv/bin/pip install --upgrade pip
-COPY requirements.txt .
+COPY /mock_integration_rest_api/requirements.txt .
 RUN /venv/bin/pip install --disable-pip-version-check -r ./requirements.txt
 
 FROM gcr.io/distroless/python3-debian11
 #Define the user-id and copy the packages from the previous builds
 USER 1001
 COPY --chown=1001:1001 --from=build /venv/lib/python3.7/site-packages/ /usr/local/lib/python3.7/site-packages
-COPY --chown=1001:1001 . /app/mock_sirius_backend/
-ENV PYTHONPATH=/usr/local/lib/python3.7/site-packages:/app
+COPY --chown=1001:1001 /lambda_functions /app/lambda_functions
+COPY --chown=1001:1001 /mock_integration_rest_api /app/mock_integration_rest_api
 ENV FLASK_APP=app.py
 ENV FLASK_ENV=development
+ENV PYTHONPATH=/usr/local/lib/python3.7/site-packages:/app
 WORKDIR /app
-
-CMD ["mock_sirius_backend/app.py"]
+CMD ["mock_integration_rest_api/app.py"]

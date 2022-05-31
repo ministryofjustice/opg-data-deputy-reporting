@@ -27,16 +27,10 @@ locals {
     allowed_roles = join(", ", local.account.allowed_roles)
   }
 
-  target_environment = local.branch_build_flag ? "dev" : local.account.target_environment
+  target_environment = local.account.target_environment
   //Modify here for new version
-  //latest_openapi_version = "v1"
   latest_openapi_version = "v2"
   openapispec            = file("../../lambda_functions/${local.latest_openapi_version}/openapi/${local.api_name}-openapi.yml")
-}
-
-//https://github.com/terraform-providers/terraform-provider-aws/issues/5364
-output "policy" {
-  value = aws_api_gateway_rest_api.deputy_reporting.policy
 }
 
 output "rest_arn" {

@@ -24,3 +24,10 @@ echo "export PACT_CONSUMER=${CONSUMER}"
 echo "export PACT_BROKER_BASE_URL=${PACT_BASE_URL}"
 echo "export PACT_BROKER_HTTP_AUTH_USER=${PACT_BROKER_ADMIN}"
 echo "export GITHUB_DIGIDEPS_URL=${DIGIDEPS_URL}"
+
+FILE=~/project/VERSION
+if [[ -f "$FILE" ]]; then
+  VERSION=${VERSION:-$(cat ~/project/VERSION 2>/dev/null)}
+  echo "export VERSION=${VERSION}"
+  echo "export TF_VAR_image_tag=${VERSION}"
+fi

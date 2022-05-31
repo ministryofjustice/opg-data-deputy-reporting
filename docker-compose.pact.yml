@@ -1,0 +1,67 @@
+---
+version: '3'
+
+services:
+  postgres:
+    image: postgres
+    ports:
+      - "8765:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: postgres
+  broker-app:
+    image: pactfoundation/pact-broker
+    ports:
+      - "9897:80"
+      - "9292:9292"
+    links:
+      - postgres
+    depends_on:
+      - postgres
+    environment:
+      PACT_BROKER_DATABASE_USERNAME: postgres
+      PACT_BROKER_DATABASE_PASSWORD: password
+      PACT_BROKER_DATABASE_HOST: postgres
+      PACT_BROKER_DATABASE_NAME: postgres
+      # Uncomment these two options for debugging purposes:
+      # PACT_BROKER_WEBHOOK_HOST_WHITELIST: circleci.com
+      # PACT_BROKER_LOG_LEVEL: DEBUG
+  mock-aws-rest-api:
+    build:
+      context: .
+      dockerfile: Dockerfile-rest-api
+    environment:
+      MOCKING_ENV: mock-sirius
+    ports:
+      - "4343:4343"
+    depends_on:
+      - mock-sirius
+  mock-sirius:
+    build:
+      context: ./mock_sirius_backend
+      dockerfile: Dockerfile
+    ports:
+      - "5001:5001"
+  check-pact-deployable:
+    build:
+      context: ./pact
+      dockerfile: Dockerfile
+      args:
+        AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
+        AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
+        AWS_SESSION_TOKEN: $AWS_SESSION_TOKEN
+    environment:
+      AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
+      AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
+      AWS_SESSION_TOKEN: $AWS_SESSION_TOKEN
+      PACT_BROKER_ADMIN: "admin"
+      PROVIDER_API_URL: "http://mock-aws-rest-api:4343"
+      PACT_BROKER_BASE_URL: "https://pact-broker.api.opg.service.justice.gov.uk"
+      PACT_PROVIDER: "OPG%20Data"
+      PACT_CONSUMER: "Complete%20the%20deputy%20report"
+      API_VERSION: "v2"
+      GIT_COMMIT_PROVIDER: $GIT_COMMIT_PROVIDER
+      GIT_COMMIT_CONSUMER: ""
+    depends_on:
+      - mock-aws-rest-api

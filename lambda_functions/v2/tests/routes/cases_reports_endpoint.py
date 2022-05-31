@@ -232,7 +232,7 @@ def case_bad_params() -> CaseData:
 @case_tags("environment")
 @cases_generator(
     "Missing environment variables - {ev}",
-    ev=["SIRIUS_BASE_URL", "SIRIUS_API_VERSION"],
+    ev=["SIRIUS_BASE_URL"],
 )
 def case_missing_env_vars(ev) -> CaseData:
 
