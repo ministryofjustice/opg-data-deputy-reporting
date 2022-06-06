@@ -2,7 +2,7 @@ from .api.resources import api as api_blueprint
 
 
 def create_app(Flask):
-    print("starting flask app")
+    print("Starting flask app")
     app = Flask(__name__)
     app.register_blueprint(api_blueprint)
 

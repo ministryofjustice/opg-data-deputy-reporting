@@ -1,5 +1,6 @@
 import datetime
 import json
+import copy
 import os
 from urllib.parse import urlparse, urlencode
 
@@ -8,7 +9,7 @@ import jwt
 import requests
 from botocore.exceptions import ClientError
 
-from .helpers import custom_logger, custom_api_errors, get_sirius_base_url
+from .helpers import custom_logger, get_sirius_base_url
 
 # Sirius API Service
 
@@ -114,27 +115,39 @@ def build_sirius_headers(content_type="application/json"):
 def new_post_to_sirius(url, data, headers, method):
     try:
         if method == "PUT":
-            r = requests.put(url=url, data=data, headers=headers)
+            r = requests.put(url=url, data=data, headers=headers, stream=True)
         else:
-            r = requests.post(url=url, data=data, headers=headers)
+            r = requests.post(url=url, data=data, headers=headers, stream=True)
     except Exception as e:
         return handle_sirius_error(
-            error_message="Unable to send document to Sirius", error_details=e
+            error_message="Unable to send document to Sirius",
+            error_details=e,
+            data=data,
         )
 
     return r.status_code, r.json()
 
 
+def get_debug_payload(data):
+    payload = json.loads(data)
+    debug_payload = copy.deepcopy(payload)
+    debug_payload["file"]["source"] = "REDACTED"
+    return json.dumps(debug_payload)
+
+
 def new_submit_document_to_sirius(
     data, method="POST", endpoint="documents", url_params=None
 ):
+    debug_payload = get_debug_payload(data)
 
     try:
         SIRIUS_BASE_URL = os.environ["SIRIUS_BASE_URL"]
         API_VERSION = os.getenv("SIRIUS_API_VERSION")
     except KeyError as e:
         return handle_sirius_error(
-            error_message="Expected environment variables not set", error_details=e
+            error_message="Expected environment variables not set",
+            error_details=e,
+            data=debug_payload,
         )
 
     try:
@@ -146,25 +159,29 @@ def new_submit_document_to_sirius(
         )
     except Exception as e:
         return handle_sirius_error(
-            error_message="Unable to build Siruis URL", error_details=e
+            error_message="Unable to build Siruis URL",
+            error_details=e,
+            data=debug_payload,
         )
 
     try:
         headers = build_sirius_headers()
     except Exception as e:
         return handle_sirius_error(
-            error_message="Unable to build Sirius headers", error_details=e
+            error_message="Unable to build Sirius headers",
+            error_details=e,
+            data=debug_payload,
         )
 
     try:
         sirius_status_code, sirius_response = new_post_to_sirius(
             url=sirius_api_url, data=data, headers=headers, method=method
         )
-
     except Exception as e:
         return handle_sirius_error(
             error_message="Unable to send " "document to " "Sirius",
             error_details=e,
+            data=debug_payload,
         )
 
     try:
@@ -177,25 +194,31 @@ def new_submit_document_to_sirius(
                 error_code=400,
                 error_message="Could not verify URL params in " "Sirius",
                 error_details=sirius_response,
+                data=debug_payload,
             )
         elif sirius_status_code == 400:
             return handle_sirius_error(
                 error_code=400,
                 error_message="Validation failed in Sirius",
                 error_details=sirius_response,
+                data=debug_payload,
             )
         else:
             return handle_sirius_error(
-                error_code=sirius_status_code, error_message=sirius_response
+                error_code=sirius_status_code,
+                error_message=sirius_response,
+                data=debug_payload,
             )
 
     except Exception as e:
-        return handle_sirius_error(error_details=e)
+        return handle_sirius_error(error_details=e, data=debug_payload)
 
     return formatted_status_code, formatted_response
 
 
-def handle_sirius_error(error_code=None, error_message=None, error_details=None):
+def handle_sirius_error(
+    error_code=None, error_message=None, error_details=None, data=None
+):
     error_code = error_code if error_code else 500
     error_message = (
         error_message if error_message else "Unknown error talking to " "Sirius"
@@ -207,8 +230,7 @@ def handle_sirius_error(error_code=None, error_message=None, error_details=None)
     except (KeyError, TypeError):
         error_details = str(error_details) if len(str(error_details)) > 0 else "None"
 
-    message = f"{error_message}, details: {str(error_details)}"
-    logger.error(message)
+    message = f"{error_message}, details: {str(error_details)}, payload: {str(data)}"
     return error_code, message
 
 
@@ -231,95 +253,6 @@ def format_sirius_success(sirius_response_code, sirius_response=None):
     }
 
     return formatted_status_code, formatted_response
-
-
-# DEPRECATED - use new_submit_document_to_sirius instead
-def submit_document_to_sirius(url, data, headers=None, method="POST"):
-    logger.info("SENDING DOC TO SIRIUS")
-    if not headers:
-        headers = build_sirius_headers()
-
-    try:
-        if method == "PUT":
-            r = requests.put(url=url, data=data, headers=headers)
-        else:
-            r = requests.post(url=url, data=data, headers=headers)
-    except Exception as e:
-        print(f"e: {e}")
-
-    try:
-        sirius_response_code = r.status_code
-        if r.status_code in [200, 201]:
-            response = r.content.decode("UTF-8")
-            sirius_response = format_sirius_response(
-                json.loads(response), sirius_response_code
-            )
-        else:
-            logger.info(
-                f"Unable to send request to Sirius, response code {r.status_code}"
-            )
-            sirius_response = format_sirius_response(
-                sirius_response_code=sirius_response_code
-            )
-
-    except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
-        logger.info(f"Unable to send request to Sirius, server not available: {e}")
-        sirius_response_code = 500
-        sirius_response = format_sirius_response()
-
-    logger.info(f"sirius_response: {sirius_response}")
-
-    return (sirius_response_code, sirius_response)
-
-
-# DEPRECATED - use format_sirius_success and handle_sirius_error instead
-def format_sirius_response(sirius_response=None, sirius_response_code=500):
-    if sirius_response is None:
-        sirius_response = {}
-
-    try:
-        if sirius_response_code in [200, 201]:
-            response = {
-                "data": {
-                    "type": sirius_response["type"],
-                    "id": sirius_response["uuid"],
-                    "attributes": {
-                        "submission_id": sirius_response["metadata"]["submission_id"]
-                        if "submission_id" in sirius_response["metadata"]
-                        else None,
-                        "parent_id": sirius_response["parentUuid"]
-                        if "parentUuid" in sirius_response
-                        else None,
-                    },
-                }
-            }
-        else:
-            response = {
-                "errors": {
-                    "id": "",
-                    "code": custom_api_errors[str(sirius_response_code)]["error_code"],
-                    "title": custom_api_errors[str(sirius_response_code)][
-                        "error_title"
-                    ],
-                    "detail": custom_api_errors[str(sirius_response_code)][
-                        "error_message"
-                    ],
-                    "meta": {},
-                }
-            }
-
-    except KeyError:
-        response = {
-            "errors": {
-                "id": "",
-                "code": custom_api_errors[str(sirius_response_code)]["error_code"],
-                "title": custom_api_errors[str(sirius_response_code)]["error_title"],
-                "detail": custom_api_errors[str(sirius_response_code)]["error_message"],
-                "meta": {"sirius_error": "Error validating Sirius Public API response"},
-            }
-        }
-
-    return response
 
 
 def send_get_to_sirius(url, headers=None):

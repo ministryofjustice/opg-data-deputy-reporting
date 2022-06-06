@@ -1,6 +1,5 @@
 import json
 import os
-import copy
 
 from . import sirius_service
 from .helpers import custom_logger, handle_file_source, get_sirius_base_url
@@ -50,11 +49,6 @@ def transform_payload_to_sirius_post_request(
 
     if parent_id:
         payload["parentUuid"] = parent_id
-
-    debug_payload = copy.deepcopy(payload)
-    debug_payload["file"]["source"] = "REDACTED"
-
-    logger.info(f"Sirius Payload: {debug_payload}")
 
     return json.dumps(payload)
 
@@ -106,7 +100,6 @@ def determine_document_parent_id(data, case_ref, report_id):
                         break
                     elif "parentUuid" not in entry:
                         parent_id = entry["uuid"]
-                        # parent_id = None
                         break
                     else:
                         logger.info("Unable to determine parent id of document")

@@ -39,7 +39,6 @@ __version__ = "0.0.4"
 
 def make_environ(event):
     environ = {}
-    print("resource:", event["resource"], "path:", event["path"])
     # key might be there but set to None
     headers = event.get("headers", {}) or {}
     for hdr_name, hdr_value in headers.items():
@@ -55,6 +54,8 @@ def make_environ(event):
 
     environ["REQUEST_METHOD"] = event["httpMethod"]
     environ["PATH_INFO"] = event["path"]
+    environ["SOURCE_IP"] = event["requestContext"]["identity"]["sourceIp"]
+    environ["USER_AGENT"] = event["requestContext"]["identity"]["userAgent"]
     environ["QUERY_STRING"] = urlencode(qs) if qs else ""
 
     environ["REMOTE_ADDR"] = environ.get("X_FORWARDED_FOR")
@@ -67,7 +68,7 @@ def make_environ(event):
     environ["SERVER_NAME"] = "SERVER_NAME"
 
     environ["SERVER_PORT"] = environ.get("HTTP_X_FORWARDED_PORT", "")
-    environ["SERVER_PROTOCOL"] = "HTTP/1.1"
+    environ["SERVER_PROTOCOL"] = event["requestContext"]["protocol"]
 
     environ["CONTENT_LENGTH"] = str(len(event["body"]) if event["body"] else "")
 
@@ -98,13 +99,11 @@ class FlaskLambda(Flask):
     def __call__(self, event, context):
         try:
             if "httpMethod" not in event:
-                print("call as flask app")
                 # In this "context" `event` is `environ` and
                 # `context` is `start_response`, meaning the request didn't
                 # occur via API Gateway and Lambda
                 return super(FlaskLambda, self).__call__(event, context)
 
-            print("call as aws lambda")
             response = LambdaResponse()
 
             body = b"".join(self.wsgi_app(make_environ(event), response.start_response))
