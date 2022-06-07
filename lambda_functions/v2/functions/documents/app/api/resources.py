@@ -7,7 +7,7 @@ from .helpers import (
     custom_logger,
     error_message,
     get_request_details_for_logs,
-    custom_api_errors,
+    validate_request_data,
 )
 
 logger = custom_logger("resources")
@@ -33,19 +33,7 @@ def handle_healthcheck():
 @api.route("/clients/<caseref>/reports", methods=["POST"])
 def handle_reports(caseref):
     request_information = get_request_details_for_logs(request)
-    if "application/json" not in request.headers["Content-Type"]:
-        request_information["status"] = 415
-        logger.error(
-            custom_api_errors["415"]["error_message"], extra=request_information
-        )
-        abort(415)
-
-    try:
-        data = request.get_json()
-    except Exception as e:
-        request_information["status"] = 400
-        logger.error(e, extra=request_information)
-        abort(400, e)
+    data = validate_request_data(request, request_information)
 
     response_data, response_status = reports.endpoint_handler(
         data=data, caseref=caseref
@@ -63,19 +51,7 @@ def handle_reports(caseref):
 @api.route("/clients/<caseref>/reports/<id>/supportingdocuments", methods=["POST"])
 def handle_supporting_docs(caseref, id):
     request_information = get_request_details_for_logs(request)
-    if "application/json" not in request.headers["Content-Type"]:
-        request_information["status"] = 415
-        logger.error(
-            custom_api_errors["415"]["error_message"], extra=request_information
-        )
-        abort(415)
-
-    try:
-        data = request.get_json()
-    except Exception as e:
-        request_information["status"] = 400
-        logger.error(e, extra=request_information)
-        abort(400, e)
+    data = validate_request_data(request, request_information)
 
     response_data, response_status = supporting_docs.endpoint_handler(
         data=data, caseref=caseref, id=id
@@ -93,19 +69,7 @@ def handle_supporting_docs(caseref, id):
 @api.route("/clients/<caseref>/reports/<id>/checklists", methods=["POST"])
 def handle_checklists(caseref, id, checklistId=None):
     request_information = get_request_details_for_logs(request)
-    if "application/json" not in request.headers["Content-Type"]:
-        request_information["status"] = 415
-        logger.error(
-            custom_api_errors["415"]["error_message"], extra=request_information
-        )
-        abort(415)
-
-    try:
-        data = request.get_json()
-    except Exception as e:
-        request_information["status"] = 400
-        logger.error(e, extra=request_information)
-        abort(400, e)
+    data = validate_request_data(request, request_information)
 
     response_data, response_status = checklists.endpoint_handler(
         data=data,

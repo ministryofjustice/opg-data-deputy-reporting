@@ -115,9 +115,9 @@ def build_sirius_headers(content_type="application/json"):
 def new_post_to_sirius(url, data, headers, method):
     try:
         if method == "PUT":
-            r = requests.put(url=url, data=data, headers=headers, stream=True)
+            r = requests.put(url=url, data=data, headers=headers)
         else:
-            r = requests.post(url=url, data=data, headers=headers, stream=True)
+            r = requests.post(url=url, data=data, headers=headers)
     except Exception as e:
         return handle_sirius_error(
             error_message="Unable to send document to Sirius",

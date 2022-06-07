@@ -1,5 +1,5 @@
 {
-	"body": "{\"report\": {\"data\": {\"type\": \"reports\", \"attributes\": {\"submission_id\": 12346, \"reporting_period_from\": \"2020-01-01\", \"reporting_period_to\": \"2020-12-31\", \"year\": 2020, \"date_submitted\": \"2020-01-03T09:30:00.001Z\", \"type\": \"PF\"}, \"file\": {\"name\": \"Report_1234567T_2018_2019_11112.pdf\", \"mimetype\": \"application/pdf\", \"s3_reference\": \"test22.pdf\"}}}}",
+	"body": "{\"report\": {\"data\": {\"type\": \"reports\", \"attributes\": {\"submission_id\": 12346, \"reporting_period_from\": \"2020-01-01\", \"reporting_period_to\": \"2020-12-31\", \"year\": 2020, \"date_submitted\": \"2020-01-03T09:30:00.001Z\", \"type\": \"PF\"}, \"file\": {\"name\": \"Report_1234567T_2018_2019_11112.pdf\", \"mimetype\": \"application/pdf\", \"s3_reference\": \"test.pdf\"}}}}",
 	"queryStringParameters": null,
 	"pathParameters": {
 		"caseref": "12345678"

@@ -5,7 +5,7 @@ import os
 import json
 
 import boto3
-from flask import jsonify
+from flask import jsonify, abort
 
 
 class JsonFormatter(logging.Formatter):
@@ -35,6 +35,9 @@ class JsonFormatter(logging.Formatter):
         return "asctime" in self.fmt_dict.values()
 
     def checkKey(self, record, fmt_val):
+        """
+        Returns the value if it exists or empty string otherwise to avoid key errors
+        """
         return record.__dict__[fmt_val] if fmt_val in record.__dict__ else ""
 
     def formatMessage(self, record) -> dict:
@@ -60,8 +63,7 @@ class JsonFormatter(logging.Formatter):
         message_dict = self.formatMessage(record)
 
         if record.exc_info:
-            # Cache the traceback text to avoid converting it multiple times
-            # (it's constant anyway)
+            # Cache the traceback text to avoid converting it multiple times (it's constant anyway)
             if not record.exc_text:
                 record.exc_text = self.formatException(record.exc_info)
 
@@ -166,8 +168,26 @@ def get_request_details_for_logs(request):
         "method": request.environ["REQUEST_METHOD"],
         "protocol": request.environ["SERVER_PROTOCOL"],
         "request_uri": request.environ["PATH_INFO"],
-        "status": 500,
+        "status": None,
     }
+
+
+def validate_request_data(request, request_information):
+    if "application/json" not in request.headers["Content-Type"]:
+        request_information["status"] = 415
+        logger.error(
+            custom_api_errors["415"]["error_message"], extra=request_information
+        )
+        abort(415)
+
+    try:
+        data = request.get_json()
+    except Exception as e:
+        request_information["status"] = 400
+        logger.error(e, extra=request_information)
+        abort(400, e)
+
+    return data
 
 
 def error_message(code, message):
