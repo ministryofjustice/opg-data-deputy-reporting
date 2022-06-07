@@ -2,19 +2,101 @@
 import base64
 import logging
 import os
+import json
 
 import boto3
-from flask import jsonify
+from flask import jsonify, abort
+
+
+class JsonFormatter(logging.Formatter):
+    """
+    Formatter that outputs JSON strings after parsing the LogRecord.
+
+    @param dict fmt_dict: Key: logging format attribute pairs. Defaults to {"message": "message"}.
+    @param str time_format: time.strftime() format string. Default: "%Y-%m-%dT%H:%M:%S"
+    @param str msec_format: Microsecond formatting. Appended at the end. Default: "%s.%03dZ"
+    """
+
+    def __init__(
+        self,
+        fmt_dict: dict = None,
+        time_format: str = "%Y-%m-%dT%H:%M:%S",
+        msec_format: str = "%s.%03dZ",
+    ):
+        self.fmt_dict = fmt_dict if fmt_dict is not None else {"message": "message"}
+        self.default_time_format = time_format
+        self.default_msec_format = msec_format
+        self.datefmt = None
+
+    def usesTime(self) -> bool:
+        """
+        Overwritten to look for the attribute in the format dict values instead of the fmt string.
+        """
+        return "asctime" in self.fmt_dict.values()
+
+    def checkKey(self, record, fmt_val):
+        """
+        Returns the value if it exists or empty string otherwise to avoid key errors
+        """
+        return record.__dict__[fmt_val] if fmt_val in record.__dict__ else ""
+
+    def formatMessage(self, record) -> dict:
+        """
+        Overwritten to return a dictionary of the relevant LogRecord attributes instead of a string.
+        We avoid KeyError by returning "" if key doesn't exist.
+        """
+        return {
+            fmt_key: self.checkKey(record, fmt_val)
+            for fmt_key, fmt_val in self.fmt_dict.items()
+        }
+
+    def format(self, record) -> str:
+        """
+        Mostly the same as the parent's class method, the difference being that a dict is manipulated and dumped as JSON
+        instead of a string.
+        """
+        record.message = record.getMessage()
+
+        if self.usesTime():
+            record.asctime = self.formatTime(record, self.datefmt)
+
+        message_dict = self.formatMessage(record)
+
+        if record.exc_info:
+            # Cache the traceback text to avoid converting it multiple times (it's constant anyway)
+            if not record.exc_text:
+                record.exc_text = self.formatException(record.exc_info)
+
+        if record.exc_text:
+            message_dict["exc_info"] = record.exc_text
+
+        if record.stack_info:
+            message_dict["stack_info"] = self.formatStack(record.stack_info)
+
+        return json.dumps(message_dict, default=str)
 
 
 def custom_logger(name):
-    formatter = logging.Formatter(
-        fmt=f"%(asctime)s - %(levelname)s - {name} - in %("
-        f"funcName)s:%(lineno)d - %(message)s"
+
+    json_formatter = JsonFormatter(
+        {
+            "level": "levelname",
+            "timestamp": "asctime",
+            "request_uri": "request_uri",
+            "message": "message",
+            "status": "status",
+            "loggerName": "name",
+            "functionName": "funcName",
+            "lineNumber": "lineno",
+            "source_ip": "source_ip",
+            "user_agent": "user_agent",
+            "method": "method",
+            "protocol": "protocol",
+        }
     )
 
     handler = logging.StreamHandler()
-    handler.setFormatter(formatter)
+    handler.setFormatter(json_formatter)
 
     logger = logging.getLogger(name)
     try:
@@ -77,6 +159,35 @@ custom_api_errors = {
         "error_title": "Service Unavailable",
     },
 }
+
+
+def get_request_details_for_logs(request):
+    return {
+        "source_ip": request.environ["SOURCE_IP"],
+        "user_agent": request.environ["USER_AGENT"],
+        "method": request.environ["REQUEST_METHOD"],
+        "protocol": request.environ["SERVER_PROTOCOL"],
+        "request_uri": request.environ["PATH_INFO"],
+        "status": None,
+    }
+
+
+def validate_request_data(request, request_information):
+    if "application/json" not in request.headers["Content-Type"]:
+        request_information["status"] = 415
+        logger.error(
+            custom_api_errors["415"]["error_message"], extra=request_information
+        )
+        abort(415)
+
+    try:
+        data = request.get_json()
+    except Exception as e:
+        request_information["status"] = 400
+        logger.error(e, extra=request_information)
+        abort(400, e)
+
+    return data
 
 
 def error_message(code, message):

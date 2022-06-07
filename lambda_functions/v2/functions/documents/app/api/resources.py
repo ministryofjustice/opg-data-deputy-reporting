@@ -3,7 +3,12 @@ import os
 from flask import Blueprint, abort, request, jsonify
 
 from . import reports, supporting_docs, checklists, healthcheck
-from .helpers import custom_logger, error_message
+from .helpers import (
+    custom_logger,
+    error_message,
+    get_request_details_for_logs,
+    validate_request_data,
+)
 
 logger = custom_logger("resources")
 
@@ -27,48 +32,34 @@ def handle_healthcheck():
 
 @api.route("/clients/<caseref>/reports", methods=["POST"])
 def handle_reports(caseref):
-    print(f"caseref: {caseref}")
-
-    if "application/json" not in request.headers["Content-Type"]:
-        abort(415)
-
-    try:
-        data = request.get_json()
-    except Exception as e:
-        abort(400, e)
+    request_information = get_request_details_for_logs(request)
+    data = validate_request_data(request, request_information)
 
     response_data, response_status = reports.endpoint_handler(
         data=data, caseref=caseref
     )
-
-    logger.info(f"Path: {request.url}, Response: {response_status}")
+    request_information["status"] = response_status
 
     if response_status in [201, 200]:
+        logger.info(response_data, extra=request_information)
         return jsonify(response_data), response_status
     else:
+        logger.error(response_data, extra=request_information)
         abort(response_status, description=response_data)
 
 
 @api.route("/clients/<caseref>/reports/<id>/supportingdocuments", methods=["POST"])
 def handle_supporting_docs(caseref, id):
-
-    print(f"request.method: {request.method}")
-
-    if "application/json" not in request.headers["Content-Type"]:
-        abort(415)
-
-    try:
-        data = request.get_json()
-    except Exception as e:
-        abort(400, e)
+    request_information = get_request_details_for_logs(request)
+    data = validate_request_data(request, request_information)
 
     response_data, response_status = supporting_docs.endpoint_handler(
         data=data, caseref=caseref, id=id
     )
-
-    logger.info(f"Path: {request.url}, Response: {response_status}")
+    request_information["status"] = response_status
 
     if response_status in [201, 200]:
+        logger.info(response_data, extra=request_information)
         return jsonify(response_data), response_status
     else:
         abort(response_status, description=response_data)
@@ -77,13 +68,8 @@ def handle_supporting_docs(caseref, id):
 @api.route("/clients/<caseref>/reports/<id>/checklists/<checklistId>", methods=["PUT"])
 @api.route("/clients/<caseref>/reports/<id>/checklists", methods=["POST"])
 def handle_checklists(caseref, id, checklistId=None):
-    if "application/json" not in request.headers["Content-Type"]:
-        abort(415)
-
-    try:
-        data = request.get_json()
-    except Exception as e:
-        abort(400, e)
+    request_information = get_request_details_for_logs(request)
+    data = validate_request_data(request, request_information)
 
     response_data, response_status = checklists.endpoint_handler(
         data=data,
@@ -92,12 +78,13 @@ def handle_checklists(caseref, id, checklistId=None):
         checklist_id=checklistId,
         method=request.method,
     )
-
-    logger.info(f"Path: {request.url}, Response: {response_status}")
+    request_information["status"] = response_status
 
     if response_status in [201, 200]:
+        logger.info(response_data, extra=request_information)
         return jsonify(response_data), response_status
     else:
+        logger.error(response_data, extra=request_information)
         abort(response_status, description=response_data)
 
 
