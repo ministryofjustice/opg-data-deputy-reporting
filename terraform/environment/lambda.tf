@@ -1,13 +1,13 @@
 data "aws_ecr_repository" "deputy_reporting" {
   provider = aws.management
-  name     = "deputy-reporting-lambda"
+  name     = "integrations/deputy-reporting-lambda"
 }
 
 //Modify here for new version
 module "lamdba_flask_v2" {
   source            = "./modules/lambda"
   lambda_name       = "deputy-reporting-${local.environment}-v2"
-  description       = "Function to take manage documents from digideps to sirius"
+  description       = "Function to manage documents from digideps to sirius"
   working_directory = "/var/task"
   environment_variables = {
     SIRIUS_BASE_URL      = "http://api.${local.target_environment}.ecs"
