@@ -17,11 +17,33 @@ resource "aws_ecs_task_definition" "deputy_reporting_mock_sirius" {
   )
 }
 
+resource "aws_service_discovery_private_dns_namespace" "deputy_reporting" {
+  name = "deputy-reporting-${local.environment}.ecs"
+  vpc  = local.account.vpc_id
+  tags = local.default_tags
+}
+
+resource "aws_service_discovery_service" "deputy_reporting_mock_sirius" {
+  name = "deputy-reporting-mock-sirius"
+
+  dns_config {
+    namespace_id = aws_service_discovery_private_dns_namespace.deputy_reporting.id
+    dns_records {
+      ttl  = 10
+      type = "A"
+    }
+    routing_policy = "MULTIVALUE"
+  }
+
+  tags          = local.default_tags
+  force_destroy = true
+}
+
 resource "aws_ecs_service" "mock_sirius" {
   name                    = aws_ecs_task_definition.deputy_reporting_mock_sirius.family
   cluster                 = aws_ecs_cluster.deputy_reporting.id
   task_definition         = aws_ecs_task_definition.deputy_reporting_mock_sirius.arn
-  desired_count           = 0
+  desired_count           = 1
   launch_type             = "FARGATE"
   platform_version        = "1.4.0"
   enable_ecs_managed_tags = true
@@ -33,6 +55,10 @@ resource "aws_ecs_service" "mock_sirius" {
     security_groups  = [aws_security_group.deputy_reporting_mock_sirius.id]
     subnets          = data.aws_subnet_ids.private.ids
     assign_public_ip = false
+  }
+
+  service_registries {
+    registry_arn = aws_service_discovery_service.deputy_reporting_mock_sirius.arn
   }
 }
 

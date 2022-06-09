@@ -10,7 +10,8 @@ module "lamdba_flask_v2" {
   description       = "Function to manage documents from digideps to sirius"
   working_directory = "/var/task"
   environment_variables = {
-    SIRIUS_BASE_URL      = "http://api.${local.target_environment}.ecs"
+    SIRIUS_BASE_URL = "http://deputy-reporting-mock-sirius.deputy-reporting-ddpb4323.ecs"
+    #    "http://api.${local.target_environment}.ecs"
     SIRIUS_API_VERSION   = "v1"
     ENVIRONMENT          = local.account.account_mapping
     LOGGER_LEVEL         = local.account.logger_level

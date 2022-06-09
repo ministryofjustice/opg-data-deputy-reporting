@@ -10,4 +10,6 @@ services:
       - ./mock_sirius/openapi.yml:/app/openapi.yml
   unit-tests:
     volumes:
-      - ./lambda_functions/v2/functions/documents/app:/var/task/app
+      - ./lambda_functions/v2/tests:/app/lambda_functions/v2/tests
+      - ./lambda_functions/v2/functions:/app/lambda_functions/v2/functions
+      - ./lambda_functions/v2/test-app.sh:/app/test-app.sh

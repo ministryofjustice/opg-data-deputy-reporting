@@ -46,7 +46,7 @@ def test_submit_env_vars_broken(monkeypatch, case_data: CaseDataGetter):
         data=data, method=method, endpoint=endpoint, url_params=url_params
     )
 
-    assert response == expected_response
+    assert expected_response in response
 
 
 @cases_data(module=cases_submit_doc_to_sirius, has_tag="post_error")

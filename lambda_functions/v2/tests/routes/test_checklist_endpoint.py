@@ -11,7 +11,9 @@ from lambda_functions.v2.tests.routes import (
 
 
 @pytest.mark.run(order=1)
-@pytest.mark.usefixtures("patched_get_secret", "patched_post")
+@pytest.mark.usefixtures(
+    "patched_get_secret", "patched_post", "patched_get_request_details_for_logs"
+)
 @cases_data(module=cases_checklist_post_endpoint)
 def test_checklist_post(server, case_data: CaseDataGetter):
     (
@@ -42,7 +44,9 @@ def test_checklist_post(server, case_data: CaseDataGetter):
 
 
 @pytest.mark.run(order=1)
-@pytest.mark.usefixtures("patched_get_secret", "patched_post")
+@pytest.mark.usefixtures(
+    "patched_get_secret", "patched_post", "patched_get_request_details_for_logs"
+)
 @cases_data(module=cases_checklist_put_endpoint)
 def test_checklist_put(server, case_data: CaseDataGetter):
     (

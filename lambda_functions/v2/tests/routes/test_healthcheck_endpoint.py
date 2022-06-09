@@ -5,7 +5,6 @@ import requests
 @pytest.mark.run(order=1)
 @pytest.mark.usefixtures(
     "patched_get_secret",
-    "patched_submit_document_to_sirius",
     "patched_send_get_to_sirius_healthcheck",
 )
 def test_healthcheck(server):

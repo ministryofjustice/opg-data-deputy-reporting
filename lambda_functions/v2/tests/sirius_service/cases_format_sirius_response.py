@@ -107,7 +107,7 @@ def case_all() -> CaseData:
     error_details = "here's some more details"
 
     api_response_code = 400
-    api_response = "spurious sirius error message, details: here's some more details"
+    api_response = "spurious sirius error message, details: here's some more details, payload: None"
 
     return (
         sirius_response_code,
@@ -127,7 +127,7 @@ def case_code_missing() -> CaseData:
     error_details = "here's some more details"
 
     api_response_code = 500
-    api_response = "spurious sirius error message, details: here's some more details"
+    api_response = "spurious sirius error message, details: here's some more details, payload: None"
 
     return (
         sirius_response_code,
@@ -147,7 +147,7 @@ def case_message_missing() -> CaseData:
     error_details = "here's some more details"
 
     api_response_code = 400
-    api_response = "Unknown error talking to Sirius, details: here's some more details"
+    api_response = "Unknown error talking to Sirius, details: here's some more details, payload: None"
 
     return (
         sirius_response_code,
@@ -167,7 +167,7 @@ def case_missing_details() -> CaseData:
     error_details = None
 
     api_response_code = 400
-    api_response = "spurious sirius error message, details: None"
+    api_response = "spurious sirius error message, details: None, payload: None"
 
     return (
         sirius_response_code,
@@ -187,7 +187,7 @@ def case_empty_details() -> CaseData:
     error_details = ""
 
     api_response_code = 400
-    api_response = "spurious sirius error message, details: None"
+    api_response = "spurious sirius error message, details: None, payload: None"
 
     return (
         sirius_response_code,

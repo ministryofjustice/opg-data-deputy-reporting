@@ -162,6 +162,8 @@ def mock_env_setup(monkeypatch):
     monkeypatch.setenv("SESSION_DATA", "publicapi@opgtest.com")
     monkeypatch.setenv("API_VERSION", "flask")
     monkeypatch.setenv("SIRIUS_API_VERSION", "flask")
+    monkeypatch.setenv("SOURCE_IP", "192.1.1.1")
+    monkeypatch.setenv("USER_AGENT", "pytest")
 
 
 sirius_report_response = json.dumps(
@@ -237,15 +239,6 @@ def patched_requests_flask(monkeypatch):
     monkeypatch.setattr(requests, "get", mock_get)
 
 
-@pytest.fixture()
-def patched_get_secret(monkeypatch):
-    def mock_secret(*args, **kwargs):
-        print("I AM A FAKE SECRET")
-        return "this_is_a_secret_string"
-
-    monkeypatch.setattr(sirius_service, "get_secret", mock_secret)
-
-
 @pytest.fixture
 def patched_send_get_to_sirius(monkeypatch):
     def mock_response(url):
@@ -285,42 +278,6 @@ def patched_send_get_to_sirius(monkeypatch):
         return 200, mock_response
 
     monkeypatch.setattr(sirius_service, "send_get_to_sirius", mock_response)
-
-
-@pytest.fixture()
-def patched_submit_document_to_sirius(monkeypatch):
-    def mock_submit_document_to_sirius(*args, **kwargs):
-        print("FAKE POST TO SIRIUS")
-
-        try:
-            data = json.loads(kwargs["data"])
-            print(f"data: {data}")
-        except (KeyError, TypeError) as e:
-            print(f"error getting post data: {e}")
-
-        try:
-            case_ref = json.loads(kwargs["data"])["caseRecNumber"]
-            print(f"case_ref from conftest: {case_ref}")
-        except (KeyError, TypeError) as e:
-            print(f"error getting caseRecNumber: {e}")
-
-        response_code = 404
-        response_data = {
-            "data": {
-                "type": "",
-                "id": "",
-                "attributes": {"submission_id": "", "parent_id": ""},
-            }
-        }
-
-        print(f"(response_code, response_data): {(response_code, response_data)}")
-        return (response_code, response_data)
-
-    monkeypatch.setattr(
-        lambda_functions.v2.functions.documents.app.api.sirius_service,
-        "submit_document_to_sirius",
-        mock_submit_document_to_sirius,
-    )
 
 
 valid_case_refs = ["1111", "2222", "3333"]
@@ -432,3 +389,31 @@ def patched_post_broken_sirius(request, monkeypatch):
     monkeypatch.setattr(
         api.sirius_service, "new_post_to_sirius", mock_post_to_broken_sirius
     )
+
+
+@pytest.fixture(autouse=True)
+def patched_get_request_details_for_logs(monkeypatch):
+    def mock_get_request_details_for_logs(*args, **kwargs):
+        return {
+            "source_ip": "192.1.1.1",
+            "user_agent": "pytest",
+            "method": "GET",
+            "protocol": "SSL",
+            "request_uri": "/fake/uri",
+            "status": None,
+        }
+
+    monkeypatch.setattr(
+        lambda_functions.v2.functions.documents.app.api.resources,
+        "get_request_details_for_logs",
+        mock_get_request_details_for_logs,
+    )
+
+
+@pytest.fixture()
+def patched_get_secret(monkeypatch):
+    def mock_secret(*args, **kwargs):
+        print("I AM A FAKE SECRET")
+        return "this_is_a_secret_string"
+
+    monkeypatch.setattr(sirius_service, "get_secret", mock_secret)

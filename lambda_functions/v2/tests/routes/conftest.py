@@ -1,4 +1,3 @@
-import json
 import logging
 import os
 import socket
@@ -113,40 +112,7 @@ def aws_credentials():
     os.environ["AWS_XRAY_CONTEXT_MISSING"] = "LOG_ERROR"
 
 
-@pytest.fixture(autouse=True)
-def patched_get_secret(monkeypatch):
-    def mock_secret(*args, **kwargs):
-        print("I AM A FAKE SECRET")
-        return "this_is_a_secret_string"
-
-    monkeypatch.setattr(api.sirius_service, "get_secret", mock_secret)
-
-
 valid_case_refs = ["1111", "2222", "3333"]
-
-
-@pytest.fixture(autouse=True)
-def patched_submit_document_to_sirius(monkeypatch):
-    def mock_submit_document_to_sirius(*args, **kwargs):
-        print("FAKE POST TO SIRIUS")
-
-        data = json.loads(kwargs["data"])
-        case_ref = data["caseRecNumber"]
-        print(f"case_ref: {type(case_ref)}")
-
-        if case_ref in valid_case_refs:
-            response_code = 201
-            response_data = {"uuid": "5a8b1a26-8296-4373-ae61-f8d0b250e773"}
-        else:
-            response_code = 404
-            response_data = None
-
-        print(f"(response_code, response_data): {(response_code, response_data)}")
-        return (response_code, response_data)
-
-    monkeypatch.setattr(
-        api.sirius_service, "submit_document_to_sirius", mock_submit_document_to_sirius
-    )
 
 
 @pytest.fixture(autouse=True)

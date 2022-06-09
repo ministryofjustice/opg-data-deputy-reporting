@@ -14,6 +14,7 @@ from lambda_functions.v2.tests.routes import cases_supporting_docs_endpoint
     "patched_get_secret",
     "patched_post",
     "patched_send_get_to_sirius",
+    "patched_get_request_details_for_logs",
 )
 @cases_data(module=cases_supporting_docs_endpoint, has_tag="success")
 def test_supporting_docs(server, case_data: CaseDataGetter):
@@ -50,6 +51,7 @@ def test_supporting_docs(server, case_data: CaseDataGetter):
     "patched_get_secret",
     "patched_post_broken_sirius",
     "patched_send_get_to_sirius",
+    "patched_get_request_details_for_logs",
 )
 @cases_data(module=cases_supporting_docs_endpoint, has_tag="error")
 def test_supporting_docs_errors(server, case_data: CaseDataGetter):
