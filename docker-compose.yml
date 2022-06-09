@@ -32,7 +32,7 @@ services:
       context: ./localstack_initialisation
       dockerfile: Dockerfile
     environment:
-      - SERVICES=s3,secretsmanager,lambda
+      - SERVICES=s3,secretsmanager,lambda,sqs
       - DEFAULT_REGION=eu-west-1
       - USE_SINGLE_REGION=1
       - DEBUG=1
