@@ -15,8 +15,23 @@ awslocal sqs create-queue --queue-name csv-sync-queue
 
 #zip /tmp/localstack/main.zip /tmp/localstack/main
 
-awslocal lambda create-function --function-name logCsv --handler main --runtime go1.x --role create-role --zip-file fileb:///tmp/localstack/main.zip
 
-awslocal lambda create-event-source-mapping --function-name logCsv --batch-size 1 --event-source-arn arn:aws:sqs:eu-west-1:000000000000:csv-sync-queue
+#awslocal ecr create-repository --repository-name csv-upload-trigger
+#$existing_repository_uri=$(awslocal ecr describe-repositories --repository-names csv-upload-trigger --query "repositories[0].repositoryUri" --output text)
 
-awslocal s3api put-bucket-notification-configuration --bucket csv-bucket --notification-configuration '{ "QueueConfigurations": [{"QueueArn": "arn:aws:sqs:eu-west-1:000000000000:csv-sync-queue","Events": ["s3:ObjectCreated:*"]}]}'
+
+awslocal lambda create-function \
+          --function-name logCsv \
+          --handler main \
+          --runtime go1.x \
+          --role create-role \
+          --zip-file fileb:///tmp/localstack/main.zip
+
+awslocal lambda create-event-source-mapping \
+         --function-name logCsv \
+         --batch-size 1 \
+         --event-source-arn arn:aws:sqs:eu-west-1:000000000000:csv-sync-queue
+
+awslocal s3api put-bucket-notification-configuration \
+         --bucket csv-bucket \
+         --notification-configuration '{ "QueueConfigurations": [{"QueueArn": "arn:aws:sqs:eu-west-1:000000000000:csv-sync-queue","Events": ["s3:ObjectCreated:*"]}]}'
