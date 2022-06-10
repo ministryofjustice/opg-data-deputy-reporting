@@ -11,3 +11,6 @@ services:
   unit-tests:
     volumes:
       - ./lambda_functions/v2/functions/documents/app:/var/task/app
+  localstack:
+    volumes:
+      - ./lambda_functions/v2/functions/csv-sync/main.zip:/tmp/localstack/main.zip

@@ -33,9 +33,12 @@ services:
       dockerfile: Dockerfile
     environment:
       - SERVICES=s3,secretsmanager,lambda,sqs
+      - LAMBDA_EXECUTOR=local
       - DEFAULT_REGION=eu-west-1
       - USE_SINGLE_REGION=1
       - DEBUG=1
+      - LAMBDA_REMOTE_DOCKER=false
+      - HOST_TMP_FOLDER=/tmp/
     ports:
       - "4566:4566"
   unit-tests:
