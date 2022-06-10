@@ -2,6 +2,9 @@
 version: '3'
 
 services:
+  mock-digideps:
+    volumes:
+      - ./mock_digideps/openapi.yml:/app/openapi.yml
   mock-lambda:
     volumes:
       - ./lambda_functions/v2/functions/documents/app:/var/task/app

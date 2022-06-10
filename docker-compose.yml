@@ -21,18 +21,27 @@ services:
       DIGIDEPS_S3_ROLE_ARN: arn:aws:iam::248804316466:role/integrations-s3-read-development
       AWS_ACCESS_KEY_ID: FAKE
       AWS_SECRET_ACCESS_KEY: FAKE
+
   mock-sirius:
     build:
       context: ./mock_sirius
       dockerfile: Dockerfile
     ports:
       - "5000:5000"
+
+  mock-digideps:
+    build:
+      context: ./mock_digideps
+      dockerfile: Dockerfile
+    ports:
+      - "5050:5050"
+
   localstack:
     build:
       context: ./localstack_initialisation
       dockerfile: Dockerfile
     environment:
-      - SERVICES=s3,secretsmanager,lambda,sqs
+      - SERVICES=s3,secretsmanager,lambda,sqs,ecr
       - LAMBDA_EXECUTOR=local
       - DEFAULT_REGION=eu-west-1
       - USE_SINGLE_REGION=1
@@ -41,6 +50,7 @@ services:
       - HOST_TMP_FOLDER=/tmp/
     ports:
       - "4566:4566"
+
   unit-tests:
     build:
       context: ./lambda_functions/v2
