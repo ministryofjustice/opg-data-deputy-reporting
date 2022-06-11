@@ -162,8 +162,7 @@ def mock_env_setup(monkeypatch):
     monkeypatch.setenv("SESSION_DATA", "publicapi@opgtest.com")
     monkeypatch.setenv("API_VERSION", "flask")
     monkeypatch.setenv("SIRIUS_API_VERSION", "flask")
-    monkeypatch.setenv("SOURCE_IP", "192.1.1.1")
-    monkeypatch.setenv("USER_AGENT", "pytest")
+    monkeypatch.setenv("USE_MOCK_SIRIUS", "0")
 
 
 sirius_report_response = json.dumps(

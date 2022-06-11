@@ -51,3 +51,13 @@ services:
       ENVIRONMENT: "dev"
       SESSION_DATA: ""
       AWS_XRAY_CONTEXT_MISSING: "LOG_ERROR"
+  integration-tests:
+    build:
+      context: ./integration_tests
+      dockerfile: Dockerfile
+    environment:
+      AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
+      AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
+      AWS_SESSION_TOKEN: $AWS_SESSION_TOKEN
+      TF_WORKSPACE: $TF_WORKSPACE
+      CI: $CI

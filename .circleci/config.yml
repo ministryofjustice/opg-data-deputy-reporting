@@ -32,8 +32,18 @@ workflows:
           tf_command: plan
           filters: {branches:{ignore:[main]}}
       - terraform_action:
-          name: apply branch environment
+          name: apply branch environment sirius mock
           requires: [plan branch environment]
+          tf_command: apply
+          mock_sirius: "1"
+          filters: {branches:{ignore:[main]}}
+      - integration_tests:
+          name: run integration tests
+          requires: [apply branch environment sirius mock]
+          filters: {branches:{ignore:[main]}}
+      - terraform_action:
+          name: apply branch environment
+          requires: [run integration tests]
           tf_command: apply
           filters: {branches:{ignore:[main]}}
       - workspace_protection:
@@ -231,7 +241,16 @@ jobs:
           command: docker-compose build unit-tests
       - run:
           name: run validation and unit tests
-          command: docker-compose -f docker-compose.yml up unit-tests
+          command: |
+            docker-compose -f docker-compose.yml up unit-tests
+            export DOCKER_EXIT_CODE=$(docker inspect $(docker ps -a | head -2 | tail -1 | awk '{print $1}') --format='{{.State.ExitCode}}')
+            if [ "$DOCKER_EXIT_CODE" = "0" ]
+            then
+              echo "Tests passed"
+            else
+              echo "Tests failed"
+              exit 1
+            fi
       - run:
           name: Docker login
           command: aws ecr get-login-password --region $AWS_REGION --profile integrations-ci | docker login --username AWS --password-stdin $AWS_REGISTRY
@@ -258,6 +277,34 @@ jobs:
           root: /tmp
           paths:
             - opg-data-deputy-reporting.zip
+  integration_tests:
+    executor: digideps-data/python
+    resource_class: small
+    environment:
+      AWS_REGISTRY: 311462405659.dkr.ecr.eu-west-1.amazonaws.com
+      AWS_REGION: eu-west-1
+      AWS_CONFIG_FILE: ~/project/aws_config
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Set environment variables
+          command: ~/project/.circleci/set_env.sh >> $BASH_ENV
+      - run:
+          name: Build integration tests container
+          command: docker-compose -f docker-compose.yml build integration-tests
+      - run:
+          name: Run integration tests
+          command: |
+            docker-compose -f docker-compose.yml up integration-tests
+            export DOCKER_EXIT_CODE=$(docker inspect $(docker ps -a | head -2 | tail -1 | awk '{print $1}') --format='{{.State.ExitCode}}')
+            if [ "$DOCKER_EXIT_CODE" = "0" ]
+            then
+              echo "Tests passed"
+            else
+              echo "Tests failed"
+              exit 1
+            fi
   terraform_pre_checks:
     executor: digideps-data/python_with_tfvars
     resource_class: small
@@ -296,6 +343,10 @@ jobs:
         description: terraform command
         default: plan
         type: string
+      mock_sirius:
+        description: sets mock sirius variable
+        default: "0"
+        type: string
       pact_tag_production:
         description: tag the pact with v<x>_production
         type: boolean
@@ -314,7 +365,12 @@ jobs:
           working_directory: ~/project/terraform/environment
       - run:
           name: Set BASH_ENV
-          command: ~/project/.circleci/set_env.sh >> $BASH_ENV
+          command: |
+            ~/project/.circleci/set_env.sh >> $BASH_ENV
+            if [ << parameters.mock_sirius >> == "1" ]
+            then
+              echo "export TF_VAR_use_mock_sirius=1" >> $BASH_ENV
+            fi
       - run:
           name: Set Environment variables
           command: |
