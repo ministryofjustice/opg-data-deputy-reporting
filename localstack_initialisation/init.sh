@@ -35,3 +35,5 @@ awslocal lambda create-event-source-mapping \
 awslocal s3api put-bucket-notification-configuration \
          --bucket csv-bucket \
          --notification-configuration '{ "QueueConfigurations": [{"QueueArn": "arn:aws:sqs:eu-west-1:000000000000:csv-sync-queue","Events": ["s3:ObjectCreated:*"]}]}'
+
+#awslocal s3 cp /tmp/test.pdf s3://csv-bucket/test.pdf
