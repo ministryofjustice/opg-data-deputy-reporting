@@ -7,7 +7,7 @@ info:
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
-basePath: /api/public/v1
+#basePath: /api/public/v1
 schemes:
   - https
 consumes:
@@ -15,7 +15,7 @@ consumes:
 produces:
   - application/json
 paths:
-  /csv:
+  /api/public/v1/csv:
     post:
       description: Upload CSV entrypoint
       parameters:
@@ -31,7 +31,7 @@ paths:
                 pattern: '(.*?)'
                 example: 'ZW1haWxfaWRlbnRpZmllcixvcmdhbmlzYXRpb25fbmFtZSwKZmFrZU9yZy5jby51aywsCmFub3RoZXJGYWtlT3JnLmNvbSxGQUtFIE9SRyBMTFAsCg=='
       responses:
-        '201':
+        '202':
           description: State created
           schema:
             properties:

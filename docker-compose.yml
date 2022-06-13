@@ -46,6 +46,7 @@ services:
       AWS_S3_ENDPOINT: http://localstack:4566
       AWS_ACCESS_KEY_ID: localstack
       AWS_SECRET_ACCESS_KEY: localstack
+      DIGIDEPS_API_ENDPOINT: http://mock-digideps:5050/api/public/v1/csv
     entrypoint: /aws-lambda/aws-lambda-rie /var/task/main
 
   localstack:
