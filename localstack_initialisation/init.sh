@@ -9,12 +9,11 @@ awslocal s3 cp /tmp/test.pdf s3://pa-uploads-branch-replication/test.pdf
 
 awslocal s3 mb s3://csv-bucket
 
+awslocal s3api put-bucket-policy \
+    --policy '{ "Statement": [ { "Sid": "DenyUnEncryptedObjectUploads", "Effect": "Deny", "Principal": { "AWS": "*" }, "Action": "s3:PutObject", "Resource": "arn:aws:s3:::csv-bucket/*", "Condition":  { "StringNotEquals": { "s3:x-amz-server-side-encryption": "AES256" } } }, { "Sid": "DenyUnEncryptedObjectUploads", "Effect": "Deny", "Principal": { "AWS": "*" }, "Action": "s3:PutObject", "Resource": "arn:aws:s3:::csv-bucket/*", "Condition":  { "Bool": { "aws:SecureTransport": false } } } ] }' \
+    --bucket "csv-bucket"
+
 awslocal sqs create-queue --queue-name csv-sync-queue
-
-#GOOS=linux CGO_ENABLED=0 go build -ldflags "-s -w" -o main ../lambda_functions/v2/functions/csv-sync/main.go
-
-#zip /tmp/localstack/main.zip /tmp/localstack/main
-
 
 #awslocal ecr create-repository --repository-name csv-upload-trigger
 #$existing_repository_uri=$(awslocal ecr describe-repositories --repository-names csv-upload-trigger --query "repositories[0].repositoryUri" --output text)
@@ -22,10 +21,8 @@ awslocal sqs create-queue --queue-name csv-sync-queue
 
 awslocal lambda create-function \
           --function-name logCsv \
-          --handler main \
-          --runtime go1.x \
-          --role create-role \
-          --zip-file fileb:///tmp/localstack/main.zip
+          --code ImageUri=csv-forwarder-function:latest \
+          --role arn:aws:iam::000000000:role/lambda-ex
 
 awslocal lambda create-event-source-mapping \
          --function-name logCsv \

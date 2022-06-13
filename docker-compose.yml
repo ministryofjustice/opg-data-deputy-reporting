@@ -36,18 +36,33 @@ services:
     ports:
       - "5050:5050"
 
+  csv-forwarder-function:
+    image: csv-forwarder-function:latest
+    build:
+      context: ./lambda_functions/v2/functions/csv-forwarder
+      dockerfile: Dockerfile
+    environment:
+      AWS_REGION: eu-west-1
+      AWS_S3_ENDPOINT: http://localstack:4566
+      AWS_ACCESS_KEY_ID: localstack
+      AWS_SECRET_ACCESS_KEY: localstack
+    volumes:
+      - "./lambda_functions/.aws-lambda-rie:/aws-lambda"
+    entrypoint: /aws-lambda/aws-lambda-rie-arm64 /var/task/main
+
   localstack:
     build:
       context: ./localstack_initialisation
       dockerfile: Dockerfile
     environment:
-      - SERVICES=s3,secretsmanager,lambda,sqs,ecr
-      - LAMBDA_EXECUTOR=local
-      - DEFAULT_REGION=eu-west-1
-      - USE_SINGLE_REGION=1
-      - DEBUG=1
-      - LAMBDA_REMOTE_DOCKER=false
-      - HOST_TMP_FOLDER=/tmp/
+      SERVICES: s3,secretsmanager,lambda,sqs,ecr
+      DEFAULT_REGION: eu-west-1
+      USE_SINGLE_REGION: 1
+      DEBUG: 1
+      LAMBDA_EXECUTOR: docker
+      LAMBDA_REMOVE_CONTAINERS: "true"
+      LAMBDA_FORWARD_URL: http://csv-forwarder-function:8080
+      DOCKER_HOST: unix:///var/run/docker.sock
     ports:
       - "4566:4566"
 
