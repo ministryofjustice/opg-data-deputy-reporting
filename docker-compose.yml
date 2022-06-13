@@ -46,9 +46,7 @@ services:
       AWS_S3_ENDPOINT: http://localstack:4566
       AWS_ACCESS_KEY_ID: localstack
       AWS_SECRET_ACCESS_KEY: localstack
-    volumes:
-      - "./lambda_functions/.aws-lambda-rie:/aws-lambda"
-    entrypoint: /aws-lambda/aws-lambda-rie-arm64 /var/task/main
+    entrypoint: /aws-lambda/aws-lambda-rie /var/task/main
 
   localstack:
     build:
@@ -59,6 +57,7 @@ services:
       DEFAULT_REGION: eu-west-1
       USE_SINGLE_REGION: 1
       DEBUG: 1
+      HOSTNAME_EXTERNAL: localstack
       LAMBDA_EXECUTOR: docker
       LAMBDA_REMOVE_CONTAINERS: "true"
       LAMBDA_FORWARD_URL: http://csv-forwarder-function:8080

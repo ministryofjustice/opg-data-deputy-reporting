@@ -16,4 +16,7 @@ services:
       - ./lambda_functions/v2/functions/documents/app:/var/task/app
   localstack:
     volumes:
-      - ./lambda_functions/v2/functions/csv-forwarder/main.zip:/tmp/localstack/main.zip
+      - /var/run/docker.sock:/var/run/docker.sock
+  csv-forwarder-function:
+    volumes:
+       - ./lambda_functions/.aws-lambda-rie:/aws-lambda

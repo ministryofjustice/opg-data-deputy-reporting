@@ -19,13 +19,15 @@ awslocal sqs create-queue --queue-name csv-sync-queue
 #$existing_repository_uri=$(awslocal ecr describe-repositories --repository-names csv-upload-trigger --query "repositories[0].repositoryUri" --output text)
 
 
+
+# function name must be 'function' due to localstack weirdness
 awslocal lambda create-function \
-          --function-name logCsv \
+          --function-name function \
           --code ImageUri=csv-forwarder-function:latest \
-          --role arn:aws:iam::000000000:role/lambda-ex
+          --role arn:aws:iam::000000000:role/lambda-ex \
 
 awslocal lambda create-event-source-mapping \
-         --function-name logCsv \
+         --function-name function \
          --batch-size 1 \
          --event-source-arn arn:aws:sqs:eu-west-1:000000000000:csv-sync-queue
 
@@ -34,3 +36,4 @@ awslocal s3api put-bucket-notification-configuration \
          --notification-configuration '{ "QueueConfigurations": [{"QueueArn": "arn:aws:sqs:eu-west-1:000000000000:csv-sync-queue","Events": ["s3:ObjectCreated:*"]}]}'
 
 #awslocal s3 cp /tmp/test.pdf s3://csv-bucket/test.pdf
+
