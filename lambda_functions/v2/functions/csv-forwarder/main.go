@@ -4,11 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-// 	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/s3"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
-// 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/aws/session"
 )
 
 type EventRecord struct {
@@ -34,16 +35,24 @@ func logCsv(ctx context.Context, sqsEvent events.SQSEvent) error {
 		fmt.Println(event)
 
 		//Get file from S3
+		sess := session.Must(session.NewSession())
+		s3client := s3.New(sess)
+
+		input := s3.GetObjectInput{Bucket: aws.String(event.Records[0].S3.Bucket.Name), Key: aws.String(event.Records[0].S3.Object.Key)}
+
+		obj, err := s3client.GetObject(&input)
+		if err != nil {
+			panic(err)
+		}
+
 		// Post to digideps
+		
 	}
 
 	return nil
 }
 
 func main() {
-// 	sess := session.Must(session.NewSession())
-// 	s3 := s3.New(sess)
-
 	lambda.Start(logCsv)
 }
 
