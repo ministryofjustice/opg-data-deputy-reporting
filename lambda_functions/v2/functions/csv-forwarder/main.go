@@ -1,19 +1,9 @@
 package main
 
 import (
-	"bytes"
-	"context"
-	"encoding/base64"
-	"encoding/json"
-	"fmt"
+	"errors"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/s3"
-	"log"
-	"net/http"
-	"os"
 )
 
 type EventRecord struct {
@@ -35,82 +25,79 @@ type CSV struct {
 	CSV string
 }
 
-func logCsv(ctx context.Context, sqsEvent events.SQSEvent) error {
-	for _, message := range sqsEvent.Records {
+func HandleEvent(sqsEvent events.SQSEvent) (string, error) {
+	//event := ObjectCreatedEvent{}
+	//err := json.Unmarshal([]byte(sqsEvent.Records[0].Body), &event)
+	//fmt.Println(event)
+	//
+	//if err != nil {
+	//	log.Fatalln(err)
+	//}
+	//
+	//sess := session.Must(session.NewSession())
+	//
+	//endpoint := os.Getenv("AWS_S3_ENDPOINT")
+	//sess.Config.Endpoint = &endpoint
+	//sess.Config.S3ForcePathStyle = aws.Bool(true)
+	//
+	//s3client := s3.New(sess)
+	//
+	//input := s3.GetObjectInput{Bucket: aws.String(event.Records[0].S3.Bucket.Name), Key: aws.String(event.Records[0].S3.Object.Key)}
+	//
+	//resp, err := s3client.GetObject(&input)
+	//if err != nil {
+	//	panic(err)
+	//}
+	//
+	//defer resp.Body.Close()
+	//buf := new(bytes.Buffer)
+	//_, err = buf.ReadFrom(resp.Body)
+	//
+	//if err != nil {
+	//	panic(err)
+	//}
+	//
+	//csvContents := buf.String()
+	//
+	//fmt.Println(csvContents)
+	//
+	//sEnc := base64.StdEncoding.EncodeToString([]byte(csvContents))
+	//fmt.Println(sEnc)
+	//
+	////// Post to digideps
+	//postBody, _ := json.Marshal(map[string]string{
+	//	"type": "lay",
+	//	"csv":  csvContents,
+	//})
+	//
+	//responseBody := bytes.NewBuffer(postBody)
+	//
+	//digidepsEndpoint := os.Getenv("DIGIDEPS_API_ENDPOINT")
+	//
+	////Leverage Go's HTTP Post function to make request
+	//ddResp, err := http.Post(digidepsEndpoint, "application/json", responseBody)
+	//
+	////Handle Error
+	//if err != nil {
+	//	log.Fatalf("An Error Occured %v", err)
+	//}
+	//
+	////defer ddResp.Body.Close()
+	////
+	////ddBuf := new(bytes.Buffer)
+	////_, err = ddBuf.ReadFrom(ddResp.Body)
+	////
+	////if err != nil {
+	////	panic(err)
+	////}
 
-		event := ObjectCreatedEvent{}
-		err := json.Unmarshal([]byte(message.Body), &event)
-		fmt.Println(event)
+	//fmt.Println(ddResp)
 
-		if err != nil {
-			log.Fatalln(err)
-		}
-
-		sess := session.Must(session.NewSession())
-
-		endpoint := os.Getenv("AWS_S3_ENDPOINT")
-		sess.Config.Endpoint = &endpoint
-		sess.Config.S3ForcePathStyle = aws.Bool(true)
-
-		s3client := s3.New(sess)
-
-		input := s3.GetObjectInput{Bucket: aws.String(event.Records[0].S3.Bucket.Name), Key: aws.String(event.Records[0].S3.Object.Key)}
-
-		resp, err := s3client.GetObject(&input)
-		if err != nil {
-			panic(err)
-		}
-
-		defer resp.Body.Close()
-		buf := new(bytes.Buffer)
-		_, err = buf.ReadFrom(resp.Body)
-
-		if err != nil {
-			panic(err)
-		}
-
-		csvContents := buf.String()
-
-		fmt.Println(csvContents)
-
-		sEnc := base64.StdEncoding.EncodeToString([]byte(csvContents))
-		fmt.Println(sEnc)
-
-		//// Post to digideps
-		postBody, _ := json.Marshal(map[string]string{
-			"type": "lay",
-			"csv":  csvContents,
-		})
-
-		responseBody := bytes.NewBuffer(postBody)
-
-		digidepsEndpoint := os.Getenv("DIGIDEPS_API_ENDPOINT")
-
-		//Leverage Go's HTTP Post function to make request
-		ddResp, err := http.Post(digidepsEndpoint, "application/json", responseBody)
-
-		//Handle Error
-		if err != nil {
-			log.Fatalf("An Error Occured %v", err)
-		}
-
-		//defer ddResp.Body.Close()
-		//
-		//ddBuf := new(bytes.Buffer)
-		//_, err = ddBuf.ReadFrom(ddResp.Body)
-		//
-		//if err != nil {
-		//	panic(err)
-		//}
-
-		fmt.Println(ddResp)
-	}
-
-	return nil
+	return "Yay", errors.New("Boo")
 }
 
 func main() {
-	lambda.Start(logCsv)
+	lambda.Start(HandleEvent)
 }
 
 //{
