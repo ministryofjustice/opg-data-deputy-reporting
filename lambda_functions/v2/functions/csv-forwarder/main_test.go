@@ -15,7 +15,7 @@ func TestSQSMessageParsing(t *testing.T) {
 
 		actual, _ := SQSMessageParsing(sqsEvent)
 
-		expected := EventRecord{}
+		expected := S3EventRecord{}
 
 		expected.S3.Bucket.Name = "csv-bucket"
 		expected.S3.Object.Key = "test.csv"
@@ -29,7 +29,7 @@ func TestSQSMessageParsing(t *testing.T) {
 
 		actual, _ := SQSMessageParsing(sqsEvent)
 
-		expected := EventRecord{}
+		expected := S3EventRecord{}
 
 		expected.S3.Bucket.Name = "pdf-bucket"
 		expected.S3.Object.Key = "test.pdf"
@@ -38,15 +38,23 @@ func TestSQSMessageParsing(t *testing.T) {
 	})
 
 	t.Run("Returns error when parsing invalid JSON", func(t *testing.T) {
-		sqsEvent := generateInvalidSQSEvent("{Invalid JSON}")
+		sqsEvent := generateInvalidSQSEvent("{Invalid JSON}", 1)
 
 		_, err := SQSMessageParsing(sqsEvent)
 
 		assert.Error(t, err)
 	})
 
-	t.Run("Returns error when there are no records", func(t *testing.T) {
-		sqsEvent := generateInvalidSQSEvent(`{"Records":[]}`)
+	t.Run("Returns error when there are no S3EventRecords", func(t *testing.T) {
+		sqsEvent := generateInvalidSQSEvent(`{"Records":[]}`, 1)
+
+		_, err := SQSMessageParsing(sqsEvent)
+
+		assert.Error(t, err)
+	})
+
+	t.Run("Returns error when there are no records in the SQS Event", func(t *testing.T) {
+		sqsEvent := generateInvalidSQSEvent("", 0)
 
 		_, err := SQSMessageParsing(sqsEvent)
 
@@ -115,21 +123,27 @@ func generateValidSQSEvent(bucketName string, objectKey string) events.SQSEvent 
 	return sqsEvent
 }
 
-func generateInvalidSQSEvent(sqsMessageBody string) events.SQSEvent {
-	sqsMessage := events.SQSMessage{
-		MessageId:              "",
-		ReceiptHandle:          "",
-		Body:                   sqsMessageBody,
-		Md5OfBody:              "",
-		Md5OfMessageAttributes: "",
-		Attributes:             nil,
-		MessageAttributes:      nil,
-		EventSourceARN:         "",
-		EventSource:            "",
-		AWSRegion:              "",
+func generateInvalidSQSEvent(sqsMessageBody string, numOfRecords int) events.SQSEvent {
+
+	var records []events.SQSMessage
+
+	if numOfRecords > 0 {
+		sqsMessage := events.SQSMessage{
+			MessageId:              "",
+			ReceiptHandle:          "",
+			Body:                   sqsMessageBody,
+			Md5OfBody:              "",
+			Md5OfMessageAttributes: "",
+			Attributes:             nil,
+			MessageAttributes:      nil,
+			EventSourceARN:         "",
+			EventSource:            "",
+			AWSRegion:              "",
+		}
+
+		records = []events.SQSMessage{sqsMessage}
 	}
 
-	records := []events.SQSMessage{sqsMessage}
 	sqsEvent := events.SQSEvent{Records: records}
 	return sqsEvent
 }

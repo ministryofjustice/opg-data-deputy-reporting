@@ -16,7 +16,7 @@ import (
 	"os"
 )
 
-type EventRecord struct {
+type S3EventRecord struct {
 	S3 struct {
 		Bucket struct {
 			Name string `json:"name"`
@@ -28,25 +28,29 @@ type EventRecord struct {
 }
 
 type ObjectCreatedEvent struct {
-	Records []EventRecord `json:"Records"`
+	S3EventRecords []S3EventRecord `json:"Records"`
 }
 
 type CSV struct {
 	CSV string
 }
 
-func SQSMessageParsing(sqsEvent events.SQSEvent) (EventRecord, error) {
+func SQSMessageParsing(sqsEvent events.SQSEvent) (S3EventRecord, error) {
 
 	event := ObjectCreatedEvent{}
 	err := json.Unmarshal([]byte(sqsEvent.Records[0].Body), &event)
 
 	if err != nil {
-		return EventRecord{}, err
+		return S3EventRecord{}, err
 	}
 
 	fmt.Println(event)
 
-	return event.Records[0], errors.New("invalid JSON")
+	if len(event.S3EventRecords) == 0 {
+		return S3EventRecord{}, errors.New("no records")
+	}
+
+	return event.S3EventRecords[0], nil
 }
 
 func HandleEvent(sqsEvent events.SQSEvent) (string, error) {
@@ -67,7 +71,7 @@ func HandleEvent(sqsEvent events.SQSEvent) (string, error) {
 
 	s3client := s3.New(sess)
 
-	input := s3.GetObjectInput{Bucket: aws.String(event.Records[0].S3.Bucket.Name), Key: aws.String(event.Records[0].S3.Object.Key)}
+	input := s3.GetObjectInput{Bucket: aws.String(event.S3EventRecords[0].S3.Bucket.Name), Key: aws.String(event.S3EventRecords[0].S3.Object.Key)}
 
 	resp, err := s3client.GetObject(&input)
 	if err != nil {
