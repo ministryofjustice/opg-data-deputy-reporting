@@ -35,12 +35,18 @@ type CSV struct {
 	CSV string
 }
 
-func SQSMessageParsing(sqsEvent events.SQSEvent) EventRecord {
+func SQSMessageParsing(sqsEvent events.SQSEvent) (EventRecord, error) {
 
 	event := ObjectCreatedEvent{}
-	_ = json.Unmarshal([]byte(sqsEvent.Records[0].Body), &event)
+	err := json.Unmarshal([]byte(sqsEvent.Records[0].Body), &event)
 
-	return event.Records[0]
+	if err != nil {
+		return EventRecord{}, err
+	}
+
+	fmt.Println(event)
+
+	return event.Records[0], errors.New("invalid JSON")
 }
 
 func HandleEvent(sqsEvent events.SQSEvent) (string, error) {
