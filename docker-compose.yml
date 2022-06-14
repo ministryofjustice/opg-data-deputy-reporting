@@ -30,6 +30,7 @@ services:
       - "5000:5000"
 
   mock-digideps:
+    image: mock-digideps:latest
     build:
       context: ./mock_digideps
       dockerfile: Dockerfile
