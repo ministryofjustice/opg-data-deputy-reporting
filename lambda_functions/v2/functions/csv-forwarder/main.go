@@ -25,6 +25,14 @@ type CSV struct {
 	CSV string
 }
 
+func SQSMessageParsing(sqsEvent events.SQSEvent) EventRecord {
+	er := EventRecord{}
+	er.S3.Bucket.Name = "csv-bucket"
+	er.S3.Object.Key = "test.csv"
+
+	return er
+}
+
 func HandleEvent(sqsEvent events.SQSEvent) (string, error) {
 	//event := ObjectCreatedEvent{}
 	//err := json.Unmarshal([]byte(sqsEvent.Records[0].Body), &event)
