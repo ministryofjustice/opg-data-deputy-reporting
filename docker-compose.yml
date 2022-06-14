@@ -21,12 +21,13 @@ services:
       DIGIDEPS_S3_ROLE_ARN: arn:aws:iam::248804316466:role/integrations-s3-read-development
       AWS_ACCESS_KEY_ID: FAKE
       AWS_SECRET_ACCESS_KEY: FAKE
+      USE_MOCK_SIRIUS: "0"
   mock-sirius:
     build:
       context: ./mock_sirius
       dockerfile: Dockerfile
     ports:
-      - "5000:5000"
+      - "5000:80"
   localstack:
     build:
       context: ./localstack_initialisation
@@ -49,6 +50,7 @@ services:
       API_VERSION: "v1"
       SIRIUS_BASE_URL: "http://not-really-sirius.com"
       ENVIRONMENT: "dev"
+      USE_MOCK_SIRIUS: "0"
       SESSION_DATA: ""
       AWS_XRAY_CONTEXT_MISSING: "LOG_ERROR"
   integration-tests:

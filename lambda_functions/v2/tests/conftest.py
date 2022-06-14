@@ -151,6 +151,7 @@ def default_request_report_id():
 def mock_env_setup(monkeypatch):
     monkeypatch.setenv("BASE_URL", "http://localhost:8080")
     monkeypatch.setenv("SIRIUS_BASE_URL", "http://not-really-sirius.com")
+    monkeypatch.setenv("USE_MOCK_SIRIUS", "0")
     monkeypatch.setenv("SIRIUS_PUBLIC_API_URL", "api/public/v1/")
     monkeypatch.setenv("LOGGER_LEVEL", "DEBUG")
     monkeypatch.setenv("DIGIDEPS_S3_BUCKET", "some-s3-bucket")
@@ -162,7 +163,6 @@ def mock_env_setup(monkeypatch):
     monkeypatch.setenv("SESSION_DATA", "publicapi@opgtest.com")
     monkeypatch.setenv("API_VERSION", "flask")
     monkeypatch.setenv("SIRIUS_API_VERSION", "flask")
-    monkeypatch.setenv("USE_MOCK_SIRIUS", "0")
 
 
 sirius_report_response = json.dumps(

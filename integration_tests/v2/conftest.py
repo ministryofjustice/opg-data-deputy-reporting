@@ -69,7 +69,7 @@ def pytest_sessionfinish(session, exitstatus):
 
 
 def get_role_name():
-    return "integrations-ci" if os.getenv("CI") == "true" else "breakglass"
+    return "integrations-ci" if os.getenv("CI") == "true" else "operator"
 
 
 def filter_none_values(kwargs: dict) -> dict:
