@@ -1,20 +1,18 @@
 package main
 
 import (
-	"bytes"
-	"encoding/base64"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/s3"
-	"log"
-	"net/http"
-	"os"
 )
+
+type Lambda interface {
+	HandleEvent()
+}
+
+type S3Client interface {
+}
 
 type S3EventRecord struct {
 	S3 struct {
@@ -36,6 +34,9 @@ type CSV struct {
 }
 
 func SQSMessageParsing(sqsEvent events.SQSEvent) (S3EventRecord, error) {
+	if len(sqsEvent.Records) == 0 {
+		return S3EventRecord{}, errors.New("no SQS event records")
+	}
 
 	event := ObjectCreatedEvent{}
 	err := json.Unmarshal([]byte(sqsEvent.Records[0].Body), &event)
@@ -44,10 +45,8 @@ func SQSMessageParsing(sqsEvent events.SQSEvent) (S3EventRecord, error) {
 		return S3EventRecord{}, err
 	}
 
-	fmt.Println(event)
-
 	if len(event.S3EventRecords) == 0 {
-		return S3EventRecord{}, errors.New("no records")
+		return S3EventRecord{}, errors.New("no S3 event records")
 	}
 
 	return event.S3EventRecords[0], nil
@@ -55,72 +54,72 @@ func SQSMessageParsing(sqsEvent events.SQSEvent) (S3EventRecord, error) {
 
 func HandleEvent(sqsEvent events.SQSEvent) (string, error) {
 
-	event := ObjectCreatedEvent{}
-	err := json.Unmarshal([]byte(sqsEvent.Records[0].Body), &event)
-	fmt.Println(event)
-
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	sess := session.Must(session.NewSession())
-
-	endpoint := os.Getenv("AWS_S3_ENDPOINT")
-	sess.Config.Endpoint = &endpoint
-	sess.Config.S3ForcePathStyle = aws.Bool(true)
-
-	s3client := s3.New(sess)
-
-	input := s3.GetObjectInput{Bucket: aws.String(event.S3EventRecords[0].S3.Bucket.Name), Key: aws.String(event.S3EventRecords[0].S3.Object.Key)}
-
-	resp, err := s3client.GetObject(&input)
-	if err != nil {
-		panic(err)
-	}
-
-	defer resp.Body.Close()
-	buf := new(bytes.Buffer)
-	_, err = buf.ReadFrom(resp.Body)
-
-	if err != nil {
-		panic(err)
-	}
-
-	csvContents := buf.String()
-
-	fmt.Println(csvContents)
-
-	sEnc := base64.StdEncoding.EncodeToString([]byte(csvContents))
-	fmt.Println(sEnc)
-
-	//// Post to digideps
-	postBody, _ := json.Marshal(map[string]string{
-		"type": "lay",
-		"csv":  csvContents,
-	})
-
-	responseBody := bytes.NewBuffer(postBody)
-
-	digidepsEndpoint := os.Getenv("DIGIDEPS_API_ENDPOINT")
-
-	//Leverage Go's HTTP Post function to make request
-	ddResp, err := http.Post(digidepsEndpoint, "application/json", responseBody)
-
-	//Handle Error
-	if err != nil {
-		log.Fatalf("An Error Occured %v", err)
-	}
-
-	//defer ddResp.Body.Close()
+	//event := ObjectCreatedEvent{}
+	//err := json.Unmarshal([]byte(sqsEvent.Records[0].Body), &event)
+	//fmt.Println(event)
 	//
-	//ddBuf := new(bytes.Buffer)
-	//_, err = ddBuf.ReadFrom(ddResp.Body)
+	//if err != nil {
+	//	log.Fatalln(err)
+	//}
+	//
+	//sess := session.Must(session.NewSession())
+	//
+	//endpoint := os.Getenv("AWS_S3_ENDPOINT")
+	//sess.Config.Endpoint = &endpoint
+	//sess.Config.S3ForcePathStyle = aws.Bool(true)
+	//
+	//s3client := s3.New(sess)
+	//
+	//input := s3.GetObjectInput{Bucket: aws.String(event.S3EventRecords[0].S3.Bucket.Name), Key: aws.String(event.S3EventRecords[0].S3.Object.Key)}
+	//
+	//resp, err := s3client.GetObject(&input)
+	//if err != nil {
+	//	panic(err)
+	//}
+	//
+	//defer resp.Body.Close()
+	//buf := new(bytes.Buffer)
+	//_, err = buf.ReadFrom(resp.Body)
 	//
 	//if err != nil {
 	//	panic(err)
 	//}
-
-	fmt.Println(ddResp)
+	//
+	//csvContents := buf.String()
+	//
+	//fmt.Println(csvContents)
+	//
+	//sEnc := base64.StdEncoding.EncodeToString([]byte(csvContents))
+	//fmt.Println(sEnc)
+	//
+	////// Post to digideps
+	//postBody, _ := json.Marshal(map[string]string{
+	//	"type": "lay",
+	//	"csv":  csvContents,
+	//})
+	//
+	//responseBody := bytes.NewBuffer(postBody)
+	//
+	//digidepsEndpoint := os.Getenv("DIGIDEPS_API_ENDPOINT")
+	//
+	////Leverage Go's HTTP Post function to make request
+	//ddResp, err := http.Post(digidepsEndpoint, "application/json", responseBody)
+	//
+	////Handle Error
+	//if err != nil {
+	//	log.Fatalf("An Error Occured %v", err)
+	//}
+	//
+	////defer ddResp.Body.Close()
+	////
+	////ddBuf := new(bytes.Buffer)
+	////_, err = ddBuf.ReadFrom(ddResp.Body)
+	////
+	////if err != nil {
+	////	panic(err)
+	////}
+	//
+	//fmt.Println(ddResp)
 
 	return "Yay", errors.New("Boo")
 }
