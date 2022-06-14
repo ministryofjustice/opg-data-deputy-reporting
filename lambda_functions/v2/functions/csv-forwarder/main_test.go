@@ -67,14 +67,14 @@ func TestSQSMessageParsing(t *testing.T) {
 		records := []events.SQSMessage{sqsMessage}
 		sqsEvent := events.SQSEvent{Records: records}
 
-		response := SQSMessageParsing(sqsEvent)
+		actual := SQSMessageParsing(sqsEvent)
 
-		actual := EventRecord{}
+		expected := EventRecord{}
 
-		actual.S3.Bucket.Name = "csv-bucket"
-		actual.S3.Object.Key = "test.csv"
+		expected.S3.Bucket.Name = "csv-bucket"
+		expected.S3.Object.Key = "test.csv"
 
-		assert.Equal(t, response, actual)
+		assert.Equal(t, expected, actual)
 	})
 
 	//Parse the event
@@ -136,14 +136,42 @@ func TestSQSMessageParsing(t *testing.T) {
 		records := []events.SQSMessage{sqsMessage}
 		sqsEvent := events.SQSEvent{Records: records}
 
-		response := SQSMessageParsing(sqsEvent)
+		actual := SQSMessageParsing(sqsEvent)
 
-		actual := EventRecord{}
+		expected := EventRecord{}
 
-		actual.S3.Bucket.Name = "pdf-bucket"
-		actual.S3.Object.Key = "test.pdf"
+		expected.S3.Bucket.Name = "pdf-bucket"
+		expected.S3.Object.Key = "test.pdf"
 
-		assert.Equal(t, response, actual)
+		assert.Equal(t, actual, expected)
+	})
+
+	//
+	t.Run("Throws error when parsing invalid JSON", func(t *testing.T) {
+
+		sqsMessageBody := `{Invalid JSON}`
+
+		sqsMessage := events.SQSMessage{
+			MessageId:              "",
+			ReceiptHandle:          "",
+			Body:                   sqsMessageBody,
+			Md5OfBody:              "",
+			Md5OfMessageAttributes: "",
+			Attributes:             nil,
+			MessageAttributes:      nil,
+			EventSourceARN:         "",
+			EventSource:            "",
+			AWSRegion:              "",
+		}
+
+		records := []events.SQSMessage{sqsMessage}
+		sqsEvent := events.SQSEvent{Records: records}
+
+		_, err := SQSMessageParsing(sqsEvent)
+
+		expected := errors.New("Invalid JSON")
+
+		assert.Equal(t, expected, err)
 	})
 }
 
