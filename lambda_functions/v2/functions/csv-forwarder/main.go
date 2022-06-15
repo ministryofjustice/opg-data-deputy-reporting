@@ -24,7 +24,13 @@ type DigidepsClient interface {
 	Post(url, contentType string, body io.Reader) (resp *http.Response, err error)
 }
 
-func (l *Lambda) HandleEvent(event events.SQSEvent) {
+func (l *Lambda) HandleEvent(event events.SQSEvent) error {
+	url := os.Getenv("DIGIDEPS_API_ENDPOINT")
+
+	if url == "" {
+		return errors.New("DIGIDEPS_API_ENDPOINT environment variable not set")
+	}
+
 	input := s3.GetObjectInput{}
 	parsedEvent, _ := SQSMessageParsing(event)
 
@@ -49,9 +55,9 @@ func (l *Lambda) HandleEvent(event events.SQSEvent) {
 	})
 	requestBody := bytes.NewBuffer(postBody)
 
-	url := os.Getenv("DIGIDEPS_API_ENDPOINT")
-
 	_, _ = l.digidepsClient.Post(url, "application/json", requestBody)
+
+	return nil
 }
 
 type S3EventRecord struct {

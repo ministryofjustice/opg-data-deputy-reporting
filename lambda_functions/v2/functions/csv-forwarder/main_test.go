@@ -209,6 +209,7 @@ func (suite *HandleEventSuite) TestHandleEvent() {
 	}
 
 	for _, tt := range cases {
+		suite.Suite.T().Log(tt.description)
 		_ = os.Setenv("DIGIDEPS_API_ENDPOINT", "http://mock-digideps-endpoint")
 
 		input := s3.GetObjectInput{Bucket: aws.String(tt.bucketName), Key: aws.String(tt.keyValue)}
@@ -223,23 +224,27 @@ func (suite *HandleEventSuite) TestHandleEvent() {
 		suite.l.HandleEvent(event)
 
 		mock.AssertExpectationsForObjects(suite.T(), suite.s3Mock, suite.DDClientMock)
+
+		suite.s3Mock.ExpectedCalls = nil
+		suite.DDClientMock.ExpectedCalls = nil
 	}
 }
 
-func (suite *HandleEventSuite) TestHandleEventDDAAPIEnvVarNotSet() {
-	cases := []struct {
-		description          string
-		bucketName, keyValue string
-	}{
-		{description: "Happy path with valid S3Input values", bucketName: "pdf-bucket", keyValue: "small.pdf"},
-	}
+func (suite *HandleEventSuite) TestHandleEventDDAPIEnvVarNotSet() {
+	_ = os.Unsetenv("DIGIDEPS_API_ENDPOINT")
+	event := generateValidSQSEvent("pdf-bucket", "small.pdf")
+	err := suite.l.HandleEvent(event)
 
-	for _, tt := range cases {
-		event := generateValidSQSEvent(tt.bucketName, tt.keyValue)
-		err := suite.l.HandleEvent(event)
+	suite.Assert().Error(err, "DIGIDEPS_API_ENDPOINT environment variable not set")
+}
 
-		suite.Assert().Error(err, "DIGIDEPS_API_ENDPOINT environment variable not set")
-	}
+func (suite *HandleEventSuite) TestHandleEventParsingSQSMessageError() {
+	_ = os.Setenv("DIGIDEPS_API_ENDPOINT", "http://mock-digideps-endpoint")
+
+	event := generateInvalidSQSEvent("{Invalid JSON}", 1)
+	err := suite.l.HandleEvent(event)
+
+	suite.Assert().Error(err, "Unable to parse SQS Message")
 }
 
 // In order for 'go test' to run this suite, we need to create
