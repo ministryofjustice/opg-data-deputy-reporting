@@ -16,12 +16,12 @@ type Lambda struct {
 
 func (l *Lambda) HandleEvent(event events.SQSEvent) {
 	input := s3.GetObjectInput{}
-	input.Bucket = aws.String("csv-bucket")
-	input.Key = aws.String("large.csv")
-	_, _ = l.s3Client.GetObject(&input)
-}
+	parsedEvent, _ := SQSMessageParsing(event)
 
-type S3Client interface {
+	input.Bucket = aws.String(parsedEvent.S3.Bucket.Name)
+	input.Key = aws.String(parsedEvent.S3.Object.Key)
+
+	_, _ = l.s3Client.GetObject(&input)
 }
 
 type S3EventRecord struct {

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"errors"
+	"encoding/base64"
 	"fmt"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-sdk-go/aws"
@@ -22,6 +22,11 @@ type S3ClientMock struct {
 func (s *S3ClientMock) GetObject(input *s3.GetObjectInput) (*s3.GetObjectOutput, error) {
 	outputs := s.Called(*input)
 	return outputs.Get(0).(*s3.GetObjectOutput), outputs.Error(1)
+}
+
+type B64EncoderMock struct {
+	base64.Encoding
+	mock.Mock
 }
 
 func TestSQSMessageParsing(t *testing.T) {
@@ -165,27 +170,6 @@ func generateInvalidSQSEvent(sqsMessageBody string, numOfRecords int) events.SQS
 }
 
 func TestHandleEvent(t *testing.T) {
-	t.Run("Returns feedback when the function runs successfully", func(t *testing.T) {
-
-		var records []events.SQSMessage
-		sqsEvent := events.SQSEvent{Records: records}
-
-		response, _ := HandleEvent(sqsEvent)
-		expected := "Yay"
-		assert.Equal(t, response, expected)
-	})
-
-	t.Run("Throws an error when the function runs unsuccessfully", func(t *testing.T) {
-
-		var records []events.SQSMessage
-		sqsEvent := events.SQSEvent{Records: records}
-
-		_, err := HandleEvent(sqsEvent)
-		expectedError := errors.New("Boo")
-
-		assert.Equal(t, expectedError, err)
-	})
-
 	t.Run("Valid S3 ObjectCreated events trigger CSV download from S3", func(t *testing.T) {
 		s3mock := new(S3ClientMock)
 
@@ -229,7 +213,33 @@ Value1,Value2`
 		lambda.HandleEvent(event)
 
 		mock.AssertExpectationsForObjects(t, s3mock)
+	})
 
+	t.Run("CSV returned from S3 is base64 encoded", func(t *testing.T) {
+		s3mock := new(S3ClientMock)
+		b64EncoderMock := new(B64EncoderMock)
+
+		lambda := Lambda{
+			s3Client:   s3mock,
+			b64Encoder: b64EncoderMock,
+		}
+
+		input := s3.GetObjectInput{Bucket: aws.String("pdf-bucket"), Key: aws.String("small.pdf")}
+		csv := `Header1,Header2
+Value1,Value2`
+		r := io.NopCloser(strings.NewReader(csv))
+
+		output := s3.GetObjectOutput{Body: r}
+		s3mock.On("GetObject", input).Return(&output, nil)
+
+		encodedCSV := "SGVhZGVyMSxIZWFkZXIyClZhbHVlMSxWYWx1ZTI="
+		b64EncoderMock.On("EncodeToString", []byte(csv)).Return(encodedCSV)
+
+		event := generateValidSQSEvent("pdf-bucket", "small.pdf")
+
+		lambda.HandleEvent(event)
+
+		mock.AssertExpectationsForObjects(t, s3mock, b64EncoderMock)
 	})
 
 	//Request to s3 endpoint is valid (testing env variable)
