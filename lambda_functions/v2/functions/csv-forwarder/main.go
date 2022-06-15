@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"github.com/aws/aws-lambda-go/events"
@@ -8,15 +10,18 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3iface"
+	"io"
+	"net/http"
+	"os"
 )
 
 type Lambda struct {
-	s3Client   s3iface.S3API
-	b64Encoder B64Encoder
+	s3Client       s3iface.S3API
+	digidepsClient DigidepsClient
 }
 
-type B64Encoder interface {
-	EncodeToString(src []byte) string
+type DigidepsClient interface {
+	Post(url, contentType string, body io.Reader) (resp *http.Response, err error)
 }
 
 func (l *Lambda) HandleEvent(event events.SQSEvent) {
@@ -26,7 +31,27 @@ func (l *Lambda) HandleEvent(event events.SQSEvent) {
 	input.Bucket = aws.String(parsedEvent.S3.Bucket.Name)
 	input.Key = aws.String(parsedEvent.S3.Object.Key)
 
-	_, _ = l.s3Client.GetObject(&input)
+	resp, _ := l.s3Client.GetObject(&input)
+
+	defer resp.Body.Close()
+	buf := new(bytes.Buffer)
+	_, err := buf.ReadFrom(resp.Body)
+
+	if err != nil {
+		panic(err)
+	}
+
+	csvContents := buf.String()
+
+	encodedCSV := base64.StdEncoding.EncodeToString([]byte(csvContents))
+	postBody, _ := json.Marshal(map[string]string{
+		"csv": encodedCSV,
+	})
+	requestBody := bytes.NewBuffer(postBody)
+
+	url := os.Getenv("DIGIDEPS_API_ENDPOINT")
+
+	_, _ = l.digidepsClient.Post(url, "application/json", requestBody)
 }
 
 type S3EventRecord struct {

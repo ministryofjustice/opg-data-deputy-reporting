@@ -10,6 +10,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3/s3iface"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/suite"
 	"io"
 	"net/http"
 	"os"
@@ -30,6 +31,11 @@ func (s *S3ClientMock) GetObject(input *s3.GetObjectInput) (*s3.GetObjectOutput,
 type DigidepsClientMock struct {
 	http.Client
 	mock.Mock
+}
+
+func (d *DigidepsClientMock) Post(url, contentType string, body io.Reader) (resp *http.Response, err error) {
+	outputs := d.Called(url, contentType, body)
+	return outputs.Get(0).(*http.Response), outputs.Error(1)
 }
 
 func TestSQSMessageParsing(t *testing.T) {
@@ -172,94 +178,99 @@ func generateInvalidSQSEvent(sqsMessageBody string, numOfRecords int) events.SQS
 	return sqsEvent
 }
 
-func TestHandleEvent(t *testing.T) {
-	t.Run("Valid S3 ObjectCreated events trigger CSV download from S3", func(t *testing.T) {
-		s3mock := new(S3ClientMock)
-
-		lambda := Lambda{
-			s3Client: s3mock,
-		}
-
-		input := s3.GetObjectInput{Bucket: aws.String("csv-bucket"), Key: aws.String("large.csv")}
-		csv := `Header1,Header2
-Value1,Value2`
-		r := io.NopCloser(strings.NewReader(csv))
-
-		output := s3.GetObjectOutput{Body: r}
-		s3mock.On("GetObject", input).Return(&output, nil)
-
-		event := generateValidSQSEvent("csv-bucket", "large.csv")
-
-		lambda.HandleEvent(event)
-
-		mock.AssertExpectationsForObjects(t, s3mock)
-
-	})
-
-	t.Run("Valid S3 ObjectCreated events trigger CSV download from S3", func(t *testing.T) {
-		s3mock := new(S3ClientMock)
-
-		lambda := Lambda{
-			s3Client: s3mock,
-		}
-
-		input := s3.GetObjectInput{Bucket: aws.String("pdf-bucket"), Key: aws.String("small.pdf")}
-		csv := `Header1,Header2
-Value1,Value2`
-		r := io.NopCloser(strings.NewReader(csv))
-
-		output := s3.GetObjectOutput{Body: r}
-		s3mock.On("GetObject", input).Return(&output, nil)
-
-		event := generateValidSQSEvent("pdf-bucket", "small.pdf")
-
-		lambda.HandleEvent(event)
-
-		mock.AssertExpectationsForObjects(t, s3mock)
-	})
-
-	t.Run("Base64 encoded CSV is posted to Digideps", func(t *testing.T) {
-		s3mock := new(S3ClientMock)
-		digidepsClientMock := new(DigidepsClientMock)
-
-		lambda := Lambda{
-			s3Client:       s3mock,
-			digidepsClient: digidepsClientMock,
-		}
-
-		input := s3.GetObjectInput{Bucket: aws.String("pdf-bucket"), Key: aws.String("small.pdf")}
-		csv := `Header1,Header2
-Value1,Value2`
-		r := io.NopCloser(strings.NewReader(csv))
-
-		output := s3.GetObjectOutput{Body: r}
-		s3mock.On("GetObject", input).Return(&output, nil)
-
-		encodedCSV := "SGVhZGVyMSxIZWFkZXIyClZhbHVlMSxWYWx1ZTI="
-		postBody, _ := json.Marshal(map[string]string{
-			"csv": encodedCSV,
-		})
-		requestBody := bytes.NewBuffer(postBody)
-		_ = os.Setenv("DIGIDEPS_API_ENDPOINT", "http://mock-digideps-endpoint")
-		response := http.Response{StatusCode: 202}
-
-		digidepsClientMock.On("Post", "http://mock-digideps-endpoint", "application/json", requestBody).Return(&response, nil)
-
-		event := generateValidSQSEvent("pdf-bucket", "small.pdf")
-
-		lambda.HandleEvent(event)
-
-		mock.AssertExpectationsForObjects(t, s3mock, digidepsClientMock)
-	})
-
-	//Request to s3 endpoint is valid (testing env variable)
-
-	//Valid input to s3 request
-
-	//Test the csv is base64 encoded
-
-	//Request to digideps endpoint is valid (testing env variable)
-
-	//Test valid string response is returned
-
+// Define the suite, and absorb the built-in basic suite
+// functionality from testify - including a T() method which
+// returns the current testing context
+type HandleEventSuite struct {
+	suite.Suite
+	l            Lambda
+	s3Mock       *S3ClientMock
+	DDClientMock *DigidepsClientMock
 }
+
+// Make sure that VariableThatShouldStartAtFive is set to five
+// before each test
+func (suite *HandleEventSuite) SetupTest() {
+	suite.s3Mock = new(S3ClientMock)
+	suite.DDClientMock = new(DigidepsClientMock)
+	suite.l = Lambda{
+		s3Client:       suite.s3Mock,
+		digidepsClient: suite.DDClientMock,
+	}
+}
+
+func (suite *HandleEventSuite) TestHandleEvent() {
+	cases := []struct {
+		description          string
+		bucketName, keyValue string
+	}{
+		{description: "Happy path with valid S3Input values", bucketName: "pdf-bucket", keyValue: "small.pdf"},
+		{description: "Happy path with valid S3Input values - ensure SQS event values used in S3Input", bucketName: "csv-bucket", keyValue: "large.csv"},
+	}
+
+	for _, tt := range cases {
+		_ = os.Setenv("DIGIDEPS_API_ENDPOINT", "http://mock-digideps-endpoint")
+
+		input := s3.GetObjectInput{Bucket: aws.String(tt.bucketName), Key: aws.String(tt.keyValue)}
+		output := generateValidGetObjectOutput()
+
+		suite.s3Mock.On("GetObject", input).Return(&output, nil)
+
+		requestBody := generateValidPostRequest()
+		suite.DDClientMock.On("Post", "http://mock-digideps-endpoint", "application/json", requestBody).Return(&http.Response{StatusCode: 202}, nil)
+
+		event := generateValidSQSEvent(tt.bucketName, tt.keyValue)
+		suite.l.HandleEvent(event)
+
+		mock.AssertExpectationsForObjects(suite.T(), suite.s3Mock, suite.DDClientMock)
+	}
+}
+
+func (suite *HandleEventSuite) TestHandleEventDDAAPIEnvVarNotSet() {
+	cases := []struct {
+		description          string
+		bucketName, keyValue string
+	}{
+		{description: "Happy path with valid S3Input values", bucketName: "pdf-bucket", keyValue: "small.pdf"},
+	}
+
+	for _, tt := range cases {
+		event := generateValidSQSEvent(tt.bucketName, tt.keyValue)
+		err := suite.l.HandleEvent(event)
+
+		suite.Assert().Error(err, "DIGIDEPS_API_ENDPOINT environment variable not set")
+	}
+}
+
+// In order for 'go test' to run this suite, we need to create
+// a normal test function and pass our suite to suite.Run
+func TestHandleEventSuite(t *testing.T) {
+	suite.Run(t, new(HandleEventSuite))
+}
+
+func generateValidGetObjectOutput() s3.GetObjectOutput {
+	csv := `Header1,Header2
+Value1,Value2`
+	r := io.NopCloser(strings.NewReader(csv))
+
+	return s3.GetObjectOutput{Body: r}
+}
+
+func generateValidPostRequest() *bytes.Buffer {
+	encodedCSV := "SGVhZGVyMSxIZWFkZXIyClZhbHVlMSxWYWx1ZTI="
+	postBody, _ := json.Marshal(map[string]string{
+		"csv": encodedCSV,
+	})
+
+	return bytes.NewBuffer(postBody)
+}
+
+//Request to s3 endpoint is valid (testing env variable)
+
+//Valid input to s3 request
+
+//Test the csv is base64 encoded
+
+//Request to digideps endpoint is valid (testing env variable)
+
+//Test valid string response is returned
