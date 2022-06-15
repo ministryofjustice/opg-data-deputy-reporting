@@ -1,7 +1,8 @@
 package main
 
 import (
-	"encoding/base64"
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-sdk-go/aws"
@@ -10,6 +11,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"io"
+	"net/http"
+	"os"
 	"strings"
 	"testing"
 )
@@ -24,8 +27,8 @@ func (s *S3ClientMock) GetObject(input *s3.GetObjectInput) (*s3.GetObjectOutput,
 	return outputs.Get(0).(*s3.GetObjectOutput), outputs.Error(1)
 }
 
-type B64EncoderMock struct {
-	base64.Encoding
+type DigidepsClientMock struct {
+	http.Client
 	mock.Mock
 }
 
@@ -215,13 +218,13 @@ Value1,Value2`
 		mock.AssertExpectationsForObjects(t, s3mock)
 	})
 
-	t.Run("CSV returned from S3 is base64 encoded", func(t *testing.T) {
+	t.Run("Base64 encoded CSV is posted to Digideps", func(t *testing.T) {
 		s3mock := new(S3ClientMock)
-		b64EncoderMock := new(B64EncoderMock)
+		digidepsClientMock := new(DigidepsClientMock)
 
 		lambda := Lambda{
-			s3Client:   s3mock,
-			b64Encoder: b64EncoderMock,
+			s3Client:       s3mock,
+			digidepsClient: digidepsClientMock,
 		}
 
 		input := s3.GetObjectInput{Bucket: aws.String("pdf-bucket"), Key: aws.String("small.pdf")}
@@ -233,13 +236,20 @@ Value1,Value2`
 		s3mock.On("GetObject", input).Return(&output, nil)
 
 		encodedCSV := "SGVhZGVyMSxIZWFkZXIyClZhbHVlMSxWYWx1ZTI="
-		b64EncoderMock.On("EncodeToString", []byte(csv)).Return(encodedCSV)
+		postBody, _ := json.Marshal(map[string]string{
+			"csv": encodedCSV,
+		})
+		requestBody := bytes.NewBuffer(postBody)
+		_ = os.Setenv("DIGIDEPS_API_ENDPOINT", "http://mock-digideps-endpoint")
+		response := http.Response{StatusCode: 202}
+
+		digidepsClientMock.On("Post", "http://mock-digideps-endpoint", "application/json", requestBody).Return(&response, nil)
 
 		event := generateValidSQSEvent("pdf-bucket", "small.pdf")
 
 		lambda.HandleEvent(event)
 
-		mock.AssertExpectationsForObjects(t, s3mock, b64EncoderMock)
+		mock.AssertExpectationsForObjects(t, s3mock, digidepsClientMock)
 	})
 
 	//Request to s3 endpoint is valid (testing env variable)

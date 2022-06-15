@@ -11,7 +11,12 @@ import (
 )
 
 type Lambda struct {
-	s3Client s3iface.S3API
+	s3Client   s3iface.S3API
+	b64Encoder B64Encoder
+}
+
+type B64Encoder interface {
+	EncodeToString(src []byte) string
 }
 
 func (l *Lambda) HandleEvent(event events.SQSEvent) {
@@ -102,12 +107,11 @@ func HandleEvent(sqsEvent events.SQSEvent) (string, error) {
 	//sEnc := base64.StdEncoding.EncodeToString([]byte(csvContents))
 	//fmt.Println(sEnc)
 	//
-	////// Post to digideps
+	//// Post to digideps
 	//postBody, _ := json.Marshal(map[string]string{
-	//	"type": "lay",
-	//	"csv":  csvContents,
+	//	"csv": csvContents,
 	//})
-	//
+
 	//responseBody := bytes.NewBuffer(postBody)
 	//
 	//digidepsEndpoint := os.Getenv("DIGIDEPS_API_ENDPOINT")
