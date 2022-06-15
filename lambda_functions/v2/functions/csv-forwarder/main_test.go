@@ -6,6 +6,7 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go/service/s3/s3iface"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"io"
@@ -14,7 +15,13 @@ import (
 )
 
 type S3ClientMock struct {
+	s3iface.S3API
 	mock.Mock
+}
+
+func (s *S3ClientMock) GetObject(input *s3.GetObjectInput) (*s3.GetObjectOutput, error) {
+	outputs := s.Called(*input)
+	return outputs.Get(0).(*s3.GetObjectOutput), outputs.Error(1)
 }
 
 func TestSQSMessageParsing(t *testing.T) {
@@ -183,7 +190,7 @@ func TestHandleEvent(t *testing.T) {
 		s3mock := new(S3ClientMock)
 
 		lambda := Lambda{
-			S3Client: s3mock,
+			s3Client: s3mock,
 		}
 
 		input := s3.GetObjectInput{Bucket: aws.String("csv-bucket"), Key: aws.String("large.csv")}
@@ -192,11 +199,37 @@ Value1,Value2`
 		r := io.NopCloser(strings.NewReader(csv))
 
 		output := s3.GetObjectOutput{Body: r}
-		s3mock.On("GetObject", input).Return(output)
+		s3mock.On("GetObject", input).Return(&output, nil)
 
 		event := generateValidSQSEvent("csv-bucket", "large.csv")
 
 		lambda.HandleEvent(event)
+
+		mock.AssertExpectationsForObjects(t, s3mock)
+
+	})
+
+	t.Run("Valid S3 ObjectCreated events trigger CSV download from S3", func(t *testing.T) {
+		s3mock := new(S3ClientMock)
+
+		lambda := Lambda{
+			s3Client: s3mock,
+		}
+
+		input := s3.GetObjectInput{Bucket: aws.String("pdf-bucket"), Key: aws.String("small.pdf")}
+		csv := `Header1,Header2
+Value1,Value2`
+		r := io.NopCloser(strings.NewReader(csv))
+
+		output := s3.GetObjectOutput{Body: r}
+		s3mock.On("GetObject", input).Return(&output, nil)
+
+		event := generateValidSQSEvent("pdf-bucket", "small.pdf")
+
+		lambda.HandleEvent(event)
+
+		mock.AssertExpectationsForObjects(t, s3mock)
+
 	})
 
 	//Request to s3 endpoint is valid (testing env variable)

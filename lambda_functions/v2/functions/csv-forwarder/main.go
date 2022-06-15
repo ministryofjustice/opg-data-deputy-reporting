@@ -5,10 +5,20 @@ import (
 	"errors"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go/service/s3/s3iface"
 )
 
-type Lambda interface {
-	HandleEvent()
+type Lambda struct {
+	s3Client s3iface.S3API
+}
+
+func (l *Lambda) HandleEvent(event events.SQSEvent) {
+	input := s3.GetObjectInput{}
+	input.Bucket = aws.String("csv-bucket")
+	input.Key = aws.String("large.csv")
+	_, _ = l.s3Client.GetObject(&input)
 }
 
 type S3Client interface {
