@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-sdk-go/aws"
@@ -244,7 +245,24 @@ func (suite *HandleEventSuite) TestHandleEventParsingSQSMessageError() {
 	event := generateInvalidSQSEvent("{Invalid JSON}", 1)
 	err := suite.l.HandleEvent(event)
 
-	suite.Assert().Error(err, "Unable to parse SQS Message")
+	suite.Assert().Error(err)
+}
+
+func (suite *HandleEventSuite) TestHandleEventErrorPOSTingToDD() {
+	_ = os.Setenv("DIGIDEPS_API_ENDPOINT", "http://mock-digideps-endpoint")
+
+	input := s3.GetObjectInput{Bucket: aws.String("bucket"), Key: aws.String("key")}
+	output := generateValidGetObjectOutput()
+
+	suite.s3Mock.On("GetObject", input).Return(&output, nil)
+
+	requestBody := generateValidPostRequest()
+	suite.DDClientMock.On("Post", "http://mock-digideps-endpoint", "application/json", requestBody).Return(&http.Response{StatusCode: 202}, errors.New("something went wrong"))
+
+	event := generateValidSQSEvent("bucket", "key")
+	err := suite.l.HandleEvent(event)
+
+	suite.Assert().Error(err)
 }
 
 // In order for 'go test' to run this suite, we need to create

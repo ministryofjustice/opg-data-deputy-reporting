@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go/aws"
@@ -32,7 +33,11 @@ func (l *Lambda) HandleEvent(event events.SQSEvent) error {
 	}
 
 	input := s3.GetObjectInput{}
-	parsedEvent, _ := SQSMessageParsing(event)
+	parsedEvent, err := SQSMessageParsing(event)
+
+	if err != nil {
+		return errors.New(fmt.Sprintf("Unable to parse SQS Message: %s", err.Error()))
+	}
 
 	input.Bucket = aws.String(parsedEvent.S3.Bucket.Name)
 	input.Key = aws.String(parsedEvent.S3.Object.Key)
@@ -41,7 +46,7 @@ func (l *Lambda) HandleEvent(event events.SQSEvent) error {
 
 	defer resp.Body.Close()
 	buf := new(bytes.Buffer)
-	_, err := buf.ReadFrom(resp.Body)
+	_, err = buf.ReadFrom(resp.Body)
 
 	if err != nil {
 		panic(err)
