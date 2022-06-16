@@ -222,7 +222,10 @@ func (suite *HandleEventSuite) TestHandleEvent() {
 		suite.DDClientMock.On("Post", "http://mock-digideps-endpoint", "application/json", requestBody).Return(&http.Response{StatusCode: 202}, nil)
 
 		event := generateValidSQSEvent(tt.bucketName, tt.keyValue)
-		suite.l.HandleEvent(event)
+		response, err := suite.l.HandleEvent(event)
+
+		suite.Assert().Nil(err)
+		suite.Assert().Equal(&http.Response{StatusCode: 202}, response)
 
 		mock.AssertExpectationsForObjects(suite.T(), suite.s3Mock, suite.DDClientMock)
 

@@ -49,18 +49,27 @@ func (l *Lambda) HandleEvent(event events.SQSEvent) error {
 	_, err = buf.ReadFrom(resp.Body)
 
 	if err != nil {
-		panic(err)
+		return errors.New(fmt.Sprintf("Unable to read file from S3: %s", err.Error()))
 	}
 
 	csvContents := buf.String()
 
 	encodedCSV := base64.StdEncoding.EncodeToString([]byte(csvContents))
-	postBody, _ := json.Marshal(map[string]string{
+	postBody, err := json.Marshal(map[string]string{
 		"csv": encodedCSV,
 	})
+
+	if err != nil {
+		return errors.New(fmt.Sprintf("Unable to marshal string to JSON: %s", err.Error()))
+	}
+
 	requestBody := bytes.NewBuffer(postBody)
 
-	_, _ = l.digidepsClient.Post(url, "application/json", requestBody)
+	_, err = l.digidepsClient.Post(url, "application/json", requestBody)
+
+	if err != nil {
+		return errors.New(fmt.Sprintf("Unable to post to Digideps: %s", err.Error()))
+	}
 
 	return nil
 }
