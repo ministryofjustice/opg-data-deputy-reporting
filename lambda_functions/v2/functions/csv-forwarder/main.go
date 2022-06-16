@@ -13,6 +13,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3iface"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -46,14 +47,18 @@ func (l *Lambda) HandleEvent(event events.SQSEvent) (string, error) {
 	url := os.Getenv("DIGIDEPS_API_ENDPOINT")
 
 	if url == "" {
-		return "", errors.New("DIGIDEPS_API_ENDPOINT environment variable not set")
+		msg := "DIGIDEPS_API_ENDPOINT environment variable not set"
+		log.Print(msg)
+		return "", errors.New(msg)
 	}
 
 	input := s3.GetObjectInput{}
 	parsedEvent, err := SQSMessageParser(event)
 
 	if err != nil {
-		return "", errors.New(fmt.Sprintf("Unable to parse SQS Message: %s", err.Error()))
+		msg := fmt.Sprintf("Unable to parse SQS Message: %s", err.Error())
+		log.Print(msg)
+		return "", errors.New(msg)
 	}
 
 	input.Bucket = aws.String(parsedEvent.S3.Bucket.Name)
@@ -66,7 +71,9 @@ func (l *Lambda) HandleEvent(event events.SQSEvent) (string, error) {
 	_, err = buf.ReadFrom(resp.Body)
 
 	if err != nil {
-		return "", errors.New(fmt.Sprintf("Unable to read file from S3: %s", err.Error()))
+		msg := fmt.Sprintf("Unable to read file from S3: %s", err.Error())
+		log.Print(msg)
+		return "", errors.New(msg)
 	}
 
 	csvContents := buf.String()
@@ -77,7 +84,9 @@ func (l *Lambda) HandleEvent(event events.SQSEvent) (string, error) {
 	})
 
 	if err != nil {
-		return "", errors.New(fmt.Sprintf("Unable to marshal string to JSON: %s", err.Error()))
+		msg := fmt.Sprintf("Unable to marshal string to JSON: %s", err.Error())
+		log.Print(msg)
+		return "", errors.New(msg)
 	}
 
 	requestBody := bytes.NewBuffer(postBody)
@@ -85,7 +94,9 @@ func (l *Lambda) HandleEvent(event events.SQSEvent) (string, error) {
 	response, err := l.digidepsClient.Post(url, "application/json", requestBody)
 
 	if err != nil {
-		return "", errors.New(fmt.Sprintf("Unable to post to Digideps: %s", err.Error()))
+		msg := fmt.Sprintf("Unable to post to Digideps: %s", err.Error())
+		log.Print(msg)
+		return "", errors.New(msg)
 	}
 
 	if response.StatusCode != 202 {
@@ -149,6 +160,8 @@ func main() {
 	l, err := InitLambda(sess)
 
 	if err != nil {
+		msg := fmt.Sprintf("Error initiliasing Lambda: %s", err.Error())
+		log.Print(msg)
 		panic(err)
 	}
 
