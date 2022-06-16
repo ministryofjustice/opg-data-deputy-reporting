@@ -33,7 +33,7 @@ func (l *Lambda) HandleEvent(event events.SQSEvent) (string, error) {
 	}
 
 	input := s3.GetObjectInput{}
-	parsedEvent, err := SQSMessageParsing(event)
+	parsedEvent, err := SQSMessageParser(event)
 
 	if err != nil {
 		return "", errors.New(fmt.Sprintf("Unable to parse SQS Message: %s", err.Error()))
@@ -65,10 +65,16 @@ func (l *Lambda) HandleEvent(event events.SQSEvent) (string, error) {
 
 	requestBody := bytes.NewBuffer(postBody)
 
-	_, err = l.digidepsClient.Post(url, "application/json", requestBody)
+	response, err := l.digidepsClient.Post(url, "application/json", requestBody)
 
 	if err != nil {
 		return "", errors.New(fmt.Sprintf("Unable to post to Digideps: %s", err.Error()))
+	}
+
+	if response.StatusCode != 202 {
+		return "", errors.New(fmt.Sprintf(
+			`Received unexpected status code from Digideps: %d
+			Response Body: %s`, response.StatusCode, response.Body))
 	}
 
 	return "Successfully POSTed CSV", nil
@@ -89,7 +95,7 @@ type ObjectCreatedEvent struct {
 	S3EventRecords []S3EventRecord `json:"Records"`
 }
 
-func SQSMessageParsing(sqsEvent events.SQSEvent) (S3EventRecord, error) {
+func SQSMessageParser(sqsEvent events.SQSEvent) (S3EventRecord, error) {
 	if len(sqsEvent.Records) == 0 {
 		return S3EventRecord{}, errors.New("no SQS event records")
 	}
@@ -109,6 +115,7 @@ func SQSMessageParsing(sqsEvent events.SQSEvent) (S3EventRecord, error) {
 }
 
 func main() {
+
 	l := Lambda{
 		s3Client:       nil,
 		digidepsClient: nil,

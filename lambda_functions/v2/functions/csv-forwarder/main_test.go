@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3iface"
 	"github.com/stretchr/testify/assert"
@@ -44,7 +45,7 @@ func TestSQSMessageParsing(t *testing.T) {
 	t.Run("Parse incoming SQS Message into an EventRecord", func(t *testing.T) {
 		sqsEvent := generateValidSQSEvent("csv-bucket", "test.csv")
 
-		actual, _ := SQSMessageParsing(sqsEvent)
+		actual, _ := SQSMessageParser(sqsEvent)
 
 		expected := S3EventRecord{}
 
@@ -58,7 +59,7 @@ func TestSQSMessageParsing(t *testing.T) {
 	t.Run("Parse incoming SQS Message into an EventRecord", func(t *testing.T) {
 		sqsEvent := generateValidSQSEvent("pdf-bucket", "test.pdf")
 
-		actual, _ := SQSMessageParsing(sqsEvent)
+		actual, _ := SQSMessageParser(sqsEvent)
 
 		expected := S3EventRecord{}
 
@@ -71,7 +72,7 @@ func TestSQSMessageParsing(t *testing.T) {
 	t.Run("Returns error when parsing invalid JSON", func(t *testing.T) {
 		sqsEvent := generateInvalidSQSEvent("{Invalid JSON}", 1)
 
-		_, err := SQSMessageParsing(sqsEvent)
+		_, err := SQSMessageParser(sqsEvent)
 
 		assert.Error(t, err)
 	})
@@ -79,7 +80,7 @@ func TestSQSMessageParsing(t *testing.T) {
 	t.Run("Returns error when there are no S3EventRecords", func(t *testing.T) {
 		sqsEvent := generateInvalidSQSEvent(`{"Records":[]}`, 1)
 
-		_, err := SQSMessageParsing(sqsEvent)
+		_, err := SQSMessageParser(sqsEvent)
 
 		assert.Error(t, err)
 	})
@@ -87,96 +88,10 @@ func TestSQSMessageParsing(t *testing.T) {
 	t.Run("Returns error when there are no records in the SQS Event", func(t *testing.T) {
 		sqsEvent := generateInvalidSQSEvent("", 0)
 
-		_, err := SQSMessageParsing(sqsEvent)
+		_, err := SQSMessageParser(sqsEvent)
 
 		assert.Error(t, err)
 	})
-}
-
-func generateValidSQSEvent(bucketName string, objectKey string) events.SQSEvent {
-	sqsMessageBody := `{
-		  "Records":[
-		     {
-		        "eventVersion":"2.1",
-		        "eventSource":"aws:s3",
-		        "awsRegion":"eu-west-1",
-		        "eventTime":"2022-06-10T12:05:51.201Z",
-		        "eventName":"ObjectCreated:Put",
-		        "userIdentity":{
-		           "principalId":"AIDAJDPLRKLG7UEXAMPLE"
-		        },
-		        "requestParameters":{
-		           "sourceIPAddress":"127.0.0.1"
-		        },
-		        "responseElements":{
-		           "x-amz-request-id":"6e0a2b39",
-		           "x-amz-id-2":"eftixk72aD6Ap51TnqcoF8eFidJG9Z/2"
-		        },
-		        "s3":{
-		           "s3SchemaVersion":"1.0",
-		           "configurationId":"testConfigRule",
-		           "bucket":{
-		              "name":"%s",
-		              "ownerIdentity":{
-		                 "principalId":"A3NL1KOZZKExample"
-		              },
-		              "arn":"arn:aws:s3:::csv-bucket"
-		           },
-		           "object":{
-		              "key":"%s",
-		              "size":4911,
-		              "eTag":"\"1c32d785398e3a7eaab0e9b876903cc6\"",
-		              "versionId":null,
-		              "sequencer":"0055AED6DCD90281E5"
-		           }
-		        }
-		     }
-		  ]
-		}`
-
-	sqsMessageBody = fmt.Sprintf(sqsMessageBody, bucketName, objectKey)
-
-	sqsMessage := events.SQSMessage{
-		MessageId:              "",
-		ReceiptHandle:          "",
-		Body:                   sqsMessageBody,
-		Md5OfBody:              "",
-		Md5OfMessageAttributes: "",
-		Attributes:             nil,
-		MessageAttributes:      nil,
-		EventSourceARN:         "",
-		EventSource:            "",
-		AWSRegion:              "",
-	}
-
-	records := []events.SQSMessage{sqsMessage}
-	sqsEvent := events.SQSEvent{Records: records}
-	return sqsEvent
-}
-
-func generateInvalidSQSEvent(sqsMessageBody string, numOfRecords int) events.SQSEvent {
-
-	var records []events.SQSMessage
-
-	if numOfRecords > 0 {
-		sqsMessage := events.SQSMessage{
-			MessageId:              "",
-			ReceiptHandle:          "",
-			Body:                   sqsMessageBody,
-			Md5OfBody:              "",
-			Md5OfMessageAttributes: "",
-			Attributes:             nil,
-			MessageAttributes:      nil,
-			EventSourceARN:         "",
-			EventSource:            "",
-			AWSRegion:              "",
-		}
-
-		records = []events.SQSMessage{sqsMessage}
-	}
-
-	sqsEvent := events.SQSEvent{Records: records}
-	return sqsEvent
 }
 
 // Define the suite, and absorb the built-in basic suite
@@ -306,6 +221,27 @@ func (suite *HandleEventSuite) TestHandleEventNon202ResponseReturnsError() {
 
 }
 
+func TestInitLambda(t *testing.T) {
+	t.Run("Happy path initialises valid lambda", func(t *testing.T) {
+		expectedSess := session.Must(session.NewSession())
+
+		endpoint := os.Getenv("AWS_S3_ENDPOINT")
+		expectedSess.Config.Endpoint = &endpoint
+		expectedSess.Config.S3ForcePathStyle = aws.Bool(true)
+
+		ddClient := http.Client{}
+
+		expectedLambda := Lambda{
+			s3Client:       s3.New(expectedSess),
+			digidepsClient: &ddClient,
+		}
+
+		actualLambda := InitLambda(expectedSess)
+
+		assert.Equal(t, expectedLambda, actualLambda)
+	})
+}
+
 // In order for 'go test' to run this suite, we need to create
 // a normal test function and pass our suite to suite.Run
 func TestHandleEventSuite(t *testing.T) {
@@ -327,6 +263,92 @@ func generateValidPostRequest() *bytes.Buffer {
 	})
 
 	return bytes.NewBuffer(postBody)
+}
+
+func generateValidSQSEvent(bucketName string, objectKey string) events.SQSEvent {
+	sqsMessageBody := `{
+		  "Records":[
+		     {
+		        "eventVersion":"2.1",
+		        "eventSource":"aws:s3",
+		        "awsRegion":"eu-west-1",
+		        "eventTime":"2022-06-10T12:05:51.201Z",
+		        "eventName":"ObjectCreated:Put",
+		        "userIdentity":{
+		           "principalId":"AIDAJDPLRKLG7UEXAMPLE"
+		        },
+		        "requestParameters":{
+		           "sourceIPAddress":"127.0.0.1"
+		        },
+		        "responseElements":{
+		           "x-amz-request-id":"6e0a2b39",
+		           "x-amz-id-2":"eftixk72aD6Ap51TnqcoF8eFidJG9Z/2"
+		        },
+		        "s3":{
+		           "s3SchemaVersion":"1.0",
+		           "configurationId":"testConfigRule",
+		           "bucket":{
+		              "name":"%s",
+		              "ownerIdentity":{
+		                 "principalId":"A3NL1KOZZKExample"
+		              },
+		              "arn":"arn:aws:s3:::csv-bucket"
+		           },
+		           "object":{
+		              "key":"%s",
+		              "size":4911,
+		              "eTag":"\"1c32d785398e3a7eaab0e9b876903cc6\"",
+		              "versionId":null,
+		              "sequencer":"0055AED6DCD90281E5"
+		           }
+		        }
+		     }
+		  ]
+		}`
+
+	sqsMessageBody = fmt.Sprintf(sqsMessageBody, bucketName, objectKey)
+
+	sqsMessage := events.SQSMessage{
+		MessageId:              "",
+		ReceiptHandle:          "",
+		Body:                   sqsMessageBody,
+		Md5OfBody:              "",
+		Md5OfMessageAttributes: "",
+		Attributes:             nil,
+		MessageAttributes:      nil,
+		EventSourceARN:         "",
+		EventSource:            "",
+		AWSRegion:              "",
+	}
+
+	records := []events.SQSMessage{sqsMessage}
+	sqsEvent := events.SQSEvent{Records: records}
+	return sqsEvent
+}
+
+func generateInvalidSQSEvent(sqsMessageBody string, numOfRecords int) events.SQSEvent {
+
+	var records []events.SQSMessage
+
+	if numOfRecords > 0 {
+		sqsMessage := events.SQSMessage{
+			MessageId:              "",
+			ReceiptHandle:          "",
+			Body:                   sqsMessageBody,
+			Md5OfBody:              "",
+			Md5OfMessageAttributes: "",
+			Attributes:             nil,
+			MessageAttributes:      nil,
+			EventSourceARN:         "",
+			EventSource:            "",
+			AWSRegion:              "",
+		}
+
+		records = []events.SQSMessage{sqsMessage}
+	}
+
+	sqsEvent := events.SQSEvent{Records: records}
+	return sqsEvent
 }
 
 //Request to s3 endpoint is valid (testing env variable)
