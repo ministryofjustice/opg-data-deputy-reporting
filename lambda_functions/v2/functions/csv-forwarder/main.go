@@ -9,6 +9,7 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3iface"
 	"io"
@@ -112,6 +113,10 @@ func SQSMessageParser(sqsEvent events.SQSEvent) (S3EventRecord, error) {
 	}
 
 	return event.S3EventRecords[0], nil
+}
+
+func InitLambda(sess *session.Session) Lambda {
+	return Lambda{}
 }
 
 func main() {

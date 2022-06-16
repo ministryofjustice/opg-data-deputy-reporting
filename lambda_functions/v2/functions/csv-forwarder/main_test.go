@@ -16,6 +16,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"reflect"
 	"strings"
 	"testing"
 )
@@ -238,7 +239,17 @@ func TestInitLambda(t *testing.T) {
 
 		actualLambda := InitLambda(expectedSess)
 
-		assert.Equal(t, expectedLambda, actualLambda)
+		assert.IsTypef(t, expectedLambda, actualLambda, fmt.Sprintf("Wanted type %s. Got type %s", reflect.TypeOf(expectedLambda), reflect.TypeOf(actualLambda)))
+		assert.IsTypef(
+			t,
+			expectedLambda.s3Client, actualLambda.s3Client,
+			fmt.Sprintf("Wanted type %s. Got type %s", reflect.TypeOf(expectedLambda.s3Client), reflect.TypeOf(actualLambda.s3Client)),
+		)
+		assert.IsTypef(
+			t,
+			expectedLambda.digidepsClient, actualLambda.digidepsClient,
+			fmt.Sprintf("Wanted type %s. Got type %s", reflect.TypeOf(expectedLambda.digidepsClient), reflect.TypeOf(actualLambda.digidepsClient)),
+		)
 	})
 }
 
