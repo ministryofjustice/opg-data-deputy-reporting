@@ -15,6 +15,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strings"
 )
 
 type Lambda struct {
@@ -24,6 +25,21 @@ type Lambda struct {
 
 type DigidepsClient interface {
 	Post(url, contentType string, body io.Reader) (resp *http.Response, err error)
+}
+
+type S3EventRecord struct {
+	S3 struct {
+		Bucket struct {
+			Name string `json:"name"`
+		} `json:"bucket"`
+		Object struct {
+			Key string `json:"key"`
+		} `json:"object"`
+	} `json:"s3"`
+}
+
+type ObjectCreatedEvent struct {
+	S3EventRecords []S3EventRecord `json:"Records"`
 }
 
 func (l *Lambda) HandleEvent(event events.SQSEvent) (string, error) {
@@ -81,21 +97,6 @@ func (l *Lambda) HandleEvent(event events.SQSEvent) (string, error) {
 	return "Successfully POSTed CSV", nil
 }
 
-type S3EventRecord struct {
-	S3 struct {
-		Bucket struct {
-			Name string `json:"name"`
-		} `json:"bucket"`
-		Object struct {
-			Key string `json:"key"`
-		} `json:"object"`
-	} `json:"s3"`
-}
-
-type ObjectCreatedEvent struct {
-	S3EventRecords []S3EventRecord `json:"Records"`
-}
-
 func SQSMessageParser(sqsEvent events.SQSEvent) (S3EventRecord, error) {
 	if len(sqsEvent.Records) == 0 {
 		return S3EventRecord{}, errors.New("no SQS event records")
@@ -116,8 +117,20 @@ func SQSMessageParser(sqsEvent events.SQSEvent) (S3EventRecord, error) {
 }
 
 func InitLambda(sess *session.Session) (Lambda, error) {
+
+	var sessErrors []string
 	if sess.Config.Endpoint == nil {
-		return Lambda{}, errors.New("endpoint is not set on AWS session")
+		sessErrors = append(sessErrors, "session.Config.Endpoint to not be nil")
+	}
+
+	if *sess.Config.S3ForcePathStyle == false {
+		sessErrors = append(sessErrors, "session.Config.S3ForcePathStyle to be true")
+	}
+
+	if len(sessErrors) != 0 {
+		errorString := "expected "
+		errorString += strings.Join(sessErrors, " and ")
+		return Lambda{}, errors.New(errorString)
 	}
 
 	return Lambda{
@@ -127,10 +140,16 @@ func InitLambda(sess *session.Session) (Lambda, error) {
 }
 
 func main() {
+	sess := session.Must(session.NewSession())
 
-	l := Lambda{
-		s3Client:       nil,
-		digidepsClient: nil,
+	endpoint := os.Getenv("AWS_S3_ENDPOINT")
+	sess.Config.Endpoint = &endpoint
+	sess.Config.S3ForcePathStyle = aws.Bool(true)
+
+	l, err := InitLambda(sess)
+
+	if err != nil {
+		panic(err)
 	}
 
 	lambda.Start(l.HandleEvent)

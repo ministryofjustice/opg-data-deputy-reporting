@@ -254,18 +254,22 @@ func TestInitLambda(t *testing.T) {
 	})
 
 	t.Run("Error when not configuring session", func(t *testing.T) {
+
+		endpointValue := "new-end.point"
+
 		cases := []struct {
-			endpoint, errorMessage string
-			forcePathStyle         bool
+			endpoint       *string
+			errorMessage   string
+			forcePathStyle bool
 		}{
-			{errorMessage: "expected session.Config.S3ForcePathStyle to be true", endpoint: "http://an-end.point", forcePathStyle: false},
-			{errorMessage: "expected session.Config.Endpoint to be a non-empty string", endpoint: "", forcePathStyle: true},
-			{errorMessage: "expected session.Config.S3ForcePathStyle to be true and session.Config.Endpoint to be a non-empty string", endpoint: "", forcePathStyle: false},
+			{errorMessage: "expected session.Config.S3ForcePathStyle to be true", endpoint: &endpointValue, forcePathStyle: false},
+			{errorMessage: "expected session.Config.Endpoint to not be nil", endpoint: nil, forcePathStyle: true},
+			{errorMessage: "expected session.Config.Endpoint to not be nil and session.Config.S3ForcePathStyle to be true", endpoint: nil, forcePathStyle: false},
 		}
 
 		for _, tt := range cases {
 			expectedSess := session.Must(session.NewSession())
-			expectedSess.Config.Endpoint = &tt.endpoint
+			expectedSess.Config.Endpoint = tt.endpoint
 			expectedSess.Config.S3ForcePathStyle = &tt.forcePathStyle
 
 			_, err := InitLambda(expectedSess)
@@ -383,13 +387,3 @@ func generateInvalidSQSEvent(sqsMessageBody string, numOfRecords int) events.SQS
 	sqsEvent := events.SQSEvent{Records: records}
 	return sqsEvent
 }
-
-//Request to s3 endpoint is valid (testing env variable)
-
-//Valid input to s3 request
-
-//Test the csv is base64 encoded
-
-//Request to digideps endpoint is valid (testing env variable)
-
-//Test valid string response is returned
