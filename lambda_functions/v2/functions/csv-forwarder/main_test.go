@@ -225,7 +225,7 @@ func (suite *HandleEventSuite) TestHandleEvent() {
 		response, err := suite.l.HandleEvent(event)
 
 		suite.Assert().Nil(err)
-		suite.Assert().Equal(&http.Response{StatusCode: 202}, response)
+		suite.Assert().Equal("Successfully POSTed CSV", response)
 
 		mock.AssertExpectationsForObjects(suite.T(), suite.s3Mock, suite.DDClientMock)
 
@@ -237,8 +237,9 @@ func (suite *HandleEventSuite) TestHandleEvent() {
 func (suite *HandleEventSuite) TestHandleEventDDAPIEnvVarNotSet() {
 	_ = os.Unsetenv("DIGIDEPS_API_ENDPOINT")
 	event := generateValidSQSEvent("pdf-bucket", "small.pdf")
-	err := suite.l.HandleEvent(event)
+	response, err := suite.l.HandleEvent(event)
 
+	suite.Assert().Equal("", response)
 	suite.Assert().Error(err, "DIGIDEPS_API_ENDPOINT environment variable not set")
 }
 
@@ -246,8 +247,9 @@ func (suite *HandleEventSuite) TestHandleEventParsingSQSMessageError() {
 	_ = os.Setenv("DIGIDEPS_API_ENDPOINT", "http://mock-digideps-endpoint")
 
 	event := generateInvalidSQSEvent("{Invalid JSON}", 1)
-	err := suite.l.HandleEvent(event)
+	response, err := suite.l.HandleEvent(event)
 
+	suite.Assert().Equal("", response)
 	suite.Assert().Error(err)
 }
 
@@ -263,9 +265,45 @@ func (suite *HandleEventSuite) TestHandleEventErrorPOSTingToDD() {
 	suite.DDClientMock.On("Post", "http://mock-digideps-endpoint", "application/json", requestBody).Return(&http.Response{StatusCode: 202}, errors.New("something went wrong"))
 
 	event := generateValidSQSEvent("bucket", "key")
-	err := suite.l.HandleEvent(event)
+	response, err := suite.l.HandleEvent(event)
 
+	suite.Assert().Equal("", response)
 	suite.Assert().Error(err)
+}
+
+func (suite *HandleEventSuite) TestHandleEventNon202ResponseReturnsError() {
+	_ = os.Setenv("DIGIDEPS_API_ENDPOINT", "http://mock-digideps-endpoint")
+
+	cases := []struct {
+		statusCode int
+	}{
+		{statusCode: 200},
+		{statusCode: 308},
+		{statusCode: 403},
+		{statusCode: 500},
+	}
+
+	for _, tt := range cases {
+		suite.Suite.T().Log(tt.statusCode)
+
+		input := s3.GetObjectInput{Bucket: aws.String("bucket"), Key: aws.String("key")}
+		output := generateValidGetObjectOutput()
+
+		suite.s3Mock.On("GetObject", input).Return(&output, nil)
+
+		requestBody := generateValidPostRequest()
+		suite.DDClientMock.On("Post", "http://mock-digideps-endpoint", "application/json", requestBody).Return(&http.Response{StatusCode: tt.statusCode}, nil)
+
+		event := generateValidSQSEvent("bucket", "key")
+		response, err := suite.l.HandleEvent(event)
+
+		suite.Assert().Equal("", response)
+		suite.Assert().Error(err)
+
+		suite.s3Mock.ExpectedCalls = nil
+		suite.DDClientMock.ExpectedCalls = nil
+	}
+
 }
 
 // In order for 'go test' to run this suite, we need to create
