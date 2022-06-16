@@ -42,7 +42,6 @@ func (d *DigidepsClientMock) Post(url, contentType string, body io.Reader) (resp
 }
 
 func TestSQSMessageParsing(t *testing.T) {
-	//Parse the event
 	t.Run("Parse incoming SQS Message into an EventRecord", func(t *testing.T) {
 		sqsEvent := generateValidSQSEvent("csv-bucket", "test.csv")
 
@@ -56,7 +55,6 @@ func TestSQSMessageParsing(t *testing.T) {
 		assert.Equal(t, expected, actual)
 	})
 
-	//Parse the event
 	t.Run("Parse incoming SQS Message into an EventRecord", func(t *testing.T) {
 		sqsEvent := generateValidSQSEvent("pdf-bucket", "test.pdf")
 
@@ -95,9 +93,6 @@ func TestSQSMessageParsing(t *testing.T) {
 	})
 }
 
-// Define the suite, and absorb the built-in basic suite
-// functionality from testify - including a T() method which
-// returns the current testing context
 type HandleEventSuite struct {
 	suite.Suite
 	l            Lambda
@@ -105,8 +100,6 @@ type HandleEventSuite struct {
 	DDClientMock *DigidepsClientMock
 }
 
-// Make sure that VariableThatShouldStartAtFive is set to five
-// before each test
 func (suite *HandleEventSuite) SetupTest() {
 	suite.s3Mock = new(S3ClientMock)
 	suite.DDClientMock = new(DigidepsClientMock)
