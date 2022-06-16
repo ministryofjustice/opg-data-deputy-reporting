@@ -251,6 +251,14 @@ func TestInitLambda(t *testing.T) {
 			fmt.Sprintf("Wanted type %s. Got type %s", reflect.TypeOf(expectedLambda.digidepsClient), reflect.TypeOf(actualLambda.digidepsClient)),
 		)
 	})
+
+	t.Run("Error when not configuring session", func(t *testing.T) {
+		expectedSess := session.Must(session.NewSession())
+
+		_, err := InitLambda(expectedSess)
+
+		assert.Error(t, err)
+	})
 }
 
 // In order for 'go test' to run this suite, we need to create

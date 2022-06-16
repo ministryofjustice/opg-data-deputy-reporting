@@ -116,7 +116,11 @@ func SQSMessageParser(sqsEvent events.SQSEvent) (S3EventRecord, error) {
 }
 
 func InitLambda(sess *session.Session) Lambda {
-	return Lambda{}
+	newSession := session.Must(session.NewSession())
+	return Lambda{
+		s3Client:       s3.New(newSession),
+		digidepsClient: &http.Client{},
+	}
 }
 
 func main() {
