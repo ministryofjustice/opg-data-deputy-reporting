@@ -115,12 +115,15 @@ func SQSMessageParser(sqsEvent events.SQSEvent) (S3EventRecord, error) {
 	return event.S3EventRecords[0], nil
 }
 
-func InitLambda(sess *session.Session) Lambda {
-	newSession := session.Must(session.NewSession())
-	return Lambda{
-		s3Client:       s3.New(newSession),
-		digidepsClient: &http.Client{},
+func InitLambda(sess *session.Session) (Lambda, error) {
+	if sess.Config.Endpoint == nil {
+		return Lambda{}, errors.New("endpoint is not set on AWS session")
 	}
+
+	return Lambda{
+		s3Client:       s3.New(sess),
+		digidepsClient: &http.Client{},
+	}, nil
 }
 
 func main() {

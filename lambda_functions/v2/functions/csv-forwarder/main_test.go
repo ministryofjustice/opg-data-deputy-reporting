@@ -237,7 +237,7 @@ func TestInitLambda(t *testing.T) {
 			digidepsClient: &ddClient,
 		}
 
-		actualLambda := InitLambda(expectedSess)
+		actualLambda, err := InitLambda(expectedSess)
 
 		assert.IsTypef(t, expectedLambda, actualLambda, fmt.Sprintf("Wanted type %s. Got type %s", reflect.TypeOf(expectedLambda), reflect.TypeOf(actualLambda)))
 		assert.IsTypef(
@@ -250,14 +250,28 @@ func TestInitLambda(t *testing.T) {
 			expectedLambda.digidepsClient, actualLambda.digidepsClient,
 			fmt.Sprintf("Wanted type %s. Got type %s", reflect.TypeOf(expectedLambda.digidepsClient), reflect.TypeOf(actualLambda.digidepsClient)),
 		)
+		assert.Nil(t, err)
 	})
 
 	t.Run("Error when not configuring session", func(t *testing.T) {
-		expectedSess := session.Must(session.NewSession())
+		cases := []struct {
+			endpoint, errorMessage string
+			forcePathStyle         bool
+		}{
+			{errorMessage: "expected session.Config.S3ForcePathStyle to be true", endpoint: "http://an-end.point", forcePathStyle: false},
+			{errorMessage: "expected session.Config.Endpoint to be a non-empty string", endpoint: "", forcePathStyle: true},
+			{errorMessage: "expected session.Config.S3ForcePathStyle to be true and session.Config.Endpoint to be a non-empty string", endpoint: "", forcePathStyle: false},
+		}
 
-		_, err := InitLambda(expectedSess)
+		for _, tt := range cases {
+			expectedSess := session.Must(session.NewSession())
+			expectedSess.Config.Endpoint = &tt.endpoint
+			expectedSess.Config.S3ForcePathStyle = &tt.forcePathStyle
 
-		assert.Error(t, err)
+			_, err := InitLambda(expectedSess)
+
+			assert.EqualError(t, err, tt.errorMessage)
+		}
 	})
 }
 
