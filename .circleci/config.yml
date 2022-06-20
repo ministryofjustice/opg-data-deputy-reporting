@@ -344,7 +344,7 @@ jobs:
         default: plan
         type: string
       mock_sirius:
-        description: sets mock sirius variable
+        description: enables mock sirius service
         default: "0"
         type: string
       pact_tag_production:
