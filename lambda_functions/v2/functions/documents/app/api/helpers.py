@@ -216,7 +216,9 @@ def error_message(code, message):
 def get_sirius_base_url(base_url):
     return (
         f"{base_url}"
-        if os.environ["ENVIRONMENT"] == "local"
+        if (
+            os.environ["ENVIRONMENT"] == "local" or os.environ["USE_MOCK_SIRIUS"] == "1"
+        )
         else f"{base_url}/api/public"
     )
 

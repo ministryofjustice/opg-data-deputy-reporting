@@ -9,7 +9,7 @@ from integration_tests.v2.conftest import generate_file_name
 )
 def case_success_s3(test_config: str) -> CaseData:
 
-    submission_id = 11111
+    submission_id = test_config["submission_id"]
 
     endpoint = f"clients/{test_config['case_ref']}/reports"
     url = f"{test_config['url']}/{endpoint}"
@@ -54,7 +54,7 @@ def case_success_s3(test_config: str) -> CaseData:
 )
 def case_success_original_s3(test_config: str) -> CaseData:
 
-    submission_id = 11111
+    submission_id = test_config["submission_id"]
 
     endpoint = f"clients/{test_config['case_ref']}/reports"
     url = f"{test_config['url']}/{endpoint}"

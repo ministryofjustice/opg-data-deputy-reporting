@@ -10,6 +10,11 @@ variable "image_tag" {
   default = "latest"
 }
 
+variable "use_mock_sirius" {
+  default = "0"
+  type    = string
+}
+
 variable "accounts" {
   type = map(
     object({
@@ -25,6 +30,7 @@ variable "accounts" {
       session_data         = string
       target_environment   = string
       threshold            = number
+      s3_vpc_endpoint_ids  = set(string)
     })
   )
 }

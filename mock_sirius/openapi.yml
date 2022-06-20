@@ -102,22 +102,22 @@ paths:
         e.g. `/api/public/v1/documents?caserecnumber=1681346T&metadata[submission_id]=11111&metadata[report_id]=94f2c3e7-34b8-47ff-bb6e-aa645f1e2c5d
       operationId: app.getDeputyDocuments
       parameters:
-          - name: caserecnumber
-            in: query
-            type: string
-            description: Case record number assigned to the client
-            required: true
-            pattern: '^([0-9]{7}T|[0-9]{8})$'
-          - name: metadata[submission_id]
-            in: query
-            type: integer
-            description: the Digideps submission id filter
-            required: true
-          - name: metadata[report_id]
-            in: query
-            type: string
-            description: the Digideps report id filter
-            required: true
+        - name: caserecnumber
+          in: query
+          type: string
+          description: Case record number assigned to the client
+          required: true
+          pattern: '^([0-9]{7}T|[0-9]{8})$'
+        - name: metadata[submission_id]
+          in: query
+          type: integer
+          description: the Digideps submission id filter
+          required: true
+        - name: metadata[report_id]
+          in: query
+          type: string
+          description: the Digideps report id filter
+          required: true
       responses:
         '200':
           description: List retrieved
@@ -129,12 +129,13 @@ paths:
             $ref: '#/definitions/Error'
         '500':
           description: Unexpected error
+  /documents/{uuid}:
     put:
       description: Update a document stored within Sirius
       operationId: app.updateDeputyDocument
       parameters:
         - name: uuid
-          in: query
+          in: path
           type: string
           format: uuid
           pattern: '^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$'
@@ -245,8 +246,7 @@ definitions:
         type: string
         example: 'application/pdf'
       metadata:
-        type: object
-        description: Metadata matches the metadata received in the request
+        $ref: '#/definitions/Metadata'
       uuid:
         $ref: '#/definitions/DocumentUuid'
       parentUuid:
@@ -261,13 +261,41 @@ definitions:
     properties:
       name:
         type: string
+        minLength: 1
         example: Report_1234567T_2018_2019_11111.pdf
       type:
         type: string
+        minLength: 1
         example: application/pdf
       source:
         type: string
+        minLength: 1
         description: The base64 encoded file
+  Metadata:
+    type: object
+    description: Metadata in response
+    required:
+      - submission_id
+    properties:
+      submission_id:
+        type: integer
+        pattern: '^([0-9]{5})$'
+        example: 12345
+      reporting_period_from:
+        type: string
+        example: '2019-01-01'
+      reporting_period_to:
+        type: string
+        example: '2019-12-31'
+      year:
+        type: integer
+        example: 2019
+      type:
+        type: string
+        example: 'PF'
+      report_id:
+        type: string
+        example: '16f62da9-db67-46f6-92b0-c212aeb08506'
   CaseRecNumber:
     type: string
     pattern: '^([0-9]{7}T|[0-9]{8})$'
@@ -277,4 +305,4 @@ definitions:
     format: uuid
     description: Document UUID
     pattern: '^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$'
-    example: '5a8b1a26-8296-4373-ae61-f8d0b250e773'
+    example: '16f62da9-db67-46f6-92b0-c212aeb08506'

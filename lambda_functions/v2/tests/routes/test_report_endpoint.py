@@ -9,7 +9,11 @@ from lambda_functions.v2.tests.routes import cases_reports_endpoint
 
 @pytest.mark.run(order=1)
 @pytest.mark.usefixtures(
-    "patched_get_secret", "patched_post", "patched_s3_client", "patched_s3_file"
+    "patched_get_secret",
+    "patched_post",
+    "patched_s3_client",
+    "patched_s3_file",
+    "patched_get_request_details_for_logs",
 )
 @cases_data(module=cases_reports_endpoint, has_tag="success")
 def test_reports(server, case_data: CaseDataGetter):
@@ -39,6 +43,7 @@ def test_reports(server, case_data: CaseDataGetter):
     "patched_post_broken_sirius",
     "patched_s3_client",
     "patched_s3_file",
+    "patched_get_request_details_for_logs",
 )
 @cases_data(module=cases_reports_endpoint, has_tag="error")
 def test_reports_errors(server, case_data: CaseDataGetter):
@@ -69,6 +74,7 @@ def test_reports_errors(server, case_data: CaseDataGetter):
     "patched_post_broken_sirius",
     "patched_s3_client",
     "patched_s3_file",
+    "patched_get_request_details_for_logs",
 )
 @cases_data(module=cases_reports_endpoint, has_tag="environment")
 def test_reports_environment(server, monkeypatch, caplog, case_data: CaseDataGetter):

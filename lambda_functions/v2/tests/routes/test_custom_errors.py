@@ -10,6 +10,7 @@ from lambda_functions.v2.tests.routes import cases_custom_endpoint_errors
     "patched_get_secret",
     "patched_post_broken_sirius",
     "patched_send_get_to_sirius",
+    "patched_get_request_details_for_logs",
 )
 @pytest.mark.parametrize(
     "patched_post_broken_sirius",

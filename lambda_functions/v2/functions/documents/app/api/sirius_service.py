@@ -125,6 +125,8 @@ def new_post_to_sirius(url, data, headers, method):
             data=data,
         )
 
+    logger.info(str(r.json()))
+
     return r.status_code, r.json()
 
 
@@ -142,7 +144,11 @@ def new_submit_document_to_sirius(
 
     try:
         SIRIUS_BASE_URL = os.environ["SIRIUS_BASE_URL"]
-        API_VERSION = os.getenv("SIRIUS_API_VERSION")
+        API_VERSION = (
+            os.getenv("SIRIUS_API_VERSION")
+            if os.environ["USE_MOCK_SIRIUS"] == "0"
+            else None
+        )
     except KeyError as e:
         return handle_sirius_error(
             error_message="Expected environment variables not set",
