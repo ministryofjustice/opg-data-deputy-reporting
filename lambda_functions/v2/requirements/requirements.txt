@@ -1,6 +1,6 @@
 #Update this date to trigger update of layers: 20220431
 requests==2.24.0
-pyjwt==1.7.1
+pyjwt==2.4.0
 boto3==1.22.2
 requests-toolbelt==0.8.0
 flask==2.1.1

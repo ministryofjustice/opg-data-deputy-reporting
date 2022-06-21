@@ -12,7 +12,7 @@ services:
       - mock-sirius
       - localstack
     environment:
-      SIRIUS_BASE_URL: http://mock-sirius:5000
+      SIRIUS_BASE_URL: http://mock-sirius:80
       ENVIRONMENT: local
       LOGGER_LEVEL: DEBUG
       API_VERSION: v2

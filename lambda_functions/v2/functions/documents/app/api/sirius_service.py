@@ -95,6 +95,7 @@ def build_sirius_headers(content_type="application/json"):
     """
     environment = os.environ["ENVIRONMENT"]
     session_data = os.environ["SESSION_DATA"]
+    secret = get_secret(environment)
 
     encoded_jwt = jwt.encode(
         {
@@ -102,13 +103,13 @@ def build_sirius_headers(content_type="application/json"):
             "iat": datetime.datetime.utcnow(),
             "exp": datetime.datetime.utcnow() + datetime.timedelta(seconds=3600),
         },
-        get_secret(environment),
+        secret,
         algorithm="HS256",
     )
 
     return {
         "Content-Type": content_type,
-        "Authorization": "Bearer " + encoded_jwt.decode("UTF8"),
+        "Authorization": "Bearer " + encoded_jwt,
     }
 
 
