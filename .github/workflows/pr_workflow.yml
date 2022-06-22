@@ -31,7 +31,7 @@ jobs:
         shell: bash
         run: |
           echo "##[set-output name=branch;]$(echo ${GITHUB_HEAD_REF})"
-          echo "##[set-output name=branchsane;]$(echo ${GITHUB_HEAD_REF} | tr -cd '[:alnum:])"
+          echo "##[set-output name=branchsane;]$(echo ${GITHUB_HEAD_REF} | tr -cd '[:alnum:]')"
         id: extract_branch
 
   create_tags:
