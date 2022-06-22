@@ -5,6 +5,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"net/http"
+	"os"
+	"reflect"
+	"strings"
+	"testing"
+
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -13,12 +20,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
-	"io"
-	"net/http"
-	"os"
-	"reflect"
-	"strings"
-	"testing"
 )
 
 type S3ClientMock struct {

@@ -6,17 +6,18 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/aws/aws-lambda-go/events"
-	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/s3"
-	"github.com/aws/aws-sdk-go/service/s3/s3iface"
 	"io"
 	"log"
 	"net/http"
 	"os"
 	"strings"
+
+    "github.com/aws/aws-lambda-go/events"
+    "github.com/aws/aws-lambda-go/lambda"
+    "github.com/aws/aws-sdk-go/aws"
+    "github.com/aws/aws-sdk-go/aws/session"
+    "github.com/aws/aws-sdk-go/service/s3"
+    "github.com/aws/aws-sdk-go/service/s3/s3iface"
 )
 
 type Lambda struct {
@@ -56,7 +57,7 @@ func (l *Lambda) HandleEvent(event events.SQSEvent) (string, error) {
 	parsedEvent, err := SQSMessageParser(event)
 
 	if err != nil {
-		msg := fmt.Sprintf("Unable to parse SQS Message: %s", err.Error())
+		msg := fmt.Sprintf("unable to parse sqs message: %s", err.Error())
 		log.Print(msg)
 		return "", errors.New(msg)
 	}
@@ -71,7 +72,7 @@ func (l *Lambda) HandleEvent(event events.SQSEvent) (string, error) {
 	_, err = buf.ReadFrom(resp.Body)
 
 	if err != nil {
-		msg := fmt.Sprintf("Unable to read file from S3: %s", err.Error())
+		msg := fmt.Sprintf("unable to read file from s3: %s", err.Error())
 		log.Print(msg)
 		return "", errors.New(msg)
 	}
@@ -84,7 +85,7 @@ func (l *Lambda) HandleEvent(event events.SQSEvent) (string, error) {
 	})
 
 	if err != nil {
-		msg := fmt.Sprintf("Unable to marshal string to JSON: %s", err.Error())
+		msg := fmt.Sprintf("unable to marshal string to json: %s", err.Error())
 		log.Print(msg)
 		return "", errors.New(msg)
 	}
@@ -94,23 +95,23 @@ func (l *Lambda) HandleEvent(event events.SQSEvent) (string, error) {
 	response, err := l.digidepsClient.Post(url, "application/json", requestBody)
 
 	if err != nil {
-		msg := fmt.Sprintf("Unable to post to Digideps: %s", err.Error())
+		msg := fmt.Sprintf("unable to post to digideps: %s", err.Error())
 		log.Print(msg)
 		return "", errors.New(msg)
 	}
 
 	if response.StatusCode != 202 {
-		return "", errors.New(fmt.Sprintf(
-			`Received unexpected status code from Digideps: %d
-			Response Body: %s`, response.StatusCode, response.Body))
+		return "", fmt.Errorf(
+			`received unexpected status code from digideps: %d
+			response body: %s`, response.StatusCode, response.Body)
 	}
 
-	return "Successfully POSTed CSV", nil
+	return "successfully POSTed csv", nil
 }
 
 func SQSMessageParser(sqsEvent events.SQSEvent) (S3EventRecord, error) {
 	if len(sqsEvent.Records) == 0 {
-		return S3EventRecord{}, errors.New("no SQS event records")
+		return S3EventRecord{}, errors.New("no sqs event records")
 	}
 
 	event := ObjectCreatedEvent{}
@@ -121,7 +122,7 @@ func SQSMessageParser(sqsEvent events.SQSEvent) (S3EventRecord, error) {
 	}
 
 	if len(event.S3EventRecords) == 0 {
-		return S3EventRecord{}, errors.New("no S3 event records")
+		return S3EventRecord{}, errors.New("no s3 event records")
 	}
 
 	return event.S3EventRecords[0], nil
@@ -134,7 +135,7 @@ func InitLambda(sess *session.Session) (Lambda, error) {
 		sessErrors = append(sessErrors, "session.Config.Endpoint to not be nil")
 	}
 
-	if *sess.Config.S3ForcePathStyle == false {
+	if !*sess.Config.S3ForcePathStyle {
 		sessErrors = append(sessErrors, "session.Config.S3ForcePathStyle to be true")
 	}
 
@@ -160,7 +161,7 @@ func main() {
 	l, err := InitLambda(sess)
 
 	if err != nil {
-		msg := fmt.Sprintf("Error initiliasing Lambda: %s", err.Error())
+		msg := fmt.Sprintf("error initiliasing lambda: %s", err.Error())
 		log.Print(msg)
 		panic(err)
 	}
