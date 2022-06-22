@@ -21,6 +21,7 @@ jobs:
 #  branch_name:
 #    uses: ministryofjustice/opg-github-workflows/.github/workflows/data-parse-branch-name.yml@main
   branch_name:
+    runs-on: ubuntu-latest
     name: Extract branch name
     outputs:
       raw_branch: ${{ steps.extract_branch.outputs.branch }}
