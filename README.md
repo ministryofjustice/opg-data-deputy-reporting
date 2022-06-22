@@ -37,62 +37,57 @@ Environments are protected by default for the remainder of the current day until
 They are then deleted by a job that runs that night. If you need environments to last longer than this then you can
 update the TTL in for your branch in workspace protection table in dynamodb.
 
-### Authentication and local testing
+### Authentication and checking AWS endpoints from local machine
 
 Because the frontend is using IAM auth to access the endpoints, you must have temporary
 credentials for one of the roles that is authorised to access the endpoint if you want to
 test locally. You can use the scripts in docs/supportscripts folder with aws-vault to test the
-endpoints locally. You can use getcreds.go script with aws-vault (aws-vault exec <your-profile> --
-go run getcreds.go) and paste the outputs into appropriate section
-of your GUI API testing tools (like postman) to test the endpoints that way.
+endpoints locally.
+
+If you want to use a tool like postman that requires credentials, you can use getcreds.go script with
+aws-vault (aws-vault exec <your-profile> -- go run getcreds.go) and paste the outputs into appropriate section
+of your GUI API testing tool (postman for example)
+
+### Manually testing the lambda image
+
+As the lambda is built from an image, you can manually spin this up locally and test the payloads that API
+gateway would send to it to check it responds as expected.
+
+First bring up the lambda and the mock sirius containers as well as localstack which will be used for local S3.
+
+```
+docker-compose build mock-lambda mock-sirius localstack
+```
+
+```
+docker-compose up -d mock-lambda
+```
+
+The curl to the lambda that mimics what is sent by the API gateway is a bit of a funny format and url.
+An example is below.
+
+```
+curl -XPOST "http://localhost:9000/2015-03-31/functions/function/invocations" -d '@./docs/supportscripts/lambda_request.json' | jq
+```
+
+There will be some future work to mimic the API Gateway fully locally.
 
 ### Unit tests
 
-Unit tests can be run by creating a `virtual env` (see below for some instructions), installing the test requirements
-and running `python -m pytest lambda_functions` from the root directory.
+Unit tests can be run through the unit tests container and are also run in the pipeline.
 
-You may also need to update your `PYTHONPATH` env var to point to the root of the repo.
+```
+docker-compose up unit-tests
+```
 
-### 'Integration' Tests
+### Integration Tests
 
 These tests send a payload to a real url, be careful where you point things if you're going to run these.
 
-These are not run as part of the regular pipeline tests. Use at your own risk.
+They run as part of the pipeline against a mock sirius endpoint that gets spun up and spun back down again
+after the tests are finished.
 
-#### How to run
-
-Pre-requirements:
-
-1) Have aws-vault installed and set up
-
-To run the integration tests in their entirety:
-
-1) From root dir, jump in to a venv: `virtualenv venv`
-2) Activate it: `source venv/bin/activate`
-3) Install pip requirements: `pip install -r lambda_functions/v1/requirements/dev-requirements.txt`
-4) Make sure $PYTHONPATH is set to root of directory.
-5) Ensure the integration tests run on the desired branch environment by updating the URLs in `lambda_functions/(v1)/integration_tests/conftest.py`
-6) `cd` into integrations test folder and run `aws-vault exec identity -- python -m pytest -n2 --dist=loadfile --html=report.html --self-contained-html`
-7) Open `report.html` in a browser to see the results of the tests all laid out nicely
-
-To run specific integration test(s), use Pytest Markers:
-
-1) Add your new marker name to pytest.ini to avoid warnings, in the form `new_marker_name: description`
-2) Add marker decorations to the test(s) you want to run:
-
-```
-@pytest.mark.new_marker_name
-def test_my_lovely_test():
-    ...
-```
-
-3)  Run like `aws-vault exec identity -- python -m pytest test_all_routes_happy_path.py -k "new_marker_name" -n2 -s --dist=loadfile --html=report.html --self-contained-html`
-4) Open `report.html` in a browser to see the results of the tests all laid out nicely
-
-#### Integration tests... still To Do
-
-* Local mock Sirius needs fixing so this can be included in these tests
-* Uploaded records could be formatted nicer making it easier to reconcile with Sirius if required
+Further instructions to follow for running agianst real environments.
 
 ### PACT
 
