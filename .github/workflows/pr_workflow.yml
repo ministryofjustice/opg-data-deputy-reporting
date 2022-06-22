@@ -21,15 +21,17 @@ jobs:
 #  branch_name:
 #    uses: ministryofjustice/opg-github-workflows/.github/workflows/data-parse-branch-name.yml@main
   branch_name:
-    - name: Extract branch name
-      outputs:
-        raw_branch: ${{ steps.extract_branch.outputs.branch }}
-        sanitised_branch: ${{ steps.extract_branch.outputs.branchsane }}
-      shell: bash
-      run: |
-        echo "##[set-output name=branch;]$(echo ${GITHUB_HEAD_REF})"
-        echo "##[set-output name=branchsane;]$(echo ${GITHUB_HEAD_REF} | tr -cd '[:alnum:])"
-      id: extract_branch
+    name: Extract branch name
+    outputs:
+      raw_branch: ${{ steps.extract_branch.outputs.branch }}
+      sanitised_branch: ${{ steps.extract_branch.outputs.branchsane }}
+    steps:
+      - name: Extract branch
+        shell: bash
+        run: |
+          echo "##[set-output name=branch;]$(echo ${GITHUB_HEAD_REF})"
+          echo "##[set-output name=branchsane;]$(echo ${GITHUB_HEAD_REF} | tr -cd '[:alnum:])"
+        id: extract_branch
 
   create_tags:
     name: Create Tags
