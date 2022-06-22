@@ -39,7 +39,7 @@ jobs:
     needs: ['branch_name']
     uses: ./.github/workflows/tags_job.yml
     with:
-      branch_name: ${{ needs.branch_name.outputs.branch }}
+      branch_name: ${{ needs.branch_name.outputs.raw_branch }}
 #      branch_name: ${{ needs.branch_name.outputs.raw_branch_name }}
     secrets:
       source_github_token: ${{ secrets.GITHUB_TOKEN }}
