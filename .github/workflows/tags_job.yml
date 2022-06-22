@@ -17,7 +17,9 @@ jobs:
   create_tags:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
       - name: Bump version
         id: bump_version
         uses: anothrNick/github-tag-action@1.39.0
