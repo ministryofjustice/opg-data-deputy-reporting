@@ -20,15 +20,21 @@ import (
     "github.com/aws/aws-sdk-go/service/s3/s3iface"
 )
 
+// Lambda is repsonsible for retrieving CSVs from S3 and POSTing to Digideps
+// s3Client is responsible for retrieving the CSVs from S3
+// digidepsClient is repsonsible for POSTing the CSVs to Digideps
 type Lambda struct {
 	s3Client       s3iface.S3API
 	digidepsClient DigidepsClient
 }
 
+// DigidepsClient is a interface for a http client
+// Interface is used to allow for mocking
 type DigidepsClient interface {
 	Post(url, contentType string, body io.Reader) (resp *http.Response, err error)
 }
 
+// S3EventRecord represents a newly created S3 Object
 type S3EventRecord struct {
 	S3 struct {
 		Bucket struct {
@@ -40,6 +46,7 @@ type S3EventRecord struct {
 	} `json:"s3"`
 }
 
+// ObjectCreatedEvent represents a slice of newly created S3 Objects
 type ObjectCreatedEvent struct {
 	S3EventRecords []S3EventRecord `json:"Records"`
 }
