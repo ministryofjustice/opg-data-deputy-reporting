@@ -16,44 +16,44 @@ parameters:
     default: ""
 
 workflows:
-  pull_request:
-    when: << pipeline.parameters.run_pull_request >>
-    jobs:
-      - build_lambda:
-          name: build and artifact
-          filters: {branches:{ignore:[main]}}
-      - terraform_pre_checks:
-          name: terraform branch preflight checks
-          requires: [build and artifact]
-          filters: {branches:{ignore:[main]}}
-      - terraform_action:
-          name: plan branch environment
-          requires: [terraform branch preflight checks]
-          tf_command: plan
-          filters: {branches:{ignore:[main]}}
-      - terraform_action:
-          name: apply branch environment sirius mock
-          requires: [plan branch environment]
-          tf_command: apply
-          mock_sirius: "1"
-          filters: {branches:{ignore:[main]}}
-      - integration_tests:
-          name: run integration tests
-          requires: [apply branch environment sirius mock]
-          filters: {branches:{ignore:[main]}}
-      - terraform_action:
-          name: apply branch environment
-          requires: [run integration tests]
-          tf_command: apply
-          filters: {branches:{ignore:[main]}}
-      - workspace_protection:
-          name: protect current workspace
-          requires: [plan branch environment]
-          filters: {branches:{ignore:[main]}}
-      - workflow_complete:
-          name: workflow complete
-          requires: [apply branch environment, protect current workspace]
-          filters: {branches:{ignore:[main]}}
+#  pull_request:
+#    when: << pipeline.parameters.run_pull_request >>
+#    jobs:
+#      - build_lambda:
+#          name: build and artifact
+#          filters: {branches:{ignore:[main]}}
+#      - terraform_pre_checks:
+#          name: terraform branch preflight checks
+#          requires: [build and artifact]
+#          filters: {branches:{ignore:[main]}}
+#      - terraform_action:
+#          name: plan branch environment
+#          requires: [terraform branch preflight checks]
+#          tf_command: plan
+#          filters: {branches:{ignore:[main]}}
+#      - terraform_action:
+#          name: apply branch environment sirius mock
+#          requires: [plan branch environment]
+#          tf_command: apply
+#          mock_sirius: "1"
+#          filters: {branches:{ignore:[main]}}
+#      - integration_tests:
+#          name: run integration tests
+#          requires: [apply branch environment sirius mock]
+#          filters: {branches:{ignore:[main]}}
+#      - terraform_action:
+#          name: apply branch environment
+#          requires: [run integration tests]
+#          tf_command: apply
+#          filters: {branches:{ignore:[main]}}
+#      - workspace_protection:
+#          name: protect current workspace
+#          requires: [plan branch environment]
+#          filters: {branches:{ignore:[main]}}
+#      - workflow_complete:
+#          name: workflow complete
+#          requires: [apply branch environment, protect current workspace]
+#          filters: {branches:{ignore:[main]}}
   commit_to_main:
     when: << pipeline.parameters.run_commit_to_main >>
     jobs:
@@ -99,11 +99,11 @@ workflows:
          tf_workspace: production
          pact_tag_production: true
          filters: {branches:{only:[main]}}
-  verify_pact:
-    when: << pipeline.parameters.run_verify_pact >>
-    jobs:
-      - pact_verification:
-          name: verify the latest pact
+#  verify_pact:
+#    when: << pipeline.parameters.run_verify_pact >>
+#    jobs:
+#      - pact_verification:
+#          name: verify the latest pact
   nightly_workspace_deletion:
     triggers:
       - schedule:
