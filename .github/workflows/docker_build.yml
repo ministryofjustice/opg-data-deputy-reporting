@@ -57,7 +57,7 @@ jobs:
           role-to-assume: arn:aws:iam::311462405659:role/opg-metrics-ci
           role-duration-seconds: 900
           role-session-name: OPGMetricsECRGithubAction
-      - name: ECR Login
+      - name: Login to ECR
         id: login_ecr
         uses: aws-actions/amazon-ecr-login@v1.4.0
         with:
