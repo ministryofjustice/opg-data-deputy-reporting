@@ -12,7 +12,7 @@ services:
       - mock-sirius
       - localstack
     environment:
-      SIRIUS_BASE_URL: http://mock-sirius:5000
+      SIRIUS_BASE_URL: http://mock-sirius:80
       ENVIRONMENT: local
       LOGGER_LEVEL: DEBUG
       API_VERSION: v2
@@ -21,14 +21,15 @@ services:
       DIGIDEPS_S3_ROLE_ARN: arn:aws:iam::248804316466:role/integrations-s3-read-development
       AWS_ACCESS_KEY_ID: FAKE
       AWS_SECRET_ACCESS_KEY: FAKE
+      USE_MOCK_SIRIUS: "0"
 
   mock-sirius:
     build:
       context: ./mock_sirius
       dockerfile: Dockerfile
     ports:
-      - "5000:5000"
-
+      - "5000:80"
+      -
   mock-digideps:
     image: mock-digideps:latest
     build:
@@ -36,7 +37,7 @@ services:
       dockerfile: Dockerfile
     ports:
       - "5050:5050"
-
+      -
   csv-forwarder-function:
     image: csv-forwarder-function:latest
     build:
@@ -78,5 +79,17 @@ services:
       API_VERSION: "v1"
       SIRIUS_BASE_URL: "http://not-really-sirius.com"
       ENVIRONMENT: "dev"
+      USE_MOCK_SIRIUS: "0"
       SESSION_DATA: ""
       AWS_XRAY_CONTEXT_MISSING: "LOG_ERROR"
+
+  integration-tests:
+    build:
+      context: ./integration_tests
+      dockerfile: Dockerfile
+    environment:
+      AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
+      AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
+      AWS_SESSION_TOKEN: $AWS_SESSION_TOKEN
+      TF_WORKSPACE: $TF_WORKSPACE
+      CI: $CI

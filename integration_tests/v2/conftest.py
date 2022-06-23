@@ -10,20 +10,20 @@ from requests_aws4auth import AWS4Auth
 
 # Setup Data
 
-
 aws_dev_v2_config = {
     "name": "AWS v2 Dev",
-    "url": "https://dev.deputy-reporting.api.opg.service.justice.gov.uk/v2",
+    "url": f"https://{os.getenv('TF_WORKSPACE')}.dev.deputy-reporting.api.opg.service.justice.gov.uk/v2",
     "security": "aws_signature",
-    "case_ref": "08325883",
-    "report_id": "123",
-    "sup_doc_id": "123",
+    "case_ref": "0319392T",
+    "report_id": "16f62da9-db67-46f6-92b0-c212aeb08506",
+    "sup_doc_id": "16f62da9-db67-46f6-92b0-c212aeb08506",
     "submission_id": 12345,
     "checklist_id": "123",
     "s3_object_key": "dd_doc_62_15916290546271",
     "s3_test_file": "integration_test_1mb",
-    "s3_bucket_name": "pa-uploads-development",
+    "s3_bucket_name": "pa-uploads-branch-replication",
     "aws_region": "eu-west-1",
+    "mock_sirius": True,
 }
 
 mock_config = {
@@ -38,6 +38,7 @@ mock_config = {
     "s3_test_file": "integration_test_1mb",
     "s3_bucket_name": "valid-bucket",
     "aws_region": "eu-west-1",
+    "mock_sirius": False,
 }
 
 configs_to_test = [aws_dev_v2_config]
@@ -68,7 +69,7 @@ def pytest_sessionfinish(session, exitstatus):
 
 
 def get_role_name():
-    return "integrations-ci" if "CI" in os.environ else "operator"
+    return "integrations-ci" if os.getenv("CI") == "true" else "operator"
 
 
 def filter_none_values(kwargs: dict) -> dict:
@@ -160,7 +161,9 @@ def send_a_request(
         if os.getenv("AWS_ACCESS_KEY_ID") == "testing":
             print("Your AWS creds are not set properly")
 
-    boto3.setup_default_session(region_name=test_config["aws_region"],)
+    boto3.setup_default_session(
+        region_name=test_config["aws_region"],
+    )
 
     session = assume_session(
         "assumed_role_session",

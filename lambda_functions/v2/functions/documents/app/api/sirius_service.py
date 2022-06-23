@@ -95,6 +95,7 @@ def build_sirius_headers(content_type="application/json"):
     """
     environment = os.environ["ENVIRONMENT"]
     session_data = os.environ["SESSION_DATA"]
+    secret = get_secret(environment)
 
     encoded_jwt = jwt.encode(
         {
@@ -102,13 +103,13 @@ def build_sirius_headers(content_type="application/json"):
             "iat": datetime.datetime.utcnow(),
             "exp": datetime.datetime.utcnow() + datetime.timedelta(seconds=3600),
         },
-        get_secret(environment),
+        secret,
         algorithm="HS256",
     )
 
     return {
         "Content-Type": content_type,
-        "Authorization": "Bearer " + encoded_jwt.decode("UTF8"),
+        "Authorization": "Bearer " + encoded_jwt,
     }
 
 
@@ -124,6 +125,8 @@ def new_post_to_sirius(url, data, headers, method):
             error_details=e,
             data=data,
         )
+
+    logger.info(str(r.json()))
 
     return r.status_code, r.json()
 
@@ -142,7 +145,11 @@ def new_submit_document_to_sirius(
 
     try:
         SIRIUS_BASE_URL = os.environ["SIRIUS_BASE_URL"]
-        API_VERSION = os.getenv("SIRIUS_API_VERSION")
+        API_VERSION = (
+            os.getenv("SIRIUS_API_VERSION")
+            if os.environ["USE_MOCK_SIRIUS"] == "0"
+            else None
+        )
     except KeyError as e:
         return handle_sirius_error(
             error_message="Expected environment variables not set",

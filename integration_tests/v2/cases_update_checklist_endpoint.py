@@ -15,7 +15,9 @@ new_submission_id = random.randint(10000, 99999)
 def case_success_original_IN_112(test_config: str, sub_id: int) -> CaseData:
 
     report_id = test_config["report_id"]
-    submission_id = sub_id
+    submission_id = (
+        sub_id if test_config["mock_sirius"] is False else test_config["submission_id"]
+    )
     case_ref = test_config["case_ref"]
     checklist_id = test_config["checklist_id"]
 

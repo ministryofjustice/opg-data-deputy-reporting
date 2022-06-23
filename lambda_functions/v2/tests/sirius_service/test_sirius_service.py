@@ -1,4 +1,3 @@
-import logging
 import urllib
 
 import boto3
@@ -171,7 +170,7 @@ def test_new_format_sirius_response(case_data: CaseDataGetter):
 
 
 @cases_data(module=cases_format_sirius_response, has_tag="error")
-def test_new_format_sirius_response_error(caplog, case_data: CaseDataGetter):
+def test_new_format_sirius_response_error(case_data: CaseDataGetter):
     (
         sirius_response_code,
         sirius_response,
@@ -183,9 +182,5 @@ def test_new_format_sirius_response_error(caplog, case_data: CaseDataGetter):
     formatted_status_code, formatted_response_text = handle_sirius_error(
         sirius_response_code, sirius_response, error_details
     )
-    print(f"formatted_response_text: {formatted_response_text}")
     assert formatted_response_text == api_response
     assert formatted_status_code == api_response_code
-
-    with caplog.at_level(logging.ERROR):
-        assert api_response in caplog.text

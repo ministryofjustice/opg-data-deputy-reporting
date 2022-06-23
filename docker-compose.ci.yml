@@ -1,7 +1,12 @@
 version: '3'
 services:
-  etl0:
-    image: ${AWS_REGISTRY}/deputy-reporting-lambda:${VERSION}
+  deputy-reporting:
+    image: ${AWS_REGISTRY}/integrations/deputy-reporting-lambda:${VERSION}
     build:
       context: ./lambda_functions/v2
+      dockerfile: Dockerfile
+  mock-sirius:
+    image: ${AWS_REGISTRY}/integrations/deputy-reporting-mock-sirius:${VERSION}
+    build:
+      context: ./mock_sirius
       dockerfile: Dockerfile

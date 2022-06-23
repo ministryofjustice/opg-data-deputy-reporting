@@ -97,7 +97,7 @@ def case_success_original_s3(test_config: str) -> CaseData:
 def case_success_new_submission(test_config: str) -> CaseData:
 
     report_id = test_config["report_id"]
-    submission_id = 54321
+    submission_id = test_config["submission_id"]
     case_ref = test_config["case_ref"]
 
     endpoint = f"clients/{case_ref}/reports/" f"{report_id}/supportingdocuments"
@@ -138,7 +138,7 @@ def case_success_new_submission(test_config: str) -> CaseData:
 def case_success_new_submission_2(test_config: str) -> CaseData:
 
     report_id = test_config["report_id"]
-    submission_id = 543218
+    submission_id = test_config["submission_id"]
     case_ref = test_config["case_ref"]
 
     endpoint = f"clients/{case_ref}/reports/" f"{report_id}/supportingdocuments"
@@ -179,7 +179,7 @@ def case_success_new_submission_2(test_config: str) -> CaseData:
 def case_success_new_submission_child(test_config: str) -> CaseData:
 
     report_id = test_config["report_id"]
-    submission_id = 543218
+    submission_id = test_config["submission_id"]
     case_ref = test_config["case_ref"]
 
     parent_id = test_config["supp_doc_id"]

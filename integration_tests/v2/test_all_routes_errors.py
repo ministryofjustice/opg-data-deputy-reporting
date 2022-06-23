@@ -113,20 +113,21 @@ def all_routes(case_ref, report_id, checklist_id):
 def test_400_bad_url_params(test_config):
 
     routes = []
-    routes.extend(
-        all_routes(
-            case_ref="not_a_real_caseref",
-            report_id=test_config["report_id"],
-            checklist_id=test_config["checklist_id"],
+    if test_config["mock_sirius"] is False:
+        routes.extend(
+            all_routes(
+                case_ref="not_a_real_caseref",
+                report_id=test_config["report_id"],
+                checklist_id=test_config["checklist_id"],
+            )
         )
-    )
-    routes.extend(
-        all_routes(
-            case_ref=test_config["case_ref"],
-            report_id="not_a_report_id",
-            checklist_id=test_config["checklist_id"],
+        routes.extend(
+            all_routes(
+                case_ref=test_config["case_ref"],
+                report_id="not_a_report_id",
+                checklist_id=test_config["checklist_id"],
+            )
         )
-    )
     routes.extend(
         all_routes(
             case_ref=test_config["case_ref"],
@@ -171,7 +172,10 @@ def test_404(test_config):
 
     url = f"{test_config['url']}/{route}"
     status, response = send_a_request(
-        url=url, method="POST", payload=payload, test_config=test_config,
+        url=url,
+        method="POST",
+        payload=payload,
+        test_config=test_config,
     )
 
     assert status == 404
@@ -200,7 +204,10 @@ def test_405(test_config):
 
         url = f"{test_config['url']}/{route['route']}"
         status, response = send_a_request(
-            url=url, method=method, payload=payload, test_config=test_config,
+            url=url,
+            method=method,
+            payload=payload,
+            test_config=test_config,
         )
 
         assert status == 404
@@ -285,7 +292,9 @@ def test_415(test_config, monkeypatch):
 @pytest.mark.smoke_test
 @pytest.mark.run(order=10)
 @pytest.mark.parametrize("test_config", configs_to_test)
-def test_500(test_config,):
+def test_500(
+    test_config,
+):
 
     routes = all_routes(
         case_ref=test_config["case_ref"],
@@ -317,7 +326,9 @@ def test_500(test_config,):
 @pytest.mark.smoke_test
 @pytest.mark.run(order=10)
 @pytest.mark.parametrize("test_config", configs_to_test)
-def test_503(test_config,):
+def test_503(
+    test_config,
+):
 
     routes = all_routes(
         case_ref=test_config["case_ref"],

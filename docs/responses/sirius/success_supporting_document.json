@@ -1,0 +1,11 @@
+{
+	'type': 'Report - General',
+	'filename': 'c44130e3541940e89e86c07829f96a3a_supportdoc.pdf',
+	'mimeType': 'application/pdf',
+	'metadata': {
+		'submission_id': 12345,
+		'report_id': '16f62da9-db67-46f6-92b0-c212aeb08506'
+	},
+	'parentUuid': '652747a3-89ba-4d45-becd-9d5f5437fc3a',
+	'uuid': '89154039-3633-436b-a410-d64a49d5f459'
+}
