@@ -29,7 +29,7 @@ services:
       dockerfile: Dockerfile
     ports:
       - "5000:80"
-      -
+
   mock-digideps:
     image: mock-digideps:latest
     build:
@@ -37,7 +37,7 @@ services:
       dockerfile: Dockerfile
     ports:
       - "5050:5050"
-      -
+
   csv-forwarder-function:
     image: csv-forwarder-function:latest
     build:
