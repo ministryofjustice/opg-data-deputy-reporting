@@ -45,7 +45,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.aws_secret_access_key_actions }}
           aws-region: eu-west-1
           role-duration-seconds: 3600
-          role-session-name: OPGDeputyReportingECRGithubAction
+          role-session-name: OPGDeputyReportingGithubAction
 
       - name: Lint Terraform
         id: tf_lint
