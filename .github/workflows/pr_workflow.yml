@@ -49,7 +49,7 @@ jobs:
         shell: bash
         run: |
           echo "##[set-output name=branch_raw;]$(echo ${GITHUB_HEAD_REF:-${GITHUB_REF##*/}})"
-          echo "##[set-output name=branch_formatted;]$(echo ${GITHUB_HEAD_REF:-${GITHUB_REF##*/}} | tr -cd '[:alnum:]')"
+          echo "##[set-output name=branch_formatted;]$(echo ${GITHUB_HEAD_REF:-${GITHUB_REF##*/}} | tr -cd '[:alnum:]' | tr '[:upper:]' '[:lower:]')"
         id: extract_branch
 
   create_tags:
