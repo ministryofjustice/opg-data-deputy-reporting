@@ -33,12 +33,18 @@ jobs:
 
       - name: Trivy Image Vulnerability Scanner
         id: trivy_scan
-        uses: aquasecurity/trivy-action@0.4.1
+        uses: aquasecurity/trivy-action@0.5.0
         with:
           image-ref: ${{ matrix.lambda_name.name }}:latest
           severity: 'HIGH,CRITICAL'
           format: 'sarif'
           output: 'trivy-results.sarif'
+
+      - name: Cat the trivy file
+        id: cat_file
+        run: |
+          ls -alt
+          cat trivy-results.sarif
 
       - name: Upload Trivy scan results to GitHub Security tab
         id: trivy_upload_sarif
@@ -46,6 +52,7 @@ jobs:
         if: always()
         with:
           sarif_file: 'trivy-results.sarif'
+          category: ${{ matrix.lambda_name.name }}
 
       - uses: unfor19/install-aws-cli-action@v1
       - name: Configure AWS Credentials

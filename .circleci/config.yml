@@ -54,51 +54,51 @@ workflows:
 #          name: workflow complete
 #          requires: [apply branch environment, protect current workspace]
 #          filters: {branches:{ignore:[main]}}
-  commit_to_main:
-    when: << pipeline.parameters.run_commit_to_main >>
-    jobs:
-      - build_lambda:
-          name: build and artifact
-          filters: {branches:{only:[main]}}
-      - terraform_pre_checks:
-          name: terraform dev preflight checks
-          requires: [build and artifact]
-          tf_workspace: development
-          filters: {branches:{only:[main]}}
-      - terraform_action:
-          name: development apply
-          requires: [terraform dev preflight checks]
-          tf_command: apply --auto-approve
-          tf_workspace: development
-          filters: {branches:{only:[main]}}
-      - terraform_pre_checks:
-         name: terraform preprod preflight checks
-         requires: [build and artifact]
-         tf_workspace: preproduction
-         filters: {branches:{only:[main]}}
-      - terraform_action:
-         name: preprod apply
-         requires: [terraform preprod preflight checks, development apply]
-         tf_command: apply --auto-approve
-         tf_workspace: preproduction
-         filters: {branches:{only:[main]}}
-      - approve:
-         name: approve release to production
-         type: approval
-         requires: [preprod apply]
-         filters: {branches:{only:[main]}}
-      - terraform_pre_checks:
-         name: terraform production preflight checks
-         requires: [approve release to production]
-         tf_workspace: production
-         filters: {branches:{only:[main]}}
-      - terraform_action:
-         name: production apply
-         requires: [terraform production preflight checks]
-         tf_command: apply --auto-approve
-         tf_workspace: production
-         pact_tag_production: true
-         filters: {branches:{only:[main]}}
+#  commit_to_main:
+#    when: << pipeline.parameters.run_commit_to_main >>
+#    jobs:
+#      - build_lambda:
+#          name: build and artifact
+#          filters: {branches:{only:[main]}}
+#      - terraform_pre_checks:
+#          name: terraform dev preflight checks
+#          requires: [build and artifact]
+#          tf_workspace: development
+#          filters: {branches:{only:[main]}}
+#      - terraform_action:
+#          name: development apply
+#          requires: [terraform dev preflight checks]
+#          tf_command: apply --auto-approve
+#          tf_workspace: development
+#          filters: {branches:{only:[main]}}
+#      - terraform_pre_checks:
+#         name: terraform preprod preflight checks
+#         requires: [build and artifact]
+#         tf_workspace: preproduction
+#         filters: {branches:{only:[main]}}
+#      - terraform_action:
+#         name: preprod apply
+#         requires: [terraform preprod preflight checks, development apply]
+#         tf_command: apply --auto-approve
+#         tf_workspace: preproduction
+#         filters: {branches:{only:[main]}}
+#      - approve:
+#         name: approve release to production
+#         type: approval
+#         requires: [preprod apply]
+#         filters: {branches:{only:[main]}}
+#      - terraform_pre_checks:
+#         name: terraform production preflight checks
+#         requires: [approve release to production]
+#         tf_workspace: production
+#         filters: {branches:{only:[main]}}
+#      - terraform_action:
+#         name: production apply
+#         requires: [terraform production preflight checks]
+#         tf_command: apply --auto-approve
+#         tf_workspace: production
+#         pact_tag_production: true
+#         filters: {branches:{only:[main]}}
 #  verify_pact:
 #    when: << pipeline.parameters.run_verify_pact >>
 #    jobs:

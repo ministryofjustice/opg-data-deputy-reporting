@@ -20,9 +20,15 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
+      - name: Install semver
+        id: install_semver
+        run: sudo apt install node-semver
+
       - name: Bump version
         id: bump_version
-        uses: anothrNick/github-tag-action@1.39.0
+        run: |
+          sudo chmod 755 ./.github/tag.sh
+          ./.github/tag.sh
         env:
           GITHUB_TOKEN: ${{ secrets.source_github_token }}
           INITIAL_VERSION: 0.0.0
@@ -30,5 +36,6 @@ jobs:
           PRERELEASE_SUFFIX: ${{ inputs.branch_name }}
           RELEASE_BRANCHES: main
           WITH_V: true
+          TAG_CONTEXT: branch
     outputs:
       version_tag: ${{ steps.bump_version.outputs.tag }}
