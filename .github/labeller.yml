@@ -1,0 +1,17 @@
+repo:
+  - any: ["./*"]
+
+docs:
+  - any: ["docs/**/*"]
+
+tests:
+  - any: ["integration_tests/**/*", "lambda_functions/v2/tests/**/*"]
+
+lambda:
+  - any: ["lambda_functions/v2/functions/**/*"]
+
+openapi:
+  - any: ["lambda_functions/v2/openapi/*"]
+
+infra:
+  - any: ["terraform/**/*"]
