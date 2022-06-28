@@ -1,0 +1,91 @@
+on:
+  workflow_call:
+    inputs:
+      terraform_path:
+        description: 'The name of the terraform paths'
+        required: true
+        type: string
+      workspace:
+        description: 'Terraform workspace'
+        required: true
+        type: string
+      image_tag:
+        description: 'Image tag to use'
+        required: true
+        type: string
+      mock_sirius:
+        description: 'Whether to use mock sirius'
+        required: false
+        default: '0'
+        type: string
+    secrets:
+      aws_access_key_id_actions:
+        required: true
+      aws_secret_access_key_actions:
+        required: true
+
+jobs:
+  terraform_workflow:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: '0'
+
+      - uses: unfor19/install-aws-cli-action@v1
+
+      - uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.2.2
+
+      - name: Configure AWS Credentials For Terraform
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.aws_access_key_id_actions }}
+          aws-secret-access-key: ${{ secrets.aws_secret_access_key_actions }}
+          aws-region: eu-west-1
+          role-duration-seconds: 3600
+          role-session-name: OPGDeputyReportingGithubAction
+
+      - name: Lint Terraform
+        id: tf_lint
+        run: terraform fmt -check -recursive
+        working-directory: ./${{ inputs.terraform_path }}
+        continue-on-error: true
+
+      - name: Output variables
+        id: output_variables
+        run: |
+          echo ${{ inputs.terraform_path }}
+          echo ${{ inputs.workspace }}
+          echo ${{ inputs.image_tag }}
+          echo ${{ inputs.mock_sirius }}
+        working-directory: ./${{ inputs.terraform_path }}
+        continue-on-error: true
+
+      - name: Modify openapi specification
+        id: open_api
+        run: sed -i "s/\"\${allowed_roles}\"/\${allowed_roles}/" deputy-reporting-openapi.yml
+        working-directory: ./lambda_functions/v2/openapi
+
+      - name: Terraform Init
+        run: terraform init -input=false
+        working-directory: ./${{ inputs.terraform_path }}
+
+      - name: Terraform Plan
+        env:
+          TF_WORKSPACE: ${{ inputs.workspace }}
+          TF_VAR_image_tag: ${{ inputs.image_tag }}
+          TF_VAR_mock_sirius: ${{ inputs.mock_sirius }}
+        run: |
+          terraform workspace show
+          terraform plan -input=false -parallelism=30
+        working-directory: ./${{ inputs.terraform_path }}
+
+      - name: Terraform Apply Environment
+        env:
+          TF_WORKSPACE: ${{ inputs.workspace }}
+          TF_VAR_image_tag: ${{ inputs.image_tag }}
+          TF_VAR_mock_sirius: ${{ inputs.mock_sirius }}
+        run: terraform apply -lock-timeout=300s -input=false -auto-approve -parallelism=30
+        working-directory: ./${{ inputs.terraform_path }}
