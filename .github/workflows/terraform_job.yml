@@ -63,6 +63,11 @@ jobs:
         working-directory: ./${{ inputs.terraform_path }}
         continue-on-error: true
 
+      - name: Modify openapi specification
+        id: open_api
+        run: sed -i "s/\"\${allowed_roles}\"/\${allowed_roles}/" deputy-reporting-openapi.yml
+        working-directory: ./lambda_functions/v2/openapi
+
       - name: Terraform Init
         run: terraform init -input=false
         working-directory: ./${{ inputs.terraform_path }}
