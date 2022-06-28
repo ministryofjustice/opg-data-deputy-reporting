@@ -38,6 +38,30 @@ jobs:
         run: docker-compose up unit-tests
         id: unit_tests
 
+  pact:
+    runs-on: ubuntu-latest
+    name: Run pact checks
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Copy in the openapidoc
+        run: ./getopenapidoc
+        working-directory: ./mock_integration_rest_api
+      - name: Build images needed
+        run: docker-compose -f docker-compose.pact.yml build mock-aws-rest-api check-pact-deployable mock-sirius
+      - name: Bring up mocks
+        run: |
+          docker-compose -f docker-compose.pact.yml up -d mock-aws-rest-api
+          sleep 10
+      - name: run check pact
+        run: |
+          export GIT_COMMIT_PROVIDER=${GIT_COMMIT_PROVIDER_LONG:0:7}
+          docker-compose -f docker-compose.pact.yml up check-pact-deployable
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+          GIT_COMMIT_PROVIDER_LONG: ${{ github.sha }}
+
   branch_name:
     runs-on: ubuntu-latest
     name: Extract branch name
