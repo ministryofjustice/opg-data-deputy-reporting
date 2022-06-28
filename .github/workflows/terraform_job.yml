@@ -63,6 +63,11 @@ jobs:
         working-directory: ./${{ inputs.terraform_path }}
         continue-on-error: true
 
+      - name: Modify openapi specification
+        id: open_api
+        run: sed -i "s/\"\${allowed_roles}\"/\${allowed_roles}/" deputy-reporting-openapi.yml
+        working-directory: ./lambda_functions/v2/openapi
+
       - name: Terraform Init
         run: terraform init -input=false
         working-directory: ./${{ inputs.terraform_path }}
@@ -71,7 +76,7 @@ jobs:
         env:
           TF_WORKSPACE: ${{ inputs.workspace }}
           TF_VAR_image_tag: ${{ inputs.image_tag }}
-          TF_VAR_mock_sirius: ${{ inputs.mock_sirius }}
+          TF_VAR_use_mock_sirius: ${{ inputs.mock_sirius }}
         run: |
           terraform workspace show
           terraform plan -input=false -parallelism=30
@@ -81,6 +86,6 @@ jobs:
         env:
           TF_WORKSPACE: ${{ inputs.workspace }}
           TF_VAR_image_tag: ${{ inputs.image_tag }}
-          TF_VAR_mock_sirius: ${{ inputs.mock_sirius }}
+          TF_VAR_use_mock_sirius: ${{ inputs.mock_sirius }}
         run: terraform apply -lock-timeout=300s -input=false -auto-approve -parallelism=30
         working-directory: ./${{ inputs.terraform_path }}
