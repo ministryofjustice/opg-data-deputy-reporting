@@ -35,8 +35,44 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Run unit tests
-        run: docker-compose up unit-tests
+        run: |
+          docker-compose up unit-tests
+          export DOCKER_EXIT_CODE=$(docker inspect $(docker ps -a | head -2 | tail -1 | awk '{print $1}') --format='{{.State.ExitCode}}')
+          if [ "$DOCKER_EXIT_CODE" = "0" ]
+          then
+            echo "Tests passed"
+          else
+            echo "Tests failed"
+            exit 1
+          fi
         id: unit_tests
+
+  pact:
+    runs-on: ubuntu-latest
+    name: Run pact checks
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Copy in the openapidoc
+        run: ./getopenapidoc
+        working-directory: ./mock_integration_rest_api
+      - name: Build images needed
+        run: docker-compose -f docker-compose.pact.yml build mock-aws-rest-api check-pact-deployable mock-sirius
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+      - name: Bring up mocks
+        run: |
+          docker-compose -f docker-compose.pact.yml up -d mock-aws-rest-api
+          sleep 10
+      - name: run check pact
+        run: |
+          export GIT_COMMIT_PROVIDER=${GIT_COMMIT_PROVIDER_LONG:0:7}
+          docker-compose -f docker-compose.pact.yml up check-pact-deployable
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+          GIT_COMMIT_PROVIDER_LONG: ${{ github.sha }}
 
   branch_name:
     runs-on: ubuntu-latest
@@ -74,7 +110,7 @@ jobs:
 
   terraform_plan_apply_with_mock:
     name: Terraform Environment with Sirius mock
-    needs: ['docker_build_scan_push', 'unit_tests', 'create_tags', 'branch_name']
+    needs: ['docker_build_scan_push', 'unit_tests', 'pact', 'create_tags', 'branch_name']
     uses: ./.github/workflows/terraform_job.yml
     with:
       terraform_path: 'terraform/environment'
@@ -132,11 +168,16 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+      - name: Install workspace manager
+        run: |
+          wget https://github.com/TomTucka/terraform-workspace-manager/releases/download/v0.3.1/terraform-workspace-manager_Linux_x86_64.tar.gz -O $HOME/terraform-workspace-manager.tar.gz
+          sudo tar -xvf $HOME/terraform-workspace-manager.tar.gz -C /usr/local/bin
+          sudo chmod +x /usr/local/bin/terraform-workspace-manager
       - name: Protect Workspace
         run: terraform-workspace-manager -register-workspace=$TF_WORKSPACE -time-to-protect=4 -aws-account-id=288342028542 -aws-iam-role=integrations-ci
         env:
           TF_WORKSPACE: ${{ needs.branch_name.outputs.formatted_branch }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
-      - name: Send slack message
+      - name: Completion message
         run: echo "Workflow Complete"
