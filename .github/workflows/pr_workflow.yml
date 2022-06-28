@@ -1,0 +1,174 @@
+name: "[Workflow] PR"
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  actions: read
+  checks: read
+  contents: write
+  deployments: none
+  issues: none
+  packages: none
+  pull-requests: write
+  repository-projects: none
+  security-events: write
+  statuses: none
+
+jobs:
+  pr-label:
+    runs-on: ubuntu-latest
+    name: Label PR
+    steps:
+      - uses: actions/labeler@main
+        with:
+          configuration-path: ".github/labeller.yml"
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+          sync-labels: true
+
+  unit_tests:
+    runs-on: ubuntu-latest
+    name: Run unit tests
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Run unit tests
+        run: docker-compose up unit-tests
+        id: unit_tests
+
+  pact:
+    runs-on: ubuntu-latest
+    name: Run pact checks
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Copy in the openapidoc
+        run: ./getopenapidoc
+        working-directory: ./mock_integration_rest_api
+      - name: Build images needed
+        run: docker-compose -f docker-compose.pact.yml build mock-aws-rest-api check-pact-deployable mock-sirius
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+      - name: Bring up mocks
+        run: |
+          docker-compose -f docker-compose.pact.yml up -d mock-aws-rest-api
+          sleep 10
+      - name: run check pact
+        run: |
+          export GIT_COMMIT_PROVIDER=${GIT_COMMIT_PROVIDER_LONG:0:7}
+          docker-compose -f docker-compose.pact.yml up check-pact-deployable
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+          GIT_COMMIT_PROVIDER_LONG: ${{ github.sha }}
+
+  branch_name:
+    runs-on: ubuntu-latest
+    name: Extract branch name
+    outputs:
+      raw_branch: ${{ steps.extract_branch.outputs.branch_raw }}
+      formatted_branch: ${{ steps.extract_branch.outputs.branch_formatted }}
+    steps:
+      - name: Extract branch
+        shell: bash
+        run: |
+          echo "##[set-output name=branch_raw;]$(echo ${GITHUB_HEAD_REF:-${GITHUB_REF##*/}})"
+          echo "##[set-output name=branch_formatted;]$(echo ${GITHUB_HEAD_REF:-${GITHUB_REF##*/}} | tr -cd '[:alnum:]' | tr '[:upper:]' '[:lower:]')"
+        id: extract_branch
+
+  create_tags:
+    name: Create Tags
+    needs: ['branch_name']
+    uses: ./.github/workflows/tags_job.yml
+    with:
+      branch_name: ${{ needs.branch_name.outputs.raw_branch }}
+    secrets:
+      source_github_token: ${{ secrets.GITHUB_TOKEN }}
+
+  docker_build_scan_push:
+    name: Build, Scan and Push
+    needs: ['create_tags']
+    uses: ./.github/workflows/docker_build.yml
+    with:
+      lambda_names: '[{"name": "deputy-reporting-lambda", "path": "lambda_functions/v2"}, {"name": "deputy-reporting-mock-sirius", "path": "mock_sirius"}]'
+      tag: ${{ needs.create_tags.outputs.version_tag }}
+    secrets:
+      aws_access_key_id_actions: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+      aws_secret_access_key_actions: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+
+  terraform_plan_apply_with_mock:
+    name: Terraform Environment with Sirius mock
+    needs: ['docker_build_scan_push', 'unit_tests', 'pact', 'create_tags', 'branch_name']
+    uses: ./.github/workflows/terraform_job.yml
+    with:
+      terraform_path: 'terraform/environment'
+      image_tag: ${{ needs.create_tags.outputs.version_tag }}
+      workspace: ${{ needs.branch_name.outputs.formatted_branch }}
+      mock_sirius: "1"
+    secrets:
+      aws_access_key_id_actions: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+      aws_secret_access_key_actions: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+
+  integration_tests:
+    name: Integration tests
+    runs-on: ubuntu-latest
+    needs: ['terraform_plan_apply_with_mock', 'branch_name']
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Build integration tests container
+        run: docker-compose -f docker-compose.yml build integration-tests
+        id: build_integration_tests
+      - name: Run integration tests
+        run: |
+          docker-compose -f docker-compose.yml up integration-tests
+          export DOCKER_EXIT_CODE=$(docker inspect $(docker ps -a | head -2 | tail -1 | awk '{print $1}') --format='{{.State.ExitCode}}')
+          if [ "$DOCKER_EXIT_CODE" = "0" ]
+          then
+            echo "Tests passed"
+          else
+            echo "Tests failed"
+            exit 1
+          fi
+        env:
+          TF_WORKSPACE: ${{ needs.branch_name.outputs.formatted_branch }}
+          CI: "true"
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+        id: run_integration_tests
+
+  terraform_plan_apply:
+    name: Terraform Environment
+    needs: ['integration_tests', 'create_tags', 'branch_name']
+    uses: ./.github/workflows/terraform_job.yml
+    with:
+      terraform_path: 'terraform/environment'
+      image_tag: ${{ needs.create_tags.outputs.version_tag }}
+      workspace: ${{ needs.branch_name.outputs.formatted_branch }}
+    secrets:
+      aws_access_key_id_actions: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+      aws_secret_access_key_actions: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+
+  workflow_complete:
+    name: Complete Workflow Steps
+    runs-on: ubuntu-latest
+    needs: ['terraform_plan_apply', 'branch_name']
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Install workspace manager
+        run: |
+          wget https://github.com/TomTucka/terraform-workspace-manager/releases/download/v0.3.1/terraform-workspace-manager_Linux_x86_64.tar.gz -O $HOME/terraform-workspace-manager.tar.gz
+          sudo tar -xvf $HOME/terraform-workspace-manager.tar.gz -C /usr/local/bin
+          sudo chmod +x /usr/local/bin/terraform-workspace-manager
+      - name: Protect Workspace
+        run: terraform-workspace-manager -register-workspace=$TF_WORKSPACE -time-to-protect=4 -aws-account-id=288342028542 -aws-iam-role=integrations-ci
+        env:
+          TF_WORKSPACE: ${{ needs.branch_name.outputs.formatted_branch }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+      - name: Send slack message
+        run: echo "Workflow Complete"
