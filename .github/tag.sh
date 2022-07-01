@@ -51,9 +51,9 @@ tagFmt="^v?[0-9]+\.[0-9]+\.[0-9]+$"
 preTagFmt="^v?[0-9]+\.[0-9]+\.[0-9]+(-$suffix\.[0-9]+)?$"
 
 echo "TAG_LIST"
-tag=$(semver $(git for-each-ref --sort=-v:refname --format '%(refname:lstrip=2)' | grep -E "$tagFmt") | sort | tail -n 1 | grep -E "$tagFmt")
+tag=$(semver $(git for-each-ref --sort=-v:refname --format '%(refname:lstrip=2)' | grep -E "$tagFmt") | sort -V | tail -n 1 | grep -E "$tagFmt")
 echo $tag
-pre_tag=$(semver $(git for-each-ref --sort=-v:refname --format '%(refname:lstrip=2)' | grep -E "$preTagFmt") | sort | tail -n 1 | grep -E "$preTagFmt")
+pre_tag=$(semver $(git for-each-ref --sort=-v:refname --format '%(refname:lstrip=2)' | grep -E "$preTagFmt") | sort -V | tail -n 1 | grep -E "$preTagFmt")
 echo $pre_tag
 
 if $with_v
