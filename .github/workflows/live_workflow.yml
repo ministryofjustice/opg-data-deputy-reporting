@@ -42,11 +42,13 @@ jobs:
           BASE_PR_URL="$(echo "${PR_URL}" | awk -F'/pulls' '{print $1"/pulls"}')"
           URL_FINAL="${BASE_PR_URL}/${PR_NUMBER}"
           echo $URL_FINAL
-          TITLE="$(curl -s $URL_FINAL | jq .title)"
-          BODY="$(curl -s $URL_FINAL | jq .body)"
-          BODY="${BODY//'%'/'%25'}"
-          BODY="${BODY//$'\n'/'%0A'}"
-          BODY="${BODY//$'\r'/'%0D'}"
+          TITLE=$(curl -s $URL_FINAL | jq .title)
+          TITLE="# ${TITLE:1:-1}"
+          BODY=$(curl -s $URL_FINAL | jq .body)
+          BODY=${BODY//'%'/'%25'}
+          BODY=$(echo $BODY | sed '$ ! s/$/\\n/' | tr -d '\n' | sed 's/\\n/\%0A/g')
+          BODY=$(echo $BODY | sed 's/\\r//g')
+          BODY=${BODY:1:-1}
           echo "##[set-output name=pr_body;]$(echo ${BODY})"
           echo "##[set-output name=pr_title;]$(echo ${TITLE})"
         id: pr_details
@@ -109,7 +111,7 @@ jobs:
 
   create_release:
     name: Create Release
-    needs: ['terraform_plan_apply_production', 'branch_name']
+    needs: ['terraform_plan_apply_production', 'create_tags', 'branch_name']
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -118,14 +120,13 @@ jobs:
         id: create_release
         uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
-          PR_TITLE: ${{ needs.branch_name.outputs.pr_title }}
-          PR_BODY: ${{ needs.branch_name.outputs.pr_body }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ needs.create_tags.outputs.version_tag }}
           release_name: Release ${{ needs.create_tags.outputs.version_tag }}
           body: |
             ${{ needs.branch_name.outputs.pr_title }}
+
             ${{ needs.branch_name.outputs.pr_body }}
           draft: false
           prerelease: false
