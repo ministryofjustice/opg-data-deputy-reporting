@@ -9,6 +9,14 @@ on:
         description: 'Tag for docker image'
         required: true
         type: string
+      branch_name:
+        description: 'Branch we are on'
+        required: true
+        type: string
+    outputs:
+      version_tag:
+        description: "ECR Version Tag"
+        value: ${{ jobs.docker_build_scan_push.outputs.version_tag }}
     secrets:
       aws_access_key_id_actions:
         required: true
@@ -67,9 +75,10 @@ jobs:
           ECR_REGISTRY: ${{ steps.login_ecr.outputs.registry }}
           ECR_REPOSITORY: integrations/${{ matrix.lambda_name.name }}
         run: |
-          docker tag ${{ matrix.lambda_name.name }}:latest $ECR_REGISTRY/$ECR_REPOSITORY:${{ inputs.tag }}
+          docker tag ${{ matrix.lambda_name.name }}:latest $ECR_REGISTRY/$ECR_REPOSITORY:${{ inputs.branch_name }}-${{ inputs.tag }}
           if [ $BRANCH_NAME == "main" ]; then
-            docker tag ${{ matrix.lambda_name.name }}:latest $ECR_REGISTRY/$ECR_REPOSITORY:main-${{ inputs.tag }}
             docker tag ${{ matrix.lambda_name.name }}:latest $ECR_REGISTRY/$ECR_REPOSITORY:latest
           fi
             docker push --all-tags $ECR_REGISTRY/$ECR_REPOSITORY
+      - name: Output version_tag
+        run: echo "##[set-output name=version_tag;]$(echo ${{ inputs.branch_name }}-${{ inputs.tag }})"
