@@ -111,11 +111,11 @@ jobs:
 
   terraform_plan_apply_with_mock:
     name: Terraform Environment with Sirius mock
-    needs: ['docker_build_scan_push', 'unit_tests', 'pact', 'create_tags', 'branch_name', 'docker_build_scan_push']
+    needs: ['docker_build_scan_push', 'unit_tests', 'pact', 'create_tags', 'branch_name']
     uses: ./.github/workflows/terraform_job.yml
     with:
       terraform_path: 'terraform/environment'
-      image_tag: ${{ needs.docker_build_scan_push.outputs.version_tag }}
+      image_tag: ${{ needs.create_tags.outputs.version_tag }}
       workspace: ${{ needs.branch_name.outputs.formatted_branch }}
       mock_sirius: "1"
     secrets:
@@ -152,11 +152,11 @@ jobs:
 
   terraform_plan_apply:
     name: Terraform Environment
-    needs: ['integration_tests', 'create_tags', 'branch_name', 'docker_build_scan_push']
+    needs: ['integration_tests', 'create_tags', 'branch_name']
     uses: ./.github/workflows/terraform_job.yml
     with:
       terraform_path: 'terraform/environment'
-      image_tag: ${{ needs.docker_build_scan_push.outputs.version_tag }}
+      image_tag: ${{ needs.create_tags.outputs.version_tag }}
       workspace: ${{ needs.branch_name.outputs.formatted_branch }}
     secrets:
       aws_access_key_id_actions: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}

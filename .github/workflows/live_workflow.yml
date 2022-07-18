@@ -76,11 +76,11 @@ jobs:
 
   terraform_plan_apply_development:
     name: Terraform Environment
-    needs: ['docker_build_scan_push', 'create_tags', 'docker_build_scan_push']
+    needs: ['docker_build_scan_push', 'create_tags']
     uses: ./.github/workflows/terraform_job.yml
     with:
       terraform_path: 'terraform/environment'
-      image_tag: ${{ needs.docker_build_scan_push.outputs.version_tag }}
+      image_tag: ${{ needs.create_tags.outputs.version_tag }}
       workspace: 'development'
     secrets:
       aws_access_key_id_actions: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
@@ -88,11 +88,11 @@ jobs:
 
   terraform_plan_apply_preproduction:
     name: Terraform Environment Preproduction
-    needs: ['terraform_plan_apply_development', 'create_tags', 'docker_build_scan_push']
+    needs: ['terraform_plan_apply_development', 'create_tags']
     uses: ./.github/workflows/terraform_job.yml
     with:
       terraform_path: 'terraform/environment'
-      image_tag: ${{ needs.docker_build_scan_push.outputs.version_tag }}
+      image_tag: ${{ needs.create_tags.outputs.version_tag }}
       workspace: 'preproduction'
     secrets:
       aws_access_key_id_actions: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
@@ -100,11 +100,11 @@ jobs:
 
   terraform_plan_apply_production:
     name: Terraform Environment Production
-    needs: ['terraform_plan_apply_preproduction', 'create_tags', 'docker_build_scan_push']
+    needs: ['terraform_plan_apply_preproduction', 'create_tags']
     uses: ./.github/workflows/terraform_job.yml
     with:
       terraform_path: 'terraform/environment'
-      image_tag: ${{ needs.docker_build_scan_push.outputs.version_tag }}
+      image_tag: ${{ needs.create_tags.outputs.version_tag }}
       workspace: 'production'
     secrets:
       aws_access_key_id_actions: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
