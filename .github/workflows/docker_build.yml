@@ -13,10 +13,6 @@ on:
         description: 'Branch we are on'
         required: true
         type: string
-    outputs:
-      version_tag:
-        description: "ECR Version Tag"
-        value: ${{ inputs.branch_name }}-${{ inputs.tag }}
     secrets:
       aws_access_key_id_actions:
         required: true
