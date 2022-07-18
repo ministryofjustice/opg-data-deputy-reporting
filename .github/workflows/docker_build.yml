@@ -16,7 +16,7 @@ on:
     outputs:
       version_tag:
         description: "ECR Version Tag"
-        value: ${{ jobs.docker_build_scan_push.outputs.version_tag }}
+        value: ${{ inputs.branch_name }}-${{ inputs.tag }}
     secrets:
       aws_access_key_id_actions:
         required: true
@@ -80,5 +80,3 @@ jobs:
             docker tag ${{ matrix.lambda_name.name }}:latest $ECR_REGISTRY/$ECR_REPOSITORY:latest
           fi
             docker push --all-tags $ECR_REGISTRY/$ECR_REPOSITORY
-      - name: Output version_tag
-        run: echo "##[set-output name=version_tag;]$(echo ${{ inputs.branch_name }}-${{ inputs.tag }})"
