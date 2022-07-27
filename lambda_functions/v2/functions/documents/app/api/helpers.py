@@ -239,7 +239,7 @@ def handle_file_source(file):
             else:
                 s3_client = get_digideps_s3_client()
         except Exception as e:
-            logger.error(f"Error handing file: {e}")
+            logger.error(f"Error handling file: {e}")
             return None
 
         source = get_encoded_s3_object(

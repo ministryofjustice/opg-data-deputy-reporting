@@ -125,8 +125,12 @@ def new_post_to_sirius(url, data, headers, method):
             error_details=e,
             data=data,
         )
-
-    logger.info(str(r.json()))
+    if r.status_code not in [200, 201]:
+        logger.error(
+            f"""
+            {{\"sirius_failure_details\": {{\"status\": \"{r.status_code}\", \"response\": \"{str(r.json())}\"}}}}
+        """
+        )
 
     return r.status_code, r.json()
 

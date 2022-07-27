@@ -25,8 +25,9 @@ def handle_reporting_healthcheck():
 
 @api.route("/healthcheck", methods=["HEAD", "GET"])
 def handle_healthcheck():
+    request_information = get_request_details_for_logs(request)
     response_data, response_status = healthcheck.endpoint_handler()
-
+    logger.info(response_data, extra=request_information)
     return jsonify(response_data), response_status
 
 
@@ -62,6 +63,7 @@ def handle_supporting_docs(caseref, id):
         logger.info(response_data, extra=request_information)
         return jsonify(response_data), response_status
     else:
+        logger.error(response_data, extra=request_information)
         abort(response_status, description=response_data)
 
 
