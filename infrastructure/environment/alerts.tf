@@ -2,17 +2,24 @@ data "aws_sns_topic" "rest_api" {
   name = "rest-api"
 }
 
+data "aws_sns_topic" "deputy_reporting_slack" {
+  name = "deputy-reporting-slack-alerts"
+}
+
 resource "aws_cloudwatch_metric_alarm" "rest_api_4xx_errors" {
-  actions_enabled     = true
-  alarm_actions       = [data.aws_sns_topic.rest_api.arn]
+  actions_enabled = true
+  alarm_actions = [
+    data.aws_sns_topic.rest_api.arn,
+    data.aws_sns_topic.deputy_reporting_slack.arn
+  ]
   alarm_description   = "Number of 4XX Errors returned for Deputy Reporting Rest API in ${terraform.workspace}"
   alarm_name          = "deputy-reporting-${local.environment}-rest-api-4xx-errors"
   comparison_operator = "GreaterThanThreshold"
-  datapoints_to_alarm = 2
+  datapoints_to_alarm = 1
   dimensions = {
     ApiName = "deputy-reporting-${terraform.workspace}"
   }
-  evaluation_periods        = 5
+  evaluation_periods        = 1
   insufficient_data_actions = []
   metric_name               = "4XXError"
   namespace                 = "AWS/ApiGateway"
@@ -25,16 +32,19 @@ resource "aws_cloudwatch_metric_alarm" "rest_api_4xx_errors" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "rest_api_5xx_errors" {
-  actions_enabled     = true
-  alarm_actions       = [data.aws_sns_topic.rest_api.arn]
+  actions_enabled = true
+  alarm_actions = [
+    data.aws_sns_topic.rest_api.arn,
+    data.aws_sns_topic.deputy_reporting_slack.arn
+  ]
   alarm_description   = "Number of 5XX Errors returned for Deputy Reporting Rest API in ${terraform.workspace}"
   alarm_name          = "deputy-reporting-${local.environment}-rest-api-5xx-errors"
   comparison_operator = "GreaterThanThreshold"
-  datapoints_to_alarm = 2
+  datapoints_to_alarm = 1
   dimensions = {
     ApiName = "deputy-reporting-${terraform.workspace}"
   }
-  evaluation_periods        = 5
+  evaluation_periods        = 1
   insufficient_data_actions = []
   metric_name               = "5XXError"
   namespace                 = "AWS/ApiGateway"
@@ -47,8 +57,11 @@ resource "aws_cloudwatch_metric_alarm" "rest_api_5xx_errors" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "rest_api_high_count" {
-  actions_enabled     = true
-  alarm_actions       = [data.aws_sns_topic.rest_api.arn]
+  actions_enabled = true
+  alarm_actions = [
+    data.aws_sns_topic.rest_api.arn,
+    data.aws_sns_topic.deputy_reporting_slack.arn
+  ]
   alarm_description   = "Number of requests for Deputy Reporting Rest API in ${terraform.workspace}"
   alarm_name          = "deputy-reporting-${local.environment}-rest-api-high-count"
   comparison_operator = "GreaterThanThreshold"
