@@ -79,7 +79,7 @@ jobs:
     needs: ['docker_build_scan_push', 'create_tags']
     uses: ./.github/workflows/terraform_job.yml
     with:
-      terraform_path: 'terraform/environment'
+      terraform_path: 'infrastructure/environment'
       image_tag: ${{ needs.create_tags.outputs.version_tag }}
       workspace: 'development'
     secrets:
@@ -91,7 +91,7 @@ jobs:
     needs: ['terraform_plan_apply_development', 'create_tags']
     uses: ./.github/workflows/terraform_job.yml
     with:
-      terraform_path: 'terraform/environment'
+      terraform_path: 'infrastructure/environment'
       image_tag: ${{ needs.create_tags.outputs.version_tag }}
       workspace: 'preproduction'
     secrets:
@@ -103,7 +103,7 @@ jobs:
     needs: ['terraform_plan_apply_preproduction', 'create_tags']
     uses: ./.github/workflows/terraform_job.yml
     with:
-      terraform_path: 'terraform/environment'
+      terraform_path: 'infrastructure/environment'
       image_tag: ${{ needs.create_tags.outputs.version_tag }}
       workspace: 'production'
     secrets:
