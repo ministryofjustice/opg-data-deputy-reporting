@@ -12,9 +12,9 @@ resource "aws_cloudwatch_metric_alarm" "rest_api_4xx_errors" {
     data.aws_sns_topic.rest_api.arn,
     data.aws_sns_topic.deputy_reporting_slack.arn
   ]
-  alarm_description   = "Number of 4XX Errors returned for Deputy Reporting Rest API in ${terraform.workspace}"
   alarm_name          = "deputy-reporting-${local.environment}-rest-api-4xx-errors"
-  comparison_operator = "GreaterThanThreshold"
+  alarm_description   = "SERVICE: ${local.service}`\n`ENVIRONMENT: ${terraform.workspace}`\n`ERROR: 4xx"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
   datapoints_to_alarm = 1
   dimensions = {
     ApiName = "deputy-reporting-${terraform.workspace}"
@@ -27,7 +27,7 @@ resource "aws_cloudwatch_metric_alarm" "rest_api_4xx_errors" {
   period                    = 60
   statistic                 = "Sum"
   tags                      = {}
-  threshold                 = local.account.threshold
+  threshold                 = local.threshold_alert_4xx
   treat_missing_data        = "notBreaching"
 }
 
@@ -37,9 +37,9 @@ resource "aws_cloudwatch_metric_alarm" "rest_api_5xx_errors" {
     data.aws_sns_topic.rest_api.arn,
     data.aws_sns_topic.deputy_reporting_slack.arn
   ]
-  alarm_description   = "Number of 5XX Errors returned for Deputy Reporting Rest API in ${terraform.workspace}"
   alarm_name          = "deputy-reporting-${local.environment}-rest-api-5xx-errors"
-  comparison_operator = "GreaterThanThreshold"
+  alarm_description   = "SERVICE: ${local.service}`\n`ENVIRONMENT: ${terraform.workspace}`\n`ERROR: 5xx"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
   datapoints_to_alarm = 1
   dimensions = {
     ApiName = "deputy-reporting-${terraform.workspace}"
@@ -52,7 +52,7 @@ resource "aws_cloudwatch_metric_alarm" "rest_api_5xx_errors" {
   period                    = 60
   statistic                 = "Sum"
   tags                      = {}
-  threshold                 = local.account.threshold
+  threshold                 = local.threshold_alert_std
   treat_missing_data        = "notBreaching"
 }
 
@@ -62,8 +62,8 @@ resource "aws_cloudwatch_metric_alarm" "rest_api_high_count" {
     data.aws_sns_topic.rest_api.arn,
     data.aws_sns_topic.deputy_reporting_slack.arn
   ]
-  alarm_description   = "Number of requests for Deputy Reporting Rest API in ${terraform.workspace}"
   alarm_name          = "deputy-reporting-${local.environment}-rest-api-high-count"
+  alarm_description   = "SERVICE: ${local.service}`\n`ENVIRONMENT: ${terraform.workspace}`\n`ERROR: Abnormally high throughput"
   comparison_operator = "GreaterThanThreshold"
   datapoints_to_alarm = 1
   dimensions = {
@@ -77,6 +77,35 @@ resource "aws_cloudwatch_metric_alarm" "rest_api_high_count" {
   period                    = 60
   statistic                 = "Sum"
   tags                      = {}
-  threshold                 = 500
+  threshold                 = local.threshold_alert_count
   treat_missing_data        = "notBreaching"
+}
+
+resource "aws_cloudwatch_log_metric_filter" "s3_error" {
+  name           = "deputy-reporting-s3-error.${local.environment}"
+  pattern        = "Error downloading file from S3"
+  log_group_name = module.lamdba_flask_v2.lambda_log.name
+
+  metric_transformation {
+    name          = "DeputyReportingS3Error.${local.environment}"
+    namespace     = "Integrations/Error"
+    value         = "1"
+    default_value = "0"
+  }
+}
+
+resource "aws_cloudwatch_metric_alarm" "s3_error" {
+  actions_enabled     = true
+  alarm_name          = "deputy-reporting-${local.environment}-missing-from-s3"
+  alarm_description   = "SERVICE: ${local.service}`\n`ENVIRONMENT: ${terraform.workspace}`\n`ERROR: File missing in S3"
+  statistic           = "Sum"
+  metric_name         = aws_cloudwatch_log_metric_filter.s3_error.metric_transformation[0].name
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  datapoints_to_alarm = 1
+  evaluation_periods  = 1
+  threshold           = local.threshold_alert_std
+  period              = 60
+  namespace           = aws_cloudwatch_log_metric_filter.s3_error.metric_transformation[0].namespace
+  alarm_actions       = [data.aws_sns_topic.deputy_reporting_slack.arn]
+  tags                = local.default_tags
 }

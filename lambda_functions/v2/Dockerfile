@@ -13,7 +13,7 @@ FROM public.ecr.aws/lambda/python:3.7 as production
 
 # fixes security issues detected in build.
 RUN yum update -y rpm openssl nss nss-util nss-softokn nspr urllib3 \
-    xz-libs xz python27-libs python27 gzip expat zlib
+    xz-libs xz python27-libs python27 gzip expat zlib libtiff
 
 COPY --from=base ${LAMBDA_TASK_ROOT} ${LAMBDA_TASK_ROOT}
 COPY functions/documents/app ${LAMBDA_TASK_ROOT}/app

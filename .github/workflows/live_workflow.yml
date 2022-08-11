@@ -74,9 +74,20 @@ jobs:
       aws_access_key_id_actions: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
       aws_secret_access_key_actions: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
 
+  terraform_plan_apply_account_development:
+    name: Terraform Account Development
+    needs: ['create_tags', 'branch_name']
+    uses: ./.github/workflows/terraform_job.yml
+    with:
+      terraform_path: 'infrastructure/account'
+      workspace: 'development'
+    secrets:
+      aws_access_key_id_actions: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+      aws_secret_access_key_actions: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+
   terraform_plan_apply_development:
-    name: Terraform Environment
-    needs: ['docker_build_scan_push', 'create_tags']
+    name: Terraform Environment Development
+    needs: ['docker_build_scan_push', 'create_tags', 'terraform_plan_apply_account_development']
     uses: ./.github/workflows/terraform_job.yml
     with:
       terraform_path: 'infrastructure/environment'
@@ -86,9 +97,20 @@ jobs:
       aws_access_key_id_actions: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
       aws_secret_access_key_actions: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
 
+  terraform_plan_apply_account_preproduction:
+    name: Terraform Account Preproduction
+    needs: ['create_tags', 'branch_name', 'terraform_plan_apply_development']
+    uses: ./.github/workflows/terraform_job.yml
+    with:
+      terraform_path: 'infrastructure/account'
+      workspace: 'preproduction'
+    secrets:
+      aws_access_key_id_actions: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+      aws_secret_access_key_actions: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+
   terraform_plan_apply_preproduction:
     name: Terraform Environment Preproduction
-    needs: ['terraform_plan_apply_development', 'create_tags']
+    needs: ['create_tags', 'terraform_plan_apply_account_preproduction']
     uses: ./.github/workflows/terraform_job.yml
     with:
       terraform_path: 'infrastructure/environment'
@@ -98,9 +120,20 @@ jobs:
       aws_access_key_id_actions: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
       aws_secret_access_key_actions: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
 
+  terraform_plan_apply_account_production:
+    name: Terraform Account Production
+    needs: ['create_tags', 'branch_name', 'terraform_plan_apply_preproduction']
+    uses: ./.github/workflows/terraform_job.yml
+    with:
+      terraform_path: 'infrastructure/account'
+      workspace: 'production'
+    secrets:
+      aws_access_key_id_actions: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+      aws_secret_access_key_actions: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+
   terraform_plan_apply_production:
     name: Terraform Environment Production
-    needs: ['terraform_plan_apply_preproduction', 'create_tags']
+    needs: ['create_tags', 'terraform_plan_apply_account_production']
     uses: ./.github/workflows/terraform_job.yml
     with:
       terraform_path: 'infrastructure/environment'
