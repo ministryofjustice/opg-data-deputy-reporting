@@ -114,7 +114,7 @@ jobs:
     needs: ['docker_build_scan_push', 'unit_tests', 'pact', 'create_tags', 'branch_name']
     uses: ./.github/workflows/terraform_job.yml
     with:
-      terraform_path: 'terraform/environment'
+      terraform_path: 'infrastructure/environment'
       image_tag: ${{ needs.create_tags.outputs.version_tag }}
       workspace: ${{ needs.branch_name.outputs.formatted_branch }}
       mock_sirius: "1"
@@ -155,7 +155,7 @@ jobs:
     needs: ['integration_tests', 'create_tags', 'branch_name']
     uses: ./.github/workflows/terraform_job.yml
     with:
-      terraform_path: 'terraform/environment'
+      terraform_path: 'infrastructure/environment'
       image_tag: ${{ needs.create_tags.outputs.version_tag }}
       workspace: ${{ needs.branch_name.outputs.formatted_branch }}
     secrets:
