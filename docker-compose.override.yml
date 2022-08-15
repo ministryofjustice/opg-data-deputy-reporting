@@ -7,7 +7,8 @@ services:
       - ./mock_digideps/openapi.yml:/app/openapi.yml
   mock-lambda:
     volumes:
-      - ./lambda_functions/v2/functions/documents/app:/var/task/app
+      - ./lambda_functions/.aws-lambda-rie:/aws-lambda
+      - ./lambda_functions/v2/functions/documents/app:/function/app
   mock-sirius:
     volumes:
       - ./mock_sirius/openapi.yml:/app/openapi.yml
