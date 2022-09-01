@@ -2,7 +2,7 @@
 
 [![CircleCI](https://circleci.com/gh/ministryofjustice/opg-data-deputy-reporting/tree/master.svg?style=svg)](https://circleci.com/gh/ministryofjustice/opg-data-deputy-reporting/tree/master)
 
-Deputy reporting integration with OPG Data: Managed by opg-org-infra &amp; Terraform
+Deputy reporting integration with OPG Data: Managed by opg-org-infra &amp; Terraform.
 
 ### Path specific naming conventions
 
