@@ -111,7 +111,7 @@ jobs:
 
   terraform_plan_apply_with_mock:
     name: Terraform Environment with Sirius mock
-    needs: ['docker_build_scan_push', 'unit_tests', 'pact', 'create_tags', 'branch_name']
+    needs: ['docker_build_scan_push', 'pact', 'create_tags', 'branch_name']
     uses: ./.github/workflows/terraform_job.yml
     with:
       terraform_path: 'terraform/environment'
