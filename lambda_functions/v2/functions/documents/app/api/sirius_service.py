@@ -208,6 +208,7 @@ def new_submit_document_to_sirius(
                 data=debug_payload,
             )
         elif sirius_status_code == 400:
+            print("ITS A 400")
             return handle_sirius_error(
                 error_code=400,
                 error_message="Validation failed in Sirius",
@@ -238,10 +239,14 @@ def handle_sirius_error(
     try:
         sirius_error_details = error_details["detail"]
         error_details = sirius_error_details
+        print(error_details)
     except (KeyError, TypeError):
         error_details = str(error_details) if len(str(error_details)) > 0 else "None"
+        print(error_details)
 
-    message = f"{error_message}, details: {str(error_details)}, payload: {str(data)}"
+    message = f"{str(error_details)}"
+    print(error_details)
+    # message = {'id': "", "code":  "", "title": "", "error": {error_message}, "detail" "meta": {}}
     return error_code, message
 
 
