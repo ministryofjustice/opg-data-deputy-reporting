@@ -154,18 +154,19 @@ def validate_response(
 
 
 def main():
-    latest_s3_ref = get_latest_s3_ref(
-        "pa-uploads-branch-replication", "digideps-dev", "operator"
-    )
+    # latest_s3_ref = get_latest_s3_ref(
+    #     "pa-uploads-branch-replication", "digideps-dev", "breakglass"
+    # )
+    latest_s3_ref = "bjebhfberjhfbrejf"
 
     headers = {
         "Content-Type": "application/json",
     }
-    branch_prefix = "ddpb9999"
-    casereference = "12345678"
+    branch_prefix = "ddpb4452"
+    casereference = "63120095"
     ver = "v2"
 
-    session = get_role_session("sirius-dev", "operator")
+    session = get_role_session("sirius-dev", "breakglass")
     credentials = session.get_credentials()
     auth = get_request_auth(credentials)
 
@@ -174,25 +175,25 @@ def main():
     response, status = handle_request("POST", report_url, auth, report_payload, headers)
     parent_id = validate_response(status, 201, "annual report", "POST", response, True)
 
-    supporting_payload = get_supporting_payload()
-    supporting_url = f"https://{branch_prefix}.dev.deputy-reporting.api.opg.service.justice.gov.uk/{ver}/clients/{casereference}/reports/{parent_id}/supportingdocuments"
-    response, status = handle_request(
-        "POST", supporting_url, auth, supporting_payload, headers
-    )
-    validate_response(status, 201, "supporting document", "POST", response, False)
+    # supporting_payload = get_supporting_payload()
+    # supporting_url = f"https://{branch_prefix}.dev.deputy-reporting.api.opg.service.justice.gov.uk/{ver}/clients/{casereference}/reports/{parent_id}/supportingdocuments"
+    # response, status = handle_request(
+    #     "POST", supporting_url, auth, supporting_payload, headers
+    # )
+    # validate_response(status, 201, "supporting document", "POST", response, False)
 
-    checklist_payload = get_checklist_payload()
-    checklist_url = f"https://{branch_prefix}.dev.deputy-reporting.api.opg.service.justice.gov.uk/{ver}/clients/{casereference}/reports/{parent_id}/checklists"
-    response, status = handle_request(
-        "POST", checklist_url, auth, checklist_payload, headers
-    )
-    checklist_id = validate_response(status, 201, "checklist", "POST", response, True)
-
-    checklist_url_put = f"https://{branch_prefix}.dev.deputy-reporting.api.opg.service.justice.gov.uk/{ver}/clients/{casereference}/reports/{parent_id}/checklists/{checklist_id}"
-    response, status = handle_request(
-        "PUT", checklist_url_put, auth, checklist_payload, headers
-    )
-    validate_response(status, 200, "checklist override", "PUT", response, False)
+    # checklist_payload = get_checklist_payload()
+    # checklist_url = f"https://{branch_prefix}.dev.deputy-reporting.api.opg.service.justice.gov.uk/{ver}/clients/{casereference}/reports/{parent_id}/checklists"
+    # response, status = handle_request(
+    #     "POST", checklist_url, auth, checklist_payload, headers
+    # )
+    # checklist_id = validate_response(status, 201, "checklist", "POST", response, True)
+    #
+    # checklist_url_put = f"https://{branch_prefix}.dev.deputy-reporting.api.opg.service.justice.gov.uk/{ver}/clients/{casereference}/reports/{parent_id}/checklists/{checklist_id}"
+    # response, status = handle_request(
+    #     "PUT", checklist_url_put, auth, checklist_payload, headers
+    # )
+    # validate_response(status, 200, "checklist override", "PUT", response, False)
 
 
 if __name__ == "__main__":

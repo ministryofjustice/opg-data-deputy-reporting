@@ -5,7 +5,7 @@ import os
 import json
 
 import boto3
-from flask import jsonify, abort
+from flask import jsonify, abort, request
 
 
 class JsonFormatter(logging.Formatter):
@@ -161,7 +161,7 @@ custom_api_errors = {
 }
 
 
-def get_request_details_for_logs(request):
+def get_request_details_for_logs():
     return {
         "source_ip": request.environ["SOURCE_IP"],
         "user_agent": request.environ["USER_AGENT"],
@@ -192,7 +192,7 @@ def validate_request_data(request, request_information):
 
 
 def error_message(code, message):
-
+    print(f"error message: {message}")
     return (
         jsonify(
             {
@@ -200,7 +200,7 @@ def error_message(code, message):
                 "statusCode": code,
                 "headers": {"Content-Type": "application/json"},
                 "error": {
-                    "id": None,
+                    "id": request.environ["REQUEST_ID"],
                     "code": custom_api_errors[str(code)]["error_code"],
                     "title": custom_api_errors[str(code)]["error_title"],
                     "detail": str(message)
