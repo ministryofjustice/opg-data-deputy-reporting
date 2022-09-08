@@ -241,7 +241,9 @@ def handle_sirius_error(
     except (KeyError, TypeError):
         error_details = str(error_details) if len(str(error_details)) > 0 else "None"
 
-    message = f"{error_message}, details: {str(error_details)}, payload: {str(data)}"
+    message = f"{str(error_details)}"
+
+    # message = {'id': "", "code":  "", "title": "", "error": {error_message}, "detail" "meta": {}}
     return error_code, message
 
 
