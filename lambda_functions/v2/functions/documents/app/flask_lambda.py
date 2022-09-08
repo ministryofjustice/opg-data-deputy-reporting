@@ -55,6 +55,7 @@ def make_environ(event):
     environ["REQUEST_METHOD"] = event["httpMethod"]
     environ["PATH_INFO"] = event["path"]
     environ["SOURCE_IP"] = event["requestContext"]["identity"]["sourceIp"]
+    environ["REQUEST_ID"] = event["requestContext"]["requestId"]
     environ["USER_AGENT"] = event["requestContext"]["identity"]["userAgent"]
     environ["QUERY_STRING"] = urlencode(qs) if qs else ""
 

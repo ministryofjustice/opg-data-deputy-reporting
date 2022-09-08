@@ -168,6 +168,7 @@ def get_request_details_for_logs(request):
         "method": request.environ["REQUEST_METHOD"],
         "protocol": request.environ["SERVER_PROTOCOL"],
         "request_uri": request.environ["PATH_INFO"],
+        "request_id": request.environ["REQUEST_ID"],
         "status": None,
     }
 
@@ -198,14 +199,13 @@ def error_message(code, message):
                 "isBase64Encoded": False,
                 "statusCode": code,
                 "headers": {"Content-Type": "application/json"},
-                "body": {
-                    "error": {
-                        "code": custom_api_errors[str(code)]["error_code"],
-                        "title": custom_api_errors[str(code)]["error_title"],
-                        "message": str(message)
-                        if message
-                        else custom_api_errors[str(code)]["error_message"],
-                    }
+                "error": {
+                    "id": None,
+                    "code": custom_api_errors[str(code)]["error_code"],
+                    "title": custom_api_errors[str(code)]["error_title"],
+                    "detail": str(message)
+                    if message
+                    else custom_api_errors[str(code)]["error_message"],
                 },
             }
         ),
