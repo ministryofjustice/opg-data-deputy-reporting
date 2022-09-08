@@ -128,7 +128,7 @@ def new_post_to_sirius(url, data, headers, method):
     if r.status_code not in [200, 201]:
         logger.error(
             f"""
-            {{\"sirius_failure_details\": {{\"status\": \"{r.status_code}\", \"response\": \"{str(r.json())}\"}}}}
+            {{\"sirius_failure_details\": {{\"status_code\": \"{r.status_code}\", \"body\": \"{str(r.json())}\"}}}}
         """
         )
 
@@ -156,8 +156,8 @@ def new_submit_document_to_sirius(
         )
     except KeyError as e:
         return handle_sirius_error(
-            error_message="Expected environment variables not set",
-            error_details=e,
+            error_message=f"Expected environment variables not set: {e}",
+            error_details=None,
             data=debug_payload,
         )
 
@@ -188,7 +188,6 @@ def new_submit_document_to_sirius(
         sirius_status_code, sirius_response = new_post_to_sirius(
             url=sirius_api_url, data=data, headers=headers, method=method
         )
-        print(f"initial sirius response: {sirius_response}")
     except Exception as e:
         return handle_sirius_error(
             error_message="Unable to send " "document to " "Sirius",
@@ -209,7 +208,6 @@ def new_submit_document_to_sirius(
                 data=debug_payload,
             )
         elif sirius_status_code == 400:
-            print("ITS A 400")
             return handle_sirius_error(
                 error_code=400,
                 error_message="Validation failed in Sirius",
@@ -234,20 +232,22 @@ def handle_sirius_error(
 ):
     error_code = error_code if error_code else 500
     error_message = (
-        error_message if error_message else "Unknown error talking to " "Sirius"
+        error_message if error_message else "Unknown error talking to Sirius"
     )
-    print(f"before_block_error: {error_message}")
-    print(f"before_block: {error_details}")
     try:
+        print("JIMMY")
         sirius_error_details = error_details["detail"]
+        if "validation_errors" in error_details:
+            sirius_error_details = (
+                f"{sirius_error_details} - {error_details['validation_errors']}"
+            )
         error_details = sirius_error_details
-        print(f"try success: {error_details}")
     except (KeyError, TypeError):
-        error_details = str(error_details) if len(str(error_details)) > 0 else "None"
-        print(f"try fail: {error_details}")
+        error_details = (
+            str(error_details) if len(str(error_details or "")) > 0 else error_message
+        )
 
     message = f"{str(error_details)}"
-    print(error_details)
 
     return error_code, message
 

@@ -23,7 +23,8 @@ class JsonFormatter(logging.Formatter):
         time_format: str = "%Y-%m-%dT%H:%M:%S",
         msec_format: str = "%s.%03dZ",
     ):
-        self.fmt_dict = fmt_dict if fmt_dict is not None else {"message": "message"}
+        self.fmt_dict = fmt_dict
+        # if fmt_dict is not None else {"message": "message"}
         self.default_time_format = time_format
         self.default_msec_format = msec_format
         self.datefmt = None
@@ -82,6 +83,7 @@ def custom_logger(name):
         {
             "level": "levelname",
             "timestamp": "asctime",
+            "request_id": "request_id",
             "request_uri": "request_uri",
             "message": "message",
             "status": "status",
@@ -97,7 +99,7 @@ def custom_logger(name):
 
     handler = logging.StreamHandler()
     handler.setFormatter(json_formatter)
-
+    logging.getLogger().handlers.clear()
     logger = logging.getLogger(name)
     try:
         logger.setLevel(os.environ["LOGGER_LEVEL"])
@@ -161,7 +163,7 @@ custom_api_errors = {
 }
 
 
-def get_request_details_for_logs():
+def get_request_details_for_logs(status=None):
     return {
         "source_ip": request.environ["SOURCE_IP"],
         "user_agent": request.environ["USER_AGENT"],
@@ -169,7 +171,7 @@ def get_request_details_for_logs():
         "protocol": request.environ["SERVER_PROTOCOL"],
         "request_uri": request.environ["PATH_INFO"],
         "request_id": request.environ["REQUEST_ID"],
-        "status": None,
+        "status": status,
     }
 
 
@@ -192,7 +194,9 @@ def validate_request_data(request, request_information):
 
 
 def error_message(code, message):
-    print(f"error message: {message}")
+    request_id = None
+    if "REQUEST_ID" in request.environ:
+        request_id = request.environ["REQUEST_ID"]
     return (
         jsonify(
             {
@@ -200,7 +204,7 @@ def error_message(code, message):
                 "statusCode": code,
                 "headers": {"Content-Type": "application/json"},
                 "error": {
-                    "id": request.environ["REQUEST_ID"],
+                    "id": request_id,
                     "code": custom_api_errors[str(code)]["error_code"],
                     "title": custom_api_errors[str(code)]["error_title"],
                     "detail": str(message)

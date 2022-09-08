@@ -15,7 +15,6 @@ def endpoint_handler(data, caseref):
         data=sirius_payload
     )
 
-    print(f"api_response: {api_response}")
     try:
         api_response["data"]["type"] = "reports"
     except (KeyError, TypeError):

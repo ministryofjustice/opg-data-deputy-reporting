@@ -65,7 +65,7 @@ def test_reports_errors(server, case_data: CaseDataGetter):
 
         assert r.status_code == expected_response_status_code
         if r.status_code in [400]:
-            assert r.json()["body"]["error"]["code"] == expected_response_data
+            assert r.json()["error"]["code"] == expected_response_data
 
 
 @pytest.mark.run(order=1)
