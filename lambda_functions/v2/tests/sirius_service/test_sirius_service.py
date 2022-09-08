@@ -180,7 +180,7 @@ def test_new_format_sirius_response_error(case_data: CaseDataGetter):
     ) = case_data.get()
 
     formatted_status_code, formatted_response_text = handle_sirius_error(
-        sirius_response_code, sirius_response, error_details
+        sirius_response_code, error_details, sirius_response
     )
     assert formatted_response_text == api_response
     assert formatted_status_code == api_response_code
