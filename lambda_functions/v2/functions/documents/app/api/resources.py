@@ -33,7 +33,7 @@ def handle_healthcheck():
 
 @api.route("/clients/<caseref>/reports", methods=["POST"])
 def handle_reports(caseref):
-    request_information = get_request_details_for_logs(request)
+    request_information = get_request_details_for_logs()
     data = validate_request_data(request, request_information)
 
     response_data, response_status = reports.endpoint_handler(
@@ -42,9 +42,11 @@ def handle_reports(caseref):
     request_information["status"] = response_status
 
     if response_status in [201, 200]:
+        print("response correct")
         logger.info(response_data, extra=request_information)
         return jsonify(response_data), response_status
     else:
+        print("response error")
         logger.error(response_data, extra=request_information)
         abort(response_status, description=response_data)
 
@@ -92,6 +94,7 @@ def handle_checklists(caseref, id, checklistId=None):
 
 @api.app_errorhandler(400)
 def handle400(error=None):
+    print("handling 400")
     return error_message(400, error)
 
 
