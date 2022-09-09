@@ -74,7 +74,10 @@ def case_error(test_data) -> CaseData:
     url_params = None
 
     expected_responses = {
-        400: ["Validation failed in Sirius", "Could not verify URL params in Sirius"],
+        400: [
+            "Payload failed validation, details of what failed here - {}",
+            "Could not verify URL params in Sirius",
+        ],
         500: ["Unable to send document to Sirius", "Unknown error talking to Sirius"],
     }
 
@@ -91,7 +94,7 @@ def case_missing_env_vars(env_var) -> CaseData:
     url_params = None
 
     expected_status_code = 500
-    expected_response = f"Expected environment variables not set, details: '{env_var}'"
+    expected_response = f"Expected environment variables not set: '{env_var}'"
 
     return (
         data,
