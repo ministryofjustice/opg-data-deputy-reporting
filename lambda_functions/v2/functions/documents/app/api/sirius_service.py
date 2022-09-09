@@ -235,7 +235,6 @@ def handle_sirius_error(
         error_message if error_message else "Unknown error talking to Sirius"
     )
     try:
-        print("JIMMY")
         sirius_error_details = error_details["detail"]
         if "validation_errors" in error_details:
             sirius_error_details = (
