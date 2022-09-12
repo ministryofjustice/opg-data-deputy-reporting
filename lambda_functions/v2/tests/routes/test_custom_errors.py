@@ -55,4 +55,4 @@ def test_custom_errors(server, case_data: CaseDataGetter):
         print(f"r.text: {r.text}")
 
         assert r.status_code == expected_response_status_code
-        assert r.json()["body"]["error"]["code"] == expected_response_data
+        assert r.json()["error"]["code"] == expected_response_data

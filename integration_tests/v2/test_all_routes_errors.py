@@ -156,9 +156,7 @@ def test_400_bad_url_params(test_config):
             error_codes = [x["code"] for x in response_data["errors"]]
             assert "OPGDATA-API-INVALIDREQUEST" in error_codes
         else:
-            assert (
-                response_data["body"]["error"]["code"] == "OPGDATA-API-INVALIDREQUEST"
-            )
+            assert response_data["error"]["code"] == "OPGDATA-API-INVALIDREQUEST"
 
 
 @pytest.mark.skipif(os.getenv("AWS_SESSION_TOKEN") == "", reason="AWS creds not set")
@@ -283,9 +281,7 @@ def test_415(test_config, monkeypatch):
             error_codes = [x["code"] for x in response_data["errors"]]
             assert "OPGDATA-API-MEDIA" in error_codes
         else:
-            assert response_data["body"]["error"]["code"] == "OPGDATA-API-MEDIA"
-
-        # assert response_data["errors"]["code"] == "OPGDATA-API-MEDIA"
+            assert response_data["error"]["code"] == "OPGDATA-API-MEDIA"
 
 
 @pytest.mark.skip(reason="Custom headers not implemented'")
@@ -373,4 +369,4 @@ def test_bad_payload(case_data: CaseDataGetter, test_config):
         for error in response_data["errors"]:
             assert error["code"] == "OPGDATA-API-INVALIDREQUEST"
     else:
-        assert response_data["body"]["error"]["code"] == "OPGDATA-API-INVALIDREQUEST"
+        assert response_data["error"]["code"] == "OPGDATA-API-INVALIDREQUEST"
