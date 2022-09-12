@@ -278,13 +278,11 @@ def get_digideps_s3_client():
 
 
 def get_encoded_s3_object(s3_client, bucket, key):
-
+    print(f"{key}, bucket: {bucket}")
     try:
         s3_client.download_file(bucket, key, "/tmp/{}".format(key))
     except Exception as e:
-        logger.error(
-            f"Error downloading file from S3 - key: {key}, bucket:  {bucket}, error: {e}"
-        )
+        logger.error(f"Error downloading file from S3: {e}")
         return None
 
     try:
