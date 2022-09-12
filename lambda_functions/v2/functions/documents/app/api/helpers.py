@@ -282,7 +282,9 @@ def get_encoded_s3_object(s3_client, bucket, key):
     try:
         s3_client.download_file(bucket, key, "/tmp/{}".format(key))
     except Exception as e:
-        logger.error(f"Error downloading file from S3: {e}")
+        logger.error(
+            f"Error downloading file from S3 - key: {key}, bucket:  {bucket}, error: {e}"
+        )
         return None
 
     try:
