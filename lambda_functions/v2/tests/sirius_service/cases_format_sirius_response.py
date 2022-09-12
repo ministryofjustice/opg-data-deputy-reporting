@@ -107,7 +107,7 @@ def case_all() -> CaseData:
     error_details = "here's some more details"
 
     api_response_code = 400
-    api_response = "spurious sirius error message, details: here's some more details, payload: None"
+    api_response = "spurious sirius error message"
 
     return (
         sirius_response_code,
@@ -127,7 +127,7 @@ def case_code_missing() -> CaseData:
     error_details = "here's some more details"
 
     api_response_code = 500
-    api_response = "spurious sirius error message, details: here's some more details, payload: None"
+    api_response = "spurious sirius error message"
 
     return (
         sirius_response_code,
@@ -147,7 +147,7 @@ def case_message_missing() -> CaseData:
     error_details = "here's some more details"
 
     api_response_code = 400
-    api_response = "Unknown error talking to Sirius, details: here's some more details, payload: None"
+    api_response = "here's some more details"
 
     return (
         sirius_response_code,
@@ -167,7 +167,7 @@ def case_missing_details() -> CaseData:
     error_details = None
 
     api_response_code = 400
-    api_response = "spurious sirius error message, details: None, payload: None"
+    api_response = "spurious sirius error message"
 
     return (
         sirius_response_code,
@@ -187,7 +187,50 @@ def case_empty_details() -> CaseData:
     error_details = ""
 
     api_response_code = 400
-    api_response = "spurious sirius error message, details: None, payload: None"
+    api_response = "spurious sirius error message"
+
+    return (
+        sirius_response_code,
+        sirius_response,
+        error_details,
+        api_response_code,
+        api_response,
+    )
+
+
+@case_tags("error")
+@case_name("Sirius responds with details no validation errors")
+def case_details_no_validation() -> CaseData:
+
+    sirius_response_code = 400
+    sirius_response = {"detail": "some detail in sirius response"}
+    error_details = "here's some more details"
+
+    api_response_code = 400
+    api_response = "some detail in sirius response"
+
+    return (
+        sirius_response_code,
+        sirius_response,
+        error_details,
+        api_response_code,
+        api_response,
+    )
+
+
+@case_tags("error")
+@case_name("Sirius responds with details and validation errors")
+def case_details_validation() -> CaseData:
+
+    sirius_response_code = 400
+    sirius_response = {
+        "detail": "some detail in sirius response",
+        "validation_errors": "some validation error",
+    }
+    error_details = "here's some more details"
+
+    api_response_code = 400
+    api_response = "some detail in sirius response - some validation error"
 
     return (
         sirius_response_code,
