@@ -25,53 +25,57 @@ def handle_reporting_healthcheck():
 
 @api.route("/healthcheck", methods=["HEAD", "GET"])
 def handle_healthcheck():
-    request_information = get_request_details_for_logs(request)
     response_data, response_status = healthcheck.endpoint_handler()
-    logger.info(response_data, extra=request_information)
+    logger.info(
+        response_data, extra=get_request_details_for_logs(status=response_status)
+    )
     return jsonify(response_data), response_status
 
 
 @api.route("/clients/<caseref>/reports", methods=["POST"])
 def handle_reports(caseref):
-    request_information = get_request_details_for_logs(request)
-    data = validate_request_data(request, request_information)
+    data = validate_request_data(request, get_request_details_for_logs())
 
     response_data, response_status = reports.endpoint_handler(
         data=data, caseref=caseref
     )
-    request_information["status"] = response_status
 
     if response_status in [201, 200]:
-        logger.info(response_data, extra=request_information)
+        logger.info(
+            response_data, extra=get_request_details_for_logs(status=response_status)
+        )
         return jsonify(response_data), response_status
     else:
-        logger.error(response_data, extra=request_information)
+        logger.error(
+            response_data, extra=get_request_details_for_logs(status=response_status)
+        )
         abort(response_status, description=response_data)
 
 
 @api.route("/clients/<caseref>/reports/<id>/supportingdocuments", methods=["POST"])
 def handle_supporting_docs(caseref, id):
-    request_information = get_request_details_for_logs(request)
-    data = validate_request_data(request, request_information)
+    data = validate_request_data(request, get_request_details_for_logs())
 
     response_data, response_status = supporting_docs.endpoint_handler(
         data=data, caseref=caseref, id=id
     )
-    request_information["status"] = response_status
 
     if response_status in [201, 200]:
-        logger.info(response_data, extra=request_information)
+        logger.info(
+            response_data, extra=get_request_details_for_logs(status=response_status)
+        )
         return jsonify(response_data), response_status
     else:
-        logger.error(response_data, extra=request_information)
+        logger.error(
+            response_data, extra=get_request_details_for_logs(status=response_status)
+        )
         abort(response_status, description=response_data)
 
 
 @api.route("/clients/<caseref>/reports/<id>/checklists/<checklistId>", methods=["PUT"])
 @api.route("/clients/<caseref>/reports/<id>/checklists", methods=["POST"])
 def handle_checklists(caseref, id, checklistId=None):
-    request_information = get_request_details_for_logs(request)
-    data = validate_request_data(request, request_information)
+    data = validate_request_data(request, get_request_details_for_logs())
 
     response_data, response_status = checklists.endpoint_handler(
         data=data,
@@ -80,13 +84,16 @@ def handle_checklists(caseref, id, checklistId=None):
         checklist_id=checklistId,
         method=request.method,
     )
-    request_information["status"] = response_status
 
     if response_status in [201, 200]:
-        logger.info(response_data, extra=request_information)
+        logger.info(
+            response_data, extra=get_request_details_for_logs(status=response_status)
+        )
         return jsonify(response_data), response_status
     else:
-        logger.error(response_data, extra=request_information)
+        logger.error(
+            response_data, extra=get_request_details_for_logs(status=response_status)
+        )
         abort(response_status, description=response_data)
 
 
