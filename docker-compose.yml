@@ -51,6 +51,25 @@ services:
       DIGIDEPS_API_ENDPOINT: http://mock-digideps:5050/api/public/v1/csv
     entrypoint: /aws-lambda/aws-lambda-rie /var/task/main
 
+  csv-copier-function:
+    image: csv-copier-function:latest
+    build:
+      context: ./lambda_functions/v2/functions/csv-copier
+      dockerfile: Dockerfile
+    environment:
+      AWS_REGION: eu-west-1
+      AWS_S3_ENDPOINT: http://localstack:4566
+      AWS_ACCESS_KEY_ID: localstack
+      AWS_SECRET_ACCESS_KEY: localstack
+      AWS_SIRIUS_BUCKET: sirius-bucket
+      AWS_BUCKET_ITEM: testCsv.csv
+      AWS_DIGIDEPS_BUCKET: csv-bucket
+    entrypoint: /aws-lambda/aws-lambda-rie /var/task/main
+    depends_on:
+      - localstack
+    ports:
+      - "4321:8080"
+
   localstack:
     build:
       context: ./localstack_initialisation
