@@ -22,6 +22,7 @@ services:
       AWS_ACCESS_KEY_ID: FAKE
       AWS_SECRET_ACCESS_KEY: FAKE
       USE_MOCK_SIRIUS: "0"
+    entrypoint: /aws-lambda/aws-lambda-rie /usr/local/bin/python -m awslambdaric app.docs.lambda_handler
 
   mock-sirius:
     build:
