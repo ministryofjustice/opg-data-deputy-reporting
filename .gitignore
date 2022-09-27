@@ -43,3 +43,5 @@ log/pact.log
 
 *report.html
 *__init__.pyc
+
+**/account/builds/**
