@@ -11,7 +11,7 @@ on:
         type: string
       image_tag:
         description: 'Image tag to use'
-        required: true
+        required: false
         type: string
       mock_sirius:
         description: 'Whether to use mock sirius'
