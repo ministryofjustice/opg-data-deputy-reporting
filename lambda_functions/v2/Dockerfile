@@ -5,7 +5,7 @@ FROM python:alpine AS python-alpine
 RUN apk add --no-cache \
     libstdc++
 
-FROM python-alpine as build-image
+FROM python:3.10.7-alpine3.16 as build-image
 
 # Install aws-lambda-cpp build dependencies
 RUN apk add --no-cache \
@@ -35,7 +35,9 @@ RUN python -m pip install \
         --requirement requirements.txt
 
 # Multi-stage build: grab a fresh copy of the base image
-FROM python-alpine
+FROM python:3.10.7-alpine3.16
+
+RUN python --version
 
 # Include global arg in this stage of the build
 ARG FUNCTION_DIR
