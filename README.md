@@ -87,7 +87,7 @@ These tests send a payload to a real url, be careful where you point things if y
 They run as part of the pipeline against a mock sirius endpoint that gets spun up and spun back down again
 after the tests are finished.
 
-Further instructions to follow for running agianst real environments.
+Further instructions to follow for running against real environments.
 
 ### PACT
 
