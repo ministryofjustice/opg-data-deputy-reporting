@@ -29,7 +29,6 @@ variable "accounts" {
       vpc_id               = string
       session_data         = string
       target_environment   = string
-      threshold            = number
       s3_vpc_endpoint_ids  = set(string)
     })
   )
