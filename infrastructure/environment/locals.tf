@@ -3,6 +3,7 @@ locals {
   account           = contains(keys(var.accounts), local.environment) ? var.accounts[local.environment] : var.accounts.development
   branch_build_flag = contains(keys(var.accounts), local.environment) ? false : true
   a_record          = local.branch_build_flag ? "${local.environment}.${data.aws_route53_zone.environment_cert.name}" : data.aws_route53_zone.environment_cert.name
+  service           = "Deputy Reporting Integration"
 
   default_tags = {
     business-unit          = "OPG"
@@ -26,6 +27,10 @@ locals {
     account_id    = local.account.account_id
     allowed_roles = join(", ", local.account.allowed_roles)
   }
+
+  threshold_alert_std   = terraform.workspace == "production" ? 1 : 100
+  threshold_alert_4xx   = terraform.workspace == "production" ? 10 : 100
+  threshold_alert_count = terraform.workspace == "production" ? 150 : 500
 
   target_environment = local.account.target_environment
   //Modify here for new version
