@@ -7,7 +7,7 @@ services:
       context: ./lambda_functions/v2
       dockerfile: Dockerfile
     ports:
-      - "9000:8080"
+      - "9009:8080"
     depends_on:
       - mock-sirius
       - localstack
@@ -22,6 +22,7 @@ services:
       AWS_ACCESS_KEY_ID: FAKE
       AWS_SECRET_ACCESS_KEY: FAKE
       USE_MOCK_SIRIUS: "0"
+    entrypoint: /aws-lambda/aws-lambda-rie /usr/local/bin/python -m awslambdaric app.docs.lambda_handler
 
   mock-sirius:
     build:
