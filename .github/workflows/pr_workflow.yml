@@ -18,6 +18,11 @@ permissions:
   statuses: none
 
 jobs:
+  destroy_workspaces:
+    name: destroy workspaces
+    uses: ./.github/workflows/scheduled_destroy.yml
+    secrets: inherit
+
   pr-label:
     runs-on: ubuntu-latest
     name: Label PR
