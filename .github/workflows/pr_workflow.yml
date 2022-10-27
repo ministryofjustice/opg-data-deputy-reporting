@@ -182,3 +182,8 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
       - name: Completion message
         run: echo "Workflow Complete"
+
+  destroy_workspaces:
+    name: destroy workspaces
+    needs: ['workflow_complete']
+    uses: ./.github/workflows/scheduled_destroy.yml
