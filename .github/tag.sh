@@ -11,7 +11,7 @@ source=${SOURCE:-.}
 dryrun=${DRY_RUN:-false}
 initial_version=${INITIAL_VERSION:-0.0.0}
 tag_context=${TAG_CONTEXT:-repo}
-suffix=${PRERELEASE_SUFFIX}
+suffix=${PRERELEASE_SUFFIX/\//-}
 verbose=${VERBOSE:-true}
 verbose=${VERBOSE:-true}
 # since https://github.blog/2022-04-12-git-security-vulnerability-announced/ runner uses?
@@ -84,7 +84,7 @@ commit=$(git rev-parse HEAD)
 
 if [ "$tag_commit" == "$commit" ]; then
    echo "No new commits since previous tag. Skipping..."
-   echo ::set-output name=tag::$tag
+   echo "tag=$(echo ${tag})" >> $GITHUB_OUTPUT
    exit 0
 fi
 
@@ -99,12 +99,19 @@ case "$log" in
    *#minor* ) new=$(semver -i minor $tag); part="minor";;
    *#patch* ) new=$(semver -i patch $tag); part="patch";;
    *#none* )
-       echo "Default bump was set to none. Skipping..."; echo ::set-output name=new_tag::$tag; echo ::set-output name=tag::$tag; exit 0;;
+       echo "Default bump was set to none. Skipping..."
+       echo "new_tag=$(echo ${tag})" >> $GITHUB_OUTPUT
+       echo "tag=$(echo ${tag})" >> $GITHUB_OUTPUT
+       exit 0;;
    * )
        if [ "$default_semvar_bump" == "none" ]; then
-           echo "Default bump was set to none. Skipping..."; echo ::set-output name=new_tag::$tag; echo ::set-output name=tag::$tag; exit 0
+           echo "Default bump was set to none. Skipping..."
+           echo "new_tag=$(echo ${tag})" >> $GITHUB_OUTPUT
+           echo "tag=$(echo ${tag})" >> $GITHUB_OUTPUT
+           exit 0
        else
-           new=$(semver -i "${default_semvar_bump}" $tag); part=$default_semvar_bump
+           new=$(semver -i "${default_semvar_bump}" $tag)
+           part=$default_semvar_bump
        fi
        ;;
 esac
@@ -114,10 +121,12 @@ then
    # Already a prerelease available, bump it
    if [[ "$pre_tag" == *"$new"* ]]; then
        echo "Commits exist on branch"
-       new=$(semver -i prerelease $pre_tag --preid $suffix); part="pre-$part"
+       new=$(semver -i prerelease $pre_tag --preid $suffix)
+       part="pre-$part"
    else
        echo "First commit on branch"
-       new="$new-$suffix.1"; part="pre-$part"
+       new="$new-$suffix.1"
+       part="pre-$part"
    fi
 fi
 
@@ -139,17 +148,17 @@ else
 fi
 
 # set outputs
-echo ::set-output name=new_tag::$new
-echo ::set-output name=part::$part
+echo "new_tag=$(echo ${new})" >> $GITHUB_OUTPUT
+echo "part=$(echo ${part})" >> $GITHUB_OUTPUT
 
 # use dry run to determine the next tag
 if $dryrun
 then
-   echo ::set-output name=tag::$tag
+   echo "tag=$(echo ${tag})"
    exit 0
 fi
 
-echo ::set-output name=tag::$new
+echo "tag=$(echo ${new})" >> $GITHUB_OUTPUT
 
 # create local git tag
 git tag $new
