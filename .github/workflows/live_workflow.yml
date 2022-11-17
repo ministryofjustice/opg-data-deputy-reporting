@@ -30,8 +30,8 @@ jobs:
       - name: Extract branch
         shell: bash
         run: |
-          echo "##[set-output name=branch_raw;]$(echo ${GITHUB_HEAD_REF:-${GITHUB_REF##*/}})"
-          echo "##[set-output name=branch_formatted;]$(echo ${GITHUB_HEAD_REF:-${GITHUB_REF##*/}} | tr -cd '[:alnum:]' | tr '[:upper:]' '[:lower:]')"
+          echo "branch_raw=$(echo ${GITHUB_HEAD_REF:-${GITHUB_REF##*/}})" >> $GITHUB_OUTPUT
+          echo "branch_formatted=$(echo ${GITHUB_HEAD_REF:-${GITHUB_REF##*/}} | tr -cd '[:alnum:]' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
         id: extract_branch
       - name: Output PR title and body
         env:
@@ -49,8 +49,8 @@ jobs:
           BODY=$(echo $BODY | sed '$ ! s/$/\\n/' | tr -d '\n' | sed 's/\\n/\%0A/g')
           BODY=$(echo $BODY | sed 's/\\r//g')
           BODY=${BODY:1:-1}
-          echo "##[set-output name=pr_body;]$(echo ${BODY})"
-          echo "##[set-output name=pr_title;]$(echo ${TITLE})"
+          echo "pr_body=$(echo ${BODY})" >> $GITHUB_OUTPUT
+          echo "pr_title=$(echo ${TITLE})" >> $GITHUB_OUTPUT
         id: pr_details
 
   create_tags:
