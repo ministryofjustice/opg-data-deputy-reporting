@@ -109,3 +109,16 @@ resource "aws_cloudwatch_metric_alarm" "s3_error" {
   alarm_actions       = [data.aws_sns_topic.deputy_reporting_slack.arn]
   tags                = local.default_tags
 }
+
+resource "aws_cloudwatch_log_metric_filter" "api_gateway_document_errors" {
+  name           = "deputy-reporting-gateway-supporting-errors.${local.environment}"
+  pattern        = '"\"status\":\"5" "\"resourcePath\":\"/clients/{caseref}/reports/{id}/supportingdocuments\""'
+  log_group_name = "API-Gateway-Execution-Logs-deputy-reporting-${local.environment}-v2"
+
+  metric_transformation {
+    name          = "DeputyReportingSupportingDoc500.${local.environment}"
+    namespace     = "ApiGateway"
+    value         = "1"
+    default_value = "0"
+  }
+}
