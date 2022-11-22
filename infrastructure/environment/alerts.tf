@@ -40,11 +40,11 @@ resource "aws_cloudwatch_metric_alarm" "rest_api_5xx_errors" {
   alarm_name          = "deputy-reporting-${local.environment}-rest-api-5xx-errors"
   alarm_description   = "SERVICE: ${local.service}`\n`ENVIRONMENT: ${terraform.workspace}`\n`ERROR: 5xx"
   comparison_operator = "GreaterThanOrEqualToThreshold"
-  datapoints_to_alarm = 1
+  datapoints_to_alarm = 3
   dimensions = {
     ApiName = "deputy-reporting-${terraform.workspace}"
   }
-  evaluation_periods        = 1
+  evaluation_periods        = 3
   insufficient_data_actions = []
   metric_name               = "5XXError"
   namespace                 = "AWS/ApiGateway"
@@ -110,15 +110,110 @@ resource "aws_cloudwatch_metric_alarm" "s3_error" {
   tags                = local.default_tags
 }
 
+resource "aws_cloudwatch_log_metric_filter" "api_gateway_report_errors" {
+  name           = "deputy-reporting-gateway-report-errors.${local.environment}"
+  pattern        = "\"\\\"status\\\":\\\"5\" \"\\\"resourcePath\\\":\\\"/clients/{caseref}/reports\\\"\""
+  log_group_name = "API-Gateway-Execution-Logs-deputy-reporting-${local.environment}-v2"
+
+  metric_transformation {
+    name          = "DeputyReportingReport500.${local.environment}"
+    namespace     = "Integrations/Error"
+    value         = "1"
+    default_value = "0"
+  }
+  depends_on = [module.deploy_v2]
+}
+
+resource "aws_cloudwatch_metric_alarm" "api_gateway_report_errors" {
+  actions_enabled = true
+  alarm_actions = [
+    data.aws_sns_topic.rest_api.arn,
+    data.aws_sns_topic.deputy_reporting_slack.arn
+  ]
+  alarm_name                = "deputy-reporting-${local.environment}-report-5xx-errors"
+  alarm_description         = "SERVICE: ${local.service}`\n`ENVIRONMENT: ${terraform.workspace}`\n`ERROR: 5xx on Report Submission"
+  comparison_operator       = "GreaterThanOrEqualToThreshold"
+  datapoints_to_alarm       = 1
+  evaluation_periods        = 1
+  insufficient_data_actions = []
+  metric_name               = "DeputyReportingReport500.${local.environment}"
+  namespace                 = "Integrations/Error"
+  ok_actions                = [data.aws_sns_topic.rest_api.arn]
+  period                    = 60
+  statistic                 = "Sum"
+  tags                      = {}
+  threshold                 = local.threshold_alert_std
+  treat_missing_data = "notBreaching"
+}
+
 resource "aws_cloudwatch_log_metric_filter" "api_gateway_supporting_errors" {
   name           = "deputy-reporting-gateway-supporting-errors.${local.environment}"
   pattern        = "\"\\\"status\\\":\\\"5\" \"\\\"resourcePath\\\":\\\"/clients/{caseref}/reports/{id}/supportingdocuments\\\"\""
   log_group_name = "API-Gateway-Execution-Logs-deputy-reporting-${local.environment}-v2"
 
   metric_transformation {
-    name          = "DeputyReportingSupportingDoc500.${local.environment}"
-    namespace     = "ApiGateway"
+    name          = "DeputyReportingSupporting500.${local.environment}"
+    namespace     = "Integrations/Error"
     value         = "1"
     default_value = "0"
   }
+  depends_on = [module.deploy_v2]
+}
+
+resource "aws_cloudwatch_metric_alarm" "api_gateway_supporting_errors" {
+  actions_enabled = true
+  alarm_actions = [
+    data.aws_sns_topic.rest_api.arn,
+    data.aws_sns_topic.deputy_reporting_slack.arn
+  ]
+  alarm_name                = "deputy-reporting-${local.environment}-supporting-5xx-errors"
+  alarm_description         = "SERVICE: ${local.service}`\n`ENVIRONMENT: ${terraform.workspace}`\n`ERROR: 5xx on Supporting Doc Submission"
+  comparison_operator       = "GreaterThanOrEqualToThreshold"
+  datapoints_to_alarm       = 1
+  evaluation_periods        = 1
+  insufficient_data_actions = []
+  metric_name               = "DeputyReportingSupporting500.${local.environment}"
+  namespace                 = "Integrations/Error"
+  ok_actions                = [data.aws_sns_topic.rest_api.arn]
+  period                    = 60
+  statistic                 = "Sum"
+  tags                      = {}
+  threshold                 = local.threshold_alert_std
+  treat_missing_data        = "notBreaching"
+}
+
+resource "aws_cloudwatch_log_metric_filter" "api_gateway_checklist_errors" {
+  name           = "deputy-reporting-gateway-checklist-errors.${local.environment}"
+  pattern        = "\"\\\"status\\\":\\\"5\" \"\\\"resourcePath\\\":\\\"/clients/{caseref}/reports/{id}/checklists\""
+  log_group_name = "API-Gateway-Execution-Logs-deputy-reporting-${local.environment}-v2"
+
+  metric_transformation {
+    name          = "DeputyReportingChecklist500.${local.environment}"
+    namespace     = "Integrations/Error"
+    value         = "1"
+    default_value = "0"
+  }
+  depends_on = [module.deploy_v2]
+}
+
+resource "aws_cloudwatch_metric_alarm" "api_gateway_checklist_errors" {
+  actions_enabled = true
+  alarm_actions = [
+    data.aws_sns_topic.rest_api.arn,
+    data.aws_sns_topic.deputy_reporting_slack.arn
+  ]
+  alarm_name                = "deputy-reporting-${local.environment}-checklist-5xx-errors"
+  alarm_description         = "SERVICE: ${local.service}`\n`ENVIRONMENT: ${terraform.workspace}`\n`ERROR: 5xx on Checklist Submission"
+  comparison_operator       = "GreaterThanOrEqualToThreshold"
+  datapoints_to_alarm       = 1
+  evaluation_periods        = 1
+  insufficient_data_actions = []
+  metric_name               = "DeputyReportingChecklist500.${local.environment}"
+  namespace                 = "Integrations/Error"
+  ok_actions                = [data.aws_sns_topic.rest_api.arn]
+  period                    = 60
+  statistic                 = "Sum"
+  tags                      = {}
+  threshold                 = local.threshold_alert_std
+  treat_missing_data        = "notBreaching"
 }
