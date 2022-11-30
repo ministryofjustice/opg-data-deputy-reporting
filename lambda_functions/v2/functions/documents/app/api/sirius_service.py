@@ -190,7 +190,7 @@ def new_submit_document_to_sirius(
         )
     except Exception as e:
         return handle_sirius_error(
-            error_message="Unable to send " "document to " "Sirius",
+            error_message="Unable to send document to Sirius",
             error_details=e,
             data=debug_payload,
         )
@@ -247,6 +247,7 @@ def handle_sirius_error(
         )
 
     message = f"{str(error_details)}"
+    logger.error(f"Failed sirius request data - {str(data)}")
 
     return error_code, message
 
