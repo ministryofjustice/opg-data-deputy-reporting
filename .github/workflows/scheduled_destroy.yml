@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@bf085276cecdb0cc76fbbe0687a5a0e786646936
-      - uses: unfor19/install-aws-cli-action@35a9630be0168293ad2afccbe06e8e9f47678d2c
+      - uses: unfor19/install-aws-cli-action@ee0eb151cf1bca186ccf8c35d314b08d62e0e878
       - uses: hashicorp/setup-terraform@8feba2b913ea459066180f9cb177f58a881cf146
         with:
           terraform_version: 1.2.6
