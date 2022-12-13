@@ -22,7 +22,7 @@ jobs:
           fetch-depth: 0
       - name: Install semver
         id: install_semver
-        run: sudo apt install node-semver
+        run: sudo npm install -g semver
 
       - name: Bump version
         id: bump_version
