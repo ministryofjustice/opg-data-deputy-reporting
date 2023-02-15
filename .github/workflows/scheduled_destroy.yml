@@ -1,9 +1,13 @@
 name: "[Workflow] Cleanup PR Workspaces"
 
 on:
-  schedule:
-    # 6am and 6pm every day except Sundays
-    - cron: '0 6,18 * * 0-6'
+  pull_request:
+    branches:
+      - main
+#on:
+#  schedule:
+#    # 6am and 6pm every day except Sundays
+#    - cron: '0 6,18 * * 0-6'
 
 permissions:
   contents: read
