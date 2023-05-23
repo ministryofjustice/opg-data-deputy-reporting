@@ -1,5 +1,5 @@
 #Update this date to trigger update of layers: 20220431
-requests==2.28.0
+requests==2.31.0
 pyjwt==2.4.0
 boto3==1.22.2
 requests-toolbelt==0.8.0
