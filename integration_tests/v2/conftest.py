@@ -12,7 +12,7 @@ from requests_aws4auth import AWS4Auth
 
 aws_dev_v2_config = {
     "name": "AWS v2 Dev",
-    "url": f"https://ddpb4682.dev.deputy-reporting.api.opg.service.justice.gov.uk/v2",
+    "url": f"https://{os.getenv('TF_WORKSPACE')}.dev.deputy-reporting.api.opg.service.justice.gov.uk/v2",
     "security": "aws_signature",
     "case_ref": "0319392T",
     "report_id": "16f62da9-db67-46f6-92b0-c212aeb08506",
