@@ -24,12 +24,12 @@ except ImportError:
 from flask import Flask
 
 try:
-    from cStringIO import StringIO
+    from cBytesIO import BytesIO
 except ImportError:
     try:
-        from StringIO import StringIO
+        from BytesIO import BytesIO
     except ImportError:
-        from io import StringIO
+        from io import BytesIO
 
 from werkzeug.wrappers import Request
 
@@ -74,7 +74,7 @@ def make_environ(event):
     environ["CONTENT_LENGTH"] = str(len(event["body"]) if event["body"] else "")
 
     environ["wsgi.url_scheme"] = environ.get("HTTP_X_FORWARDED_PROTO")
-    environ["wsgi.input"] = StringIO(event["body"] or "")
+    environ["wsgi.input"] = BytesIO(bytes((event["body"] or ""), "utf8"))
     environ["wsgi.version"] = (1, 0)
     environ["wsgi.errors"] = sys.stderr
     environ["wsgi.multithread"] = False
