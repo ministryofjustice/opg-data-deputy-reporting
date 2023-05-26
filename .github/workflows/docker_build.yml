@@ -29,7 +29,7 @@ jobs:
     steps:
       - name: Check out code
         id: checkout_code
-        uses: actions/checkout@v3.0.2
+        uses: actions/checkout@f095bcc56b7c2baf48f3ac70d6d6782f4f553222
 
       - name: Build Container
         id: build_container
@@ -51,9 +51,9 @@ jobs:
         with:
           sarif_file: 'trivy-results.sarif'
 
-      - uses: unfor19/install-aws-cli-action@v1
+      - uses: unfor19/install-aws-cli-action@457b7980b125044247e455d87b9a26fc2299b787
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@67fbcbb121271f7775d2e7715933280b06314838
+        uses: aws-actions/configure-aws-credentials@81fba9ea6ab1ad41093faf96dcba39791f6b7650
         with:
           aws-access-key-id: ${{ secrets.aws_access_key_id_actions }}
           aws-secret-access-key: ${{ secrets.aws_secret_access_key_actions }}
