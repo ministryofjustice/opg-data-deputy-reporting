@@ -29,7 +29,7 @@ jobs:
           terraform_wrapper: false
 
       - name: Configure AWS Credentials For Terraform
-        uses: aws-actions/configure-aws-credentials@ae734070a03cede77f1d165ce2667c3df28466ec
+        uses: aws-actions/configure-aws-credentials@819a6d1c74e0b9bdc395af3baef9eb47d98a62f6
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
