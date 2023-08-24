@@ -17,7 +17,7 @@ jobs:
   create_tags:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@f095bcc56b7c2baf48f3ac70d6d6782f4f553222
+      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744
         with:
           fetch-depth: 0
       - name: Install semver

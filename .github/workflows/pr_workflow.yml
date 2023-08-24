@@ -33,7 +33,7 @@ jobs:
     name: Run unit tests
     steps:
       - name: Checkout code
-        uses: actions/checkout@f095bcc56b7c2baf48f3ac70d6d6782f4f553222
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744
       - name: Run unit tests
         run: |
           docker-compose up unit-tests
@@ -52,7 +52,7 @@ jobs:
     name: Run pact checks
     steps:
       - name: Checkout code
-        uses: actions/checkout@f095bcc56b7c2baf48f3ac70d6d6782f4f553222
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744
       - name: Copy in the openapidoc
         run: ./getopenapidoc
         working-directory: ./mock_integration_rest_api
@@ -128,7 +128,7 @@ jobs:
     needs: ['terraform_plan_apply_with_mock', 'branch_name']
     steps:
       - name: Checkout code
-        uses: actions/checkout@f095bcc56b7c2baf48f3ac70d6d6782f4f553222
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744
       - name: Build integration tests container
         run: docker-compose -f docker-compose.yml build integration-tests
         id: build_integration_tests
@@ -168,7 +168,7 @@ jobs:
     needs: ['terraform_plan_apply', 'branch_name']
     steps:
       - name: Checkout code
-        uses: actions/checkout@f095bcc56b7c2baf48f3ac70d6d6782f4f553222
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744
       - name: Install workspace manager
         run: |
           wget https://github.com/TomTucka/terraform-workspace-manager/releases/download/v0.3.1/terraform-workspace-manager_Linux_x86_64.tar.gz -O $HOME/terraform-workspace-manager.tar.gz
