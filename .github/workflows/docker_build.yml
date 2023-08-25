@@ -53,7 +53,7 @@ jobs:
 
       - uses: unfor19/install-aws-cli-action@457b7980b125044247e455d87b9a26fc2299b787
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@ae734070a03cede77f1d165ce2667c3df28466ec
+        uses: aws-actions/configure-aws-credentials@44cffa5fa878ed8ce061db437824b5c390c71b63
         with:
           aws-access-key-id: ${{ secrets.aws_access_key_id_actions }}
           aws-secret-access-key: ${{ secrets.aws_secret_access_key_actions }}
