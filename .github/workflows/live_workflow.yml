@@ -149,7 +149,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@f095bcc56b7c2baf48f3ac70d6d6782f4f553222
+        uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac
       - name: Create a release
         id: create_release
         uses: actions/create-release@v1
