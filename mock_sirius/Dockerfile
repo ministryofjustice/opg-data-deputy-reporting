@@ -1,4 +1,4 @@
-FROM stoplight/prism:4.10.3
+FROM stoplight/prism:4.14.1
 COPY openapi.yml run.sh /app/
 RUN apk upgrade libcrypto1.1 libssl1.1 busybox ssl_client zlib
 WORKDIR  /app
