@@ -37,7 +37,7 @@ jobs:
 
       - name: Trivy Image Vulnerability Scanner
         id: trivy_scan
-        uses: aquasecurity/trivy-action@0.5.0
+        uses: aquasecurity/trivy-action@0.12.0
         with:
           image-ref: ${{ matrix.lambda_name.name }}:latest
           severity: 'HIGH,CRITICAL'
@@ -63,7 +63,7 @@ jobs:
           role-session-name: OPGDeputyReportingGithubAction
       - name: Login to ECR
         id: login_ecr
-        uses: aws-actions/amazon-ecr-login@v1.4.0
+        uses: aws-actions/amazon-ecr-login@v1.7.0
         with:
           registries: 311462405659
       - name: Push Container
