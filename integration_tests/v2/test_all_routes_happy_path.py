@@ -1,7 +1,7 @@
 import json
 
 import pytest
-from pytest_cases import cases_data, CaseDataGetter
+from pytest_cases import parametrize_with_cases
 
 from integration_tests.v2 import (
     cases_new_checklist_endpoint,
@@ -19,22 +19,26 @@ from integration_tests.v2.conftest import (
 @pytest.mark.smoke_test
 @pytest.mark.run(order=1)
 @pytest.mark.parametrize("test_config", configs_to_test)
-@cases_data(module=cases_reports_endpoint)
-def test_post_a_report(case_data: CaseDataGetter, test_config):
-    (
-        url,
-        method,
-        payload,
-        expected_status_code,
-        expected_response_data,
-    ) = case_data.get(test_config)
+@parametrize_with_cases(
+    "url,method,payload,expected_status_code,expected_response_data",
+    cases=cases_reports_endpoint,
+    has_tag="success",
+)
+def test_post_a_report(
+    test_config,
+    url,
+    method,
+    payload,
+    expected_status_code,
+    expected_response_data,
+):
 
     status, response = send_a_request(
         url=url, method=method, payload=payload, test_config=test_config
     )
 
     assert status == expected_status_code
-    assert type(response) == str
+    assert type(response) is str
     if status == 201:
         r = json.loads(response)
 
@@ -55,22 +59,25 @@ def test_post_a_report(case_data: CaseDataGetter, test_config):
 @pytest.mark.smoke_test
 @pytest.mark.run(order=2)
 @pytest.mark.parametrize("test_config", configs_to_test)
-@cases_data(module=cases_supporting_docs_endpoint)
-def test_post_a_supporting_doc(case_data: CaseDataGetter, test_config):
-    (
-        url,
-        method,
-        payload,
-        expected_status_code,
-        expected_response_data,
-    ) = case_data.get(test_config)
+@parametrize_with_cases(
+    "url,method,payload,expected_status_code,expected_response_data",
+    cases=cases_supporting_docs_endpoint,
+)
+def test_post_a_supporting_doc(
+    test_config,
+    url,
+    method,
+    payload,
+    expected_status_code,
+    expected_response_data,
+):
 
     status, response = send_a_request(
         url=url, method=method, payload=payload, test_config=test_config
     )
 
     assert status == expected_status_code
-    assert type(response) == str
+    assert type(response) is str
     if status == 201:
         r = json.loads(response)
 
@@ -90,22 +97,25 @@ def test_post_a_supporting_doc(case_data: CaseDataGetter, test_config):
 @pytest.mark.smoke_test
 @pytest.mark.run(order=3)
 @pytest.mark.parametrize("test_config", configs_to_test)
-@cases_data(module=cases_new_checklist_endpoint)
-def test_post_a_new_checklist(case_data: CaseDataGetter, test_config):
-    (
-        url,
-        method,
-        payload,
-        expected_status_code,
-        expected_response_data,
-    ) = case_data.get(test_config)
+@parametrize_with_cases(
+    "url,method,payload,expected_status_code,expected_response_data",
+    cases=cases_new_checklist_endpoint,
+)
+def test_post_a_new_checklist(
+    test_config,
+    url,
+    method,
+    payload,
+    expected_status_code,
+    expected_response_data,
+):
 
     status, response = send_a_request(
         url=url, method=method, payload=payload, test_config=test_config
     )
 
     assert status == expected_status_code
-    assert type(response) == str
+    assert type(response) is str
     if status == 201:
         r = json.loads(response)
         test_config["checklist_id"] = r["data"]["id"]
@@ -124,22 +134,25 @@ def test_post_a_new_checklist(case_data: CaseDataGetter, test_config):
 @pytest.mark.smoke_test
 @pytest.mark.run(order=4)
 @pytest.mark.parametrize("test_config", configs_to_test)
-@cases_data(module=cases_update_checklist_endpoint)
-def test_post_an_updated_checklist(case_data: CaseDataGetter, test_config):
-    (
-        url,
-        method,
-        payload,
-        expected_status_code,
-        expected_response_data,
-    ) = case_data.get(test_config)
+@parametrize_with_cases(
+    "url,method,payload,expected_status_code,expected_response_data",
+    cases=cases_update_checklist_endpoint,
+)
+def test_post_an_updated_checklist(
+    test_config,
+    url,
+    method,
+    payload,
+    expected_status_code,
+    expected_response_data,
+):
 
     status, response = send_a_request(
         url=url, method=method, payload=payload, test_config=test_config
     )
 
     assert status == expected_status_code
-    assert type(response) == str
+    assert type(response) is str
     if status == 200:
         r = json.loads(response)
 
@@ -166,4 +179,4 @@ def test_get_healthcheck(test_config):
     )
 
     assert status == expected_status_code
-    assert type(response) == str
+    assert type(response) is str
