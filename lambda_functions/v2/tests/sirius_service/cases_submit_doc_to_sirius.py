@@ -1,6 +1,6 @@
 import json
 
-from pytest_cases import CaseData, cases_generator, case_tags
+from pytest_cases import case, parametrize
 
 report_test_data = {
     "caseRecNumber": "1111",
@@ -26,12 +26,9 @@ suppdoc_test_data = {
 }
 
 
-@case_tags("post_success")
-@cases_generator(
-    "Successful post to Sirius: {test_data}",
-    test_data=[report_test_data, suppdoc_test_data],
-)
-def case_success(test_data) -> CaseData:
+@case(tags=["post_success"], id="Successful post to Sirius: {test_data}")
+@parametrize(test_data=[report_test_data, suppdoc_test_data])
+def case_success(test_data):
 
     data = json.dumps(test_data)
     method = "POST"
@@ -61,12 +58,9 @@ def case_success(test_data) -> CaseData:
     )
 
 
-@case_tags("post_error")
-@cases_generator(
-    "Post to Sirius with errors: {test_data}",
-    test_data=[report_test_data, suppdoc_test_data],
-)
-def case_error(test_data) -> CaseData:
+@case(tags=["post_error"], id="Post to Sirius with errors: {test_data}")
+@parametrize(test_data=[report_test_data, suppdoc_test_data])
+def case_error(test_data):
 
     data = json.dumps(test_data)
     method = "POST"
@@ -84,9 +78,9 @@ def case_error(test_data) -> CaseData:
     return (data, method, endpoint, url_params, expected_responses)
 
 
-@case_tags("env_vars")
-@cases_generator("Env var not set {env_var}", env_var=["SIRIUS_BASE_URL"])
-def case_missing_env_vars(env_var) -> CaseData:
+@case(tags=["env_vars"], id="Env var not set {env_var}")
+@parametrize(env_var=["SIRIUS_BASE_URL"])
+def case_missing_env_vars(env_var):
 
     data = json.dumps(report_test_data)
     method = "POST"

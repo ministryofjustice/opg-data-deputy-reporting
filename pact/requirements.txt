@@ -1,3 +1,3 @@
 opg-pact==0.0.3
-boto3==1.28.48
+boto3==1.28.50
 requests==2.31.0

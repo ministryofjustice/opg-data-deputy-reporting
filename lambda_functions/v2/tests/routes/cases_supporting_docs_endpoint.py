@@ -1,9 +1,8 @@
-from pytest_cases import case_name, CaseData, case_tags
+from pytest_cases import case
 
 
-@case_tags("endpoint", "success")
-@case_name("Successful post to supporting docs endpoint")
-def case_success() -> CaseData:
+@case(tags=["endpoint", "success"], id="Successful post to supporting docs endpoint")
+def case_success():
 
     test_data = {
         "supporting_document": {
@@ -28,7 +27,6 @@ def case_success() -> CaseData:
         "data": {
             "attributes": {"submission_id": 12345, "parent_id": None},
             "id": "5a8b1a26-8296-4373-ae61-f8d0b250e773",
-            # "type": "Report - General",
             "type": "supportingdocuments",
         }
     }
@@ -43,9 +41,8 @@ def case_success() -> CaseData:
     )
 
 
-@case_tags("endpoint", "success")
-@case_name("Successful post to supporting docs endpoint using s3 ref")
-def case_success_s3() -> CaseData:
+@case(tags=["endpoint", "success"], id="Successful post to supporting docs endpoint using s3 ref")
+def case_success_s3():
 
     test_data = {
         "supporting_document": {
@@ -85,9 +82,8 @@ def case_success_s3() -> CaseData:
     )
 
 
-@case_tags("endpoint", "success")
-@case_name("Successful post to supporting docs endpoint with both source and s3 ref")
-def case_success_s3_and_source() -> CaseData:
+@case(tags=["endpoint", "success"], id="Successful post to supporting docs endpoint with both source and s3 ref")
+def case_success_s3_and_source():
 
     test_data = {
         "supporting_document": {
@@ -128,9 +124,8 @@ def case_success_s3_and_source() -> CaseData:
     )
 
 
-@case_tags("endpoint", "error")
-@case_name("Successful post to supporting docs endpoint with neither source or s3 ref")
-def case_error_missing_s3_and_source() -> CaseData:
+@case(tags=["endpoint", "error"], id="Successful post to supporting docs endpoint with neither source or s3 ref")
+def case_error_missing_s3_and_source():
 
     test_data = {
         "supporting_document": {
