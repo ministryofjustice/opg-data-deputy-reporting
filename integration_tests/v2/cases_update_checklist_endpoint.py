@@ -1,18 +1,17 @@
 import random
 
-from pytest_cases import CaseData, cases_generator
+from pytest_cases import case, parametrize
 
 from integration_tests.v2.conftest import generate_file_name
 
 new_submission_id = random.randint(10000, 99999)
 
 
-@cases_generator(
-    "Successful multiple updates of a checklist with different "
-    "submission_ids: {sub_id}",
-    sub_id=[22222, 33333, 44444, 55555],
+@case(
+    id="Successful multiple updates of a checklist with different submission_ids: {sub_id}"
 )
-def case_success_original_IN_112(test_config: str, sub_id: int) -> CaseData:
+@parametrize(sub_id=[22222, 33333, 44444, 55555])
+def case_success_original_IN_112(test_config: str, sub_id: int):
 
     report_id = test_config["report_id"]
     submission_id = (
