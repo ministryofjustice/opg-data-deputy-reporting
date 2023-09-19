@@ -174,7 +174,7 @@ def get_request_details_for_logs(status=None):
     }
 
 
-def validate_request_data(request, request_information):
+def validate_request_data(request, request_information, caseref):
     if "application/json" not in request.headers["Content-Type"]:
         request_information["status"] = 415
         logger.error(
@@ -188,6 +188,9 @@ def validate_request_data(request, request_information):
         request_information["status"] = 400
         logger.error(e, extra=request_information)
         abort(400, e)
+
+    if not caseref.isalnum():
+        abort(400)
 
     return data
 

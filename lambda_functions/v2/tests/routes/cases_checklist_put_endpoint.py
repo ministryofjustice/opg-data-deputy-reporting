@@ -1,8 +1,8 @@
-from pytest_cases import case_name, CaseData
+from pytest_cases import case
 
 
-@case_name("Successful PUT to checklist endpoint")
-def case_success() -> CaseData:
+@case(id="Successful PUT to checklist endpoint")
+def case_success():
 
     test_data = {
         "checklist": {
@@ -50,8 +50,8 @@ def case_success() -> CaseData:
     )
 
 
-@case_name("Successful PUT to checklist endpoint no submission")
-def case_success_no_submission_id() -> CaseData:
+@case(id="Successful PUT to checklist endpoint no submission")
+def case_success_no_submission_id():
 
     test_data = {
         "checklist": {

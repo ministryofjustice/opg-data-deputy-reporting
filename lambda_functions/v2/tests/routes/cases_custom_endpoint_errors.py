@@ -1,6 +1,6 @@
 import json
 
-from pytest_cases import CaseData, case_tags, cases_generator
+from pytest_cases import case, parametrize
 
 """
 400 because payload is messed up
@@ -106,9 +106,9 @@ test_urls = [
 ]
 
 
-@case_tags("endpoint")
-@cases_generator("Test custom 404 for {test_url} with wrong method", test_url=test_urls)
-def case_405(test_url) -> CaseData:
+@case(tags=["endpoint"], id="Test custom 404 for {test_url} with wrong method")
+@parametrize(test_url=test_urls)
+def case_405(test_url):
 
     test_headers = {"Content-Type": "application/json"}
     test_data = ""
@@ -129,9 +129,9 @@ def case_405(test_url) -> CaseData:
     )
 
 
-@case_tags("endpoint")
-@cases_generator("Test custom 415 for {test_url}", test_url=test_urls)
-def case_415(test_url) -> CaseData:
+@case(tags=["endpoint"], id="Test custom 415 for {test_url}")
+@parametrize(test_url=test_urls)
+def case_415(test_url):
 
     test_headers = {"Content-Type": "chipmunk/alvin"}
     test_data = json.dumps(test_url["test_data"])
@@ -150,9 +150,9 @@ def case_415(test_url) -> CaseData:
     )
 
 
-@case_tags("endpoint")
-@cases_generator("Test custom 400 not json payload for {test_url}", test_url=test_urls)
-def case_400_not_json(test_url) -> CaseData:
+@case(tags=["endpoint"], id="Test custom 400 not json payload for {test_url}")
+@parametrize(test_url=test_urls)
+def case_400_not_json(test_url):
 
     print(f"test_url: {test_url}")
 
@@ -174,9 +174,9 @@ def case_400_not_json(test_url) -> CaseData:
 
 
 # TODO add separate test for these - it can't handle the error code parameters
-@case_tags("endpoint, custom_message")
-@cases_generator("Test custom 400 bad url params for {test_url}", test_url=test_urls)
-def case_400_bad_url_params(test_url) -> CaseData:
+@case(tags=["endpoint", "custom_message"], id="Test custom 400 bad url params for {test_url}")
+@parametrize(test_url=test_urls)
+def case_400_bad_url_params(test_url):
 
     print(f"test_url: {test_url}")
 

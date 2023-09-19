@@ -1,9 +1,8 @@
-from pytest_cases import case_name, CaseData, case_tags
+from pytest_cases import case
 
 
-@case_tags("success")
-@case_name("Sirius responds with 200")
-def case_200() -> CaseData:
+@case(tags=["success"], id="Sirius responds with 200")
+def case_200():
 
     sirius_response_code = 200
     sirius_response = {
@@ -30,9 +29,8 @@ def case_200() -> CaseData:
     return (sirius_response_code, sirius_response, api_response_code, api_response)
 
 
-@case_tags("success")
-@case_name("Sirius responds with 200 - no parent id")
-def case_200_no_parents() -> CaseData:
+@case(tags=["success"], id="Sirius responds with 200 - no parent id")
+def case_200_no_parents():
 
     sirius_response_code = 200
     sirius_response = {
@@ -55,9 +53,8 @@ def case_200_no_parents() -> CaseData:
     return (sirius_response_code, sirius_response, api_response_code, api_response)
 
 
-@case_tags("success")
-@case_name("Sirius responds with 201")
-def case_201() -> CaseData:
+@case(tags=["success"], id="Sirius responds with 201")
+def case_201():
 
     sirius_response_code = 201
     sirius_response = {
@@ -98,9 +95,8 @@ def case_201() -> CaseData:
 #     return (sirius_response_code, sirius_response, api_response_code, api_response)
 
 
-@case_tags("error")
-@case_name("Sirius responds with a code, message and details")
-def case_all() -> CaseData:
+@case(tags=["error"], id="Sirius responds with a code, message and details")
+def case_all():
 
     sirius_response_code = 400
     sirius_response = "spurious sirius error message"
@@ -118,9 +114,8 @@ def case_all() -> CaseData:
     )
 
 
-@case_tags("error")
-@case_name("Sirius responds with a message and details")
-def case_code_missing() -> CaseData:
+@case(tags=["error"], id="Sirius responds with a message and details")
+def case_code_missing():
 
     sirius_response_code = None
     sirius_response = "spurious sirius error message"
@@ -138,9 +133,8 @@ def case_code_missing() -> CaseData:
     )
 
 
-@case_tags("error")
-@case_name("Sirius responds with a code and details")
-def case_message_missing() -> CaseData:
+@case(tags=["error"], id="Sirius responds with a code and details")
+def case_message_missing():
 
     sirius_response_code = 400
     sirius_response = None
@@ -158,9 +152,8 @@ def case_message_missing() -> CaseData:
     )
 
 
-@case_tags("error")
-@case_name("Sirius responds with a code, message")
-def case_missing_details() -> CaseData:
+@case(tags=["error"], id="Sirius responds with a code, message")
+def case_missing_details():
 
     sirius_response_code = 400
     sirius_response = "spurious sirius error message"
@@ -178,9 +171,8 @@ def case_missing_details() -> CaseData:
     )
 
 
-@case_tags("error")
-@case_name("Sirius responds with a code, message, empty details")
-def case_empty_details() -> CaseData:
+@case(tags=["error"], id="Sirius responds with a code, message, empty details")
+def case_empty_details():
 
     sirius_response_code = 400
     sirius_response = "spurious sirius error message"
@@ -198,9 +190,8 @@ def case_empty_details() -> CaseData:
     )
 
 
-@case_tags("error")
-@case_name("Sirius responds with details no validation errors")
-def case_details_no_validation() -> CaseData:
+@case(tags=["error"], id="Sirius responds with details no validation errors")
+def case_details_no_validation():
 
     sirius_response_code = 400
     sirius_response = {"detail": "some detail in sirius response"}
@@ -218,9 +209,8 @@ def case_details_no_validation() -> CaseData:
     )
 
 
-@case_tags("error")
-@case_name("Sirius responds with details and validation errors")
-def case_details_validation() -> CaseData:
+@case(tags=["error"], id="Sirius responds with details and validation errors")
+def case_details_validation():
 
     sirius_response_code = 400
     sirius_response = {

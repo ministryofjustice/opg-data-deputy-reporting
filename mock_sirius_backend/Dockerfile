@@ -1,20 +1,21 @@
-FROM debian:bullseye-slim AS build
-#Install the dependencies
-RUN apt-get update && \
-    apt-get install --no-install-suggests --no-install-recommends --yes python3-venv libpq-dev gcc libpython3-dev && \
-    python3 -m venv /venv && \
-    /venv/bin/pip install --upgrade pip
-COPY requirements.txt .
-RUN /venv/bin/pip install --disable-pip-version-check -r ./requirements.txt
-
-FROM gcr.io/distroless/python3-debian11
-#Define the user-id and copy the packages from the previous builds
-USER 1001
-COPY --chown=1001:1001 --from=build /venv/lib/python3.9/site-packages/ /usr/local/lib/python3.9/site-packages
-COPY --chown=1001:1001 . /app/mock_sirius_backend/
-ENV PYTHONPATH=/usr/local/lib/python3.9/site-packages:/app
-ENV FLASK_APP=app.py
-ENV FLASK_ENV=development
+# === BUILD IMAGE ===
+FROM python:3.11-slim AS builder
+# Set the working directory to /app
 WORKDIR /app
+# Copy the requirements file to the working directory
+COPY mock_sirius_backend/requirements.txt requirements.txt
+# Pip dependency installs
+RUN python -m pip install --upgrade pip
+RUN python -m pip install \
+        --target /app \
+        --requirement requirements.txt
+COPY mock_sirius_backend /app/mock_sirius_backend
 
-CMD ["mock_sirius_backend/app.py"]
+# === FINAL IMAGE ===
+FROM python:3.11-slim
+WORKDIR /app
+# Copy only the installed packages from the previous stage to the working directory
+COPY --from=builder /app /app
+ENV PYTHONPATH=/app
+# Set the entrypoint for the unit tests
+CMD ["python", "./mock_sirius_backend/app.py"]
