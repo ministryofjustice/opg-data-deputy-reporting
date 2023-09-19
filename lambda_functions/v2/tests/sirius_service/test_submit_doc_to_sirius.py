@@ -1,5 +1,5 @@
 import pytest
-from pytest_cases import cases_data, CaseDataGetter
+from pytest_cases import parametrize_with_cases
 
 from lambda_functions.v2.functions.documents.app.api.sirius_service import (
     new_submit_document_to_sirius,
@@ -7,17 +7,20 @@ from lambda_functions.v2.functions.documents.app.api.sirius_service import (
 from lambda_functions.v2.tests.sirius_service import cases_submit_doc_to_sirius
 
 
-@cases_data(module=cases_submit_doc_to_sirius, has_tag="post_success")
 @pytest.mark.usefixtures("patched_get_secret", "patched_post")
-def test_submit_success(monkeypatch, case_data: CaseDataGetter):
-    (
+@parametrize_with_cases(
+    "data,method,endpoint,url_params,expected_status_code,expected_response",
+    cases=cases_submit_doc_to_sirius, has_tag="post_success"
+)
+def test_submit_success(
+        monkeypatch,
         data,
         method,
         endpoint,
         url_params,
         expected_status_code,
         expected_response,
-    ) = case_data.get()
+):
 
     status_code, response = new_submit_document_to_sirius(
         data=data, method=method, endpoint=endpoint, url_params=url_params
@@ -26,10 +29,13 @@ def test_submit_success(monkeypatch, case_data: CaseDataGetter):
     assert response == expected_response
 
 
-@cases_data(module=cases_submit_doc_to_sirius, has_tag="env_vars")
 @pytest.mark.usefixtures("patched_get_secret", "patched_post")
-def test_submit_env_vars_broken(monkeypatch, case_data: CaseDataGetter):
-    (
+@parametrize_with_cases(
+    "data,method,endpoint,url_params,env_var,expected_status_code,expected_response",
+    cases=cases_submit_doc_to_sirius, has_tag="env_vars"
+)
+def test_submit_env_vars_broken(
+        monkeypatch,
         data,
         method,
         endpoint,
@@ -37,7 +43,7 @@ def test_submit_env_vars_broken(monkeypatch, case_data: CaseDataGetter):
         env_var,
         expected_status_code,
         expected_response,
-    ) = case_data.get()
+):
 
     if env_var:
         monkeypatch.delenv(env_var)
@@ -49,10 +55,12 @@ def test_submit_env_vars_broken(monkeypatch, case_data: CaseDataGetter):
     assert expected_response in response
 
 
-@cases_data(module=cases_submit_doc_to_sirius, has_tag="post_error")
 @pytest.mark.usefixtures("patched_get_secret", "patched_post_broken_sirius")
-def test_submit_errors(monkeypatch, case_data: CaseDataGetter):
-    (data, method, endpoint, url_params, expected_responses) = case_data.get()
+@parametrize_with_cases(
+    "data,method,endpoint,url_params,expected_responses",
+    cases=cases_submit_doc_to_sirius, has_tag="post_error"
+)
+def test_submit_errors(monkeypatch, data, method, endpoint, url_params, expected_responses):
 
     status_code, response = new_submit_document_to_sirius(
         data=data, method=method, endpoint=endpoint, url_params=url_params
