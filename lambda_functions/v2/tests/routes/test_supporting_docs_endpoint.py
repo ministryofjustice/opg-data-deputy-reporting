@@ -2,7 +2,7 @@ import json
 
 import pytest
 import requests
-from pytest_cases import cases_data, CaseDataGetter
+from pytest_cases import parametrize_with_cases
 
 from lambda_functions.v2.tests.routes import cases_supporting_docs_endpoint
 
@@ -16,16 +16,19 @@ from lambda_functions.v2.tests.routes import cases_supporting_docs_endpoint
     "patched_send_get_to_sirius",
     "patched_get_request_details_for_logs",
 )
-@cases_data(module=cases_supporting_docs_endpoint, has_tag="success")
-def test_supporting_docs(server, case_data: CaseDataGetter):
-    (
+@parametrize_with_cases(
+    "test_data,test_headers,test_report_id,test_case_ref,expected_response_status_code,expected_response_data",
+    cases=cases_supporting_docs_endpoint, has_tag="success"
+)
+def test_supporting_docs(
+        server,
         test_data,
         test_headers,
         test_report_id,
         test_case_ref,
         expected_response_status_code,
         expected_response_data,
-    ) = case_data.get()
+):
 
     with server.app_context():
 
@@ -53,16 +56,19 @@ def test_supporting_docs(server, case_data: CaseDataGetter):
     "patched_send_get_to_sirius",
     "patched_get_request_details_for_logs",
 )
-@cases_data(module=cases_supporting_docs_endpoint, has_tag="error")
-def test_supporting_docs_errors(server, case_data: CaseDataGetter):
-    (
+@parametrize_with_cases(
+    "test_data,test_headers,test_report_id,test_case_ref,expected_response_status_code,expected_response_data",
+    cases=cases_supporting_docs_endpoint, has_tag="error"
+)
+def test_supporting_docs_errors(
+        server,
         test_data,
         test_headers,
         test_report_id,
         test_case_ref,
         expected_response_status_code,
         expected_response_data,
-    ) = case_data.get()
+):
 
     with server.app_context():
 
