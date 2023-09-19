@@ -1,9 +1,10 @@
 # Define function directory
 ARG FUNCTION_DIR="/function"
 
-FROM python:3.11.3-alpine3.16 AS python-alpine
+FROM python:3.11-alpine3.18 AS python-alpine
 RUN apk add --no-cache \
-    libstdc++
+    libstdc++ \
+    elfutils-dev
 
 RUN apk update && apk upgrade expat
 
@@ -15,7 +16,6 @@ RUN apk add --no-cache \
     libtool \
     autoconf \
     automake \
-    libexecinfo-dev \
     make \
     cmake \
     libcurl
@@ -38,7 +38,6 @@ RUN python -m pip install \
 
 # Multi-stage build: grab a fresh copy of the base image
 FROM python-alpine
-
 # Include global arg in this stage of the build
 ARG FUNCTION_DIR
 # Set working directory to function root directory
