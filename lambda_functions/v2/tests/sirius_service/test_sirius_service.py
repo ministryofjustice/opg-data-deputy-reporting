@@ -6,7 +6,7 @@ import pytest
 from botocore.exceptions import ClientError
 from jwt import DecodeError
 from moto import mock_secretsmanager
-from pytest_cases import cases_data, CaseDataGetter
+from pytest_cases import parametrize_with_cases
 
 from lambda_functions.v2.functions.documents.app.api import sirius_service
 from lambda_functions.v2.functions.documents.app.api.sirius_service import (
@@ -152,14 +152,16 @@ def test_get_secret(secret_code, environment, region):
         sirius_service.get_secret("not_a_real_environment")
 
 
-@cases_data(module=cases_format_sirius_response, has_tag="success")
-def test_new_format_sirius_response(case_data: CaseDataGetter):
-    (
+@parametrize_with_cases(
+    "sirius_response_code,sirius_response,api_response_code,api_response",
+    cases=cases_format_sirius_response, has_tag="success"
+)
+def test_new_format_sirius_response(
         sirius_response_code,
         sirius_response,
         api_response_code,
         api_response,
-    ) = case_data.get()
+):
 
     formatted_status_code, formatted_response_text = format_sirius_success(
         sirius_response_code, sirius_response
@@ -169,15 +171,17 @@ def test_new_format_sirius_response(case_data: CaseDataGetter):
     assert formatted_status_code == api_response_code
 
 
-@cases_data(module=cases_format_sirius_response, has_tag="error")
-def test_new_format_sirius_response_error(case_data: CaseDataGetter):
-    (
+@parametrize_with_cases(
+    "sirius_response_code,sirius_response,error_details,api_response_code,api_response",
+    cases=cases_format_sirius_response, has_tag="error"
+)
+def test_new_format_sirius_response_error(
         sirius_response_code,
         sirius_response,
         error_details,
         api_response_code,
         api_response,
-    ) = case_data.get()
+):
 
     formatted_status_code, formatted_response_text = handle_sirius_error(
         sirius_response_code, error_details, sirius_response

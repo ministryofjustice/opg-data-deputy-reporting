@@ -57,13 +57,13 @@ jobs:
         run: ./getopenapidoc
         working-directory: ./mock_integration_rest_api
       - name: Build images needed
-        run: docker-compose -f docker-compose.pact.yml build mock-aws-rest-api check-pact-deployable mock-sirius
+        run: docker-compose -f docker-compose.pact.yml build mock-integration-rest-api check-pact-deployable mock-sirius-backend
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
       - name: Bring up mocks
         run: |
-          docker-compose -f docker-compose.pact.yml up -d mock-aws-rest-api
+          docker-compose -f docker-compose.pact.yml up -d mock-integration-rest-api
           sleep 10
       - name: run check pact
         run: |

@@ -1,17 +1,16 @@
 import random
 
-from pytest_cases import CaseData, case_name
+from pytest_cases import case
 
 from integration_tests.v2.conftest import generate_file_name
 
 new_submission_id = random.randint(10000, 99999)
 
 
-@case_name(
-    "Successful post to supporting docs endpoint - doc is child of existing "
-    "report sent in the same submission"
+@case(
+    id="Successful post to supporting docs endpoint - doc is child of existing report sent in the same submission"
 )
-def case_success_original(test_config: str) -> CaseData:
+def case_success_original(test_config: str):
 
     report_id = test_config["report_id"]
     submission_id = test_config["submission_id"]
@@ -48,11 +47,11 @@ def case_success_original(test_config: str) -> CaseData:
     return url, method, payload, expected_status_code, expected_response_data
 
 
-@case_name(
-    "Successful post to supporting docs endpoint - doc is child of existing "
-    "report sent in the same submission, but Digideps S3 bucket ref sent instead of file source"
+@case(
+    id="Successful post to supporting docs endpoint - doc is child of existing report sent in the same submission, "
+    "but Digideps S3 bucket ref sent instead of file source"
 )
-def case_success_original_s3(test_config: str) -> CaseData:
+def case_success_original_s3(test_config: str):
 
     report_id = test_config["report_id"]
     submission_id = test_config["submission_id"]
@@ -90,11 +89,10 @@ def case_success_original_s3(test_config: str) -> CaseData:
     return url, method, payload, expected_status_code, expected_response_data
 
 
-@case_name(
-    "Successful post to supporting docs endpoint - doc is child of existing "
-    "report sent in a different submission"
+@case(
+    id="Successful post to supporting docs endpoint - doc is child of existing report sent in a different submission"
 )
-def case_success_new_submission(test_config: str) -> CaseData:
+def case_success_new_submission(test_config: str):
 
     report_id = test_config["report_id"]
     submission_id = test_config["submission_id"]
@@ -131,11 +129,11 @@ def case_success_new_submission(test_config: str) -> CaseData:
     return url, method, payload, expected_status_code, expected_response_data
 
 
-@case_name(
-    "Successful post to supporting docs endpoint - doc is child of existing "
-    "report sent in a different submission  - set up for the following test"
+@case(
+    id="Successful post to supporting docs endpoint - doc is child of existing report sent in a different "
+    "submission - set up for the following test"
 )
-def case_success_new_submission_2(test_config: str) -> CaseData:
+def case_success_new_submission_2(test_config: str):
 
     report_id = test_config["report_id"]
     submission_id = test_config["submission_id"]
@@ -172,11 +170,10 @@ def case_success_new_submission_2(test_config: str) -> CaseData:
     return url, method, payload, expected_status_code, expected_response_data
 
 
-@case_name(
-    "Successful post to supporting docs endpoint - doc is child of existing "
-    "supporting doc "
+@case(
+    id="Successful post to supporting docs endpoint - doc is child of existing supporting doc "
 )
-def case_success_new_submission_child(test_config: str) -> CaseData:
+def case_success_new_submission_child(test_config: str):
 
     report_id = test_config["report_id"]
     submission_id = test_config["submission_id"]

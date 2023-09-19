@@ -2,7 +2,7 @@ import json
 
 import pytest
 import requests
-from pytest_cases import cases_data, CaseDataGetter
+from pytest_cases import parametrize_with_cases
 
 from lambda_functions.v2.tests.routes import (
     cases_checklist_post_endpoint,
@@ -14,16 +14,19 @@ from lambda_functions.v2.tests.routes import (
 @pytest.mark.usefixtures(
     "patched_get_secret", "patched_post", "patched_get_request_details_for_logs"
 )
-@cases_data(module=cases_checklist_post_endpoint)
-def test_checklist_post(server, case_data: CaseDataGetter):
-    (
+@parametrize_with_cases(
+    "test_data,test_headers,test_report_id,test_case_ref,expected_response_status_code,expected_response_data",
+    cases=cases_checklist_post_endpoint
+)
+def test_checklist_post(
+        server,
         test_data,
         test_headers,
         test_report_id,
         test_case_ref,
         expected_response_status_code,
         expected_response_data,
-    ) = case_data.get()
+):
 
     with server.app_context():
 
@@ -47,9 +50,13 @@ def test_checklist_post(server, case_data: CaseDataGetter):
 @pytest.mark.usefixtures(
     "patched_get_secret", "patched_post", "patched_get_request_details_for_logs"
 )
-@cases_data(module=cases_checklist_put_endpoint)
-def test_checklist_put(server, case_data: CaseDataGetter):
-    (
+@parametrize_with_cases(
+    "test_data,test_headers,test_report_id,test_checklist_id,test_case_ref,expected_response_status_code,"
+    "expected_response_data",
+    cases=cases_checklist_put_endpoint
+)
+def test_checklist_put(
+        server,
         test_data,
         test_headers,
         test_report_id,
@@ -57,7 +64,7 @@ def test_checklist_put(server, case_data: CaseDataGetter):
         test_case_ref,
         expected_response_status_code,
         expected_response_data,
-    ) = case_data.get()
+):
 
     with server.app_context():
 

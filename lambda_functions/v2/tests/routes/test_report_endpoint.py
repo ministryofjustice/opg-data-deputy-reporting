@@ -2,7 +2,7 @@ import json
 
 import pytest
 import requests
-from pytest_cases import cases_data, CaseDataGetter
+from pytest_cases import parametrize_with_cases
 
 from lambda_functions.v2.tests.routes import cases_reports_endpoint
 
@@ -15,18 +15,19 @@ from lambda_functions.v2.tests.routes import cases_reports_endpoint
     "patched_s3_file",
     "patched_get_request_details_for_logs",
 )
-@cases_data(module=cases_reports_endpoint, has_tag="success")
-def test_reports(server, case_data: CaseDataGetter):
-    (
+@parametrize_with_cases(
+    "test_data,test_headers,test_case_ref,expected_response_status_code,expected_response_data",
+    cases=cases_reports_endpoint, has_tag="success"
+)
+def test_reports(
+        server,
         test_data,
         test_headers,
         test_case_ref,
         expected_response_status_code,
-        expected_response_data,
-    ) = case_data.get()
-
+        expected_response_data
+):
     with server.app_context():
-
         r = requests.post(
             f"{server.url}/clients/{test_case_ref}/reports",
             headers=test_headers,
@@ -45,18 +46,19 @@ def test_reports(server, case_data: CaseDataGetter):
     "patched_s3_file",
     "patched_get_request_details_for_logs",
 )
-@cases_data(module=cases_reports_endpoint, has_tag="error")
-def test_reports_errors(server, case_data: CaseDataGetter):
-    (
+@parametrize_with_cases(
+    "test_data,test_headers,test_case_ref,expected_response_status_code,expected_response_data",
+    cases=cases_reports_endpoint, has_tag="error"
+)
+def test_reports_errors(
+        server,
         test_data,
         test_headers,
         test_case_ref,
         expected_response_status_code,
         expected_response_data,
-    ) = case_data.get()
-
+):
     with server.app_context():
-
         r = requests.post(
             f"{server.url}/clients/{test_case_ref}/reports",
             headers=test_headers,
@@ -76,21 +78,25 @@ def test_reports_errors(server, case_data: CaseDataGetter):
     "patched_s3_file",
     "patched_get_request_details_for_logs",
 )
-@cases_data(module=cases_reports_endpoint, has_tag="environment")
-def test_reports_environment(server, monkeypatch, caplog, case_data: CaseDataGetter):
-    (
+@parametrize_with_cases(
+    "env_var,test_data,test_headers,test_case_ref,expected_response_status_code,expected_logger_message",
+    cases=cases_reports_endpoint,
+    has_tag="environment"
+)
+def test_reports_environment(
+        server,
+        monkeypatch,
         env_var,
         test_data,
         test_headers,
         test_case_ref,
         expected_response_status_code,
-        expected_logger_message,
-    ) = case_data.get()
+        expected_logger_message
+):
 
     monkeypatch.delenv(env_var)
 
     with server.app_context():
-
         r = requests.post(
             f"{server.url}/clients/{test_case_ref}/reports",
             headers=test_headers,

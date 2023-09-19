@@ -1,17 +1,16 @@
 import random
 
-from pytest_cases import CaseData, case_name
+from pytest_cases import case
 
 from integration_tests.v2.conftest import generate_file_name
 
 new_submission_id = random.randint(10000, 99999)
 
 
-@case_name(
-    "Successful post to new checklist endpoint - checklist is child of existing "
-    "report sent in the same submission"
+@case(
+    id="Successful post to new checklist endpoint - checklist is child of existing report sent in the same submission"
 )
-def case_success_original_IN_112(test_config: str) -> CaseData:
+def case_success_original_IN_112(test_config: str):
 
     # Test Data
 
@@ -57,11 +56,11 @@ def case_success_original_IN_112(test_config: str) -> CaseData:
     return url, method, payload, expected_status_code, expected_response_data
 
 
-@case_name(
-    "Successful post to new checklist endpoint - checklist is child of existing "
-    "report sent in a different submission"
+@case(
+    id="Successful post to new checklist endpoint - "
+    "checklist is child of existing report sent in a different submission"
 )
-def case_success_new_submission_IN_112(test_config: str) -> CaseData:
+def case_success_new_submission_IN_112(test_config: str):
 
     # Test Data
 

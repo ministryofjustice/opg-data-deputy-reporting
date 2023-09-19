@@ -3,7 +3,7 @@ import json
 import os
 
 import pytest
-from pytest_cases import cases_data, CaseDataGetter
+from pytest_cases import parametrize_with_cases
 
 from integration_tests.v2 import cases_payload_errors
 from integration_tests.v2.conftest import (
@@ -355,9 +355,10 @@ def test_503(
 @pytest.mark.smoke_test
 @pytest.mark.run(order=10)
 @pytest.mark.parametrize("test_config", configs_to_test)
-@cases_data(module=cases_payload_errors)
-def test_bad_payload(case_data: CaseDataGetter, test_config):
-    (url, method, payload, expected_status_code) = case_data.get(test_config)
+@parametrize_with_cases(
+    "url,method,payload,expected_status_code", cases=cases_payload_errors
+)
+def test_bad_payload(test_config, url, method, payload, expected_status_code):
 
     status, response = send_a_request(
         url=url, method=method, payload=payload, test_config=test_config
