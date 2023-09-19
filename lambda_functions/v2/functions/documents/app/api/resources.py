@@ -34,7 +34,7 @@ def handle_healthcheck():
 
 @api.route("/clients/<caseref>/reports", methods=["POST"])
 def handle_reports(caseref):
-    data = validate_request_data(request, get_request_details_for_logs())
+    data = validate_request_data(request, get_request_details_for_logs(), caseref)
 
     response_data, response_status = reports.endpoint_handler(
         data=data, caseref=caseref
@@ -54,7 +54,7 @@ def handle_reports(caseref):
 
 @api.route("/clients/<caseref>/reports/<id>/supportingdocuments", methods=["POST"])
 def handle_supporting_docs(caseref, id):
-    data = validate_request_data(request, get_request_details_for_logs())
+    data = validate_request_data(request, get_request_details_for_logs(), caseref)
 
     response_data, response_status = supporting_docs.endpoint_handler(
         data=data, caseref=caseref, id=id
@@ -75,7 +75,7 @@ def handle_supporting_docs(caseref, id):
 @api.route("/clients/<caseref>/reports/<id>/checklists/<checklistId>", methods=["PUT"])
 @api.route("/clients/<caseref>/reports/<id>/checklists", methods=["POST"])
 def handle_checklists(caseref, id, checklistId=None):
-    data = validate_request_data(request, get_request_details_for_logs())
+    data = validate_request_data(request, get_request_details_for_logs(), caseref)
 
     response_data, response_status = checklists.endpoint_handler(
         data=data,

@@ -1,6 +1,6 @@
 import pytest
 import requests
-from pytest_cases import cases_data, CaseDataGetter
+from pytest_cases import parametrize_with_cases
 
 from lambda_functions.v2.tests.routes import cases_custom_endpoint_errors
 
@@ -17,16 +17,19 @@ from lambda_functions.v2.tests.routes import cases_custom_endpoint_errors
     [400, 404, 500],
     indirect=["patched_post_broken_sirius"],
 )
-@cases_data(module=cases_custom_endpoint_errors, has_tag="endpoint")
-def test_custom_errors(server, case_data: CaseDataGetter):
-    (
+@parametrize_with_cases(
+    "test_url,test_headers,test_data,test_method,expected_response_status_code,expected_response_data",
+    cases=cases_custom_endpoint_errors, has_tag="endpoint"
+)
+def test_custom_errors(
+        server,
         test_url,
         test_headers,
         test_data,
         test_method,
         expected_response_status_code,
         expected_response_data,
-    ) = case_data.get()
+):
 
     test_url = test_url["url"]
 

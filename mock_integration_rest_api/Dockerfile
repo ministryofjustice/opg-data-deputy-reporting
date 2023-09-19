@@ -1,35 +1,22 @@
-ARG FUNCTION_DIR="/app/lambda_functions/v2"
-
 # === BUILD IMAGE ===
 FROM python:3.11-slim AS builder
-# Include global arg in this stage of the build
-ARG FUNCTION_DIR
 # Set the working directory to /app
 WORKDIR /app
 # Copy the requirements file to the working directory
-COPY requirements/requirements.txt requirements.txt
-COPY requirements/dev-requirements.txt dev-requirements.txt
+COPY mock_integration_rest_api/requirements.txt requirements.txt
 # Pip dependency installs
 RUN python -m pip install --upgrade pip
 RUN python -m pip install \
         --target /app \
         --requirement requirements.txt
-RUN python -m pip install \
-        --target /app \
-        --requirement dev-requirements.txt
-COPY functions ${FUNCTION_DIR}/functions
-COPY tests ${FUNCTION_DIR}/tests
-COPY test-app.sh /app/test-app.sh
+COPY lambda_functions/v2/functions /app/lambda_functions/v2/functions
+COPY mock_integration_rest_api /app/mock_integration_rest_api
 
 # === FINAL IMAGE ===
 FROM python:3.11-slim
-# Include global arg in this stage of the build
-ARG FUNCTION_DIR
-
 WORKDIR /app
-
 # Copy only the installed packages from the previous stage to the working directory
 COPY --from=builder /app /app
 ENV PYTHONPATH=/app
 # Set the entrypoint for the unit tests
-ENTRYPOINT ["/bin/sh", "test-app.sh"]
+CMD ["python", "./mock_integration_rest_api/app.py"]
