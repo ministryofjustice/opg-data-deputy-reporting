@@ -1,6 +1,6 @@
 import copy
 
-from pytest_cases import CaseData, cases_generator
+from pytest_cases import case, parametrize
 
 from integration_tests.v2.conftest import generate_file_name
 
@@ -54,17 +54,17 @@ default_checklist_payload = {
 }
 
 
-@cases_generator(
-    "Bad payload sent to reports POST endpoint - missing data: {missing}",
+@case(id="Bad payload sent to reports POST endpoint - missing data: {missing}")
+@parametrize(
     missing=[
         "type",
         "attributes/submission_id",
         "file/name",
         "file/mimetype",
         # "file/source",
-    ],
+    ]
 )
-def case_reports_missing_fields(test_config: str, missing) -> CaseData:
+def case_reports_missing_fields(test_config: str, missing):
 
     endpoint = f"clients/{test_config['case_ref']}/reports"
     url = f"{test_config['url']}/{endpoint}"
@@ -82,8 +82,8 @@ def case_reports_missing_fields(test_config: str, missing) -> CaseData:
     return url, method, payload, expected_status_code
 
 
-@cases_generator(
-    "Bad payload sent to reports POST endpoint - empty data: {missing}",
+@case(id="Bad payload sent to reports POST endpoint - empty data: {missing}")
+@parametrize(
     missing=[
         "type",
         "attributes/submission_id",
@@ -92,7 +92,7 @@ def case_reports_missing_fields(test_config: str, missing) -> CaseData:
         "file/source",
     ],
 )
-def case_reports_empty_fields(test_config: str, missing) -> CaseData:
+def case_reports_empty_fields(test_config: str, missing):
 
     endpoint = f"clients/{test_config['case_ref']}/reports"
     url = f"{test_config['url']}/{endpoint}"
@@ -110,8 +110,8 @@ def case_reports_empty_fields(test_config: str, missing) -> CaseData:
     return url, method, payload, expected_status_code
 
 
-@cases_generator(
-    "Bad payload sent to supp docs POST endpoint - missing data: {missing}",
+@case(id="Bad payload sent to supp docs POST endpoint - missing data: {missing}")
+@parametrize(
     missing=[
         "attributes/submission_id",
         "file/name",
@@ -119,7 +119,7 @@ def case_reports_empty_fields(test_config: str, missing) -> CaseData:
         # "file/source"
     ],
 )
-def case_suppdocs_missing_fields(test_config: str, missing) -> CaseData:
+def case_suppdocs_missing_fields(test_config: str, missing):
 
     report_id = test_config["report_id"]
     case_ref = test_config["case_ref"]
@@ -142,8 +142,8 @@ def case_suppdocs_missing_fields(test_config: str, missing) -> CaseData:
     return url, method, payload, expected_status_code
 
 
-@cases_generator(
-    "Bad payload sent to supp docs POST endpoint - empty data: {missing}",
+@case(id="Bad payload sent to supp docs POST endpoint - empty data: {missing}")
+@parametrize(
     missing=[
         "attributes/submission_id",
         "file/name",
@@ -151,7 +151,7 @@ def case_suppdocs_missing_fields(test_config: str, missing) -> CaseData:
         # "file/source"
     ],
 )
-def case_suppdocs_empty_fields(test_config: str, missing) -> CaseData:
+def case_suppdocs_empty_fields(test_config: str, missing):
 
     report_id = test_config["report_id"]
     case_ref = test_config["case_ref"]
@@ -174,8 +174,8 @@ def case_suppdocs_empty_fields(test_config: str, missing) -> CaseData:
     return url, method, payload, expected_status_code
 
 
-@cases_generator(
-    "Bad payload sent to checklist POST endpoint - missing data: {missing}",
+@case(id="Bad payload sent to checklist POST endpoint - missing data: {missing}")
+@parametrize(
     missing=[
         "attributes/submission_id",
         "file/name",
@@ -183,7 +183,7 @@ def case_suppdocs_empty_fields(test_config: str, missing) -> CaseData:
         # "file/source"
     ],
 )
-def case_checklist_missing_fields(test_config: str, missing) -> CaseData:
+def case_checklist_missing_fields(test_config: str, missing):
 
     report_id = test_config["report_id"]
     case_ref = test_config["case_ref"]
@@ -204,8 +204,8 @@ def case_checklist_missing_fields(test_config: str, missing) -> CaseData:
     return url, method, payload, expected_status_code
 
 
-@cases_generator(
-    "Bad payload sent to checklist POST endpoint - empty data: {missing}",
+@case(id="Bad payload sent to checklist POST endpoint - empty data: {missing}")
+@parametrize(
     missing=[
         "attributes/submission_id",
         "file/name",
@@ -213,7 +213,7 @@ def case_checklist_missing_fields(test_config: str, missing) -> CaseData:
         # "file/source"
     ],
 )
-def case_checklist_empty_fields(test_config: str, missing) -> CaseData:
+def case_checklist_empty_fields(test_config: str, missing):
 
     report_id = test_config["report_id"]
     case_ref = test_config["case_ref"]
@@ -234,8 +234,8 @@ def case_checklist_empty_fields(test_config: str, missing) -> CaseData:
     return url, method, payload, expected_status_code
 
 
-@cases_generator(
-    "Bad payload sent to checklist PUT endpoint - missing data: {missing}",
+@case(id="Bad payload sent to checklist PUT endpoint - missing data: {missing}")
+@parametrize(
     missing=[
         "attributes/submission_id",
         "file/name",
@@ -243,7 +243,7 @@ def case_checklist_empty_fields(test_config: str, missing) -> CaseData:
         # "file/source"
     ],
 )
-def case_checklist_update_missing_fields(test_config: str, missing) -> CaseData:
+def case_checklist_update_missing_fields(test_config: str, missing):
 
     report_id = test_config["report_id"]
     case_ref = test_config["case_ref"]
@@ -267,8 +267,8 @@ def case_checklist_update_missing_fields(test_config: str, missing) -> CaseData:
     return url, method, payload, expected_status_code
 
 
-@cases_generator(
-    "Bad payload sent to checklist PUT endpoint - empty data: {missing}",
+@case(id="Bad payload sent to checklist PUT endpoint - empty data: {missing}")
+@parametrize(
     missing=[
         "attributes/submission_id",
         "file/name",
@@ -276,7 +276,7 @@ def case_checklist_update_missing_fields(test_config: str, missing) -> CaseData:
         # "file/source"
     ],
 )
-def case_checklist_update_empty_fields(test_config: str, missing) -> CaseData:
+def case_checklist_update_empty_fields(test_config: str, missing):
 
     report_id = test_config["report_id"]
     case_ref = test_config["case_ref"]

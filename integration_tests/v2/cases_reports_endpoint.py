@@ -1,13 +1,12 @@
-from pytest_cases import CaseData, case_name
+from pytest_cases import case
 
 from integration_tests.v2.conftest import generate_file_name
 
 
-@case_name(
-    "Successful post to reports endpoint "
-    "Digideps S3 bucket ref sent instead of file source"
+@case(
+    id="Successful post to reports endpoint Digideps S3 bucket ref sent instead of file source"
 )
-def case_success_s3(test_config: str) -> CaseData:
+def case_success_s3(test_config: str):
 
     submission_id = test_config["submission_id"]
 
@@ -49,10 +48,10 @@ def case_success_s3(test_config: str) -> CaseData:
     return url, method, payload, expected_status_code, expected_response_data
 
 
-@case_name(
-    "Successful post to reports endpoint. Digideps S3 bucket ref AND file source sent"
+@case(
+    id="Successful post to reports endpoint. Digideps S3 bucket ref AND file source sent"
 )
-def case_success_original_s3(test_config: str) -> CaseData:
+def case_success_original_s3(test_config: str):
 
     submission_id = test_config["submission_id"]
 
@@ -95,8 +94,8 @@ def case_success_original_s3(test_config: str) -> CaseData:
     return url, method, payload, expected_status_code, expected_response_data
 
 
-@case_name("Successful post to reports endpoint")
-def case_success_original(test_config: str) -> CaseData:
+@case(id="Successful post to reports endpoint")
+def case_success_original(test_config: str):
 
     # Test Data
 

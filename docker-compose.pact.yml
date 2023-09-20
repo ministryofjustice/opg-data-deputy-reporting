@@ -27,26 +27,26 @@ services:
       # Uncomment these two options for debugging purposes:
       # PACT_BROKER_WEBHOOK_HOST_WHITELIST: circleci.com
       # PACT_BROKER_LOG_LEVEL: DEBUG
-  mock-aws-rest-api:
+  mock-integration-rest-api:
     build:
       context: .
-      dockerfile: Dockerfile-rest-api
+      dockerfile: mock_integration_rest_api/Dockerfile
     environment:
       MOCKING_ENV: mock-sirius
     ports:
       - "4343:4343"
     depends_on:
-      - mock-sirius
-  mock-sirius:
+      - mock-sirius-backend
+  mock-sirius-backend:
     build:
-      context: ./mock_sirius_backend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: mock_sirius_backend/Dockerfile
     ports:
       - "5001:5001"
   check-pact-deployable:
     build:
-      context: ./pact
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./pact/Dockerfile
       args:
         AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
         AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
@@ -64,4 +64,4 @@ services:
       GIT_COMMIT_PROVIDER: $GIT_COMMIT_PROVIDER
       GIT_COMMIT_CONSUMER: ""
     depends_on:
-      - mock-aws-rest-api
+      - mock-integration-rest-api

@@ -1,4 +1,5 @@
-from pytest_cases import CaseData, case_name, case_tags, cases_generator
+from pytest_cases import case, parametrize
+    # cases_generator
 
 """
 test successful post - 201
@@ -10,9 +11,8 @@ bad secret
 """
 
 
-@case_tags("endpoint", "success")
-@case_name("Successful post to Docs API")
-def case_success() -> CaseData:
+@case(tags=["endpoint", "success"], id="Successful post to Docs API")
+def case_success():
 
     test_data = {
         "report": {
@@ -53,13 +53,11 @@ def case_success() -> CaseData:
         test_headers,
         test_case_ref,
         expected_response_status_code,
-        expected_response_data,
-    )
+        expected_response_data)
 
 
-@case_tags("endpoint", "success")
-@case_name("Successful post to Docs API using s3 ref")
-def case_success_s3() -> CaseData:
+@case(tags=["endpoint", "success"], id="Successful post to Docs API using s3 ref")
+def case_success_s3():
 
     test_data = {
         "report": {
@@ -103,9 +101,8 @@ def case_success_s3() -> CaseData:
     )
 
 
-@case_tags("endpoint", "success")
-@case_name("Successful post to Docs API - with both source and s3 ref")
-def case_both_s3_and_file() -> CaseData:
+@case(tags=["endpoint", "success"], id="Successful post to Docs API - with both source and s3 ref")
+def case_both_s3_and_file():
 
     test_data = {
         "report": {
@@ -150,9 +147,8 @@ def case_both_s3_and_file() -> CaseData:
     )
 
 
-@case_tags("endpoint", "error")
-@case_name("Fail post to Docs API - with neither source nor s3 ref")
-def case_neither_s3_nor_file() -> CaseData:
+@case(tags=["endpoint", "error"], id="Fail post to Docs API - with neither source nor s3 ref")
+def case_neither_s3_nor_file():
 
     test_data = {
         "report": {
@@ -189,9 +185,8 @@ def case_neither_s3_nor_file() -> CaseData:
     )
 
 
-@case_tags("endpoint", "error")
-@case_name("Case ref doesn't exist in Sirius")
-def case_bad_params() -> CaseData:
+@case(tags=["endpoint", "error"], id="Case ref doesn't exist in Sirius")
+def case_bad_params():
 
     test_data = {
         "report": {
@@ -229,14 +224,10 @@ def case_bad_params() -> CaseData:
     )
 
 
-@case_tags("environment")
-@cases_generator(
-    "Missing environment variables - {ev}",
-    ev=["SIRIUS_BASE_URL"],
-)
-def case_missing_env_vars(ev) -> CaseData:
+@case(tags=["environment"], id="Successful post to Docs API - with both source and s3 ref")
+def case_missing_env_vars():
 
-    env_var = ev
+    env_var = "SIRIUS_BASE_URL"
     test_data = {
         "report": {
             "data": {
