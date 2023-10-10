@@ -28,7 +28,7 @@ jobs:
   terraform_workflow:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@72f2cec99f417b1a1c5e2e88945068983b7965f9
+      - uses: actions/checkout@7cdaf2fbc075e6f3b9ca94cfd6cec5adc8a75622
         with:
           fetch-depth: '0'
 
