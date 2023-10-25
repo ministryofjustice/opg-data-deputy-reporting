@@ -30,8 +30,8 @@ jobs:
       - name: Extract branch
         shell: bash
         run: |
-          echo "branch_raw=$(echo ${GITHUB_HEAD_REF:-${GITHUB_REF##*/}})" >> $GITHUB_OUTPUT
-          echo "branch_formatted=$(echo ${GITHUB_HEAD_REF:-${GITHUB_REF##*/}} | tr -cd '[:alnum:]' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+          echo "branch_raw=main" >> $GITHUB_OUTPUT
+          echo "branch_formatted=main" >> $GITHUB_OUTPUT
         id: extract_branch
       - name: Output PR title and body
         env:
@@ -68,7 +68,7 @@ jobs:
     uses: ./.github/workflows/docker_build.yml
     with:
       lambda_names: '[{"name": "deputy-reporting-lambda", "path": "lambda_functions/v2"}, {"name": "deputy-reporting-mock-sirius", "path": "mock_sirius"}]'
-      tag: ${{ needs.create_tags.outputs.version_tag }}
+      tag: ${{ needs.branch_name.outputs.formatted_branch }}-${{ needs.create_tags.outputs.version_tag }}
       branch_name: ${{ needs.branch_name.outputs.formatted_branch }}
     secrets:
       aws_access_key_id_actions: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
@@ -87,11 +87,11 @@ jobs:
 
   terraform_plan_apply_development:
     name: Terraform Environment Development
-    needs: ['docker_build_scan_push', 'create_tags', 'terraform_plan_apply_account_development']
+    needs: ['docker_build_scan_push', 'create_tags', 'branch_name', 'terraform_plan_apply_account_development']
     uses: ./.github/workflows/terraform_job.yml
     with:
       terraform_path: 'infrastructure/environment'
-      image_tag: ${{ needs.create_tags.outputs.version_tag }}
+      image_tag: ${{ needs.branch_name.outputs.formatted_branch }}-${{ needs.create_tags.outputs.version_tag }}
       workspace: 'development'
     secrets:
       aws_access_key_id_actions: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
@@ -110,11 +110,11 @@ jobs:
 
   terraform_plan_apply_preproduction:
     name: Terraform Environment Preproduction
-    needs: ['create_tags', 'terraform_plan_apply_account_preproduction']
+    needs: ['create_tags', 'branch_name', 'terraform_plan_apply_account_preproduction']
     uses: ./.github/workflows/terraform_job.yml
     with:
       terraform_path: 'infrastructure/environment'
-      image_tag: ${{ needs.create_tags.outputs.version_tag }}
+      image_tag: ${{ needs.branch_name.outputs.formatted_branch }}-${{ needs.create_tags.outputs.version_tag }}
       workspace: 'preproduction'
     secrets:
       aws_access_key_id_actions: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
@@ -133,11 +133,11 @@ jobs:
 
   terraform_plan_apply_production:
     name: Terraform Environment Production
-    needs: ['create_tags', 'terraform_plan_apply_account_production']
+    needs: ['create_tags', 'branch_name', 'terraform_plan_apply_account_production']
     uses: ./.github/workflows/terraform_job.yml
     with:
       terraform_path: 'infrastructure/environment'
-      image_tag: ${{ needs.create_tags.outputs.version_tag }}
+      image_tag: ${{ needs.branch_name.outputs.formatted_branch }}-${{ needs.create_tags.outputs.version_tag }}
       workspace: 'production'
     secrets:
       aws_access_key_id_actions: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}

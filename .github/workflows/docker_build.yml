@@ -69,12 +69,13 @@ jobs:
       - name: Push Container
         env:
           ECR_REGISTRY: ${{ steps.login_ecr.outputs.registry }}
-          ECR_REPOSITORY: integrations/${{ matrix.lambda_name.name }}
+          ECR_REPOSITORY: integrations
+          IMAGE_NAME: ${{ matrix.lambda_name.name }}
           BRANCH_NAME: ${{ inputs.branch_name }}
+          IMAGE_TAG: ${{ inputs.tag }}
         run: |
-          docker tag ${{ matrix.lambda_name.name }}:latest $ECR_REGISTRY/$ECR_REPOSITORY:${{ inputs.tag }}
-          if [ $BRANCH_NAME == "main" ]; then
-            docker tag ${{ matrix.lambda_name.name }}:latest $ECR_REGISTRY/$ECR_REPOSITORY:latest
-            docker tag ${{ matrix.lambda_name.name }}:latest $ECR_REGISTRY/$ECR_REPOSITORY:main-${{ inputs.tag }}
+          docker tag $IMAGE_NAME:latest $ECR_REGISTRY/$ECR_REPOSITORY/$IMAGE_NAME:$IMAGE_TAG
+          if [[ "${BRANCH_NAME}" == "main" ]]; then
+            docker tag $IMAGE_NAME:latest $ECR_REGISTRY/$ECR_REPOSITORY/$IMAGE_NAME:latest
           fi
-            docker push --all-tags $ECR_REGISTRY/$ECR_REPOSITORY
+          docker push --all-tags $ECR_REGISTRY/$ECR_REPOSITORY/$IMAGE_NAME
