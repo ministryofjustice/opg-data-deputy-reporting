@@ -33,7 +33,7 @@ jobs:
     name: Run unit tests
     steps:
       - name: Checkout code
-        uses: actions/checkout@72f2cec99f417b1a1c5e2e88945068983b7965f9
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
       - name: Run unit tests
         run: |
           docker-compose up unit-tests
@@ -52,7 +52,7 @@ jobs:
     name: Run pact checks
     steps:
       - name: Checkout code
-        uses: actions/checkout@72f2cec99f417b1a1c5e2e88945068983b7965f9
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
       - name: Copy in the openapidoc
         run: ./getopenapidoc
         working-directory: ./mock_integration_rest_api
@@ -85,7 +85,7 @@ jobs:
         shell: bash
         run: |
           echo "branch_raw=$(echo ${GITHUB_HEAD_REF:-${GITHUB_REF##*/}})" >> $GITHUB_OUTPUT
-          echo "branch_formatted=$(echo ${GITHUB_HEAD_REF:-${GITHUB_REF##*/}} | tr -cd '[:alnum:]' | tr '[:upper:]' '[:lower:]' | cut -b 1-12)" >> $GITHUB_OUTPUT
+          echo "branch_formatted=$(echo ${GITHUB_HEAD_REF:-${GITHUB_REF##*/}} | awk -F '-' '{print $1 $2}' | awk -F '[^[:alnum:]]+' '{print $1}' | tr -cd '[:alnum:]' | tr '[:upper:]' '[:lower:]' | cut -c 1-10)" >> $GITHUB_OUTPUT
         id: extract_branch
 
   create_tags:
@@ -103,7 +103,7 @@ jobs:
     uses: ./.github/workflows/docker_build.yml
     with:
       lambda_names: '[{"name": "deputy-reporting-lambda", "path": "lambda_functions/v2"}, {"name": "deputy-reporting-mock-sirius", "path": "mock_sirius"}]'
-      tag: ${{ needs.create_tags.outputs.version_tag }}
+      tag: ${{ needs.branch_name.outputs.formatted_branch }}-${{ needs.create_tags.outputs.version_tag }}
       branch_name: ${{ needs.branch_name.outputs.formatted_branch }}
     secrets:
       aws_access_key_id_actions: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
@@ -115,7 +115,7 @@ jobs:
     uses: ./.github/workflows/terraform_job.yml
     with:
       terraform_path: 'infrastructure/environment'
-      image_tag: ${{ needs.create_tags.outputs.version_tag }}
+      image_tag: ${{ needs.branch_name.outputs.formatted_branch }}-${{ needs.create_tags.outputs.version_tag }}
       workspace: ${{ needs.branch_name.outputs.formatted_branch }}
       mock_sirius: "1"
     secrets:
@@ -128,7 +128,7 @@ jobs:
     needs: ['terraform_plan_apply_with_mock', 'branch_name']
     steps:
       - name: Checkout code
-        uses: actions/checkout@72f2cec99f417b1a1c5e2e88945068983b7965f9
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
       - name: Build integration tests container
         run: docker-compose -f docker-compose.yml build integration-tests
         id: build_integration_tests
@@ -156,7 +156,7 @@ jobs:
     uses: ./.github/workflows/terraform_job.yml
     with:
       terraform_path: 'infrastructure/environment'
-      image_tag: ${{ needs.create_tags.outputs.version_tag }}
+      image_tag: ${{ needs.branch_name.outputs.formatted_branch }}-${{ needs.create_tags.outputs.version_tag }}
       workspace: ${{ needs.branch_name.outputs.formatted_branch }}
     secrets:
       aws_access_key_id_actions: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
@@ -168,7 +168,7 @@ jobs:
     needs: ['terraform_plan_apply', 'branch_name']
     steps:
       - name: Checkout code
-        uses: actions/checkout@72f2cec99f417b1a1c5e2e88945068983b7965f9
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
       - name: Install workspace manager
         run: |
           wget https://github.com/TomTucka/terraform-workspace-manager/releases/download/v0.3.1/terraform-workspace-manager_Linux_x86_64.tar.gz -O $HOME/terraform-workspace-manager.tar.gz
