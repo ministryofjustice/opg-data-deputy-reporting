@@ -6,7 +6,7 @@ RUN apk add --no-cache \
     libstdc++ \
     elfutils-dev
 
-RUN apk update && apk upgrade expat
+RUN apk update && apk upgrade
 
 FROM python-alpine as build-image
 
