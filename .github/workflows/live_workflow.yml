@@ -87,7 +87,7 @@ jobs:
 
   terraform_plan_apply_development:
     name: Terraform Environment Development
-    needs: ['docker_build_scan_push', 'create_tags', 'terraform_plan_apply_account_development']
+    needs: ['docker_build_scan_push', 'create_tags', 'branch_name', 'terraform_plan_apply_account_development']
     uses: ./.github/workflows/terraform_job.yml
     with:
       terraform_path: 'infrastructure/environment'
@@ -110,7 +110,7 @@ jobs:
 
   terraform_plan_apply_preproduction:
     name: Terraform Environment Preproduction
-    needs: ['create_tags', 'terraform_plan_apply_account_preproduction']
+    needs: ['create_tags', 'branch_name', 'terraform_plan_apply_account_preproduction']
     uses: ./.github/workflows/terraform_job.yml
     with:
       terraform_path: 'infrastructure/environment'
@@ -133,7 +133,7 @@ jobs:
 
   terraform_plan_apply_production:
     name: Terraform Environment Production
-    needs: ['create_tags', 'terraform_plan_apply_account_production']
+    needs: ['create_tags', 'branch_name', 'terraform_plan_apply_account_production']
     uses: ./.github/workflows/terraform_job.yml
     with:
       terraform_path: 'infrastructure/environment'
