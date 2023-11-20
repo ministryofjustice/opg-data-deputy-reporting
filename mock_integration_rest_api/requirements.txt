@@ -1,6 +1,6 @@
 pyjwt==2.8.0
-boto3==1.28.50
+boto3==1.29.2
 requests==2.31.0
 connexion==2.14.2
-moto==4.2.3
+moto==4.2.9
 flask==2.2.5
