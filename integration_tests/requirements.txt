@@ -1,7 +1,7 @@
 pytest==7.4.3
 pytest-cases==3.8.1
 requests_aws4auth==1.2.3
-boto3==1.29.2
+boto3==1.29.4
 requests==2.31.0
 faker==4.18.0
 click==7.1.2
