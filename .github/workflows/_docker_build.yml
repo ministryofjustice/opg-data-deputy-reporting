@@ -9,7 +9,7 @@ on:
         description: 'Tag for docker image'
         required: true
         type: string
-      branch_name:
+      build_identifier:
         description: 'Branch we are on'
         required: true
         type: string
@@ -71,11 +71,11 @@ jobs:
           ECR_REGISTRY: ${{ steps.login_ecr.outputs.registry }}
           ECR_REPOSITORY: integrations
           IMAGE_NAME: ${{ matrix.lambda_name.name }}
-          BRANCH_NAME: ${{ inputs.branch_name }}
+          BUILD_IDENTIFIER: ${{ inputs.build_identifier }}
           IMAGE_TAG: ${{ inputs.tag }}
         run: |
           docker tag $IMAGE_NAME:latest $ECR_REGISTRY/$ECR_REPOSITORY/$IMAGE_NAME:$IMAGE_TAG
-          if [[ "${BRANCH_NAME}" == "main" ]]; then
+          if [[ "${BUILD_IDENTIFIER}" == "main" ]]; then
             docker tag $IMAGE_NAME:latest $ECR_REGISTRY/$ECR_REPOSITORY/$IMAGE_NAME:latest
           fi
           docker push --all-tags $ECR_REGISTRY/$ECR_REPOSITORY/$IMAGE_NAME
