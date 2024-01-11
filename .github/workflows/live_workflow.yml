@@ -18,68 +18,39 @@ permissions:
   statuses: none
 
 jobs:
-  branch_name:
+  workflow_variables:
     runs-on: ubuntu-latest
-    name: Extract branch name
+    name: output workflow variables
     outputs:
-      raw_branch: ${{ steps.extract_branch.outputs.branch_raw }}
-      formatted_branch: ${{ steps.extract_branch.outputs.branch_formatted }}
-      pr_body: ${{ steps.pr_details.outputs.pr_body }}
-      pr_title: ${{ steps.pr_details.outputs.pr_title }}
+      build_identifier: "main"
+      version_tag: ${{ steps.semver_tag.outputs.created_tag }}
     steps:
-      - name: Extract branch
-        shell: bash
-        run: |
-          echo "branch_raw=main" >> $GITHUB_OUTPUT
-          echo "branch_formatted=main" >> $GITHUB_OUTPUT
-        id: extract_branch
-      - name: Output PR title and body
-        env:
-          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
-          PR_URL: ${{ github.event.repository.pulls_url }}
-        run: |
-          PR_NUMBER="$(echo "${COMMIT_MESSAGE}" | grep -Eo '#\S+' | tr -d '#')"
-          BASE_PR_URL="$(echo "${PR_URL}" | awk -F'/pulls' '{print $1"/pulls"}')"
-          URL_FINAL="${BASE_PR_URL}/${PR_NUMBER}"
-          echo $URL_FINAL
-          TITLE=$(curl -s $URL_FINAL | jq .title)
-          TITLE="# ${TITLE:1:-1}"
-          BODY=$(curl -s $URL_FINAL | jq .body)
-          BODY=${BODY//'%'/'%25'}
-          BODY=$(echo $BODY | sed '$ ! s/$/\\n/' | tr -d '\n' | sed 's/\\n/\%0A/g')
-          BODY=$(echo $BODY | sed 's/\\r//g')
-          BODY=${BODY:1:-1}
-          echo "pr_body=$(echo ${BODY})" >> $GITHUB_OUTPUT
-          echo "pr_title=$(echo ${TITLE})" >> $GITHUB_OUTPUT
-        id: pr_details
-
-  create_tags:
-    name: Create Tags
-    needs: ['branch_name']
-    uses: ./.github/workflows/tags_job.yml
-    with:
-      branch_name: ${{ needs.branch_name.outputs.raw_branch }}
-    secrets:
-      source_github_token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # pin@v3
+      - name: generate semver tag and release
+        id: semver_tag
+        uses: ministryofjustice/opg-github-actions/.github/actions/semver-tag@v2.5.0
+        with:
+          prerelease: false
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
   docker_build_scan_push:
     name: Build, Scan and Push
-    needs: ['create_tags', 'branch_name']
-    uses: ./.github/workflows/docker_build.yml
+    needs: ['workflow_variables']
+    uses: ./.github/workflows/_docker_build.yml
     with:
       lambda_names: '[{"name": "deputy-reporting-lambda", "path": "lambda_functions/v2"}, {"name": "deputy-reporting-mock-sirius", "path": "mock_sirius"}]'
-      tag: ${{ needs.branch_name.outputs.formatted_branch }}-${{ needs.create_tags.outputs.version_tag }}
-      branch_name: ${{ needs.branch_name.outputs.formatted_branch }}
+      tag: ${{ needs.workflow_variables.outputs.build_identifier }}-${{ needs.workflow_variables.outputs.version_tag }}
+      build_identifier: ${{ needs.workflow_variables.outputs.build_identifier }}
     secrets:
       aws_access_key_id_actions: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
       aws_secret_access_key_actions: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
 
   terraform_plan_apply_account_development:
     name: Terraform Account Development
-    needs: ['create_tags', 'branch_name']
-    uses: ./.github/workflows/terraform_job.yml
+    needs: ['workflow_variables']
+    uses: ./.github/workflows/_terraform.yml
     with:
-      terraform_path: 'infrastructure/account'
+      terraform_path: 'account'
       workspace: 'development'
     secrets:
       aws_access_key_id_actions: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
@@ -87,11 +58,11 @@ jobs:
 
   terraform_plan_apply_development:
     name: Terraform Environment Development
-    needs: ['docker_build_scan_push', 'create_tags', 'branch_name', 'terraform_plan_apply_account_development']
-    uses: ./.github/workflows/terraform_job.yml
+    needs: ['docker_build_scan_push', 'workflow_variables', 'terraform_plan_apply_account_development']
+    uses: ./.github/workflows/_terraform.yml
     with:
-      terraform_path: 'infrastructure/environment'
-      image_tag: ${{ needs.branch_name.outputs.formatted_branch }}-${{ needs.create_tags.outputs.version_tag }}
+      terraform_path: 'environment'
+      image_tag: ${{ needs.workflow_variables.outputs.build_identifier }}-${{ needs.workflow_variables.outputs.version_tag }}
       workspace: 'development'
     secrets:
       aws_access_key_id_actions: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
@@ -99,10 +70,10 @@ jobs:
 
   terraform_plan_apply_account_preproduction:
     name: Terraform Account Preproduction
-    needs: ['create_tags', 'branch_name', 'terraform_plan_apply_development']
-    uses: ./.github/workflows/terraform_job.yml
+    needs: ['workflow_variables', 'terraform_plan_apply_development']
+    uses: ./.github/workflows/_terraform.yml
     with:
-      terraform_path: 'infrastructure/account'
+      terraform_path: 'account'
       workspace: 'preproduction'
     secrets:
       aws_access_key_id_actions: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
@@ -110,11 +81,11 @@ jobs:
 
   terraform_plan_apply_preproduction:
     name: Terraform Environment Preproduction
-    needs: ['create_tags', 'branch_name', 'terraform_plan_apply_account_preproduction']
-    uses: ./.github/workflows/terraform_job.yml
+    needs: ['workflow_variables', 'terraform_plan_apply_account_preproduction']
+    uses: ./.github/workflows/_terraform.yml
     with:
-      terraform_path: 'infrastructure/environment'
-      image_tag: ${{ needs.branch_name.outputs.formatted_branch }}-${{ needs.create_tags.outputs.version_tag }}
+      terraform_path: 'environment'
+      image_tag: ${{ needs.workflow_variables.outputs.build_identifier }}-${{ needs.workflow_variables.outputs.version_tag }}
       workspace: 'preproduction'
     secrets:
       aws_access_key_id_actions: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
@@ -122,10 +93,10 @@ jobs:
 
   terraform_plan_apply_account_production:
     name: Terraform Account Production
-    needs: ['create_tags', 'branch_name', 'terraform_plan_apply_preproduction']
-    uses: ./.github/workflows/terraform_job.yml
+    needs: ['workflow_variables', 'terraform_plan_apply_preproduction']
+    uses: ./.github/workflows/_terraform.yml
     with:
-      terraform_path: 'infrastructure/account'
+      terraform_path: 'account'
       workspace: 'production'
     secrets:
       aws_access_key_id_actions: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
@@ -133,11 +104,11 @@ jobs:
 
   terraform_plan_apply_production:
     name: Terraform Environment Production
-    needs: ['create_tags', 'branch_name', 'terraform_plan_apply_account_production']
-    uses: ./.github/workflows/terraform_job.yml
+    needs: ['workflow_variables', 'terraform_plan_apply_account_production']
+    uses: ./.github/workflows/_terraform.yml
     with:
-      terraform_path: 'infrastructure/environment'
-      image_tag: ${{ needs.branch_name.outputs.formatted_branch }}-${{ needs.create_tags.outputs.version_tag }}
+      terraform_path: 'environment'
+      image_tag: ${{ needs.workflow_variables.outputs.build_identifier }}-${{ needs.workflow_variables.outputs.version_tag }}
       workspace: 'production'
     secrets:
       aws_access_key_id_actions: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
@@ -145,22 +116,8 @@ jobs:
 
   create_release:
     name: Create Release
-    needs: ['terraform_plan_apply_production', 'create_tags', 'branch_name']
+    needs: ['terraform_plan_apply_production', 'workflow_variables']
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
-      - name: Create a release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ needs.create_tags.outputs.version_tag }}
-          release_name: Release ${{ needs.create_tags.outputs.version_tag }}
-          body: |
-            ${{ needs.branch_name.outputs.pr_title }}
-
-            ${{ needs.branch_name.outputs.pr_body }}
-          draft: false
-          prerelease: false

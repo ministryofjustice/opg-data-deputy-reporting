@@ -13,6 +13,11 @@ on:
         description: 'Image tag to use'
         required: false
         type: string
+      protect_workspace:
+        description: 'Whether to protect the workspace'
+        default: "false"
+        required: false
+        type: string
       mock_sirius:
         description: 'Whether to use mock sirius'
         required: false
@@ -34,9 +39,16 @@ jobs:
 
       - uses: unfor19/install-aws-cli-action@e8b481e524a99f37fbd39fdc1dcb3341ab091367
 
-      - uses: hashicorp/setup-terraform@69c00852f1304c321337f45a105731218c2d5544
+      - id: terraform_version
+        name: get terraform version
+        uses: ministryofjustice/opg-github-actions/.github/actions/terraform-version@v2.5.0
         with:
-          terraform_version: 1.2.6
+          terraform_directory: infrastructure/${{ inputs.terraform_path }}
+
+      - uses: hashicorp/setup-terraform@1b93182764c8332e7679b2393cb307cbe7baf9dc # pin@v2.0.0
+        with:
+          terraform_version: ${{ steps.terraform_version.outputs.version }}
+          terraform_wrapper: false
 
       - name: Configure AWS Credentials For Terraform
         uses: aws-actions/configure-aws-credentials@dca38186811c8a0dd295aa416daa974a40eeb950
@@ -50,7 +62,7 @@ jobs:
       - name: Lint Terraform
         id: tf_lint
         run: terraform fmt -check -recursive
-        working-directory: ./${{ inputs.terraform_path }}
+        working-directory: infrastructure/${{ inputs.terraform_path }}
         continue-on-error: true
 
       - name: Output variables
@@ -60,7 +72,7 @@ jobs:
           echo ${{ inputs.workspace }}
           echo ${{ inputs.image_tag }}
           echo ${{ inputs.mock_sirius }}
-        working-directory: ./${{ inputs.terraform_path }}
+        working-directory: infrastructure/${{ inputs.terraform_path }}
         continue-on-error: true
 
       - name: Modify openapi specification
@@ -70,7 +82,7 @@ jobs:
 
       - name: Terraform Init
         run: terraform init -input=false
-        working-directory: ./${{ inputs.terraform_path }}
+        working-directory: infrastructure/${{ inputs.terraform_path }}
 
       - name: Terraform Plan
         env:
@@ -80,7 +92,19 @@ jobs:
         run: |
           terraform workspace show
           terraform plan -input=false -parallelism=30
-        working-directory: ./${{ inputs.terraform_path }}
+        working-directory: infrastructure/${{ inputs.terraform_path }}
+
+      - id: terraform_workspace
+        if: inputs.terraform_path == 'environment' && inputs.protect_workspace == 'true'
+        name: Register workspace
+        uses: ministryofjustice/opg-github-actions/.github/actions/terraform-workspace-manager@v2.5.0
+        with:
+          aws_access_key_id: ${{ secrets.aws_access_key_id_actions }}
+          aws_secret_access_key: ${{ secrets.aws_secret_access_key_actions }}
+          aws_account_id: 288342028542
+          aws_iam_role: integrations-ci
+          register_workspace: ${{ inputs.workspace }}
+          time_to_protect: 3
 
       - name: Terraform Apply Environment
         env:
@@ -88,4 +112,4 @@ jobs:
           TF_VAR_image_tag: ${{ inputs.image_tag }}
           TF_VAR_use_mock_sirius: ${{ inputs.mock_sirius }}
         run: terraform apply -lock-timeout=300s -input=false -auto-approve -parallelism=30
-        working-directory: ./${{ inputs.terraform_path }}
+        working-directory: infrastructure/${{ inputs.terraform_path }}
