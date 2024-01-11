@@ -143,7 +143,7 @@ resource "aws_cloudwatch_metric_alarm" "api_gateway_report_errors" {
   statistic                 = "Sum"
   tags                      = {}
   threshold                 = local.threshold_alert_std
-  treat_missing_data = "notBreaching"
+  treat_missing_data        = "notBreaching"
 }
 
 resource "aws_cloudwatch_log_metric_filter" "api_gateway_supporting_errors" {
