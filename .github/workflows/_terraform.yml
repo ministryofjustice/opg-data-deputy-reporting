@@ -45,7 +45,7 @@ jobs:
         with:
           terraform_directory: infrastructure/${{ inputs.terraform_path }}
 
-      - uses: hashicorp/setup-terraform@1b93182764c8332e7679b2393cb307cbe7baf9dc # pin@v2.0.0
+      - uses: hashicorp/setup-terraform@6ac2b085ea0e6db0783c745d23963c259e0b66ee # pin@v2.0.0
         with:
           terraform_version: ${{ steps.terraform_version.outputs.version }}
           terraform_wrapper: false
