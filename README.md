@@ -4,7 +4,7 @@
 
 Deputy reporting integration with OPG Data: Managed by opg-org-infra &amp; Terraform
 
-### Path specific naming conventions
+### Path specific naming conventions.
 
 Paths are product and environment specific and use delegated domains to create a hierarchy
 to support this implementation.
