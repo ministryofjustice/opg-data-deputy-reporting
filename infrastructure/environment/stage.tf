@@ -34,7 +34,7 @@ module "deploy_v2" {
   source             = "./modules/stage"
   account_name       = local.account.account_mapping
   api_name           = local.api_name
-  aws_subnet_ids     = data.aws_subnet_ids.private.ids
+  aws_subnet_ids     = data.aws_subnets.private.ids
   domain_name        = aws_api_gateway_domain_name.sirius_deputy_reporting
   environment        = local.environment
   flaskapp_lambda    = module.lamdba_flask_v2.lambda
