@@ -27,6 +27,6 @@ module "lamdba_flask_v2" {
   environment        = local.environment
   rest_api           = aws_api_gateway_rest_api.deputy_reporting
   target_environment = local.target_environment
-  aws_subnet_ids     = data.aws_subnet_ids.private.ids
+  aws_subnet_ids     = data.aws_subnets.private.ids
   memory             = 1024
 }
