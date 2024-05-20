@@ -28,7 +28,7 @@ jobs:
       build_identifier: ${{ steps.variables.outputs.build_identifier }}
       version_tag: ${{ steps.semver_tag.outputs.created_tag }}
     steps:
-      - uses: actions/checkout@44c2b7a8a4ea60a981eaca3cf939b5f4305c123b # pin@v3
+      - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # pin@v3
       - name: extract variables for workflow
         id: variables
         env:
@@ -59,7 +59,7 @@ jobs:
     name: Run unit tests
     steps:
       - name: Checkout code
-        uses: actions/checkout@44c2b7a8a4ea60a981eaca3cf939b5f4305c123b
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
       - name: Run unit tests
         run: |
           docker-compose up unit-tests
@@ -78,7 +78,7 @@ jobs:
     name: Run pact checks
     steps:
       - name: Checkout code
-        uses: actions/checkout@44c2b7a8a4ea60a981eaca3cf939b5f4305c123b
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
       - name: Copy in the openapidoc
         run: ./getopenapidoc
         working-directory: ./mock_integration_rest_api
@@ -132,7 +132,7 @@ jobs:
     needs: ['terraform_plan_apply_with_mock', 'workflow_variables']
     steps:
       - name: Checkout code
-        uses: actions/checkout@44c2b7a8a4ea60a981eaca3cf939b5f4305c123b
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
       - name: Build integration tests container
         run: docker-compose -f docker-compose.yml build integration-tests
         id: build_integration_tests
@@ -172,7 +172,7 @@ jobs:
     needs: ['terraform_plan_apply', 'workflow_variables']
     steps:
       - name: Checkout code
-        uses: actions/checkout@44c2b7a8a4ea60a981eaca3cf939b5f4305c123b
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
       - name: Install workspace manager
         run: |
           wget https://github.com/ministryofjustice/opg-terraform-workspace-manager/releases/download/v0.3.2/opg-terraform-workspace-manager_Linux_x86_64.tar.gz -O $HOME/terraform-workspace-manager.tar.gz
