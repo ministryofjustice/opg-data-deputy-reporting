@@ -166,6 +166,18 @@ jobs:
       aws_access_key_id_actions: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
       aws_secret_access_key_actions: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
 
+  health_check:
+    name: Health Check
+    needs: ['terraform_plan_apply']
+    uses: ./.github/workflows/_health_check.yml
+    with:
+      environment_prefix: 'environment'
+      digideps_account: ${{ needs.workflow_variables.outputs.build_identifier }}-${{ needs.workflow_variables.outputs.version_tag }}
+      role: ''
+    secrets:
+      aws_access_key_id_actions: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+      aws_secret_access_key_actions: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+
   workflow_complete:
     name: Complete Workflow Steps
     runs-on: ubuntu-latest
