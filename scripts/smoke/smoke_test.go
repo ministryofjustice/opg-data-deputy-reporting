@@ -58,7 +58,7 @@ func TestHealthCheck(t *testing.T) {
 	}
 	defer apiGatewayResponse.Body.Close()
 
-	assert.Equal(t, apiGatewayResponse.StatusCode, 200)
+	assert.Equal(t, 200, apiGatewayResponse.StatusCode)
 
 	bytesBuffer := new(bytes.Buffer)
 	bytesBuffer.ReadFrom(apiGatewayResponse.Body)
