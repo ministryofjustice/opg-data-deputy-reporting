@@ -159,7 +159,7 @@ jobs:
     needs: ['integration_tests']
     uses: ./.github/workflows/_health_check.yml
     with:
-      environment_prefix: 'ddls260234.dev.'
+      environment_prefix: 'dev.'
       digideps_account: 248804316466
       sirius_account: 288342028542
       role: 'sirius-files-sync.ddls2601619'
