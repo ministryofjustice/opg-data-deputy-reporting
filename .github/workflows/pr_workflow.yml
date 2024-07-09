@@ -121,7 +121,7 @@ jobs:
       image_tag: ${{ needs.workflow_variables.outputs.build_identifier }}-${{ needs.workflow_variables.outputs.version_tag }}
       workspace: ${{ needs.workflow_variables.outputs.build_identifier }}
       mock_sirius: "1"
-      protect_workspace: "true"
+      protect_workspace: true
     secrets:
       aws_access_key_id_actions: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
       aws_secret_access_key_actions: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
@@ -154,26 +154,27 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
         id: run_integration_tests
 
+  health_check:
+    name: Health Check
+    needs: ['integration_tests']
+    uses: ./.github/workflows/_health_check.yml
+    with:
+      environment_prefix: 'ddls260234.dev.'
+      digideps_account: 248804316466
+      sirius_account: 288342028542
+      role: 'sirius-files-sync.ddls2601619'
+    secrets:
+      aws_access_key_id_actions: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+      aws_secret_access_key_actions: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+
   terraform_plan_apply:
     name: Terraform Environment
-    needs: ['integration_tests', 'workflow_variables']
+    needs: ['integration_tests', 'workflow_variables', 'health_check']
     uses: ./.github/workflows/_terraform.yml
     with:
       terraform_path: 'environment'
       image_tag: ${{ needs.workflow_variables.outputs.build_identifier }}-${{ needs.workflow_variables.outputs.version_tag }}
       workspace: ${{ needs.workflow_variables.outputs.build_identifier }}
-    secrets:
-      aws_access_key_id_actions: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
-      aws_secret_access_key_actions: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
-
-  health_check:
-    name: Health Check
-    needs: ['terraform_plan_apply']
-    uses: ./.github/workflows/_health_check.yml
-    with:
-      environment_prefix: 'environment'
-      digideps_account: ${{ needs.workflow_variables.outputs.build_identifier }}-${{ needs.workflow_variables.outputs.version_tag }}
-      role: ''
     secrets:
       aws_access_key_id_actions: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
       aws_secret_access_key_actions: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}

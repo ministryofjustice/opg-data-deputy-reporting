@@ -6,7 +6,7 @@ on:
         required: true
         type: string
       sirius_account:
-        description: 'Sirius cccount ID to use'
+        description: 'Sirius account ID to use'
         required: true
         type: string
       digideps_account:
