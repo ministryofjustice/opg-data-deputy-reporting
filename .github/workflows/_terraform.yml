@@ -15,9 +15,9 @@ on:
         type: string
       protect_workspace:
         description: 'Whether to protect the workspace'
-        default: "false"
+        default: false
         required: false
-        type: string
+        type: boolean
       mock_sirius:
         description: 'Whether to use mock sirius'
         required: false
@@ -95,7 +95,7 @@ jobs:
         working-directory: infrastructure/${{ inputs.terraform_path }}
 
       - id: terraform_workspace
-        if: inputs.terraform_path == 'environment' && inputs.protect_workspace == 'true'
+        if: inputs.terraform_path == 'environment' && inputs.protect_workspace
         name: Register workspace
         uses: ministryofjustice/opg-github-actions/.github/actions/terraform-workspace-manager@v2.5.0
         with:
