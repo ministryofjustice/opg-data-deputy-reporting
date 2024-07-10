@@ -1,4 +1,3 @@
-import json
 from pprint import pprint
 
 swagger_errors = {

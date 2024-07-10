@@ -37,7 +37,11 @@ def try_request():
     token = credentials.token
 
     auth = AWS4Auth(
-        access_key, secret_key, "eu-west-1", "execute-api", session_token=token,
+        access_key,
+        secret_key,
+        "eu-west-1",
+        "execute-api",
+        session_token=token,
     )
 
     method = "PUT"
