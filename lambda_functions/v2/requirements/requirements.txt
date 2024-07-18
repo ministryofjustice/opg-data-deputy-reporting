@@ -1,5 +1,5 @@
-awslambdaric==2.0.8
+awslambdaric==2.0.12
 pyjwt==2.8.0
-boto3==1.29.6
+boto3~=1.34
 flask==2.3.3
 requests==2.32.2

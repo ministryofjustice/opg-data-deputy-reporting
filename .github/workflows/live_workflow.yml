@@ -94,9 +94,22 @@ jobs:
       aws_access_key_id_actions: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
       aws_secret_access_key_actions: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
 
+  health_check_preproduction:
+    name: Health Check Preproduction
+    needs: ['terraform_plan_apply_preproduction']
+    uses: ./.github/workflows/_health_check.yml
+    with:
+      environment_prefix: 'pre.'
+      digideps_account: 454262938596
+      sirius_account: 492687888235
+      role: 'sirius-files-sync.preproduction'
+    secrets:
+      aws_access_key_id_actions: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+      aws_secret_access_key_actions: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+
   terraform_plan_apply_account_production:
     name: Terraform Account Production
-    needs: ['workflow_variables', 'terraform_plan_apply_preproduction']
+    needs: ['workflow_variables', 'health_check_preproduction']
     uses: ./.github/workflows/_terraform.yml
     with:
       terraform_path: 'account'
@@ -117,10 +130,23 @@ jobs:
       aws_access_key_id_actions: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
       aws_secret_access_key_actions: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
 
-  create_release:
-    name: Create Release
-    needs: ['terraform_plan_apply_production', 'workflow_variables']
+  health_check_production:
+    name: Health Check Production
+    needs: ['terraform_plan_apply_production']
+    uses: ./.github/workflows/_health_check.yml
+    with:
+      environment_prefix: ''
+      digideps_account: 515688267891
+      sirius_account: 649098267436
+      role: 'sirius-files-sync.production02'
+    secrets:
+      aws_access_key_id_actions: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+      aws_secret_access_key_actions: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+
+  complete_workflow:
+    name: Complete Workflow Steps
+    needs: ['health_check_production', 'workflow_variables']
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+      - name: workflow complete
+        run: echo "Complete Workflow"
