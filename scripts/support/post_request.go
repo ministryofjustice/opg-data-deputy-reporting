@@ -3,10 +3,11 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"net/http"
-	"time"
-	"strings"
 	"io/ioutil"
+	"net/http"
+	"strings"
+	"time"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -20,20 +21,20 @@ func main() {
 	url := "https://dev.deputy-reporting.api.opg.service.justice.gov.uk/v2/clients/99922299/reports"
 	mysession := session.Must(session.NewSession())
 	creds := stscreds.NewCredentials(mysession, roletoassume)
-	cfg := aws.Config{Credentials: creds,Region: aws.String("eu-west-1")}
+	cfg := aws.Config{Credentials: creds, Region: aws.String("eu-west-1")}
 	sess := session.Must(session.NewSession(&cfg))
 	signer := v4.NewSigner(sess.Config.Credentials)
 
 	json, err := ioutil.ReadFile("report_payload.json") // just pass the file name
 	if err != nil {
-			fmt.Print(err)
+		fmt.Print(err)
 	}
 	str := string(json)
 
-    body := strings.NewReader(str)
+	body := strings.NewReader(str)
 
 	req, _ := http.NewRequest(http.MethodPost, url, body)
-    req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Content-Type", "application/json")
 
 	_, err = signer.Sign(req, body, "execute-api", *cfg.Region, time.Now())
 	if err != nil {
@@ -50,7 +51,7 @@ func main() {
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(res.Body)
 	newStr := buf.String()
-    fmt.Println(res.StatusCode)
-    fmt.Println(res.Status)
+	fmt.Println(res.StatusCode)
+	fmt.Println(res.Status)
 	fmt.Println(newStr)
 }
