@@ -56,11 +56,11 @@ gateway would send to it to check it responds as expected.
 First bring up the lambda and the mock sirius containers as well as localstack which will be used for local S3.
 
 ```
-docker-compose build mock-lambda mock-sirius localstack
+docker compose build mock-lambda mock-sirius localstack
 ```
 
 ```
-docker-compose up -d mock-lambda
+docker compose up -d mock-lambda
 ```
 
 The curl to the lambda that mimics what is sent by the API gateway is a bit of a funny format and url.
@@ -77,7 +77,7 @@ There will be some future work to mimic the API Gateway fully locally.
 Unit tests can be run through the unit tests container and are also run in the pipeline.
 
 ```
-docker-compose up unit-tests
+docker compose up unit-tests
 ```
 
 ### Integration Tests
@@ -100,7 +100,7 @@ https://github.com/pact-foundation/pact-ruby-standalone/releases/latest
 You can download the latest version to a directory, unzip it and run the individual tools
 in the `/pact/bin` folder from the command line or put them in your PATH.
 First you should put the contract in our local broker. The local broker is spun up as part
-of the `docker-compose up -d` command and you can push in a contract manually from a json file
+of the `docker compose up -d` command and you can push in a contract manually from a json file
 by using the below command (example json included in this repo):
 
 ```

@@ -62,7 +62,7 @@ jobs:
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
       - name: Run unit tests
         run: |
-          docker-compose up unit-tests
+          docker compose up unit-tests
           export DOCKER_EXIT_CODE=$(docker inspect $(docker ps -a | head -2 | tail -1 | awk '{print $1}') --format='{{.State.ExitCode}}')
           if [ "$DOCKER_EXIT_CODE" = "0" ]
           then
@@ -83,18 +83,18 @@ jobs:
         run: ./getopenapidoc
         working-directory: ./mock_integration_rest_api
       - name: Build images needed
-        run: docker-compose -f docker-compose.pact.yml build mock-integration-rest-api check-pact-deployable mock-sirius-backend
+        run: docker compose -f docker-compose.pact.yml build mock-integration-rest-api check-pact-deployable mock-sirius-backend
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
       - name: Bring up mocks
         run: |
-          docker-compose -f docker-compose.pact.yml up -d mock-integration-rest-api
+          docker compose -f docker-compose.pact.yml up -d mock-integration-rest-api
           sleep 10
       - name: run check pact
         run: |
           export GIT_COMMIT_PROVIDER=${GIT_COMMIT_PROVIDER_LONG:0:7}
-          docker-compose -f docker-compose.pact.yml up check-pact-deployable
+          docker compose -f docker-compose.pact.yml up check-pact-deployable
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
@@ -134,11 +134,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
       - name: Build integration tests container
-        run: docker-compose -f docker-compose.yml build integration-tests
+        run: docker compose -f docker-compose.yml build integration-tests
         id: build_integration_tests
       - name: Run integration tests
         run: |
-          docker-compose -f docker-compose.yml up integration-tests
+          docker compose -f docker-compose.yml up integration-tests
           export DOCKER_EXIT_CODE=$(docker inspect $(docker ps -a | head -2 | tail -1 | awk '{print $1}') --format='{{.State.ExitCode}}')
           if [ "$DOCKER_EXIT_CODE" = "0" ]
           then
