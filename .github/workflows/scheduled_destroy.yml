@@ -21,7 +21,7 @@ jobs:
   terraform_environment_cleanup:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+      - uses: actions/checkout@9a9194f87191a7e9055e3e9b95b8cfb13023bb08
 
       - uses: unfor19/install-aws-cli-action@27d6061dae5d39e89be4d2246824f15e111a7e06
 
@@ -31,13 +31,13 @@ jobs:
         with:
           terraform_directory: infrastructure/environment
 
-      - uses: hashicorp/setup-terraform@7f4493e15578a47490e79892b308bf23dee56c45
+      - uses: hashicorp/setup-terraform@a0b6ede12c06dbc21b9ea1f225a4121a2f203c69
         with:
           terraform_version: ${{ steps.terraform_version.outputs.version }}
           terraform_wrapper: false
 
       - name: Configure AWS Credentials For Terraform
-        uses: aws-actions/configure-aws-credentials@12e3392609eaaceb7ae6191b3f54bbcb85b5002b
+        uses: aws-actions/configure-aws-credentials@ead1e6af28a20f26cc47437fa7e4c8357409ef24
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
