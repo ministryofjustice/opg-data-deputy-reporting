@@ -6,6 +6,20 @@ data "aws_sns_topic" "deputy_reporting_slack" {
   name = "deputy-reporting-slack-alerts"
 }
 
+resource "aws_cloudwatch_log_metric_filter" "api_gateway_4xx_errors_specific_uris" {
+  name           = "api-gateway-4xx-deputy-reporting-${local.environment}"
+  log_group_name = "API-Gateway-Execution-Logs-deputy-reporting-${local.environment}-v2"
+
+  pattern = "{ ($.status = \"4*\") && (($.resourcePath = \"*/clients/*/reports*\") || ($.resourcePath = \"*/healthcheck\")) }"
+
+  metric_transformation {
+    name          = "DeputyReportingReport4xx.${local.environment}"
+    namespace     = "Integrations/Error"
+    value         = "1"
+    default_value = "0"
+  }
+}
+
 resource "aws_cloudwatch_metric_alarm" "rest_api_4xx_errors" {
   actions_enabled = true
   alarm_actions = [
@@ -21,8 +35,8 @@ resource "aws_cloudwatch_metric_alarm" "rest_api_4xx_errors" {
   }
   evaluation_periods        = 1
   insufficient_data_actions = []
-  metric_name               = "4XXError"
-  namespace                 = "AWS/ApiGateway"
+  metric_name               = "DeputyReportingReport4xx.${local.environment}"
+  namespace                 = "Integrations/Error"
   ok_actions                = [data.aws_sns_topic.rest_api.arn]
   period                    = 60
   statistic                 = "Sum"
@@ -112,7 +126,7 @@ resource "aws_cloudwatch_metric_alarm" "s3_error" {
 
 resource "aws_cloudwatch_log_metric_filter" "api_gateway_report_errors" {
   name           = "deputy-reporting-gateway-report-errors.${local.environment}"
-  pattern        = "\"\\\"status\\\":\\\"5\" \"\\\"resourcePath\\\":\\\"/clients/{caseref}/reports\\\"\""
+  pattern        = "{ ($.status = \"5*\") && ($.resourcePath = \"*/clients/*/reports\") }"
   log_group_name = "API-Gateway-Execution-Logs-deputy-reporting-${local.environment}-v2"
 
   metric_transformation {
@@ -148,7 +162,7 @@ resource "aws_cloudwatch_metric_alarm" "api_gateway_report_errors" {
 
 resource "aws_cloudwatch_log_metric_filter" "api_gateway_supporting_errors" {
   name           = "deputy-reporting-gateway-supporting-errors.${local.environment}"
-  pattern        = "\"\\\"status\\\":\\\"5\" \"\\\"resourcePath\\\":\\\"/clients/{caseref}/reports/{id}/supportingdocuments\\\"\""
+  pattern        = "{ ($.status = \"5*\") && ($.resourcePath = \"*/clients/*/reports/*/supportingdocuments*\") }"
   log_group_name = "API-Gateway-Execution-Logs-deputy-reporting-${local.environment}-v2"
 
   metric_transformation {
@@ -184,7 +198,7 @@ resource "aws_cloudwatch_metric_alarm" "api_gateway_supporting_errors" {
 
 resource "aws_cloudwatch_log_metric_filter" "api_gateway_checklist_errors" {
   name           = "deputy-reporting-gateway-checklist-errors.${local.environment}"
-  pattern        = "\"\\\"status\\\":\\\"5\" \"\\\"resourcePath\\\":\\\"/clients/{caseref}/reports/{id}/checklists\""
+  pattern        = "{ ($.status = \"5*\") && ($.resourcePath = \"*/clients/*/reports/*/checklists*\") }"
   log_group_name = "API-Gateway-Execution-Logs-deputy-reporting-${local.environment}-v2"
 
   metric_transformation {
