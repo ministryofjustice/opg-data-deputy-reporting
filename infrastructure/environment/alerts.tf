@@ -6,6 +6,20 @@ data "aws_sns_topic" "deputy_reporting_slack" {
   name = "deputy-reporting-slack-alerts"
 }
 
+#resource "aws_cloudwatch_log_metric_filter" "rest_api_filtered_4xx_errors" {
+#  name           = "APIGatewayDeputyReporting4xx.${local.environment}"
+#  pattern        = "?\"\"status\":\"4\" ?\"[crit]\" ?\"[alert]\" ?\"[emerg]\""
+#  log_group_name = aws_cloudwatch_log_group.opg_digi_deps.name
+#
+#  metric_transformation {
+#    name          = "PHPErrors.${local.environment}"
+#    namespace     = "DigiDeps/Error"
+#    value         = "1"
+#    default_value = "0"
+#  }
+#}
+
+
 resource "aws_cloudwatch_metric_alarm" "rest_api_4xx_errors" {
   actions_enabled = true
   alarm_actions = [
