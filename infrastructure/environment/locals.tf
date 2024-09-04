@@ -29,7 +29,7 @@ locals {
   }
 
   threshold_alert_std   = terraform.workspace == "production" ? 1 : 100
-  threshold_alert_4xx   = terraform.workspace == "production" ? 10 : 100
+  threshold_alert_4xx   = terraform.workspace == "production" ? 1 : 100
   threshold_alert_count = terraform.workspace == "production" ? 150 : 500
 
   target_environment = local.account.target_environment
