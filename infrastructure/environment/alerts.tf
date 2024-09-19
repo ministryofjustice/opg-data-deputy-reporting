@@ -28,18 +28,18 @@ resource "aws_cloudwatch_metric_alarm" "rest_api_4xx_errors" {
   ]
   alarm_name                = "deputy-reporting-${local.environment}-4xx-errors"
   alarm_description         = "SERVICE: ${local.service}`\n`ENVIRONMENT: ${terraform.workspace}`\n`ERROR: 4xx"
+  metric_name               = aws_cloudwatch_log_metric_filter.api_gateway_4xx_errors_specific_uris.metric_transformation[0].name
+  namespace                 = aws_cloudwatch_log_metric_filter.api_gateway_4xx_errors_specific_uris.metric_transformation[0].namespace
   comparison_operator       = "GreaterThanOrEqualToThreshold"
   datapoints_to_alarm       = 1
   evaluation_periods        = 1
-  insufficient_data_actions = []
-  metric_name               = "DeputyReporting4xx.${local.environment}"
-  namespace                 = "Integrations/Error"
-  ok_actions                = [data.aws_sns_topic.rest_api.arn]
   period                    = 60
-  statistic                 = "Sum"
-  tags                      = {}
   threshold                 = local.threshold_alert_std
+  statistic                 = "Sum"
+  insufficient_data_actions = []
   treat_missing_data        = "notBreaching"
+  ok_actions                = [data.aws_sns_topic.rest_api.arn]
+  tags                      = local.default_tags
 }
 
 resource "aws_cloudwatch_metric_alarm" "rest_api_5xx_errors" {
