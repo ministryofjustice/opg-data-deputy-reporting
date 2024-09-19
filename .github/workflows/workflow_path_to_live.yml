@@ -41,12 +41,8 @@ jobs:
     needs: ['workflow_variables']
     uses: ./.github/workflows/_docker_build.yml
     with:
-      lambda_names: '[{"name": "deputy-reporting-lambda", "path": "lambda_functions/v2"}, {"name": "deputy-reporting-mock-sirius", "path": "mock_sirius"}]'
-      tag: ${{ needs.workflow_variables.outputs.build_identifier }}-${{ needs.workflow_variables.outputs.version_tag }}
+      tag: ${{ needs.workflow_variables.outputs.version_tag }}
       build_identifier: ${{ needs.workflow_variables.outputs.build_identifier }}
-    secrets:
-      aws_access_key_id_actions: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
-      aws_secret_access_key_actions: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
 
   terraform_plan_apply_account_development:
     name: Terraform Account Development
@@ -99,13 +95,11 @@ jobs:
     needs: ['terraform_plan_apply_preproduction']
     uses: ./.github/workflows/_health_check.yml
     with:
+      sirius_account_name: 'preproduction'
       environment_prefix: 'pre.'
       digideps_account: 454262938596
       sirius_account: 492687888235
       role: 'sirius-files-sync.preproduction'
-    secrets:
-      aws_access_key_id_actions: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
-      aws_secret_access_key_actions: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
 
   terraform_plan_apply_account_production:
     name: Terraform Account Production
@@ -136,12 +130,10 @@ jobs:
     uses: ./.github/workflows/_health_check.yml
     with:
       environment_prefix: ''
+      sirius_account_name: 'production'
       digideps_account: 515688267891
       sirius_account: 649098267436
       role: 'sirius-files-sync.production02'
-    secrets:
-      aws_access_key_id_actions: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
-      aws_secret_access_key_actions: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
 
   complete_workflow:
     name: Complete Workflow Steps
