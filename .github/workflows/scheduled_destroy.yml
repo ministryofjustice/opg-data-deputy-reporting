@@ -36,14 +36,13 @@ jobs:
           terraform_version: ${{ steps.terraform_version.outputs.version }}
           terraform_wrapper: false
 
-      - name: Configure AWS Credentials For Terraform
+      - name: Configure AWS OIDC Credentials For Terraform
         uses: aws-actions/configure-aws-credentials@ead1e6af28a20f26cc47437fa7e4c8357409ef24
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+          role-to-assume: "arn:aws:iam::631181914621:role/oidc-data-deputy-reporting-development"
+          role-session-name: OPGDeputyReportingGithubAction
           aws-region: eu-west-1
           role-duration-seconds: 3600
-          role-session-name: OPGDeputyReportingTerraformGithubAction
 
       - name: Install Terraform Workspace Manager
         run: |

@@ -15,17 +15,25 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// Function to assume an AWS role and return the credentials
-func assumeRole(roleToAssume string) *aws.Config {
+func assumeRoleWithChaining(baseRoleToAssume, finalRoleToAssume string) *aws.Config {
+	// Create a session to assume the base role
 	sess := session.Must(session.NewSession())
-	creds := stscreds.NewCredentials(sess, roleToAssume)
+	baseCreds := stscreds.NewCredentials(sess, baseRoleToAssume)
+
+	// Create a session using the base role's credentials
+	chainedSess := session.Must(session.NewSession(&aws.Config{
+		Credentials: baseCreds,
+	}))
+
+	// Assume the final role
+	finalCreds := stscreds.NewCredentials(chainedSess, finalRoleToAssume)
+
 	return &aws.Config{
-		Credentials: creds,
+		Credentials: finalCreds,
 		Region:      aws.String("eu-west-1"),
 	}
 }
 
-// Function to sign an HTTP request using AWS credentials
 func signRequest(httpRequest *http.Request, cfg *aws.Config) error {
 	sess := session.Must(session.NewSession(cfg))
 	signer := v4.NewSigner(sess.Config.Credentials)
@@ -35,18 +43,26 @@ func signRequest(httpRequest *http.Request, cfg *aws.Config) error {
 
 func TestHealthCheck(t *testing.T) {
 	environmentPrefix := os.Getenv("ENVIRONMENT_PREFIX")
-	accountId := os.Getenv("ACCOUNT")
-	role := os.Getenv("ROLE")
 
-	roleToAssume := fmt.Sprintf("arn:aws:iam::%s:role/%s", accountId, role)
+	siriusAccountId := os.Getenv("SIRIUS_ACCOUNT")
+	baseRole := os.Getenv("BASE_ROLE")
+
+	digidepsAccountId := os.Getenv("DIGIDEPS_ACCOUNT")
+	finalRole := os.Getenv("FINAL_ROLE")
+
+	baseRoleToAssume := fmt.Sprintf("arn:aws:iam::%s:role/%s", siriusAccountId, baseRole)
+	finalRoleToAssume := fmt.Sprintf("arn:aws:iam::%s:role/%s", digidepsAccountId, finalRole)
+
+	// URL for the health check endpoint
 	url := fmt.Sprintf("https://%sdeputy-reporting.api.opg.service.justice.gov.uk/v2/healthcheck", environmentPrefix)
 
-	cfg := assumeRole(roleToAssume)
+	cfg := assumeRoleWithChaining(baseRoleToAssume, finalRoleToAssume)
 	httpRequest, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		fmt.Printf("Failed to create request: (%v)\n", err)
 	}
 
+	// Sign the request with the assumed role credentials
 	err = signRequest(httpRequest, cfg)
 	if err != nil {
 		fmt.Printf("Failed to sign request: (%v)\n", err)
