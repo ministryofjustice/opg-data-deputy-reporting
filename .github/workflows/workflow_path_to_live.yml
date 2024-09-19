@@ -52,6 +52,7 @@ jobs:
     with:
       terraform_path: 'account'
       workspace: 'development'
+      environment: 'development'
 
   terraform_plan_apply_development:
     name: Terraform Environment Development
@@ -61,6 +62,7 @@ jobs:
       terraform_path: 'environment'
       image_tag: ${{ needs.workflow_variables.outputs.build_identifier }}-${{ needs.workflow_variables.outputs.version_tag }}
       workspace: 'development'
+      environment: 'development'
 
   terraform_plan_apply_account_preproduction:
     name: Terraform Account Preproduction
@@ -69,6 +71,7 @@ jobs:
     with:
       terraform_path: 'account'
       workspace: 'preproduction'
+      environment: 'preproduction'
 
   terraform_plan_apply_preproduction:
     name: Terraform Environment Preproduction
@@ -78,6 +81,7 @@ jobs:
       terraform_path: 'environment'
       image_tag: ${{ needs.workflow_variables.outputs.build_identifier }}-${{ needs.workflow_variables.outputs.version_tag }}
       workspace: 'preproduction'
+      environment: 'preproduction'
 
   health_check_preproduction:
     name: Health Check Preproduction
@@ -97,6 +101,7 @@ jobs:
     with:
       terraform_path: 'account'
       workspace: 'production'
+      environment: 'production'
 
   terraform_plan_apply_production:
     name: Terraform Environment Production
@@ -106,6 +111,7 @@ jobs:
       terraform_path: 'environment'
       image_tag: ${{ needs.workflow_variables.outputs.build_identifier }}-${{ needs.workflow_variables.outputs.version_tag }}
       workspace: 'production'
+      environment: 'production'
 
   health_check_production:
     name: Health Check Production

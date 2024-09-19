@@ -25,7 +25,7 @@ on:
         type: string
       environment:
         description: 'Environment to use for OIDC'
-        required: false
+        required: true
         type: string
 
 jobs:
