@@ -1,10 +1,6 @@
 on:
   workflow_call:
     inputs:
-      lambda_names:
-        description: 'The name of the lambda Docker container'
-        required: true
-        type: string
       tag:
         description: 'Tag for docker image'
         required: true
@@ -13,11 +9,6 @@ on:
         description: 'Branch we are on'
         required: true
         type: string
-    secrets:
-      aws_access_key_id_actions:
-        required: true
-      aws_secret_access_key_actions:
-        required: true
 
 jobs:
   docker_build_scan_push:
@@ -25,7 +16,12 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        lambda_name: ${{ fromJSON(inputs.lambda_names) }}
+        include:
+          - name: "deputy-reporting-lambda"
+            path: "lambda_functions/v2"
+          - name: "deputy-reporting-mock-sirius"
+            path: "mock_sirius"
+
     steps:
       - name: Check out code
         id: checkout_code
@@ -38,13 +34,13 @@ jobs:
 
       - name: Build Container
         id: build_container
-        run: docker build --file ${{ matrix.lambda_name.path }}/Dockerfile --tag ${{ matrix.lambda_name.name }}:latest ${{ matrix.lambda_name.path }}
+        run: docker build --file ${{ matrix.path }}/Dockerfile --tag ${{ matrix.name }}:latest ${{ matrix.path }}
 
       - name: Trivy Image Vulnerability Scanner
         id: trivy_scan
         uses: aquasecurity/trivy-action@0.14.0
         with:
-          image-ref: ${{ matrix.lambda_name.name }}:latest
+          image-ref: ${{ matrix.name }}:latest
           severity: 'HIGH,CRITICAL'
           format: 'sarif'
           output: 'trivy-results.sarif'
@@ -57,25 +53,26 @@ jobs:
           sarif_file: 'trivy-results.sarif'
 
       - uses: unfor19/install-aws-cli-action@27d6061dae5d39e89be4d2246824f15e111a7e06
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@ead1e6af28a20f26cc47437fa7e4c8357409ef24
+
+      - name: configure OIDC AWS credentials for ECR push
+        uses: aws-actions/configure-aws-credentials@1ceaabc2d4208b18ff52a76e80c3a28df83f0277 # pin@v1.7.0
         with:
-          aws-access-key-id: ${{ secrets.aws_access_key_id_actions }}
-          aws-secret-access-key: ${{ secrets.aws_secret_access_key_actions }}
-          aws-region: eu-west-1
-          role-to-assume: arn:aws:iam::311462405659:role/integrations-ci
+          role-to-assume: arn:aws:iam::311462405659:role/data-deputy-reporting-gh-actions-ecr-push
+          role-session-name: deputy-reporting-github-actions-ecr-push
           role-duration-seconds: 900
-          role-session-name: OPGDeputyReportingGithubAction
+          aws-region: eu-west-1
+
       - name: Login to ECR
         id: login_ecr
         uses: aws-actions/amazon-ecr-login@v1.7.1
         with:
           registries: 311462405659
+
       - name: Push Container
         env:
           ECR_REGISTRY: ${{ steps.login_ecr.outputs.registry }}
           ECR_REPOSITORY: integrations
-          IMAGE_NAME: ${{ matrix.lambda_name.name }}
+          IMAGE_NAME: ${{ matrix.name }}
           BUILD_IDENTIFIER: ${{ inputs.build_identifier }}
           IMAGE_TAG: ${{ inputs.tag }}
         run: |
