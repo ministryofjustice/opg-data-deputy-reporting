@@ -60,7 +60,7 @@ jobs:
     uses: ./.github/workflows/_terraform.yml
     with:
       terraform_path: 'environment'
-      image_tag: ${{ needs.workflow_variables.outputs.build_identifier }}-${{ needs.workflow_variables.outputs.version_tag }}
+      image_tag: ${{ needs.workflow_variables.outputs.version_tag }}
       workspace: 'development'
       environment: 'development'
 
@@ -79,7 +79,7 @@ jobs:
     uses: ./.github/workflows/_terraform.yml
     with:
       terraform_path: 'environment'
-      image_tag: ${{ needs.workflow_variables.outputs.build_identifier }}-${{ needs.workflow_variables.outputs.version_tag }}
+      image_tag: ${{ needs.workflow_variables.outputs.version_tag }}
       workspace: 'preproduction'
       environment: 'preproduction'
 
@@ -109,7 +109,7 @@ jobs:
     uses: ./.github/workflows/_terraform.yml
     with:
       terraform_path: 'environment'
-      image_tag: ${{ needs.workflow_variables.outputs.build_identifier }}-${{ needs.workflow_variables.outputs.version_tag }}
+      image_tag: ${{ needs.workflow_variables.outputs.version_tag }}
       workspace: 'production'
       environment: 'production'
 
