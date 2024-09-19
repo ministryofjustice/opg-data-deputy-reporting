@@ -1,0 +1,47 @@
+on:
+  workflow_call:
+    inputs:
+      workspace:
+        description: 'Workspace for the environment'
+        required: true
+        type: string
+      environment:
+        description: 'Environment for OIDC role'
+        required: true
+        type: string
+
+jobs:
+  integration_tests:
+    name: Run health check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@9a9194f87191a7e9055e3e9b95b8cfb13023bb08
+
+      - name: Build integration tests container
+        run: docker compose -f docker-compose.yml build integration-tests
+        id: build_integration_tests
+
+      - name: Configure AWS OIDC Credentials For Terraform
+        uses: aws-actions/configure-aws-credentials@ead1e6af28a20f26cc47437fa7e4c8357409ef24
+        with:
+          role-to-assume: "arn:aws:iam::631181914621:role/oidc-data-deputy-reporting-${{ inputs.environment }}"
+          role-session-name: OPGDeputyReportingGithubAction
+          aws-region: eu-west-1
+          role-duration-seconds: 3600
+
+      - name: Run integration tests
+        run: |
+          docker compose -f docker-compose.yml up integration-tests
+          export DOCKER_EXIT_CODE=$(docker inspect $(docker ps -a | head -2 | tail -1 | awk '{print $1}') --format='{{.State.ExitCode}}')
+          if [ "$DOCKER_EXIT_CODE" = "0" ]
+          then
+            echo "Tests passed"
+          else
+            echo "Tests failed"
+            exit 1
+          fi
+        env:
+          TF_WORKSPACE: ${{ inputs.workspace }}
+          CI: "true"
+        id: run_integration_tests
