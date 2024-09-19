@@ -23,11 +23,10 @@ on:
         required: false
         default: '0'
         type: string
-    secrets:
-      aws_access_key_id_actions:
-        required: true
-      aws_secret_access_key_actions:
-        required: true
+      environment:
+        description: 'Environment to use for OIDC'
+        required: false
+        type: string
 
 jobs:
   terraform_workflow:
@@ -50,14 +49,13 @@ jobs:
           terraform_version: ${{ steps.terraform_version.outputs.version }}
           terraform_wrapper: false
 
-      - name: Configure AWS Credentials For Terraform
+      - name: Configure AWS OIDC Credentials For Terraform
         uses: aws-actions/configure-aws-credentials@ead1e6af28a20f26cc47437fa7e4c8357409ef24
         with:
-          aws-access-key-id: ${{ secrets.aws_access_key_id_actions }}
-          aws-secret-access-key: ${{ secrets.aws_secret_access_key_actions }}
+          role-to-assume: "arn:aws:iam::631181914621:role/oidc-data-deputy-reporting-${{ inputs.environment }}"
+          role-session-name: OPGDeputyReportingGithubAction
           aws-region: eu-west-1
           role-duration-seconds: 3600
-          role-session-name: OPGDeputyReportingGithubAction
 
       - name: Lint Terraform
         id: tf_lint
@@ -99,12 +97,11 @@ jobs:
         name: Register workspace
         uses: ministryofjustice/opg-github-actions/.github/actions/terraform-workspace-manager@v2.5.0
         with:
-          aws_access_key_id: ${{ secrets.aws_access_key_id_actions }}
-          aws_secret_access_key: ${{ secrets.aws_secret_access_key_actions }}
           aws_account_id: 288342028542
           aws_iam_role: integrations-ci
           register_workspace: ${{ inputs.workspace }}
           time_to_protect: 3
+          oidc_role: arn:aws:iam::631181914621:role/oidc-data-deputy-reporting-${{ inputs.environment }}
 
       - name: Terraform Apply Environment
         env:

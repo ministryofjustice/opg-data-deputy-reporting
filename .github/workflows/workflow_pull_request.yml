@@ -1,0 +1,124 @@
+name: "[Workflow] Pull Request"
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  id-token: write
+  actions: read
+  checks: read
+  contents: write
+  deployments: none
+  issues: none
+  packages: none
+  pull-requests: write
+  repository-projects: none
+  security-events: write
+  statuses: none
+
+jobs:
+  workflow_variables:
+    runs-on: ubuntu-latest
+    name: output workflow variables
+    outputs:
+      build_identifier: ${{ steps.variables.outputs.build_identifier }}
+      version_tag: ${{ steps.semver_tag.outputs.created_tag }}
+    steps:
+      - uses: actions/checkout@9a9194f87191a7e9055e3e9b95b8cfb13023bb08 # pin@v3
+      - name: extract variables for workflow
+        id: variables
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          export BRANCH=$(echo ${GITHUB_HEAD_REF:-${GITHUB_REF##*/}} | awk -F'_' '{print $1}' | tr -cd '[:alnum:]' | tr '[:upper:]' '[:lower:]' | cut -c1-8)
+          echo "build_identifier=$(echo ${BRANCH}${PR_NUMBER})" >> $GITHUB_OUTPUT
+          echo ${build_identifier}
+      - name: generate semver tag and release
+        id: semver_tag
+        uses: ministryofjustice/opg-github-actions/.github/actions/semver-tag@v3.0.6
+        with:
+          prerelease: true
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+  pr-label:
+    runs-on: ubuntu-latest
+    name: Label PR
+    steps:
+      - uses: actions/labeler@main
+        with:
+          configuration-path: ".github/labeller.yml"
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+          sync-labels: true
+
+  unit_tests:
+    runs-on: ubuntu-latest
+    name: Run unit tests
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@9a9194f87191a7e9055e3e9b95b8cfb13023bb08
+      - name: Run unit tests
+        run: |
+          docker compose up unit-tests
+          export DOCKER_EXIT_CODE=$(docker inspect $(docker ps -a | head -2 | tail -1 | awk '{print $1}') --format='{{.State.ExitCode}}')
+          if [ "$DOCKER_EXIT_CODE" = "0" ]
+          then
+            echo "Tests passed"
+          else
+            echo "Tests failed"
+            exit 1
+          fi
+        id: unit_tests
+
+  docker_build_scan_push:
+    name: Build, Scan and Push
+    needs: ['workflow_variables']
+    uses: ./.github/workflows/_docker_build.yml
+    with:
+      tag: ${{ needs.workflow_variables.outputs.version_tag }}
+      build_identifier: ${{ needs.workflow_variables.outputs.build_identifier }}
+
+  terraform_plan_apply_with_mock:
+    name: Terraform Environment with Sirius mock
+    needs: ['docker_build_scan_push', 'unit_tests', 'workflow_variables']
+    uses: ./.github/workflows/_terraform.yml
+    with:
+      terraform_path: 'environment'
+      image_tag: ${{ needs.workflow_variables.outputs.version_tag }}
+      workspace: ${{ needs.workflow_variables.outputs.build_identifier }}
+      mock_sirius: "1"
+      protect_workspace: true
+      environment: development
+
+  integration_tests:
+    name: Integration tests
+    needs: ['terraform_plan_apply_with_mock', 'workflow_variables']
+    uses: ./.github/workflows/_integration_tests.yml
+    with:
+      environment: development
+      workspace: ${{ needs.workflow_variables.outputs.build_identifier }}
+
+  terraform_plan_apply:
+    name: Terraform Environment
+    needs: ['integration_tests', 'workflow_variables']
+    uses: ./.github/workflows/_terraform.yml
+    with:
+      terraform_path: 'environment'
+      image_tag: ${{ needs.workflow_variables.outputs.version_tag }}
+      workspace: ${{ needs.workflow_variables.outputs.build_identifier }}
+      environment: development
+
+  workflow_complete:
+    name: Complete Workflow Steps
+    runs-on: ubuntu-latest
+    needs: ['terraform_plan_apply', 'workflow_variables']
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@9a9194f87191a7e9055e3e9b95b8cfb13023bb08
+
+      - name: Completion message
+        run: echo "Workflow Complete"
