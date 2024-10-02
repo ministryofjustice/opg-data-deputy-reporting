@@ -29,7 +29,7 @@ jobs:
     steps:
       - name: Check out code
         id: checkout_code
-        uses: actions/checkout@9a9194f87191a7e9055e3e9b95b8cfb13023bb08
+        uses: actions/checkout@de5a000abf73b6f4965bd1bcdf8f8d94a56ea815
 
       - name: Configure AWS OIDC Credentials For Health Check
         uses: aws-actions/configure-aws-credentials@909c963c254b4e2e2f5aa6ef17217c4d7a7c4a31
