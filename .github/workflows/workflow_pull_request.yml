@@ -29,7 +29,7 @@ jobs:
       build_identifier: ${{ steps.variables.outputs.build_identifier }}
       version_tag: ${{ steps.semver_tag.outputs.created_tag }}
     steps:
-      - uses: actions/checkout@9a9194f87191a7e9055e3e9b95b8cfb13023bb08 # pin@v3
+      - uses: actions/checkout@6b42224f41ee5dfe5395e27c8b2746f1f9955030 # pin@v3
       - name: extract variables for workflow
         id: variables
         env:
@@ -60,7 +60,7 @@ jobs:
     name: Run unit tests
     steps:
       - name: Checkout code
-        uses: actions/checkout@9a9194f87191a7e9055e3e9b95b8cfb13023bb08
+        uses: actions/checkout@6b42224f41ee5dfe5395e27c8b2746f1f9955030
       - name: Run unit tests
         run: |
           docker compose up unit-tests
@@ -118,7 +118,7 @@ jobs:
     needs: ['terraform_plan_apply', 'workflow_variables']
     steps:
       - name: Checkout code
-        uses: actions/checkout@9a9194f87191a7e9055e3e9b95b8cfb13023bb08
+        uses: actions/checkout@6b42224f41ee5dfe5395e27c8b2746f1f9955030
 
       - name: Completion message
         run: echo "Workflow Complete"
