@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@9a9194f87191a7e9055e3e9b95b8cfb13023bb08
+        uses: actions/checkout@6b42224f41ee5dfe5395e27c8b2746f1f9955030
 
       - name: Build integration tests container
         run: docker compose -f docker-compose.yml build integration-tests
