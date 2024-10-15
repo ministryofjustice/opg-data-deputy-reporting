@@ -23,7 +23,7 @@ jobs:
         id: build_integration_tests
 
       - name: Configure AWS OIDC Credentials For Terraform
-        uses: aws-actions/configure-aws-credentials@73daff1b20af655c574cf2018ed2cc18a597bf5c
+        uses: aws-actions/configure-aws-credentials@2cefa29f8797029f898b1baeff3e21a144128687
         with:
           role-to-assume: "arn:aws:iam::631181914621:role/oidc-data-deputy-reporting-${{ inputs.environment }}"
           role-session-name: OPGDeputyReportingGithubAction
