@@ -67,6 +67,7 @@ jobs:
           TRIVY_JAVA_DB_REPOSITORY: ${{ steps.login_ecr.outputs.registry }}/trivy-db-public-ecr/aquasecurity/trivy-java-db
 
       - name: upload trivy scan results to security tab
+        if: ${{ matrix.name }} != 'deputy-reporting-mock-sirius'
         id: trivy_upload_sarif
         uses: github/codeql-action/upload-sarif@v2
         with:
