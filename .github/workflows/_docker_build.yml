@@ -36,22 +36,6 @@ jobs:
         id: build_container
         run: docker build --file ${{ matrix.path }}/Dockerfile --tag ${{ matrix.name }}:latest ${{ matrix.path }}
 
-      - name: Trivy Image Vulnerability Scanner
-        id: trivy_scan
-        uses: aquasecurity/trivy-action@0.14.0
-        with:
-          image-ref: ${{ matrix.name }}:latest
-          severity: 'HIGH,CRITICAL'
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-
-      - name: Upload Trivy scan results to GitHub Security tab
-        id: trivy_upload_sarif
-        uses: github/codeql-action/upload-sarif@v2
-        if: always()
-        with:
-          sarif_file: 'trivy-results.sarif'
-
       - uses: unfor19/install-aws-cli-action@27d6061dae5d39e89be4d2246824f15e111a7e06
 
       - name: configure OIDC AWS credentials for ECR push
@@ -68,6 +52,26 @@ jobs:
         with:
           registries: 311462405659
 
+      - name: trivy image scanning
+        id: trivy_scan
+        uses: aquasecurity/trivy-action@2b6a709cf9c4025c5438138008beaddbb02086f0 # pin@v0.7.1
+        with:
+          image-ref: ${{ matrix.name }}:latest
+          severity: "HIGH,CRITICAL"
+          format: "sarif"
+          scanners: "vuln"
+          output: "trivy-results.sarif"
+          timeout: 15m
+        env:
+          TRIVY_DB_REPOSITORY: ${{ steps.login_ecr.outputs.registry }}/trivy-db-public-ecr/aquasecurity/trivy-db
+          TRIVY_JAVA_DB_REPOSITORY: ${{ steps.login_ecr.outputs.registry }}/trivy-db-public-ecr/aquasecurity/trivy-java-db
+
+      - name: upload trivy scan results to security tab
+        id: trivy_upload_sarif
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: "trivy-results.sarif"
+
       - name: Push Container
         env:
           ECR_REGISTRY: ${{ steps.login_ecr.outputs.registry }}
@@ -79,5 +83,6 @@ jobs:
           docker tag $IMAGE_NAME:latest $ECR_REGISTRY/$ECR_REPOSITORY/$IMAGE_NAME:$IMAGE_TAG
           if [[ "${BUILD_IDENTIFIER}" == "main" ]]; then
             docker tag $IMAGE_NAME:latest $ECR_REGISTRY/$ECR_REPOSITORY/$IMAGE_NAME:latest
+            docker tag $IMAGE_NAME:latest $ECR_REGISTRY/$ECR_REPOSITORY/$IMAGE_NAME:main-$IMAGE_TAG
           fi
           docker push --all-tags $ECR_REGISTRY/$ECR_REPOSITORY/$IMAGE_NAME
