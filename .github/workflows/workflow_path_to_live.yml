@@ -29,7 +29,7 @@ jobs:
       build_identifier: "main"
       version_tag: ${{ steps.semver_tag.outputs.created_tag }}
     steps:
-      - uses: actions/checkout@9a9194f87191a7e9055e3e9b95b8cfb13023bb08 # pin@v3
+      - uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # pin@v3
       - name: generate semver tag and release
         id: semver_tag
         uses: ministryofjustice/opg-github-actions/.github/actions/semver-tag@v2.5.0
@@ -60,7 +60,7 @@ jobs:
     uses: ./.github/workflows/_terraform.yml
     with:
       terraform_path: 'environment'
-      image_tag: ${{ needs.workflow_variables.outputs.build_identifier }}-${{ needs.workflow_variables.outputs.version_tag }}
+      image_tag: ${{ needs.workflow_variables.outputs.version_tag }}
       workspace: 'development'
       environment: 'development'
 
@@ -79,7 +79,7 @@ jobs:
     uses: ./.github/workflows/_terraform.yml
     with:
       terraform_path: 'environment'
-      image_tag: ${{ needs.workflow_variables.outputs.build_identifier }}-${{ needs.workflow_variables.outputs.version_tag }}
+      image_tag: ${{ needs.workflow_variables.outputs.version_tag }}
       workspace: 'preproduction'
       environment: 'preproduction'
 
@@ -109,7 +109,7 @@ jobs:
     uses: ./.github/workflows/_terraform.yml
     with:
       terraform_path: 'environment'
-      image_tag: ${{ needs.workflow_variables.outputs.build_identifier }}-${{ needs.workflow_variables.outputs.version_tag }}
+      image_tag: ${{ needs.workflow_variables.outputs.version_tag }}
       workspace: 'production'
       environment: 'production'
 
