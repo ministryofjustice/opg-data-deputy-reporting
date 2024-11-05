@@ -1,5 +1,5 @@
 # === BUILD IMAGE ===
-FROM python:3.13-slim AS builder
+FROM python:3.12-slim AS builder
 # Set the working directory to /app
 WORKDIR /app
 # Copy the requirements file to the working directory
@@ -13,7 +13,7 @@ COPY lambda_functions/v2/functions /app/lambda_functions/v2/functions
 COPY mock_integration_rest_api /app/mock_integration_rest_api
 
 # === FINAL IMAGE ===
-FROM python:3.13-slim
+FROM python:3.12-slim
 WORKDIR /app
 # Copy only the installed packages from the previous stage to the working directory
 COPY --from=builder /app /app
