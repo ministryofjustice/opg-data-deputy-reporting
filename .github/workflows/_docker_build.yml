@@ -54,7 +54,7 @@ jobs:
 
       - name: trivy image scanning
         id: trivy_scan
-        uses: aquasecurity/trivy-action@2b6a709cf9c4025c5438138008beaddbb02086f0 # pin@v0.7.1
+        uses: aquasecurity/trivy-action@d2a392a13760cb64cb6bbd31d4bed2a7d9a5298d # pin@v0.7.1
         with:
           image-ref: ${{ matrix.name }}:latest
           severity: "HIGH,CRITICAL"
@@ -67,6 +67,7 @@ jobs:
           TRIVY_JAVA_DB_REPOSITORY: ${{ steps.login_ecr.outputs.registry }}/trivy-db-public-ecr/aquasecurity/trivy-java-db
 
       - name: upload trivy scan results to security tab
+        if: ${{ matrix.name }} != 'deputy-reporting-mock-sirius'
         id: trivy_upload_sarif
         uses: github/codeql-action/upload-sarif@v2
         with:
