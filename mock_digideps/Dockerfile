@@ -1,4 +1,4 @@
-FROM stoplight/prism:5.5.1
+FROM stoplight/prism:5.11.2
 COPY openapi.yml run.sh /app/
 
 RUN cd /app/ && chmod +x run.sh

@@ -1,5 +1,5 @@
 # === BUILD IMAGE ===
-FROM python:3.12-slim AS builder
+FROM python:3.13-slim AS builder
 # Set the working directory to /app
 WORKDIR /app
 # Copy the requirements file to the working directory
@@ -12,7 +12,7 @@ RUN python -m pip install \
 COPY mock_sirius_backend /app/mock_sirius_backend
 
 # === FINAL IMAGE ===
-FROM python:3.12-slim
+FROM python:3.13-slim
 WORKDIR /app
 # Copy only the installed packages from the previous stage to the working directory
 COPY --from=builder /app /app
