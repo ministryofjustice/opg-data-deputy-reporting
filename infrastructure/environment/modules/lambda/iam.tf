@@ -77,6 +77,15 @@ data "aws_iam_policy_document" "lambda" {
   }
 
   statement {
+    sid       = "allowDecryptSecretKMS"
+    effect    = "Allow"
+    resources = [data.aws_kms_key.secrets_manager.arn]
+    actions = [
+      "kms:Decrypt"
+    ]
+  }
+
+  statement {
     sid       = "allowAssumeAccess"
     effect    = "Allow"
     resources = ["arn:aws:iam::${var.account.digideps_account_id}:role/integrations-s3-read-${var.account.account_mapping}"]
@@ -84,6 +93,10 @@ data "aws_iam_policy_document" "lambda" {
       "sts:AssumeRole"
     ]
   }
+}
+
+data "aws_kms_key" "secrets_manager" {
+  key_id = "alias/secrets-manager-regional-kms-key"
 }
 
 resource "aws_iam_role_policy_attachment" "vpc_access_execution_role" {
