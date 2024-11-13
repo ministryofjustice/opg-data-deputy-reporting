@@ -1,4 +1,0 @@
-#!/bin/bash
-cp ../lambda_functions/v2/openapi/deputy-reporting-openapi.yml .
-
-echo "copied in v2"
