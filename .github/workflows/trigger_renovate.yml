@@ -1,0 +1,80 @@
+name: "[Trigger] Create Renovate PRs"
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+
+on:
+  create:
+
+permissions:
+  id-token: none
+  actions: read
+  checks: read
+  contents: read  # Needed to list branches
+  deployments: none
+  issues: none
+  packages: none
+  pull-requests: write  # Needed to create PRs
+  repository-projects: none
+  security-events: none
+  statuses: none
+
+jobs:
+  create_prs:
+    runs-on: ubuntu-latest
+    name: Create PRs based on branches starting with 'renovate'
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Find branches starting with 'renovate' that don't have PRs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        id: find_branches
+        run: |
+          branches=$(git for-each-ref --format='%(refname:short)' refs/heads/ | grep '^renovate')
+          open_pr_branches=$(gh pr list --json headRefName --jq '.[] | .headRefName')
+
+          > branches_to_pr.txt  # Clear the file at the start
+
+          for branch in $branches; do
+            if [[ ! " $open_pr_branches " =~ " $branch " ]]; then
+              # Get the author of the first commit on this branch
+              author=$(git log --format="%an" "$branch" | tail -1)
+
+              # Proceed only if the author is "renovate[bot]"
+              if [[ "$author" == "renovate[bot]" ]]; then
+                # Check if only .yml, .txt, or .md files were modified in the branch
+                modified_files=$(git diff --name-only origin/main..."${branch}")
+
+                # Filter the files and see if any of them don't match the allowed extensions
+                if echo "$modified_files" | grep -vqE '\.(yml|txt|lock|json)$'; then
+                  echo "Skipping $branch because it has modified files outside .yml, .txt, or .md"
+                  continue
+                fi
+
+                # If all files are of the correct type, add branch to the list
+                echo "$branch" >> branches_to_pr.txt
+              fi
+            fi
+          done
+
+          if [ -s branches_to_pr.txt ]; then
+            echo "branches=$(cat branches_to_pr.txt | paste -s -d, -)" >> $GITHUB_ENV
+            echo "Branches to create PRs for:"
+            cat branches_to_pr.txt
+          else
+            echo "No branches to create PRs for."
+          fi
+
+      - name: Create pull requests for each branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        if: env.branches != ''
+        run: |
+          IFS=',' read -ra branch_array <<< "$branches"
+
+          for branch in "${branch_array[@]}"; do
+            gh pr create --base main --head "$branch" --title "Renovate PR for $branch" --body "This PR was automatically created for the branch $branch."
+          done
