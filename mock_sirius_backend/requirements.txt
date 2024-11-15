@@ -1,3 +1,0 @@
-connexion==3.1.0
-requests==2.32.3
-flask==2.3.3

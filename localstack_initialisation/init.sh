@@ -17,17 +17,6 @@ awslocal sqs create-queue --queue-name csv-sync-queue
 
 awslocal s3api get-bucket-location --bucket csv-bucket
 
-# function name must be 'function' due to localstack weirdness
-awslocal lambda create-function \
-          --function-name function \
-          --code ImageUri=csv-forwarder-function:latest \
-          --role arn:aws:iam::000000000:role/lambda-ex \
-
-awslocal lambda create-event-source-mapping \
-         --function-name function \
-         --batch-size 1 \
-         --event-source-arn arn:aws:sqs:eu-west-1:000000000000:csv-sync-queue
-
 awslocal s3api put-bucket-notification-configuration \
          --bucket csv-bucket \
          --notification-configuration '{ "QueueConfigurations": [{"QueueArn": "arn:aws:sqs:eu-west-1:000000000000:csv-sync-queue","Events": ["s3:ObjectCreated:*"]}]}'

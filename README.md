@@ -56,11 +56,11 @@ gateway would send to it to check it responds as expected.
 First bring up the lambda and the mock sirius containers as well as localstack which will be used for local S3.
 
 ```
-docker compose build mock-lambda mock-sirius localstack
+docker compose build deputy-reporting-lambda mock-sirius localstack
 ```
 
 ```
-docker compose up -d mock-lambda
+docker compose up -d deputy-reporting-lambda
 ```
 
 The curl to the lambda that mimics what is sent by the API gateway is a bit of a funny format and url.
@@ -88,111 +88,3 @@ They run as part of the pipeline against a mock sirius endpoint that gets spun u
 after the tests are finished.
 
 Further instructions to follow for running against real environments.
-
-### PACT
-
-To run pact locally, the easiest way to interact with it is to use the client tools.
-
-The best package to get started can be found here:
-
-https://github.com/pact-foundation/pact-ruby-standalone/releases/latest
-
-You can download the latest version to a directory, unzip it and run the individual tools
-in the `/pact/bin` folder from the command line or put them in your PATH.
-First you should put the contract in our local broker. The local broker is spun up as part
-of the `docker compose up -d` command and you can push in a contract manually from a json file
-by using the below command (example json included in this repo):
-
-```
-curl -i -X PUT -d '@./pact/example/digideps-pact-v2.json' \
--H 'Content-Type: application/json' \
-http://localhost:9292/pacts/provider/OPG%20Data/consumer/Complete%20the%20deputy%20report/version/x12345
-```
-
-You can then check it has uploaded by browsing to `localhost:9292`.
-
-To tag the pact we can now run this. We will want to tag the consumer as
-the verification command is best used with tags:
-
-```
-curl -i -X PUT -H 'Content-Type: application/json' \
-http://localhost:9292/pacticipants/Complete%20the%20deputy%20report/versions/x12345/tags/v2
-```
-
-You can check it has worked here:
-
-`http://localhost:9292/matrix/provider/OPG%20Data/consumer/Complete%20the%20deputy%20report`
-
-You can verify the pact as follows (assuming your path to pact-provider-verifier is correct):
-
-```
-../pact/bin/pact-provider-verifier --provider-base-url=http://localhost:4343 \
---custom-provider-header 'Authorization: asdf1234567890' \
---pact-broker-base-url="http://localhost:9292" \
---provider="OPG Data" \
---consumer-version-tag=v2 \
---provider-version-tag=v2 \
---publish-verification-results \
---provider-app-version=z12345
-```
-
-To test with our full `check_pact_deployable.py` script that has all the version control embedded in it:
-
-First you will want to pretend that `OPG Data` side has been tagged for production.
-
-```
-curl -i -X PUT -H 'Content-Type: application/json' http://localhost:9292/pacticipants/OPG%20Data/versions/z12345/tags/v2_production
-```
-
-You should do all of this in a virtual env (`virtualenv venv && source ./venv/bin/activate`)
-
-You can then login to code artifact to pull the pact package (and logout again):
-
-```
-aws-vault exec sirius-dev -- aws codeartifact login \
---tool pip \
---repository opg-pip-shared-code-dev \
---domain opg-moj \
---domain-owner 288342028542 \
---region eu-west-1
-
-pip3 install -r /pact/requirements.txt
-
-pip config unset global.index-url
-```
-
-You can now run the script against your spun up environment:
-
-```
-aws-vault exec identity -- python3 check_pact_deployable.py \
---provider_base_url="http://localhost:4343" \
---pact_broker_url="http://localhost:9292" \
---broker_user_name="admin" \
---broker_secret_name="local" \
---consumer_pacticipant="Complete%20the%20deputy%20report" \
---provider_pacticipant="OPG%20Data" \
---api_version="v2" \
---git_commit_consumer="x12345" \
---git_commit_provider="z12345"
-```
-
-Further examples of posting adhoc payloads to the endpoint via curl can be seen below.
-This may help in development of further integrations.
-
-Post an example report to the endpoint
-
-```
-curl -X POST -d '@./mock_integration_rest_api/example_report.json' \
--H 'Authorization: asdf1234567890' \
--H 'Content-Type: application/json' \
-http://localhost:4343/v2/clients/1234567T/reports
-```
-
-Post to an example supporting document to the endpoint
-
-```
-curl -X POST -d '@./mock_integration_rest_api/example_supporting_doc.json' \
--H 'Authorization: asdf1234567890' \
--H 'Content-Type: application/json' \
-http://localhost:4343/v2/clients/1234567T/reports/33ea0382-cfc9-4776-9036-667eeb68fa4b/supportingdocuments
-```
