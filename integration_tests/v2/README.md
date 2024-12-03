@@ -23,7 +23,7 @@ To set up for the integration tests you should check a few things first:
  - `virtualenv venv`
  - `source venv/bin/activate`
 
- `cd` into this folder and run `pip install -r ../../lambda_functions/v2/requirements/dev-requirements.txt` or
+ `cd` into this folder and run `pip install -r ../../lambda_functions/v2/requirements/unit-test-requirements.txt` or
  whatever requirements you need for your version.
 
  Run `aws-vault exec identity -- python -m pytest -n2 --dist=loadfile --html=report.html --self-contained-html` and

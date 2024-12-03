@@ -8,8 +8,6 @@
 
 # lambda stuff
 lambda*.zip
-lambda_functions/*/lambda_layers/python/lib/python3.7/site-packages/
-!lambda_functions/*/lambda_layers/python/lib/python3.7/site-packages/README.md
 
 # Ruby
 *.lock
@@ -35,8 +33,6 @@ process.yml
 *crash.log
 
 /lambda_functions/v1/integration_tests/*.json
-/mock_sirius_backend/venv
-*mock_integration_rest_api/deputy*.yml
 
 *.log
 log/pact.log
