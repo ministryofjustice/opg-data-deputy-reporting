@@ -39,7 +39,7 @@ jobs:
       - uses: unfor19/install-aws-cli-action@27d6061dae5d39e89be4d2246824f15e111a7e06
 
       - name: configure OIDC AWS credentials for ECR push
-        uses: aws-actions/configure-aws-credentials@97834a484a5ab3c40fa9e2eb40fcf8041105a573 # pin@v1.7.0
+        uses: aws-actions/configure-aws-credentials@f171d5c895855a39c1ef93ab625499424407e172 # pin@v1.7.0
         with:
           role-to-assume: arn:aws:iam::311462405659:role/data-deputy-reporting-gh-actions-ecr-push
           role-session-name: deputy-reporting-github-actions-ecr-push
