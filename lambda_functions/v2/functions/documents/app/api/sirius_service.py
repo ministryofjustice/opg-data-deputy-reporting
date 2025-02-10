@@ -228,26 +228,25 @@ def new_submit_document_to_sirius(
 
 
 def handle_sirius_error(
-    error_code=None, error_message=None, error_details=None, data=None
+    error_code=500, error_message=None, error_details=None, data=None
 ):
-    error_code = error_code if error_code else 500
-    error_message = (
-        error_message if error_message else "Unknown error talking to Sirius"
-    )
+    error_code = 500 if not error_code else error_code
     try:
-        sirius_error_details = error_details["detail"]
-        if "validation_errors" in error_details:
-            sirius_error_details = (
-                f"{sirius_error_details} - {error_details['validation_errors']}"
-            )
-        error_details = sirius_error_details
-    except (KeyError, TypeError):
-        error_details = (
-            str(error_details) if len(str(error_details or "")) > 0 else error_message
-        )
+        details = error_details.get("detail", "")
+        validation_errors = error_details.get("validation_errors")
+        if validation_errors is not None:
+            details = f"{details} - {str(validation_errors)}"
+    except AttributeError:
+        details = str(error_details or "")
 
-    message = f"{str(error_details)}"
-    logger.error(f"Failed sirius request data - {str(data)}")
+    message_parts = [msg for msg in (error_message, details) if msg]
+    message = (
+        " - ".join(message_parts)
+        if message_parts
+        else "Unknown error talking to Sirius"
+    )
+
+    logger.error(f"Failed Sirius request data - {data}")
 
     return error_code, message
 
@@ -260,12 +259,16 @@ def format_sirius_success(sirius_response_code, sirius_response=None):
             "type": sirius_response["type"],
             "id": sirius_response["uuid"],
             "attributes": {
-                "submission_id": sirius_response["metadata"]["submission_id"]
-                if "submission_id" in sirius_response["metadata"]
-                else None,
-                "parent_id": sirius_response["parentUuid"]
-                if "parentUuid" in sirius_response
-                else None,
+                "submission_id": (
+                    sirius_response["metadata"]["submission_id"]
+                    if "submission_id" in sirius_response["metadata"]
+                    else None
+                ),
+                "parent_id": (
+                    sirius_response["parentUuid"]
+                    if "parentUuid" in sirius_response
+                    else None
+                ),
             },
         }
     }
