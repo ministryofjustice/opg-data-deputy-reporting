@@ -103,7 +103,7 @@ def case_all():
     error_details = "here's some more details"
 
     api_response_code = 400
-    api_response = "spurious sirius error message"
+    api_response = "here's some more details - spurious sirius error message"
 
     return (
         sirius_response_code,
@@ -122,7 +122,7 @@ def case_code_missing():
     error_details = "here's some more details"
 
     api_response_code = 500
-    api_response = "spurious sirius error message"
+    api_response = "here's some more details - spurious sirius error message"
 
     return (
         sirius_response_code,
@@ -198,7 +198,7 @@ def case_details_no_validation():
     error_details = "here's some more details"
 
     api_response_code = 400
-    api_response = "some detail in sirius response"
+    api_response = "here's some more details - some detail in sirius response"
 
     return (
         sirius_response_code,
@@ -220,7 +220,7 @@ def case_details_validation():
     error_details = "here's some more details"
 
     api_response_code = 400
-    api_response = "some detail in sirius response - some validation error"
+    api_response = "here's some more details - some detail in sirius response - some validation error"
 
     return (
         sirius_response_code,
