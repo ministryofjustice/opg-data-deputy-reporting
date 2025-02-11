@@ -242,11 +242,9 @@ def handle_sirius_error(
             )
         error_details = sirius_error_details
     except (KeyError, TypeError):
-        error_details = (
-            str(error_details) if len(str(error_details or "")) > 0 else error_message
-        )
+        error_details = str(error_details) if len(str(error_details or "")) > 0 else ""
 
-    message = f"{str(error_details)}"
+    message = f"{str(error_message)} - {str(error_details)}"
     logger.error(f"Failed sirius request data - {str(data)}")
 
     return error_code, message
@@ -260,12 +258,16 @@ def format_sirius_success(sirius_response_code, sirius_response=None):
             "type": sirius_response["type"],
             "id": sirius_response["uuid"],
             "attributes": {
-                "submission_id": sirius_response["metadata"]["submission_id"]
-                if "submission_id" in sirius_response["metadata"]
-                else None,
-                "parent_id": sirius_response["parentUuid"]
-                if "parentUuid" in sirius_response
-                else None,
+                "submission_id": (
+                    sirius_response["metadata"]["submission_id"]
+                    if "submission_id" in sirius_response["metadata"]
+                    else None
+                ),
+                "parent_id": (
+                    sirius_response["parentUuid"]
+                    if "parentUuid" in sirius_response
+                    else None
+                ),
             },
         }
     }

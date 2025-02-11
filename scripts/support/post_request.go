@@ -1,3 +1,6 @@
+// The point of this script is a quick and easy way to hit the API Gateway AWS endpoint of your environment.
+// Simply replace the url with the relevant url for your environment before running the script.
+// Remember to use AWS vault so that the request can be signed or you will not be authorised.
 package main
 
 import (
