@@ -29,10 +29,10 @@ jobs:
     steps:
       - name: Check out code
         id: checkout_code
-        uses: actions/checkout@cbb722410c2e876e24abbe8de2cc27693e501dcb
+        uses: actions/checkout@85e6279cec87321a52edac9c87bce653a07cf6c2
 
       - name: Configure AWS OIDC Credentials For Health Check
-        uses: aws-actions/configure-aws-credentials@4fc4975a852c8cd99761e2de1f4ba73402e44dd9
+        uses: aws-actions/configure-aws-credentials@ececac1a45f3b08a01d2dd070d28d111c5fe6722
         with:
           aws-region: eu-west-1
           role-to-assume: "arn:aws:iam::631181914621:role/oidc-data-deputy-reporting-${{ inputs.sirius_account_name }}"

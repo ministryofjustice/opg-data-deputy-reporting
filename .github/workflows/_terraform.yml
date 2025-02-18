@@ -32,7 +32,7 @@ jobs:
   terraform_workflow:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@cbb722410c2e876e24abbe8de2cc27693e501dcb
+      - uses: actions/checkout@85e6279cec87321a52edac9c87bce653a07cf6c2
         with:
           fetch-depth: '0'
 
@@ -44,13 +44,13 @@ jobs:
         with:
           terraform_directory: infrastructure/${{ inputs.terraform_path }}
 
-      - uses: hashicorp/setup-terraform@49dee962d541c13290ae1c9c9be9c8b741ecb6bc
+      - uses: hashicorp/setup-terraform@7d2407faba0d9514aa95dc515182ee36200712a7
         with:
           terraform_version: ${{ steps.terraform_version.outputs.version }}
           terraform_wrapper: false
 
       - name: Configure AWS OIDC Credentials For Terraform
-        uses: aws-actions/configure-aws-credentials@4fc4975a852c8cd99761e2de1f4ba73402e44dd9
+        uses: aws-actions/configure-aws-credentials@ececac1a45f3b08a01d2dd070d28d111c5fe6722
         with:
           role-to-assume: "arn:aws:iam::631181914621:role/oidc-data-deputy-reporting-${{ inputs.environment }}"
           role-session-name: OPGDeputyReportingGithubAction
