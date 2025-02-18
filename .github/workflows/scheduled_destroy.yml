@@ -32,7 +32,7 @@ jobs:
         with:
           terraform_directory: infrastructure/environment
 
-      - uses: hashicorp/setup-terraform@49dee962d541c13290ae1c9c9be9c8b741ecb6bc
+      - uses: hashicorp/setup-terraform@7d2407faba0d9514aa95dc515182ee36200712a7
         with:
           terraform_version: ${{ steps.terraform_version.outputs.version }}
           terraform_wrapper: false
