@@ -56,18 +56,18 @@ gateway would send to it to check it responds as expected.
 First bring up the lambda and the mock sirius containers as well as localstack which will be used for local S3.
 
 ```
-docker compose build deputy-reporting-lambda mock-sirius localstack
+make build
 ```
 
 ```
-docker compose up -d deputy-reporting-lambda
+make up
 ```
 
 The curl to the lambda that mimics what is sent by the API gateway is a bit of a funny format and url.
 An example is below.
 
 ```
-curl -XPOST "http://localhost:9009/2015-03-31/functions/function/invocations" -d '@./docs/supportscripts/lambda_request.json' | jq
+curl -XPOST "http://localhost:9009/2015-03-31/functions/function/invocations" -d '@./scripts/support/report_pdf_post.json' | jq
 ```
 
 There will be some future work to mimic the API Gateway fully locally.
@@ -77,7 +77,7 @@ There will be some future work to mimic the API Gateway fully locally.
 Unit tests can be run through the unit tests container and are also run in the pipeline.
 
 ```
-docker compose up unit-tests
+make unit-tests
 ```
 
 ### Integration Tests
