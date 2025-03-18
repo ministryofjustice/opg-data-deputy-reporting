@@ -40,7 +40,7 @@ jobs:
 
       - id: terraform_version
         name: get terraform version
-        uses: ministryofjustice/opg-github-actions/.github/actions/terraform-version@v3.1.0
+        uses: ministryofjustice/opg-github-actions/.github/actions/terraform-version@9698787723a6a964ef9816066d9299568d8d359e # v3.1.0
         with:
           terraform_directory: infrastructure/${{ inputs.terraform_path }}
 
@@ -95,7 +95,7 @@ jobs:
       - id: terraform_workspace
         if: inputs.terraform_path == 'environment' && inputs.protect_workspace
         name: Register workspace
-        uses: ministryofjustice/opg-github-actions/.github/actions/terraform-workspace-manager@v2.7.3
+        uses: ministryofjustice/opg-github-actions/.github/actions/terraform-workspace-manager@87c9f0610c8b733969292ae15a2d3f6f5637a995 # v2.7.3
         with:
           aws_account_id: 288342028542
           aws_iam_role: integrations-ci

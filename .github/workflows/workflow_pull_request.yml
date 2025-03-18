@@ -40,7 +40,7 @@ jobs:
           echo ${build_identifier}
       - name: generate semver tag and release
         id: semver_tag
-        uses: ministryofjustice/opg-github-actions/.github/actions/semver-tag@v3.1.0
+        uses: ministryofjustice/opg-github-actions/.github/actions/semver-tag@9698787723a6a964ef9816066d9299568d8d359e # v3.1.0
         with:
           prerelease: true
           github_token: ${{ secrets.GITHUB_TOKEN }}
