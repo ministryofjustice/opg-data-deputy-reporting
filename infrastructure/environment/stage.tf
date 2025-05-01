@@ -31,19 +31,21 @@ resource "aws_api_gateway_domain_name" "sirius_deputy_reporting" {
 
 //Modify here for new version
 module "deploy_v2" {
-  source             = "./modules/stage"
-  account_name       = local.account.account_mapping
-  api_name           = local.api_name
-  aws_subnet_ids     = data.aws_subnets.private.ids
-  domain_name        = aws_api_gateway_domain_name.sirius_deputy_reporting
-  environment        = local.environment
-  flaskapp_lambda    = module.lamdba_flask_v2.lambda
-  openapi_version    = "v2"
-  region_name        = data.aws_region.region.name
-  rest_api           = aws_api_gateway_rest_api.deputy_reporting
-  tags               = local.default_tags
-  target_environment = local.target_environment
-  vpc_id             = local.account.vpc_id
+  source                         = "./modules/stage"
+  account_name                   = local.account.account_mapping
+  api_name                       = local.api_name
+  aws_subnet_ids                 = data.aws_subnets.private.ids
+  content_api_sha                = local.open_api_sha
+  content_api_gateway_policy_sha = local.rest_api_policy_sha
+  domain_name                    = aws_api_gateway_domain_name.sirius_deputy_reporting
+  environment                    = local.environment
+  flaskapp_lambda                = module.lamdba_flask_v2.lambda
+  openapi_version                = "v2"
+  region_name                    = data.aws_region.region.name
+  rest_api                       = aws_api_gateway_rest_api.deputy_reporting
+  tags                           = local.default_tags
+  target_environment             = local.target_environment
+  vpc_id                         = local.account.vpc_id
 }
 
 //To Add New Version Copy and Paste Above and Modify Accordingly

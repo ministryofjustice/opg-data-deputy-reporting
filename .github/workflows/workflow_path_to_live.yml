@@ -63,6 +63,8 @@ jobs:
       image_tag: ${{ needs.workflow_variables.outputs.version_tag }}
       workspace: 'development'
       environment: 'development'
+    secrets:
+      ssh_private_key_allow_list_repository: ${{ secrets.SSH_PRIVATE_KEY_ALLOW_LIST_REPOSITORY }}
 
   terraform_plan_apply_account_preproduction:
     name: Terraform Account Preproduction
@@ -82,6 +84,8 @@ jobs:
       image_tag: ${{ needs.workflow_variables.outputs.version_tag }}
       workspace: 'preproduction'
       environment: 'preproduction'
+    secrets:
+      ssh_private_key_allow_list_repository: ${{ secrets.SSH_PRIVATE_KEY_ALLOW_LIST_REPOSITORY }}
 
   health_check_preproduction:
     name: Health Check Preproduction
@@ -112,6 +116,8 @@ jobs:
       image_tag: ${{ needs.workflow_variables.outputs.version_tag }}
       workspace: 'production'
       environment: 'production'
+    secrets:
+      ssh_private_key_allow_list_repository: ${{ secrets.SSH_PRIVATE_KEY_ALLOW_LIST_REPOSITORY }}
 
   health_check_production:
     name: Health Check Production
