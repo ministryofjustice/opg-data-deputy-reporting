@@ -27,6 +27,9 @@ on:
         description: 'Environment to use for OIDC'
         required: true
         type: string
+    secrets:
+      ssh_private_key_allow_list_repository:
+        required: true
 
 jobs:
   terraform_workflow:
@@ -73,10 +76,11 @@ jobs:
         working-directory: infrastructure/${{ inputs.terraform_path }}
         continue-on-error: true
 
-      - name: Modify openapi specification
-        id: open_api
-        run: sed -i "s/\"\${allowed_roles}\"/\${allowed_roles}/" deputy-reporting-openapi.yml
-        working-directory: ./lambda_functions/v2/openapi
+
+      - name: Setup SSH private key
+        uses: webfactory/ssh-agent@d4b9b8ff72958532804b70bbe600ad43b36d5f2e # v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.ssh_private_key_allow_list_repository }}
 
       - name: Terraform Init
         run: terraform init -input=false
