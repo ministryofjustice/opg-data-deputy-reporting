@@ -27,9 +27,14 @@ on:
         description: 'Environment to use for OIDC'
         required: true
         type: string
+      load_allow_list_private_key:
+        description: 'Whether to load the Private SSH Key to access the MOJ IP Allow List'
+        default: false
+        required: false
+        type: boolean
     secrets:
       ssh_private_key_allow_list_repository:
-        required: true
+        required: false
 
 jobs:
   terraform_workflow:
@@ -78,6 +83,7 @@ jobs:
 
 
       - name: Setup SSH private key
+        if: inputs.load_allow_list_private_key
         uses: webfactory/ssh-agent@d4b9b8ff72958532804b70bbe600ad43b36d5f2e # v0.8.0
         with:
           ssh-private-key: ${{ secrets.ssh_private_key_allow_list_repository }}

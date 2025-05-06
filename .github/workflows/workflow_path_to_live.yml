@@ -63,6 +63,7 @@ jobs:
       image_tag: ${{ needs.workflow_variables.outputs.version_tag }}
       workspace: 'development'
       environment: 'development'
+      load_allow_list_private_key: true
     secrets:
       ssh_private_key_allow_list_repository: ${{ secrets.SSH_PRIVATE_KEY_ALLOW_LIST_REPOSITORY }}
 
@@ -84,6 +85,7 @@ jobs:
       image_tag: ${{ needs.workflow_variables.outputs.version_tag }}
       workspace: 'preproduction'
       environment: 'preproduction'
+      load_allow_list_private_key: true
     secrets:
       ssh_private_key_allow_list_repository: ${{ secrets.SSH_PRIVATE_KEY_ALLOW_LIST_REPOSITORY }}
 
@@ -116,6 +118,7 @@ jobs:
       image_tag: ${{ needs.workflow_variables.outputs.version_tag }}
       workspace: 'production'
       environment: 'production'
+      load_allow_list_private_key: true
     secrets:
       ssh_private_key_allow_list_repository: ${{ secrets.SSH_PRIVATE_KEY_ALLOW_LIST_REPOSITORY }}
 
