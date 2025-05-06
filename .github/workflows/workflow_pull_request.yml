@@ -93,6 +93,8 @@ jobs:
       mock_sirius: "1"
       protect_workspace: true
       environment: development
+    secrets:
+      ssh_private_key_allow_list_repository: ${{ secrets.SSH_PRIVATE_KEY_ALLOW_LIST_REPOSITORY }}
 
   integration_tests:
     name: Integration tests
@@ -111,6 +113,8 @@ jobs:
       image_tag: ${{ needs.workflow_variables.outputs.version_tag }}
       workspace: ${{ needs.workflow_variables.outputs.build_identifier }}
       environment: development
+    secrets:
+      ssh_private_key_allow_list_repository: ${{ secrets.SSH_PRIVATE_KEY_ALLOW_LIST_REPOSITORY }}
 
   workflow_complete:
     name: Complete Workflow Steps

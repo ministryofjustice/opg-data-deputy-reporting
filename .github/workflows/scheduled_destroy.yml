@@ -51,6 +51,11 @@ jobs:
           sudo tar -xvf $HOME/terraform-workspace-manager.tar.gz -C /usr/local/bin
           sudo chmod +x /usr/local/bin/terraform-workspace-manager
 
+      - name: Setup SSH private key
+        uses: webfactory/ssh-agent@d4b9b8ff72958532804b70bbe600ad43b36d5f2e # v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY_ALLOW_LIST_REPOSITORY }}
+
       - name: Terraform Init
         working-directory: ./infrastructure/environment
         run: terraform init -input=false

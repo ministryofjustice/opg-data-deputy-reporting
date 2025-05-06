@@ -35,7 +35,7 @@ locals {
   target_environment = local.account.target_environment
   //Modify here for new version
   latest_openapi_version = "v2"
-  openapispec            = file("../../lambda_functions/${local.latest_openapi_version}/openapi/${local.api_name}-openapi.yml")
+  openapispec            = "../../lambda_functions/${local.latest_openapi_version}/openapi/${local.api_name}-openapi.yml"
 }
 
 output "rest_arn" {
