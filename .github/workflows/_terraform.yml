@@ -105,7 +105,7 @@ jobs:
       - id: terraform_workspace
         if: inputs.terraform_path == 'environment' && inputs.protect_workspace
         name: Register workspace
-        uses: ministryofjustice/opg-github-actions/.github/actions/terraform-workspace-manager@87c9f0610c8b733969292ae15a2d3f6f5637a995 # v2.7.3
+        uses: ministryofjustice/opg-github-actions/.github/actions/terraform-workspace-manager@c9c5dfb290b8f614df0884928c521165ba83d630 # v3.1.4
         with:
           aws_account_id: 288342028542
           aws_iam_role: integrations-ci
