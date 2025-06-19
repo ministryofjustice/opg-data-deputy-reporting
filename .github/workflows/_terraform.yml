@@ -48,7 +48,7 @@ jobs:
 
       - id: terraform_version
         name: get terraform version
-        uses: ministryofjustice/opg-github-actions/.github/actions/terraform-version@9698787723a6a964ef9816066d9299568d8d359e # v3.1.0
+        uses: ministryofjustice/opg-github-actions/.github/actions/terraform-version@464975f6f9e628ffcece3db87ecb819d8d391ab6 # v3.1.6
         with:
           terraform_directory: infrastructure/${{ inputs.terraform_path }}
 
@@ -58,7 +58,7 @@ jobs:
           terraform_wrapper: false
 
       - name: Configure AWS OIDC Credentials For Terraform
-        uses: aws-actions/configure-aws-credentials@ececac1a45f3b08a01d2dd070d28d111c5fe6722 # v4.1.0
+        uses: aws-actions/configure-aws-credentials@b47578312673ae6fa5b5096b330d9fbac3d116df # v4.2.1
         with:
           role-to-assume: "arn:aws:iam::631181914621:role/oidc-data-deputy-reporting-${{ inputs.environment }}"
           role-session-name: OPGDeputyReportingGithubAction
@@ -84,7 +84,7 @@ jobs:
 
       - name: Setup SSH private key
         if: inputs.load_allow_list_private_key
-        uses: webfactory/ssh-agent@d4b9b8ff72958532804b70bbe600ad43b36d5f2e # v0.8.0
+        uses: webfactory/ssh-agent@a6f90b1f127823b31d4d4a8d96047790581349bd # v0.9.1
         with:
           ssh-private-key: ${{ secrets.ssh_private_key_allow_list_repository }}
 
