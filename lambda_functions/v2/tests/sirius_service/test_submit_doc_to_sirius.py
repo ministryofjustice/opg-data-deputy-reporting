@@ -2,7 +2,7 @@ import pytest
 from pytest_cases import parametrize_with_cases
 
 from lambda_functions.v2.functions.documents.app.api.sirius_service import (
-    new_submit_document_to_sirius,
+    submit_document_to_sirius,
 )
 from lambda_functions.v2.tests.sirius_service import cases_submit_doc_to_sirius
 
@@ -23,7 +23,7 @@ def test_submit_success(
     expected_response,
 ):
 
-    status_code, response = new_submit_document_to_sirius(
+    status_code, response = submit_document_to_sirius(
         data=data, method=method, endpoint=endpoint, url_params=url_params
     )
 
@@ -50,7 +50,7 @@ def test_submit_env_vars_broken(
     if env_var:
         monkeypatch.delenv(env_var)
 
-    status_code, response = new_submit_document_to_sirius(
+    status_code, response = submit_document_to_sirius(
         data=data, method=method, endpoint=endpoint, url_params=url_params
     )
 
@@ -67,7 +67,7 @@ def test_submit_errors(
     monkeypatch, data, method, endpoint, url_params, expected_responses
 ):
 
-    status_code, response = new_submit_document_to_sirius(
+    status_code, response = submit_document_to_sirius(
         data=data, method=method, endpoint=endpoint, url_params=url_params
     )
 

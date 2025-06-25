@@ -113,7 +113,7 @@ def build_sirius_headers(content_type="application/json"):
     }
 
 
-def new_post_to_sirius(url, data, headers, method):
+def post_to_sirius(url, data, headers, method):
     try:
         if method == "PUT":
             r = requests.put(url=url, data=data, headers=headers)
@@ -142,7 +142,7 @@ def get_debug_payload(data):
     return json.dumps(debug_payload)
 
 
-def new_submit_document_to_sirius(
+def submit_document_to_sirius(
     data, method="POST", endpoint="documents", url_params=None
 ):
     debug_payload = get_debug_payload(data)
@@ -185,7 +185,7 @@ def new_submit_document_to_sirius(
         )
 
     try:
-        sirius_status_code, sirius_response = new_post_to_sirius(
+        sirius_status_code, sirius_response = post_to_sirius(
             url=sirius_api_url, data=data, headers=headers, method=method
         )
     except Exception as e:

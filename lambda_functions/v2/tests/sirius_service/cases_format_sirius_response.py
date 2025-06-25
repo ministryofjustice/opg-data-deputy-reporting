@@ -81,7 +81,7 @@ def case_201():
     return (sirius_response_code, sirius_response, api_response_code, api_response)
 
 
-#  TODO needs moving into new_submit_document_to_sirius test
+#  TODO needs moving into submit_document_to_sirius test
 # @case_tags("error")
 # @case_name("Sirius responds with 404 (bad url params)")
 # def case_404_url_params() -> CaseData:
