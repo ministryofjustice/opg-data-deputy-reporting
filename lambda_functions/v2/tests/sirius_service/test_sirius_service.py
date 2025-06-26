@@ -21,10 +21,9 @@ Functions that require tests (* for done):
 * build_sirius_url
 * get_secret
 * build_sirius_headers
-new_post_to_sirius
-* new_submit_document_to_sirius
-* new_format_sirius_response
-submit_document_to_sirius (superseded by the 'new_' functions above so ignoring)
+post_to_sirius
+* submit_document_to_sirius
+* format_sirius_response
 """
 
 
@@ -154,13 +153,14 @@ def test_get_secret(secret_code, environment, region):
 
 @parametrize_with_cases(
     "sirius_response_code,sirius_response,api_response_code,api_response",
-    cases=cases_format_sirius_response, has_tag="success"
+    cases=cases_format_sirius_response,
+    has_tag="success",
 )
-def test_new_format_sirius_response(
-        sirius_response_code,
-        sirius_response,
-        api_response_code,
-        api_response,
+def test_format_sirius_response(
+    sirius_response_code,
+    sirius_response,
+    api_response_code,
+    api_response,
 ):
 
     formatted_status_code, formatted_response_text = format_sirius_success(
@@ -173,14 +173,15 @@ def test_new_format_sirius_response(
 
 @parametrize_with_cases(
     "sirius_response_code,sirius_response,error_details,api_response_code,api_response",
-    cases=cases_format_sirius_response, has_tag="error"
+    cases=cases_format_sirius_response,
+    has_tag="error",
 )
-def test_new_format_sirius_response_error(
-        sirius_response_code,
-        sirius_response,
-        error_details,
-        api_response_code,
-        api_response,
+def test_format_sirius_response_error(
+    sirius_response_code,
+    sirius_response,
+    error_details,
+    api_response_code,
+    api_response,
 ):
 
     formatted_status_code, formatted_response_text = handle_sirius_error(

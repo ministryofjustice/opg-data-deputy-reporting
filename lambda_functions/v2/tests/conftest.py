@@ -313,7 +313,7 @@ def patched_post(monkeypatch, request):
 
         return mock_response.status_code, mock_response.json()
 
-    monkeypatch.setattr(api.sirius_service, "new_post_to_sirius", mock_post_to_sirius)
+    monkeypatch.setattr(api.sirius_service, "post_to_sirius", mock_post_to_sirius)
 
 
 # @pytest.fixture(autouse=False, params=[400, 404, 500])
@@ -386,7 +386,7 @@ def patched_post_broken_sirius(request, monkeypatch):
         return mock_response.status_code, mock_response.json()
 
     monkeypatch.setattr(
-        api.sirius_service, "new_post_to_sirius", mock_post_to_broken_sirius
+        api.sirius_service, "post_to_sirius", mock_post_to_broken_sirius
     )
 
 

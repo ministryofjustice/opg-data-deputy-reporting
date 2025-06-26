@@ -11,7 +11,7 @@ def endpoint_handler(data, caseref):
         data=data, caseref=caseref
     )
 
-    api_status_code, api_response = sirius_service.new_submit_document_to_sirius(
+    api_status_code, api_response = sirius_service.submit_document_to_sirius(
         data=sirius_payload
     )
 
