@@ -4,8 +4,12 @@ data "aws_subnets" "private" {
     values = [local.account.vpc_id]
   }
 
-  tags = {
-    Name = "private-*"
+  filter {
+    name = "tag:Name"
+    values = [
+      "application-*",
+      "private-*"
+    ]
   }
 }
 
