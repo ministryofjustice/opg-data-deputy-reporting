@@ -81,7 +81,6 @@ jobs:
         working-directory: infrastructure/${{ inputs.terraform_path }}
         continue-on-error: true
 
-
       - name: Setup SSH private key
         if: inputs.load_allow_list_private_key
         uses: webfactory/ssh-agent@a6f90b1f127823b31d4d4a8d96047790581349bd # v0.9.1

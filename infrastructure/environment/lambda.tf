@@ -29,4 +29,5 @@ module "lamdba_flask_v2" {
   target_environment = local.target_environment
   aws_subnet_ids     = data.aws_subnets.private.ids
   memory             = 1024
+  timeout            = 120
 }
