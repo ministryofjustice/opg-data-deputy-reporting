@@ -22,9 +22,25 @@ permissions:
   statuses: none
 
 jobs:
+  terraform_plan_apply_with_mocks:
+    name: Terraform Environment with Sirius mock
+    uses: ./.github/workflows/_terraform.yml
+    with:
+      terraform_path: 'environment'
+      image_tag: v0.48.28-ddls903.1
+      workspace: ddls903292
+      mock_sirius: "1"
+      protect_workspace: true
+      environment: development
+      load_allow_list_private_key: true
+    secrets:
+      ssh_private_key_allow_list_repository: ${{ secrets.SSH_PRIVATE_KEY_ALLOW_LIST_REPOSITORY }}
+
+
   workflow_variables:
     runs-on: ubuntu-latest
     name: output workflow variables
+    needs: ['terraform_plan_apply_with_mocks']
     outputs:
       build_identifier: ${{ steps.variables.outputs.build_identifier }}
       version_tag: ${{ steps.semver_tag.outputs.created_tag }}
