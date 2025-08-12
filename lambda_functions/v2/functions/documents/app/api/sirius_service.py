@@ -2,6 +2,8 @@ import datetime
 import json
 import copy
 import os
+import time
+import uuid
 from urllib.parse import urlparse, urlencode
 
 import boto3
@@ -107,9 +109,18 @@ def build_sirius_headers(content_type="application/json"):
         algorithm="HS256",
     )
 
+    # Generate a valid AWS X-Ray trace ID
+    epoch_hex = format(int(time.time()), "x")
+    random_hex = uuid.uuid4().hex[:24]
+    trace_id = f"1-{epoch_hex}-{random_hex}"
+
+    # Generate a parent segment ID
+    parent_id = uuid.uuid4().hex[:16]
+
     return {
         "Content-Type": content_type,
         "Authorization": "Bearer " + encoded_jwt,
+        "X-Amzn-Trace-Id": f"Root={trace_id};Parent={parent_id};Sampled=1",
     }
 
 
