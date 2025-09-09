@@ -3,8 +3,8 @@ module smoke-test
 go 1.22.2
 
 require (
-	github.com/aws/aws-sdk-go v1.55.7
-	github.com/stretchr/testify v1.10.0
+	github.com/aws/aws-sdk-go v1.55.8
+	github.com/stretchr/testify v1.11.1
 )
 
 require (
