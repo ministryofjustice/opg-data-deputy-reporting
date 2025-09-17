@@ -150,6 +150,7 @@ def get_debug_payload(data):
     payload = json.loads(data)
     debug_payload = copy.deepcopy(payload)
     debug_payload["file"]["source"] = "REDACTED"
+    debug_payload["metadata"]["submitter_email"] = "REDACTED"
     return json.dumps(debug_payload)
 
 
