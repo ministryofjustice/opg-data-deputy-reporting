@@ -41,7 +41,7 @@ module "deploy_v2" {
   environment                    = local.environment
   flaskapp_lambda                = module.lamdba_flask_v2.lambda
   openapi_version                = "v2"
-  region_name                    = data.aws_region.region.name
+  region_name                    = data.aws_region.region.region
   rest_api                       = aws_api_gateway_rest_api.deputy_reporting
   tags                           = local.default_tags
   target_environment             = local.target_environment
