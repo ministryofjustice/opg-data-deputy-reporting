@@ -7,18 +7,7 @@ resource "aws_api_gateway_rest_api" "deputy_reporting" {
     types = ["REGIONAL"]
   }
 
-  # This is important to manage the update of roles form openapi spec properly
-  lifecycle {
-    replace_triggered_by = [null_resource.api_gateway]
-  }
   tags = local.default_tags
-}
-
-resource "null_resource" "api_gateway" {
-  triggers = {
-    open_api_sha        = local.open_api_sha
-    rest_api_policy_sha = local.rest_api_policy_sha
-  }
 }
 
 locals {
@@ -78,5 +67,5 @@ locals {
       module.allow_list.digideps_production
     )
   }
-  ip_restrictions_enabled = contains(["preproduction"], local.account.account_mapping)
+  ip_restrictions_enabled = contains(["preproduction", "production"], local.account.account_mapping)
 }
