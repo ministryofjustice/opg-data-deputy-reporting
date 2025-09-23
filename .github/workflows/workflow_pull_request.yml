@@ -107,7 +107,7 @@ jobs:
       workspace: ${{ needs.workflow_variables.outputs.build_identifier }}
 
   terraform_plan_apply_pr_environment:
-    name: Terraform Environment
+    name: Terraform Apply PR Environment
     needs: ['integration_tests', 'workflow_variables']
     uses: ./.github/workflows/_terraform.yml
     with:
@@ -121,7 +121,7 @@ jobs:
       ssh_private_key_allow_list_repository: ${{ secrets.SSH_PRIVATE_KEY_ALLOW_LIST_REPOSITORY }}
 
   terraform_plan_development:
-    name: Terraform Environment
+    name: Terraform Plan Development Environment
     needs: ['terraform_plan_apply_pr_environment']
     uses: ./.github/workflows/_terraform.yml
     with:
@@ -134,7 +134,7 @@ jobs:
       ssh_private_key_allow_list_repository: ${{ secrets.SSH_PRIVATE_KEY_ALLOW_LIST_REPOSITORY }}
 
   terraform_plan_preproduction:
-    name: Terraform Environment
+    name: Terraform Plan Preproduction Environment
     needs: ['terraform_plan_apply_pr_environment']
     uses: ./.github/workflows/_terraform.yml
     with:
