@@ -67,5 +67,5 @@ locals {
       module.allow_list.digideps_production
     )
   }
-  ip_restrictions_enabled = contains(["preproduction"], local.account.account_mapping)
+  ip_restrictions_enabled = contains(["preproduction", "production"], local.account.account_mapping)
 }
