@@ -1,6 +1,11 @@
 on:
   workflow_call:
     inputs:
+      apply_terraform:
+        description: 'Whether to apply the planned actions'
+        default: false
+        required: false
+        type: boolean
       terraform_path:
         description: 'The name of the terraform paths'
         required: true
@@ -113,6 +118,7 @@ jobs:
           oidc_role: arn:aws:iam::631181914621:role/oidc-data-deputy-reporting-${{ inputs.environment }}
 
       - name: Terraform Apply Environment
+        if: inputs.apply_terraform
         env:
           TF_WORKSPACE: ${{ inputs.workspace }}
           TF_VAR_image_tag: ${{ inputs.image_tag }}
