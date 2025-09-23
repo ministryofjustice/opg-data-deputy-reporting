@@ -51,6 +51,7 @@ jobs:
     uses: ./.github/workflows/_terraform.yml
     with:
       terraform_path: 'account'
+      apply_terraform: true
       workspace: 'development'
       environment: 'development'
 
@@ -60,6 +61,7 @@ jobs:
     uses: ./.github/workflows/_terraform.yml
     with:
       terraform_path: 'environment'
+      apply_terraform: true
       image_tag: ${{ needs.workflow_variables.outputs.version_tag }}
       workspace: 'development'
       environment: 'development'
@@ -73,6 +75,7 @@ jobs:
     uses: ./.github/workflows/_terraform.yml
     with:
       terraform_path: 'account'
+      apply_terraform: true
       workspace: 'preproduction'
       environment: 'preproduction'
 
@@ -82,6 +85,7 @@ jobs:
     uses: ./.github/workflows/_terraform.yml
     with:
       terraform_path: 'environment'
+      apply_terraform: true
       image_tag: ${{ needs.workflow_variables.outputs.version_tag }}
       workspace: 'preproduction'
       environment: 'preproduction'
@@ -106,6 +110,7 @@ jobs:
     uses: ./.github/workflows/_terraform.yml
     with:
       terraform_path: 'account'
+      apply_terraform: true
       workspace: 'production'
       environment: 'production'
 
@@ -115,6 +120,7 @@ jobs:
     uses: ./.github/workflows/_terraform.yml
     with:
       terraform_path: 'environment'
+      apply_terraform: true
       image_tag: ${{ needs.workflow_variables.outputs.version_tag }}
       workspace: 'production'
       environment: 'production'

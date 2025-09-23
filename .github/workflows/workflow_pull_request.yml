@@ -88,6 +88,7 @@ jobs:
     uses: ./.github/workflows/_terraform.yml
     with:
       terraform_path: 'environment'
+      apply_terraform: true
       image_tag: ${{ needs.workflow_variables.outputs.version_tag }}
       workspace: ${{ needs.workflow_variables.outputs.build_identifier }}
       mock_sirius: "1"
@@ -105,14 +106,37 @@ jobs:
       environment: development
       workspace: ${{ needs.workflow_variables.outputs.build_identifier }}
 
-  terraform_plan_apply:
-    name: Terraform Environment
+  terraform_plan_apply_pr_environment:
+    name: Terraform Apply PR Environment
     needs: ['integration_tests', 'workflow_variables']
     uses: ./.github/workflows/_terraform.yml
     with:
       terraform_path: 'environment'
+      apply_terraform: true
       image_tag: ${{ needs.workflow_variables.outputs.version_tag }}
       workspace: ${{ needs.workflow_variables.outputs.build_identifier }}
+      environment: development
+      load_allow_list_private_key: true
+    secrets:
+      ssh_private_key_allow_list_repository: ${{ secrets.SSH_PRIVATE_KEY_ALLOW_LIST_REPOSITORY }}
+
+  terraform_plan_development_account:
+    name: Terraform Plan Development Account
+    needs: ['terraform_plan_apply_pr_environment']
+    uses: ./.github/workflows/_terraform.yml
+    with:
+      terraform_path: 'account'
+      workspace: 'development'
+      environment: 'development'
+
+  terraform_plan_development:
+    name: Terraform Plan Development Environment
+    needs: ['terraform_plan_apply_pr_environment', 'workflow_variables']
+    uses: ./.github/workflows/_terraform.yml
+    with:
+      terraform_path: 'environment'
+      image_tag: ${{ needs.workflow_variables.outputs.version_tag }}
+      workspace: development
       environment: development
       load_allow_list_private_key: true
     secrets:
@@ -121,7 +145,12 @@ jobs:
   workflow_complete:
     name: Complete Workflow Steps
     runs-on: ubuntu-latest
-    needs: ['terraform_plan_apply', 'workflow_variables']
+    needs: [
+      'terraform_plan_apply_pr_environment', 
+      'terraform_plan_development_account',
+      'terraform_plan_development',
+      'workflow_variables'
+    ]
     if: ${{ always() }}
     steps:
       - name: Check workflow result
