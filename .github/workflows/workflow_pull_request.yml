@@ -129,7 +129,7 @@ jobs:
       environment_prefix: '${{ needs.workflow_variables.outputs.build_identifier }}.dev.'
       digideps_account: 248804316466
       sirius_account: 288342028542
-      role: 'sirius-files-sync.${{ needs.workflow_variables.outputs.build_identifier }}'
+      role: ''
 
   terraform_plan_development_account:
     name: Terraform Plan Development Account
