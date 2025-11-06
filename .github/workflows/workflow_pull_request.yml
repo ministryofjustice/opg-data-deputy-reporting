@@ -91,7 +91,7 @@ jobs:
       apply_terraform: true
       image_tag: ${{ needs.workflow_variables.outputs.version_tag }}
       workspace: ${{ needs.workflow_variables.outputs.build_identifier }}
-      mock_sirius: "1"
+      mock_sirius: "0"
       protect_workspace: true
       environment: development
       load_allow_list_private_key: true
@@ -106,19 +106,19 @@ jobs:
       environment: development
       workspace: ${{ needs.workflow_variables.outputs.build_identifier }}
 
-  terraform_plan_apply_pr_environment:
-    name: Terraform Apply PR Environment
-    needs: ['integration_tests', 'workflow_variables']
-    uses: ./.github/workflows/_terraform.yml
-    with:
-      terraform_path: 'environment'
-      apply_terraform: true
-      image_tag: ${{ needs.workflow_variables.outputs.version_tag }}
-      workspace: ${{ needs.workflow_variables.outputs.build_identifier }}
-      environment: development
-      load_allow_list_private_key: true
-    secrets:
-      ssh_private_key_allow_list_repository: ${{ secrets.SSH_PRIVATE_KEY_ALLOW_LIST_REPOSITORY }}
+#  terraform_plan_apply_pr_environment:
+#    name: Terraform Apply PR Environment
+#    needs: ['integration_tests', 'workflow_variables']
+#    uses: ./.github/workflows/_terraform.yml
+#    with:
+#      terraform_path: 'environment'
+#      apply_terraform: true
+#      image_tag: ${{ needs.workflow_variables.outputs.version_tag }}
+#      workspace: ${{ needs.workflow_variables.outputs.build_identifier }}
+#      environment: development
+#      load_allow_list_private_key: true
+#    secrets:
+#      ssh_private_key_allow_list_repository: ${{ secrets.SSH_PRIVATE_KEY_ALLOW_LIST_REPOSITORY }}
 
   terraform_plan_development_account:
     name: Terraform Plan Development Account
@@ -146,7 +146,7 @@ jobs:
     name: Complete Workflow Steps
     runs-on: ubuntu-latest
     needs: [
-      'terraform_plan_apply_pr_environment', 
+      'terraform_plan_apply_pr_environment',
       'terraform_plan_development_account',
       'terraform_plan_development',
       'workflow_variables'
