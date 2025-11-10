@@ -120,6 +120,17 @@ jobs:
     secrets:
       ssh_private_key_allow_list_repository: ${{ secrets.SSH_PRIVATE_KEY_ALLOW_LIST_REPOSITORY }}
 
+  health_check_pr_branch:
+    name: Health Check PR Branch
+    needs: ['workflow_variables', 'terraform_plan_apply_pr_environment']
+    uses: ./.github/workflows/_health_check.yml
+    with:
+      sirius_account_name: 'development'
+      environment_prefix: '${{ needs.workflow_variables.outputs.build_identifier }}.dev.'
+      digideps_account: 248804316466
+      sirius_account: 288342028542
+      role: ''
+
   terraform_plan_development_account:
     name: Terraform Plan Development Account
     needs: ['terraform_plan_apply_pr_environment']
@@ -146,9 +157,10 @@ jobs:
     name: Complete Workflow Steps
     runs-on: ubuntu-latest
     needs: [
-      'terraform_plan_apply_pr_environment', 
+      'terraform_plan_apply_pr_environment',
       'terraform_plan_development_account',
       'terraform_plan_development',
+      'health_check_pr_branch',
       'workflow_variables'
     ]
     if: ${{ always() }}

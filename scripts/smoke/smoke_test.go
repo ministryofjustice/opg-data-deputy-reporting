@@ -20,12 +20,20 @@ func assumeRoleWithChaining(baseRoleToAssume, finalRoleToAssume string) *aws.Con
 	sess := session.Must(session.NewSession())
 	baseCreds := stscreds.NewCredentials(sess, baseRoleToAssume)
 
-	// Create a session using the base role's credentials
+	// If no final role is provided, return config with base role credentials
+	if finalRoleToAssume == "" {
+		return &aws.Config{
+			Credentials: baseCreds,
+			Region:      aws.String("eu-west-1"),
+		}
+	}
+
+	// Otherwise, create a chained session using the base role credentials
 	chainedSess := session.Must(session.NewSession(&aws.Config{
 		Credentials: baseCreds,
 	}))
 
-	// Assume the final role
+	// Assume the final role using the chained session
 	finalCreds := stscreds.NewCredentials(chainedSess, finalRoleToAssume)
 
 	return &aws.Config{
@@ -51,8 +59,11 @@ func TestHealthCheck(t *testing.T) {
 	finalRole := os.Getenv("FINAL_ROLE")
 
 	baseRoleToAssume := fmt.Sprintf("arn:aws:iam::%s:role/%s", siriusAccountId, baseRole)
-	finalRoleToAssume := fmt.Sprintf("arn:aws:iam::%s:role/%s", digidepsAccountId, finalRole)
 
+	finalRoleToAssume := ""
+	if finalRole != "" {
+		finalRoleToAssume = fmt.Sprintf("arn:aws:iam::%s:role/%s", digidepsAccountId, finalRole)
+	}
 	// URL for the health check endpoint
 	url := fmt.Sprintf("https://%sdeputy-reporting.api.opg.service.justice.gov.uk/v2/healthcheck", environmentPrefix)
 
