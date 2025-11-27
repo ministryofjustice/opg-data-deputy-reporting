@@ -70,7 +70,7 @@ An example is below.
 curl -XPOST "http://localhost:9009/2015-03-31/functions/function/invocations" -d '@./scripts/support/report_pdf_post.json' | jq
 ```
 
-There will be some future work to mimic the API Gateway fully locally.
+There will be some future work to better mimic the API Gateway fully locally.
 
 ### Unit tests
 
