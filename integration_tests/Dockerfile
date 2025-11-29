@@ -1,5 +1,5 @@
 # === BUILD IMAGE ===
-FROM python:3.12-slim AS builder
+FROM python:3.14-slim AS builder
 # Set the working directory to /app
 WORKDIR /app
 # Copy the requirements file to the working directory
@@ -12,7 +12,7 @@ RUN python -m pip install \
 COPY v2/ /app/integration_tests/v2/
 
 # === FINAL IMAGE ===
-FROM python:3.12-slim
+FROM python:3.14-slim
 # Copy only the installed packages from the previous stage to the working directory
 COPY --from=builder /app /app
 ENV PYTHONPATH=/app

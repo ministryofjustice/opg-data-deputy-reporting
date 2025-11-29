@@ -1,4 +1,4 @@
-FROM stoplight/prism:5.14.2
+FROM stoplight/prism:5.14.3
 RUN apk update && apk upgrade && apk add --no-cache curl
 
 RUN rm -rf /usr/local/lib/node_modules/npm/node_modules/cross-spawn
