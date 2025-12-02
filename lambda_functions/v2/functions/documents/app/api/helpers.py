@@ -209,9 +209,11 @@ def error_message(code, message):
                     "id": request_id,
                     "code": custom_api_errors[str(code)]["error_code"],
                     "title": custom_api_errors[str(code)]["error_title"],
-                    "detail": str(message)
-                    if message
-                    else custom_api_errors[str(code)]["error_message"],
+                    "detail": (
+                        str(message)
+                        if message
+                        else custom_api_errors[str(code)]["error_message"]
+                    ),
                 },
             }
         ),
@@ -282,18 +284,19 @@ def get_digideps_s3_client():
 
 def get_encoded_s3_object(s3_client, bucket, key):
     try:
-        s3_client.download_file(bucket, key, "/tmp/{}".format(key))
+        # Get the object from S3
+        response = s3_client.get_object(Bucket=bucket, Key=key)
+        body = response["Body"]
     except Exception as e:
-        logger.error(f"Error downloading file from S3: {e}")
+        logger.error(f"Error fetching object from S3: {e}")
         return None
 
     try:
-        image = open("/tmp/{}".format(key), "rb")
-
-        image_read = image.read()
-        image_64_encode = base64.b64encode(image_read).decode("utf-8")
+        # Read the stream into memory
+        image_bytes = body.read()
+        image_64_encode = base64.b64encode(image_bytes).decode("utf-8")
     except Exception as e:
+        logger.error(f"Error encoding object from S3: {e}")
         image_64_encode = None
-        logger.error(f"Error reading file from S3: {e}")
 
     return image_64_encode
