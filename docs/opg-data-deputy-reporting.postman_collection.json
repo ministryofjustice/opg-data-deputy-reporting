@@ -1,0 +1,202 @@
+{
+  "info": {
+    "_postman_id": "99dd1ddf-e2b6-4382-bb25-3cb4c26b85df",
+    "name": "opg-data-deputy-reporting",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "34891730"
+  },
+  "item": [
+    {
+      "name": "healthcheck",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://ithc.dev.deputy-reporting.api.opg.service.justice.gov.uk/v2/healthcheck",
+          "protocol": "https",
+          "host": [
+            "ithc",
+            "dev",
+            "deputy-reporting",
+            "api",
+            "opg",
+            "service",
+            "justice",
+            "gov",
+            "uk"
+          ],
+          "path": [
+            "v2",
+            "healthcheck"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Reports Endpoint",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n\t\"report\": {\n\t\t\"data\": {\n\t\t\t\"type\": \"reports\",\n\t\t\t\"attributes\": {\n\t\t\t\t\"submission_id\": 123457,\n\t\t\t\t\"reporting_period_from\": \"2019-01-01\",\n\t\t\t\t\"reporting_period_to\": \"2019-12-31\",\n\t\t\t\t\"year\": 2019,\n\t\t\t\t\"date_submitted\": \"2020-01-03T09:30:00.001Z\",\n\t\t\t\t\"type\": \"PF\"\n\t\t\t},\n\t\t\t\"file\": {\n\t\t\t\t\"name\": \"dd_doc_148_1637841415252.pdf\",\n\t\t\t\t\"mimetype\": \"application/pdf\",\n\t\t\t\t\"s3_reference\": \"dd_doc_148_1637841415252\"\n\t\t\t}\n\t\t}\n\t}\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://ithc.dev.deputy-reporting.api.opg.service.justice.gov.uk/v2/clients/6102933T/reports",
+          "protocol": "https",
+          "host": [
+            "ithc",
+            "dev",
+            "deputy-reporting",
+            "api",
+            "opg",
+            "service",
+            "justice",
+            "gov",
+            "uk"
+          ],
+          "path": [
+            "v2",
+            "clients",
+            "6102933T",
+            "reports"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Supporting Documents",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "\n{\n    \"supporting_document\": {\n        \"data\": {\n            \"type\": \"supportingdocuments\",\n            \"attributes\": {\"submission_id\": 123456},\n            \"file\": {\n                \"name\": \"dd_doc_1033_1637319959533.pdf\",\n                \"mimetype\": \"application/pdf\",\n                \"s3_reference\": \"dd_doc_1033_1637319959533\"\n            }\n        }\n    }\n}\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://ithc.dev.deputy-reporting.api.opg.service.justice.gov.uk/v2/clients/6102933T/reports/9a2ccc31-e1b3-4226-95fa-8c560140b8df/supportingdocuments",
+          "protocol": "https",
+          "host": [
+            "ithc",
+            "dev",
+            "deputy-reporting",
+            "api",
+            "opg",
+            "service",
+            "justice",
+            "gov",
+            "uk"
+          ],
+          "path": [
+            "v2",
+            "clients",
+            "6102933T",
+            "reports",
+            "9a2ccc31-e1b3-4226-95fa-8c560140b8df",
+            "supportingdocuments"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Checklists",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n        \"checklist\": {\n            \"data\": {\n                \"type\": \"checklists\",\n                \"attributes\": {\n                    \"submission_id\": 123456,\n                    \"submitter_email\": \"donald.draper@digital.justice.gov.uk\",\n                    \"reporting_period_from\": \"2019-01-01\",\n                    \"reporting_period_to\": \"2019-12-31\",\n                    \"year\": 2019,\n                    \"type\": \"PF\"\n                },\n                \"file\": {\n                    \"name\": \"don_draper.pdf\",\n                    \"mimetype\": \"application/pdf\",\n                    \"source\": \"string\"\n                }\n            }\n        }\n    }",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://ithc.dev.deputy-reporting.api.opg.service.justice.gov.uk/v2/clients/6102933T/reports/9a2ccc31-e1b3-4226-95fa-8c560140b8df/checklists",
+          "protocol": "https",
+          "host": [
+            "ithc",
+            "dev",
+            "deputy-reporting",
+            "api",
+            "opg",
+            "service",
+            "justice",
+            "gov",
+            "uk"
+          ],
+          "path": [
+            "v2",
+            "clients",
+            "6102933T",
+            "reports",
+            "9a2ccc31-e1b3-4226-95fa-8c560140b8df",
+            "checklists"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "auth": {
+    "type": "awsv4",
+    "awsv4": [
+      {
+        "key": "sessionToken",
+        "value": "not a real session token",
+        "type": "string"
+      },
+      {
+        "key": "secretKey",
+        "value": "not a real secret key",
+        "type": "string"
+      },
+      {
+        "key": "accessKey",
+        "value": "not a secret access key",
+        "type": "string"
+      },
+      {
+        "key": "region",
+        "value": "eu-west-1",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ]
+}
