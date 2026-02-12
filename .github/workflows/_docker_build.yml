@@ -32,9 +32,16 @@ jobs:
           IMAGE_TAG: ${{ inputs.tag }}
         run: echo "Tag to use - ${IMAGE_TAG}"
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Build Container
         id: build_container
-        run: docker build --file ${{ matrix.path }}/Dockerfile --tag ${{ matrix.name }}:latest ${{ matrix.path }}
+        run: |
+          docker buildx build \
+            --platform linux/amd64 \
+            --tag ${{ matrix.name }}:latest \
+            ${{ matrix.path }}
 
       - uses: unfor19/install-aws-cli-action@f5b46b7f32cf5e7ebd652656c5036bf83dd1e60c # 1.0.8
 
