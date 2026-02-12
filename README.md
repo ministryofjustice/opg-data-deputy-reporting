@@ -9,7 +9,7 @@ Deputy reporting integration with OPG Data: Managed by opg-org-infra &amp; Terra
 Paths are product and environment specific and use delegated domains to create a hierarchy
 to support this implementation.
 
-The Rest APIs will be be accessible externally in production from
+The Rest APIs will be accessible externally in production from
 deputy-reporting.api.opg.service.justice.gov.uk which is a
 sub domain of opg.service.justice.gov.uk and this zone is created in the
 management account.
