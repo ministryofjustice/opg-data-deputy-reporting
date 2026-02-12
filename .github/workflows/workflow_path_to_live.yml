@@ -137,7 +137,7 @@ jobs:
       sirius_account_name: 'production'
       digideps_account: 515688267891
       sirius_account: 649098267436
-      role: 'sirius-files-sync.production02'
+      role: 'sirius-files-sync.production'
 
   complete_workflow:
     name: Complete Workflow Steps
