@@ -44,11 +44,6 @@ jobs:
             --load \
             ${{ matrix.path }}
 
-
-      - name: Check docker
-        id: check_docker
-        run: docker image ls
-
       - uses: unfor19/install-aws-cli-action@f5b46b7f32cf5e7ebd652656c5036bf83dd1e60c # 1.0.8
 
       - name: configure OIDC AWS credentials for ECR push
