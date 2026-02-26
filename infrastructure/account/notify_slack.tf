@@ -8,7 +8,7 @@ resource "aws_sns_topic" "deputy_reporting" {
 }
 
 module "notify_slack" {
-  source = "github.com/terraform-aws-modules/terraform-aws-notify-slack.git?ref=v5.6.0"
+  source = "github.com/terraform-aws-modules/terraform-aws-notify-slack.git?ref=v7.2.0"
 
   sns_topic_name   = aws_sns_topic.deputy_reporting.name
   create_sns_topic = false
