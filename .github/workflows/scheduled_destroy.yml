@@ -28,7 +28,7 @@ jobs:
 
       - id: terraform_version
         name: get terraform version
-        uses: ministryofjustice/opg-github-actions/.github/actions/terraform-version@ea1e81f43e7593acd74cc114085930f5f54914a2 # v3.1.7
+        uses: ministryofjustice/opg-github-actions/.github/actions/terraform-version@4daa651011e6595c5b9689c4ff634cd15221a206 # v4.3.11
         with:
           terraform_directory: infrastructure/environment
 
