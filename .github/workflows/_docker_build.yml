@@ -62,7 +62,7 @@ jobs:
         uses: aws-actions/amazon-ecr-login@5a88a04c91d5c6f97aae0d9be790e64d9b1d47b7 # v1.7.1
         with:
           registries: 311462405659
-          
+
       - name: Push Container
         env:
           ECR_REGISTRY: ${{ steps.login_ecr.outputs.registry }}
@@ -81,15 +81,15 @@ jobs:
       - name: Run Snyk Scan
         uses: ministryofjustice/opg-github-actions/actions/snyk-scan@8dea82fc8b8e7ffca431f0fb83848d523147ccd8 # v4.5.0
         with:
-          image-ref: ${{ matrix.name }}:latest
+          SNYK_TEST_IMAGE: ${{ matrix.name }}:latest
           SNYK_TOKEN: ${{ secrets.snyk_token }}
           snyk_test_args: "--severity-threshold=high"
-          sarif_filepath: ./test-results
-          sarif_filename: ${{ matrix.svc_name }}_snyk.sarif
+          sarif_filepath: test-results
+          sarif_filename: ${{ matrix.name }}_snyk.sarif
           snyk_policy_path: "./.github/.snyk"
 
       - name: Upload Snyk scan results to security tab
         uses: github/codeql-action/upload-sarif@b1bff81932f5cdfc8695c7752dcee935dcd061c8 # v4.33.0
         if: always()
         with:
-          sarif_file: test-results/${{ matrix.svc_name }}_snyk.sarif
+          sarif_file: test-results/${{ matrix.name }}_snyk.sarif
