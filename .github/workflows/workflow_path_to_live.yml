@@ -44,6 +44,8 @@ jobs:
     with:
       tag: ${{ needs.workflow_variables.outputs.version_tag }}
       build_identifier: ${{ needs.workflow_variables.outputs.build_identifier }}
+    secrets:
+      SNYK_OPG_ORG_TOKEN: ${{ secrets.SNYK_OPG_ORG_TOKEN }}
 
   terraform_plan_apply_account_development:
     name: Terraform Account Development

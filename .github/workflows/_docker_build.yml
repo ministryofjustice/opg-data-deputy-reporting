@@ -2,13 +2,17 @@ on:
   workflow_call:
     inputs:
       tag:
-        description: 'Tag for docker image'
+        description: "Tag for docker image"
         required: true
         type: string
       build_identifier:
-        description: 'Branch we are on'
+        description: "Branch we are on"
         required: true
         type: string
+    secrets:
+      SNYK_OPG_ORG_TOKEN:
+        description: "Token used for Snyk image scanning"
+        required: true
 
 jobs:
   docker_build_scan_push:
@@ -19,8 +23,10 @@ jobs:
         include:
           - name: "deputy-reporting-lambda"
             path: "lambda_functions/v2"
+            scan_id: "deputy-reporting-lambda-scan"
           - name: "deputy-reporting-mock-sirius"
             path: "mock_sirius"
+            scan_id: "deputy-reporting-mock-sirius-scan"
 
     steps:
       - name: Check out code
@@ -38,11 +44,11 @@ jobs:
       - name: Build Container
         id: build_container
         run: |
-         docker buildx build \
-            --platform linux/amd64 \
-            --tag ${{ matrix.name }}:latest \
-            --load \
-            ${{ matrix.path }}
+          docker buildx build \
+             --platform linux/amd64 \
+             --tag ${{ matrix.name }}:latest \
+             --load \
+             ${{ matrix.path }}
 
       - uses: unfor19/install-aws-cli-action@f5b46b7f32cf5e7ebd652656c5036bf83dd1e60c # 1.0.8
 
@@ -60,26 +66,23 @@ jobs:
         with:
           registries: 311462405659
 
-      - name: trivy image scanning
-        id: trivy_scan
-        uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # 0.33.1
+      - name: Run SNYK vulnerability scan
+        id: snyk_scan
+        uses: ministryofjustice/opg-github-actions/actions/snyk-scan@8dea82fc8b8e7ffca431f0fb83848d523147ccd8 # v4.5.0
+        continue-on-error: true
         with:
-          image-ref: ${{ matrix.name }}:latest
-          severity: "HIGH,CRITICAL"
-          format: "sarif"
-          scanners: "vuln"
-          output: "trivy-results.sarif"
-          timeout: 15m
-        env:
-          TRIVY_DB_REPOSITORY: ${{ steps.login_ecr.outputs.registry }}/trivy-db-public-ecr/aquasecurity/trivy-db
-          TRIVY_JAVA_DB_REPOSITORY: ${{ steps.login_ecr.outputs.registry }}/trivy-db-public-ecr/aquasecurity/trivy-java-db
+          SNYK_TEST_IMAGE: ${{ matrix.name }}:latest
+          SNYK_TOKEN: ${{ secrets.SNYK_OPG_ORG_TOKEN }}
+          sarif_filename: snyk-results.sarif
+          snyk_test_args: --severity-threshold=high
 
-      - name: upload trivy scan results to security tab
-        if: matrix.name != 'deputy-reporting-mock-sirius'
-        id: trivy_upload_sarif
-        uses: github/codeql-action/upload-sarif@d3ced5c96c16c4332e2a61eb6f3649d6f1b20bb8 # v3.31.5
+      - name: Upload SNYK scan results to GitHub Security tab
+        id: snyk_upload_sarif
+        if: steps.snyk_scan.outcome == 'success' && hashFiles('snyk-results.sarif') != ''
+        uses: github/codeql-action/upload-sarif@9e907b5e64f6b83e7804b09294d44122997950d6 # v4.32.3
         with:
-          sarif_file: "trivy-results.sarif"
+          sarif_file: "snyk-results.sarif"
+          category: ${{ matrix.scan_id }}
 
       - name: Push Container
         env:
