@@ -12,7 +12,7 @@ permissions:
   id-token: write
   actions: read
   checks: read
-  contents: write
+  contents: read
   deployments: none
   issues: none
   packages: none
@@ -38,12 +38,13 @@ jobs:
           export BRANCH=$(echo ${GITHUB_HEAD_REF:-${GITHUB_REF##*/}} | awk -F'_' '{print $1}' | tr -cd '[:alnum:]' | tr '[:upper:]' '[:lower:]' | cut -c1-8)
           echo "build_identifier=$(echo ${BRANCH}${PR_NUMBER})" >> $GITHUB_OUTPUT
           echo ${build_identifier}
+
       - name: generate semver tag and release
         id: semver_tag
-        uses: ministryofjustice/opg-github-actions/.github/actions/semver-tag@ea1e81f43e7593acd74cc114085930f5f54914a2 # v3.1.7
+        uses: ministryofjustice/opg-github-actions/actions/semver@821b6f92327f0f195276860676aa8133d63f39dd # v4.5.1
         with:
           prerelease: true
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          default_bump: minor
 
   pr-label:
     runs-on: ubuntu-latest
@@ -81,6 +82,8 @@ jobs:
     with:
       tag: ${{ needs.workflow_variables.outputs.version_tag }}
       build_identifier: ${{ needs.workflow_variables.outputs.build_identifier }}
+    secrets:
+      snyk_token: ${{ secrets.SNYK_OPG_ORG_TOKEN }}
 
   terraform_plan_apply_with_mock:
     name: Terraform Environment with Sirius mock
