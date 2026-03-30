@@ -3,7 +3,7 @@ name: "[Workflow] Cleanup PR Workspaces"
 on:
   schedule:
     # 6am and 6pm every day except Sundays
-    - cron: '0 6,18 * * 0-6'
+    - cron: "0 6,18 * * 0-6"
 
 permissions:
   id-token: write
@@ -28,7 +28,7 @@ jobs:
 
       - id: terraform_version
         name: get terraform version
-        uses: ministryofjustice/opg-github-actions/.github/actions/terraform-version@ea1e81f43e7593acd74cc114085930f5f54914a2 # v3.1.7
+        uses: ministryofjustice/opg-github-actions/actions/terraform-version@821b6f92327f0f195276860676aa8133d63f39dd # v4.5.1
         with:
           terraform_directory: infrastructure/environment
 
