@@ -9,6 +9,9 @@ on:
         description: 'Branch we are on'
         required: true
         type: string
+    secrets:
+      snyk_token:
+        required: true
 
 jobs:
   docker_build_scan_push:
@@ -33,7 +36,7 @@ jobs:
         run: echo "Tag to use - ${IMAGE_TAG}"
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
 
       - name: Build Container
         id: build_container
@@ -43,6 +46,21 @@ jobs:
             --tag ${{ matrix.name }}:latest \
             --load \
             ${{ matrix.path }}
+
+      - name: Run Snyk Scan
+        uses: ministryofjustice/opg-github-actions/actions/snyk-scan@821b6f92327f0f195276860676aa8133d63f39dd # v4.5.1
+        with:
+          SNYK_TEST_IMAGE: ${{ matrix.name }}:latest
+          SNYK_TOKEN: ${{ secrets.snyk_token }}
+          snyk_test_args: "--severity-threshold=high"
+          sarif_filepath: ./test-results
+          sarif_filename: ${{ matrix.name }}_snyk.sarif
+          snyk_policy_path: ${{ github.workspace }}/.github/.snyk
+
+      - name: Upload Snyk scan results to security tab
+        uses: github/codeql-action/upload-sarif@b8d3b6e8af63cde30bdc382c0bc28114f4346c88 # v2.28.1
+        with:
+          sarif_file: test-results/${{ matrix.name }}_snyk.sarif
 
       - uses: unfor19/install-aws-cli-action@f5b46b7f32cf5e7ebd652656c5036bf83dd1e60c # 1.0.8
 
@@ -59,27 +77,6 @@ jobs:
         uses: aws-actions/amazon-ecr-login@5a88a04c91d5c6f97aae0d9be790e64d9b1d47b7 # v1.7.1
         with:
           registries: 311462405659
-
-      - name: trivy image scanning
-        id: trivy_scan
-        uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # 0.33.1
-        with:
-          image-ref: ${{ matrix.name }}:latest
-          severity: "HIGH,CRITICAL"
-          format: "sarif"
-          scanners: "vuln"
-          output: "trivy-results.sarif"
-          timeout: 15m
-        env:
-          TRIVY_DB_REPOSITORY: ${{ steps.login_ecr.outputs.registry }}/trivy-db-public-ecr/aquasecurity/trivy-db
-          TRIVY_JAVA_DB_REPOSITORY: ${{ steps.login_ecr.outputs.registry }}/trivy-db-public-ecr/aquasecurity/trivy-java-db
-
-      - name: upload trivy scan results to security tab
-        if: matrix.name != 'deputy-reporting-mock-sirius'
-        id: trivy_upload_sarif
-        uses: github/codeql-action/upload-sarif@d3ced5c96c16c4332e2a61eb6f3649d6f1b20bb8 # v3.31.5
-        with:
-          sarif_file: "trivy-results.sarif"
 
       - name: Push Container
         env:
