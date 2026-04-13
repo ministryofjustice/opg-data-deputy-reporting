@@ -1,35 +1,33 @@
 ---
 repos:
   - repo: https://github.com/antonbabenko/pre-commit-terraform
-    rev: v1.97.3
+    rev: d0e12caebb2ab0ee8bf98181c8bfe9702bca103d # frozen: v1.105.0
     hooks:
       - id: terraform_fmt
       - id: terraform_validate
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v2.4.0
+    rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c # frozen: v6.0.0
     hooks:
       - id: trailing-whitespace
       - id: detect-private-key
-      - id: flake8
-        args: ['--ignore=W503', '--exclude=docs/supportscripts/*', '--max-line-length=150']
       - id: trailing-whitespace
         args: [--markdown-linebreak-ext=md]
   - repo: https://github.com/ambv/black
-    rev: 25.1.0
+    rev: c6755bb741b6481d6b3d3bb563c83fa060db96c9 # frozen: 26.3.1
     hooks:
       - id: black
         language_version: python3
   - repo: https://github.com/adrienverge/yamllint.git
-    rev: v1.35.1
+    rev: cba56bcde1fdd01c1deb3f945e69764c291a6530 # frozen: v1.38.0
     hooks:
       - id: yamllint
         args: [-c=./.yamllint]
   - repo: https://github.com/awslabs/git-secrets
-    rev: master
+    rev: 7d6b970cbd3c216353cb22b383b70c150140662e # frozen
     hooks:
       - id: git-secrets
   - repo: https://github.com/dnephin/pre-commit-golang
-    rev: v0.5.1
+    rev: fb24a639f7c938759fe56eeebbb7713b69d60494 # frozen: v0.5.1
     hooks:
       - id: go-fmt
       - id: go-vet
