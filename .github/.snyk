@@ -1,2 +1,11 @@
 version: v1.25.0
-ignore: {}
+ignore:
+  SNYK-JS-LODASH-15869625:
+    - '*':
+        reason: >
+          Vulnerability originates from transitive dependency in
+          stoplight/prism base image (@stoplight/http-spec).
+          No direct dependency control; build environment prohibits
+          patching vendor dependencies. Runtime usage does not expose
+          lodash template execution paths.
+        expires: 2026-09-01
