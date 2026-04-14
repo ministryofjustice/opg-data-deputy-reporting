@@ -1,7 +1,7 @@
 # Define function directory
 ARG FUNCTION_DIR="/function"
 
-FROM python:3.12-alpine3.22 AS python-alpine
+FROM python:3.12-alpine3.22@sha256:848ba4413eb897e225159b8fc1b02094576cbae4aa73fc13142608ae2c8c0e32 AS python-alpine
 RUN apk add --no-cache \
     libstdc++ \
     elfutils-dev
