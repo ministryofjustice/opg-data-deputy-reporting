@@ -10,9 +10,9 @@ on:
 
 permissions:
   id-token: write
+  contents: write
   actions: read
   checks: read
-  contents: write
   deployments: none
   issues: none
   packages: none
@@ -27,15 +27,18 @@ jobs:
     name: output workflow variables
     outputs:
       build_identifier: "main"
-      version_tag: ${{ steps.semver_tag.outputs.created_tag }}
+      version_tag: ${{ steps.semver_tag.outputs.tag }}
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
       - name: generate semver tag and release
         id: semver_tag
-        uses: ministryofjustice/opg-github-actions/.github/actions/semver-tag@87c9f0610c8b733969292ae15a2d3f6f5637a995 # v2.7.3
+        uses: ministryofjustice/opg-github-actions/actions/semver@821b6f92327f0f195276860676aa8133d63f39dd # v4.5.1
         with:
           prerelease: false
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          default_bump: minor
 
   docker_build_scan_push:
     name: Build, Scan and Push
@@ -44,6 +47,8 @@ jobs:
     with:
       tag: ${{ needs.workflow_variables.outputs.version_tag }}
       build_identifier: ${{ needs.workflow_variables.outputs.build_identifier }}
+    secrets:
+      snyk_token: ${{ secrets.SNYK_OPG_ORG_TOKEN }}
 
   terraform_plan_apply_account_development:
     name: Terraform Account Development
