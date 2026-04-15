@@ -68,7 +68,11 @@ def pytest_sessionfinish(session, exitstatus):
         teardown_test_doc(test_config=test_config)
 
 
-def get_role_name():
+def get_digideps_role_name():
+    return "healthcheck-integration" if os.getenv("CI") == "true" else "operator"
+
+
+def get_sirius_role_name():
     return "integrations-ci" if os.getenv("CI") == "true" else "operator"
 
 
@@ -110,7 +114,7 @@ def assume_session(
 def upload_test_doc(test_config):
     session = assume_session(
         "assumed_role_session",
-        f"arn:aws:iam::248804316466:role/{get_role_name()}",
+        f"arn:aws:iam::248804316466:role/{get_digideps_role_name()}",
         region_name=test_config["aws_region"],
     )
     s3_client = session.client(service_name="s3")
@@ -127,7 +131,7 @@ def upload_test_doc(test_config):
 def teardown_test_doc(test_config):
     session = assume_session(
         "assumed_role_session",
-        f"arn:aws:iam::248804316466:role/{get_role_name()}",
+        f"arn:aws:iam::248804316466:role/{get_digideps_role_name()}",
         region_name=test_config["aws_region"],
     )
     s3_resource = session.resource(service_name="s3")
@@ -167,7 +171,7 @@ def send_a_request(
 
     session = assume_session(
         "assumed_role_session",
-        f"arn:aws:iam::288342028542:role/{get_role_name()}",
+        f"arn:aws:iam::288342028542:role/{get_sirius_role_name()}",
         region_name=test_config["aws_region"],
     )
     credentials = session.get_credentials()
