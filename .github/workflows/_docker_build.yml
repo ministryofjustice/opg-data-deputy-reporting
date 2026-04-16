@@ -9,6 +9,9 @@ on:
         description: 'Branch we are on'
         required: true
         type: string
+    secrets:
+      snyk_token:
+        required: true
 
 jobs:
   docker_build_scan_push:
@@ -19,8 +22,10 @@ jobs:
         include:
           - name: "deputy-reporting-lambda"
             path: "lambda_functions/v2"
+            scan_id: "deputy-reporting-lambda-scan"
           - name: "deputy-reporting-mock-sirius"
             path: "mock_sirius"
+            scan_id: "deputy-reporting-mock-sirius-scan"
 
     steps:
       - name: Check out code
@@ -33,7 +38,7 @@ jobs:
         run: echo "Tag to use - ${IMAGE_TAG}"
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
 
       - name: Build Container
         id: build_container
@@ -43,6 +48,24 @@ jobs:
             --tag ${{ matrix.name }}:latest \
             --load \
             ${{ matrix.path }}
+
+      - name: Run Snyk Scan
+        id: snyk_scan
+        uses: ministryofjustice/opg-github-actions/actions/snyk-scan@821b6f92327f0f195276860676aa8133d63f39dd # v4.5.1
+        with:
+          SNYK_TEST_IMAGE: ${{ matrix.name }}:latest
+          SNYK_TOKEN: ${{ secrets.snyk_token }}
+          snyk_test_args: "--severity-threshold=high"
+          sarif_filepath: ./test-results
+          sarif_filename: snyk-results.sarif
+          snyk_policy_path: ${{ github.workspace }}/.github/.snyk
+
+      - name: Upload SNYK scan results to GitHub Security tab
+        if: steps.snyk_scan.outcome == 'success' && hashFiles('snyk-results.sarif') != ''
+        uses: github/codeql-action/upload-sarif@9e907b5e64f6b83e7804b09294d44122997950d6 # v4.32.3
+        with:
+          sarif_file: test-results/snyk-results.sarif
+          category: ${{ matrix.scan_id }}
 
       - uses: unfor19/install-aws-cli-action@f5b46b7f32cf5e7ebd652656c5036bf83dd1e60c # 1.0.8
 
@@ -54,32 +77,11 @@ jobs:
           role-duration-seconds: 900
           aws-region: eu-west-1
 
-      - name: Login to ECR
+      - uses: aws-actions/amazon-ecr-login@c75a9a1d9c6f7cf1e4cfb2966839b590c3d46865 # v2.1.0
         id: login_ecr
-        uses: aws-actions/amazon-ecr-login@5a88a04c91d5c6f97aae0d9be790e64d9b1d47b7 # v1.7.1
         with:
           registries: 311462405659
-
-      - name: trivy image scanning
-        id: trivy_scan
-        uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # 0.33.1
-        with:
-          image-ref: ${{ matrix.name }}:latest
-          severity: "HIGH,CRITICAL"
-          format: "sarif"
-          scanners: "vuln"
-          output: "trivy-results.sarif"
-          timeout: 15m
-        env:
-          TRIVY_DB_REPOSITORY: ${{ steps.login_ecr.outputs.registry }}/trivy-db-public-ecr/aquasecurity/trivy-db
-          TRIVY_JAVA_DB_REPOSITORY: ${{ steps.login_ecr.outputs.registry }}/trivy-db-public-ecr/aquasecurity/trivy-java-db
-
-      - name: upload trivy scan results to security tab
-        if: matrix.name != 'deputy-reporting-mock-sirius'
-        id: trivy_upload_sarif
-        uses: github/codeql-action/upload-sarif@d3ced5c96c16c4332e2a61eb6f3649d6f1b20bb8 # v3.31.5
-        with:
-          sarif_file: "trivy-results.sarif"
+          mask-password: "true"
 
       - name: Push Container
         env:
