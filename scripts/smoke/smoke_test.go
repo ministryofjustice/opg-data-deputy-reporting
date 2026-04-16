@@ -64,6 +64,9 @@ func TestHealthCheck(t *testing.T) {
 	if finalRole != "" {
 		finalRoleToAssume = fmt.Sprintf("arn:aws:iam::%s:role/%s", digidepsAccountId, finalRole)
 	}
+
+	fmt.Println(baseRoleToAssume)
+	fmt.Println(finalRoleToAssume)
 	// URL for the health check endpoint
 	url := fmt.Sprintf("https://%sdeputy-reporting.api.opg.service.justice.gov.uk/v2/healthcheck", environmentPrefix)
 
