@@ -1,67 +1,77 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+
+  "enabled": true,
+  "timezone": "Europe/London",
+
   "extends": [
     "config:recommended",
-    "schedule:earlyMondays",
-    "helpers:pinGitHubActionDigests",
-    "docker:pinDigests"
+    "docker:pinDigests",
+    "helpers:pinGitHubActionDigests"
   ],
-  "branchPrefix": "renovate-",
-  "commitMessageAction": "Renovate Update",
+
+  "branchPrefix": "renovate/",
+  "labels": ["dependencies", "renovate"],
+  "rebaseWhen": "conflicted",
+  "dependencyDashboard": true,
+  "branchConcurrentLimit": 5,
+  "prHourlyLimit": 2,
+
   "minimumReleaseAge": "7 days",
-  "labels": [
-    "Dependencies",
-    "Renovate"
-  ],
+
   "packageRules": [
     {
-      "groupName": "Patch & Minor Updates",
-      "groupSlug": "all-minor-patch-updates",
-      "labels": [
-        "Dependencies",
-        "Renovate"
-      ],
-      "matchUpdateTypes": [
-        "minor",
-        "patch"
-      ],
-      "prPriority": 0,
-      "schedule": [
-        "after 6am and before 7am on Monday"
-      ],
-      "minimumReleaseAge": "3 days",
-      "matchPackageNames": [
-        "*"
-      ]
+      "matchUpdateTypes": ["major"],
+      "dependencyDashboardApproval": true,
+      "labels": ["dependencies", "renovate", "major"],
+      "minimumReleaseAge": "7 days"
+    },
+    {
+      "matchPackagePatterns": ["*"],
+      "isVulnerabilityAlert": true,
+      "labels": ["dependencies", "renovate", "security"],
+      "prPriority": 10,
+      "prCreation": "immediate"
+    },
+    {
+      "groupName": "Docker image updates",
+      "matchManagers": ["dockerfile", "docker-compose"],
+      "matchUpdateTypes": ["minor", "patch", "digest"],
+      "labels": ["dependencies", "docker"],
+      "schedule": ["before 9am on Monday"],
+      "minimumReleaseAge": "7 days"
+    },
+    {
+      "groupName": "Terraform dependency updates",
+      "matchManagers": ["terraform"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "labels": ["dependencies", "terraform"],
+      "schedule": ["before 9am on Monday"],
+      "minimumReleaseAge": "7 days"
+    },
+    {
+      "groupName": "GitHub Actions",
+      "matchManagers": ["github-actions"],
+      "labels": ["dependencies", "github-actions"],
+      "automerge": true,
+      "schedule": ["before 9am on Monday"],
+      "minimumReleaseAge": "7 days"
+    },
+    {
+      "groupName": "Python dependency updates",
+      "matchManagers": ["pip_requirements", "pip-compile"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "labels": ["dependencies", "python"],
+      "schedule": ["before 9am on Monday"],
+      "minimumReleaseAge": "7 days"
+    },
+    {
+      "groupName": "Golang dependency updates",
+      "matchManagers": ["gomod"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "labels": ["dependencies", "golang"],
+      "schedule": ["before 9am on Monday"],
+      "minimumReleaseAge": "7 days"
     }
-  ],
-  "major": {
-    "labels": [
-      "Dependencies",
-      "Renovate"
-    ],
-    "prCreation": "status-success",
-    "rangeStrategy": "pin",
-    "prPriority": 1,
-    "schedule": [
-      "after 6am and before 7am on Monday"
-    ]
-  },
-  "vulnerabilityAlerts": {
-    "groupName": "Security Alerts",
-    "labels": [
-      "Dependencies",
-      "Renovate"
-    ],
-    "schedule": [
-      "after 6am and before 7am every weekday"
-    ],
-    "dependencyDashboardApproval": false,
-    "minimumReleaseAge": null,
-    "rangeStrategy": "pin",
-    "commitMessagePrefix": "[SECURITY]",
-    "branchTopic": "{{{datasource}}}-{{{depName}}}-vulnerability",
-    "prCreation": "immediate",
-    "prPriority": 5
-  }
+  ]
 }
