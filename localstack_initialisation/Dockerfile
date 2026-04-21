@@ -1,4 +1,4 @@
-FROM localstack/localstack:0.14 as localstack
+FROM localstack/localstack:0.14@sha256:2f44dbb2af684c498892cfd6e493f2fea177edbf53322e0d6b28c28f32a454fb as localstack
 
 RUN apt -yq install bash-completion bash
 
