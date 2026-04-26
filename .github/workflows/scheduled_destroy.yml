@@ -28,7 +28,7 @@ jobs:
 
       - id: terraform_version
         name: get terraform version
-        uses: ministryofjustice/opg-github-actions/actions/terraform-version@821b6f92327f0f195276860676aa8133d63f39dd # v4.5.1
+        uses: ministryofjustice/opg-github-actions/actions/terraform-version@b605e1e2c94b399e8139c4c2be2c8730700e0004 # v4.5.2
         with:
           terraform_directory: infrastructure/environment
 
@@ -52,7 +52,7 @@ jobs:
           sudo chmod +x /usr/local/bin/terraform-workspace-manager
 
       - name: Setup SSH private key
-        uses: webfactory/ssh-agent@a6f90b1f127823b31d4d4a8d96047790581349bd # v0.9.1
+        uses: webfactory/ssh-agent@e83874834305fe9a4a2997156cb26c5de65a8555 # v0.10.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY_ALLOW_LIST_REPOSITORY }}
 
