@@ -1,4 +1,4 @@
-FROM stoplight/prism:5.15.0@sha256:bcea4f5dc44a6bccbbe86c2e6e16b6402fdf7a8da748ac4e48583a09f1d72924
+FROM stoplight/prism:5.15.1@sha256:d7dd4504976390636b1ac162530ddaaa220b8850e208b1a68519e815c47a3d35
 
 # Get rid of NPM entirely as not needed after install
 RUN set -eux; \
