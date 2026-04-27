@@ -20,6 +20,8 @@ RUN apk add --no-cache \
     cmake \
     libcurl
 
+RUN apk upgrade --no-cache openssl
+
 # Include global arg in this stage of the build
 ARG FUNCTION_DIR
 # Create function directory
