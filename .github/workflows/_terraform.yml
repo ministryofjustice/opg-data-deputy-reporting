@@ -49,8 +49,6 @@ jobs:
         with:
           fetch-depth: '0'
 
-      - uses: unfor19/install-aws-cli-action@f5b46b7f32cf5e7ebd652656c5036bf83dd1e60c # 1.0.8
-
       - id: terraform_version
         name: get terraform version
         uses: ministryofjustice/opg-github-actions/actions/terraform-version@821b6f92327f0f195276860676aa8133d63f39dd # v4.5.1
