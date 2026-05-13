@@ -125,6 +125,8 @@ def build_sirius_headers(content_type="application/json"):
 
 
 def post_to_sirius(url, data, headers, method):
+    print("TESTING DATA: ")
+    print(data)
     try:
         if method == "PUT":
             r = requests.put(url=url, data=data, headers=headers)
@@ -137,11 +139,9 @@ def post_to_sirius(url, data, headers, method):
             data=data,
         )
     if r.status_code not in [200, 201]:
-        logger.error(
-            f"""
+        logger.error(f"""
             {{\"sirius_failure_details\": {{\"status_code\": \"{r.status_code}\", \"body\": \"{str(r.json())}\"}}}}
-        """
-        )
+        """)
 
     return r.status_code, r.json()
 

@@ -9,3 +9,18 @@ ignore:
           patching vendor dependencies. Runtime usage does not expose
           lodash template execution paths.
         expires: 2026-09-01
+  SNYK-JS-FASTURI-16642399:
+    - '*':
+        reason: >
+          Vulnerability only appears in mock sirius.
+        expires: 2026-09-01
+  SNYK-JS-FASTURI-16642394:
+    - '*':
+        reason: >
+          Vulnerability only appears in mock sirius.
+        expires: 2026-09-01
+  SNYK-JS-UUID-16133035:
+    - '*':
+        reason: >
+          Vulnerability only appears in mock sirius.
+        expires: 2026-09-01
