@@ -627,8 +627,6 @@ components:
             - year
             - date_submitted
             - type
-            - digideps_report_type
-            - court_order_uids
           properties:
             submission_id:
               $ref: '#/components/schemas/submissionId'
