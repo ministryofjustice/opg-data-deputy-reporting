@@ -9,3 +9,11 @@ ignore:
           patching vendor dependencies. Runtime usage does not expose
           lodash template execution paths.
         expires: 2026-09-01
+
+  SNYK-JS-UUID-16133035:
+    - '*':
+        reason: >
+          Vulnerability originates from transitive dependency in
+          stoplight/prism base image (@stoplight/http-spec).
+          Runtime usage does not expose uuid generation paths.
+        expires: 2026-08-13
