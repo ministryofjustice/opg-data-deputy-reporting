@@ -641,6 +641,10 @@ components:
               example: "2020-01-03T09:30:00.001Z"
             type:
               $ref: '#/components/schemas/reportType'
+            digideps_report_type:
+              $ref: '#/components/schemas/digidepsReportType'
+            court_order_uids:
+              $ref: '#/components/schemas/courtOrderUids'
         file:
           $ref: '#/components/schemas/file'
     ReportChecklist:
@@ -725,6 +729,32 @@ components:
         - "NDR"
         - "COMBINED"
       example: "PF"
+    digidepsReportType:
+      type: string
+      description: "The report type as decided by Digideps: '-4' => hybrid; '-5' => PRO; '-6' => PA"
+      enum:
+        - "102"
+        - "103"
+        - "104"
+        - "102-4"
+        - "103-4"
+        - "104-4"
+        - "102-5"
+        - "103-5"
+        - "104-5"
+        - "102-4-5"
+        - "103-4-5"
+        - "102-6"
+        - "103-6"
+        - "104-6"
+        - "102-4-6"
+        - "103-4-6"
+    courtOrderUids:
+      type: array
+      description: "List of court order UIDs relating to the report submission; these correspond to Sirius court order UIDs"
+      items:
+        type: string
+      example: ["70605948", "70605949"]
     file:
       type: object
       required:
