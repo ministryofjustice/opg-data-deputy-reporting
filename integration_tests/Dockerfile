@@ -1,5 +1,5 @@
 # === BUILD IMAGE ===
-FROM python:3.12-slim@sha256:520153e2deb359602c9cffd84e491e3431d76e7bf95a3255c9ce9433b76ab99a AS builder
+FROM python:3.13-slim@sha256:b04b5d7233d2ad9c379e22ea8927cd1378cd15c60d4ef876c065b25ea8fb3bf3 AS builder
 # Set the working directory to /app
 WORKDIR /app
 # Copy the requirements file to the working directory
@@ -12,7 +12,7 @@ RUN python -m pip install \
 COPY v2/ /app/integration_tests/v2/
 
 # === FINAL IMAGE ===
-FROM python:3.12-slim@sha256:520153e2deb359602c9cffd84e491e3431d76e7bf95a3255c9ce9433b76ab99a
+FROM python:3.13-slim@sha256:b04b5d7233d2ad9c379e22ea8927cd1378cd15c60d4ef876c065b25ea8fb3bf3
 # Copy only the installed packages from the previous stage to the working directory
 COPY --from=builder /app /app
 ENV PYTHONPATH=/app
