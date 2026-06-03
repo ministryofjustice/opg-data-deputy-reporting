@@ -2,38 +2,38 @@ on:
   workflow_call:
     inputs:
       apply_terraform:
-        description: 'Whether to apply the planned actions'
+        description: "Whether to apply the planned actions"
         default: false
         required: false
         type: boolean
       terraform_path:
-        description: 'The name of the terraform paths'
+        description: "The name of the terraform paths"
         required: true
         type: string
       workspace:
-        description: 'Terraform workspace'
+        description: "Terraform workspace"
         required: true
         type: string
       image_tag:
-        description: 'Image tag to use'
+        description: "Image tag to use"
         required: false
         type: string
       protect_workspace:
-        description: 'Whether to protect the workspace'
+        description: "Whether to protect the workspace"
         default: false
         required: false
         type: boolean
       mock_sirius:
-        description: 'Whether to use mock sirius'
+        description: "Whether to use mock sirius"
         required: false
-        default: '0'
+        default: "0"
         type: string
       environment:
-        description: 'Environment to use for OIDC'
+        description: "Environment to use for OIDC"
         required: true
         type: string
       load_allow_list_private_key:
-        description: 'Whether to load the Private SSH Key to access the MOJ IP Allow List'
+        description: "Whether to load the Private SSH Key to access the MOJ IP Allow List"
         default: false
         required: false
         type: boolean
@@ -47,7 +47,7 @@ jobs:
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
-          fetch-depth: '0'
+          fetch-depth: "0"
 
       - id: terraform_version
         name: get terraform version
@@ -84,11 +84,11 @@ jobs:
         working-directory: infrastructure/${{ inputs.terraform_path }}
         continue-on-error: true
 
-      - name: Setup SSH private key
+      - name: deploy-key
         if: inputs.load_allow_list_private_key
-        uses: webfactory/ssh-agent@e83874834305fe9a4a2997156cb26c5de65a8555 # v0.10.0
+        uses: ministryofjustice/opg-github-actions/actions/github-deploy-key@ceeda9d30ec7f6705c819d0b7664b9a79df99a3b # v4.8.7
         with:
-          ssh-private-key: ${{ secrets.ssh_private_key_allow_list_repository }}
+          deploy_key: ${{ secrets.ssh_private_key_allow_list_repository }}
 
       - name: Terraform Init
         run: terraform init -input=false
