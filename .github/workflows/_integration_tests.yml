@@ -12,7 +12,7 @@ on:
 
 jobs:
   integration_tests:
-    name: Run health check
+    name: Run Integration Tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
