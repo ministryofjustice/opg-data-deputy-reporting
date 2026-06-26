@@ -6,7 +6,7 @@ module "mock_sirius" {
   environment         = local.environment
   use_mock_sirius     = var.use_mock_sirius
   subnets             = data.aws_subnets.private.ids
-  image_tag           = var.image_tag
+  image_tag           = "latest" #var.image_tag
   target_environment  = local.target_environment
   s3_vpc_endpoint_ids = local.account.s3_vpc_endpoint_ids
   providers = {
