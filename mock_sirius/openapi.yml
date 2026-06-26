@@ -257,6 +257,7 @@ definitions:
     required:
       - name
       - type
+      - source
     properties:
       name:
         type: string
@@ -270,10 +271,6 @@ definitions:
         type: string
         minLength: 1
         description: The base64 encoded file
-      s3_reference:
-        type: string
-        minLength: 1
-        description: S3 Reference if passed instead
   Metadata:
     type: object
     description: Metadata in response
