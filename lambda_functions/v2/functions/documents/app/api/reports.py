@@ -39,5 +39,7 @@ def transform_payload_data_to_sirius_request(data, caseref=None):
         "metadata": metadata,
         "file": {"name": file_name, "source": file_source, "type": file_type},
     }
+    logger.info('Request Payload to Sirius')
+    logger.info(payload)
 
     return json.dumps(payload)

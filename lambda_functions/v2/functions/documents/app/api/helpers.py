@@ -249,7 +249,7 @@ def handle_file_source(file):
         except Exception as e:
             logger.error(f"Error handling file: {e}")
             return None
-
+        logger.info(f"Looking up file: {file["s3_reference"]}")
         source = get_encoded_s3_object(
             s3_client=s3_client,
             bucket=bucket,
