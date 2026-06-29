@@ -17,3 +17,7 @@ ignore:
           stoplight/prism base image (@stoplight/http-spec).
           Runtime usage does not expose uuid generation paths.
         expires: 2026-08-13
+  SNYK-UPSTREAM-NODE-17430980:
+    - '*':
+        reason: This is a test image
+        expires: 2026-08-13
