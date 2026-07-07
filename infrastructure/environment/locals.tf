@@ -8,6 +8,7 @@ locals {
   default_tags = {
     business-unit          = "OPG"
     application            = "Data-Deputy-Reporting"
+    service-area           = "Supervision"
     environment-name       = local.environment
     owner                  = "OPG Supervision"
     infrastructure-support = "OPG WebOps: opgteam@digital.justice.gov.uk"
