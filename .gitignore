@@ -9,9 +9,6 @@
 # lambda stuff
 lambda*.zip
 
-# Ruby
-*.lock
-
 # IDE & development
 .idea
 __pycache__
