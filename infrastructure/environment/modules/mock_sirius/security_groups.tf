@@ -49,10 +49,8 @@ resource "aws_security_group_rule" "etl_to_ecr_api_egress" {
 
 //RULES FOR S3 ENDPOINT ACCESS
 data "aws_vpc_endpoint" "s3_endpoint" {
-  for_each     = var.s3_vpc_endpoint_ids
   service_name = "com.amazonaws.eu-west-1.s3"
   vpc_id       = var.vpc_id
-  id           = each.value
 }
 
 resource "aws_security_group_rule" "etl_to_s3_egress" {
@@ -61,6 +59,6 @@ resource "aws_security_group_rule" "etl_to_s3_egress" {
   from_port         = 443
   to_port           = 443
   security_group_id = aws_security_group.deputy_reporting_mock_sirius.id
-  prefix_list_ids   = toset([for i in var.s3_vpc_endpoint_ids : data.aws_vpc_endpoint.s3_endpoint[i].prefix_list_id])
+  prefix_list_ids   = [data.aws_vpc_endpoint.s3_endpoint.prefix_list_id]
   description       = "Outbound Mock Sirius to S3 Endpoint"
 }

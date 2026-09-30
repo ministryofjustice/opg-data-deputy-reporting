@@ -5,7 +5,7 @@ import jwt
 import pytest
 from botocore.exceptions import ClientError
 from jwt import DecodeError
-from moto import mock_secretsmanager
+from moto import mock_aws
 from pytest_cases import parametrize_with_cases
 
 from lambda_functions.v2.functions.documents.app.api import sirius_service
@@ -136,7 +136,7 @@ def test_build_sirius_headers_auth(patched_get_secret):
     "secret_code, environment, region",
     [("i_am_a_secret_code", "development", "eu-west-1")],
 )
-@mock_secretsmanager
+@mock_aws
 def test_get_secret(secret_code, environment, region):
     # Copied directly from original
     # "lambda_functions/v1/tests/reports/test_reports_sirius_service.py' test
