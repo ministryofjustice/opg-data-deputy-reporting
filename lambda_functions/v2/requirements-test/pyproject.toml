@@ -4,7 +4,7 @@ version = "0.0.0"
 requires-python = "==3.14.7"
 dependencies = [
     "moto==5.2.3",
-    "pytest==8.4.2",
+    "pytest==9.0.3",
     "pytest-cases==3.10.1",
 ]
 [tool.uv]
