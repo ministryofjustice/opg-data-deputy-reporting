@@ -1,11 +1,11 @@
 [project]
 name = "deputy-reporting"
 version = "0.0.0"
-requires-python = "==3.14.7"
+requires-python = "==3.14.8"
 dependencies = [
     "awslambdaric==4.1.0",
     "pyjwt==2.15.1",
-    "boto3==1.43.106",
+    "boto3==1.43.107",
     "flask==3.1.3",
     "requests==2.34.2",
 ]
