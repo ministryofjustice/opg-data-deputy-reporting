@@ -5,7 +5,7 @@ RUN apk add --no-cache nodejs
 RUN ln -s /usr/bin/node /usr/local/bin/node
 
 # TODO Remove this once alpine upgrade available as it patches a vulnerability
-# RUN apk update && apk add --upgrade "zlib==1.3.2-r1"
+RUN apk update && apk add --upgrade "zlib==1.3.2-r1"
 
 RUN cd /usr/src/prism/; \
     npm install fast-uri@^3.1.1
