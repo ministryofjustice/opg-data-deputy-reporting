@@ -1,51 +1,60 @@
-# Define function directory
-ARG FUNCTION_DIR="/function"
+ARG FUNCTION_DIR=/function
 
-FROM python:3.14.7-alpine3.24@sha256:9e9fde4d32eedce0b661d9ab91e826b62dddf28e928c230ec55f1866cac66b01 AS python-alpine
+FROM python:3.14.8-alpine3.24@sha256:f6a589d43c42b9e7f7dc67a12d37132491f362859a5d750607710cc56da3bc72 AS base
+
+# Temporary workaround until Alpine ships the patched package
+RUN apk update && apk add --upgrade "zlib=1.3.2-r1"
+
 RUN apk add --no-cache \
     libstdc++ \
     elfutils-dev
 
-RUN apk update && apk upgrade
+FROM base AS builder
 
-FROM python-alpine as build-image
-
-# Install aws-lambda-cpp build dependencies
 RUN apk add --no-cache \
     build-base \
     libtool \
     autoconf \
     automake \
-    make \
     cmake \
     libcurl
 
-# Include global arg in this stage of the build
-ARG FUNCTION_DIR
-# Create function directory
-RUN mkdir -p ${FUNCTION_DIR}
+COPY --from=ghcr.io/astral-sh/uv@sha256:61d393e44e249f2e4b526b6c7ddcecce245946826e608e11c93ad4f5bba55b21 \
+    /uv /uvx /usr/local/bin/
 
-# Copy function code
-COPY functions/documents/app ${FUNCTION_DIR}/app
+WORKDIR /build
 
-# Install the runtime interface client
-COPY --from=ghcr.io/astral-sh/uv@sha256:2bb3ebca0a796a155094a27773d290c4b074572e6107f171d88d086682fd2500 /uv /uvx /bin/
-COPY requirements/uv.lock .
 COPY requirements/pyproject.toml .
-RUN uv export --locked -o requirements.txt \
-    && python -m pip install --no-cache-dir \
-    --target ${FUNCTION_DIR} \
+COPY requirements/uv.lock .
+
+RUN uv export --locked -o requirements.txt
+
+RUN pip wheel \
+    --wheel-dir /wheels \
     -r requirements.txt
 
-# Multi-stage build: grab a fresh copy of the base image
-FROM python-alpine
-# Include global arg in this stage of the build
+FROM base AS runtime
+
 ARG FUNCTION_DIR
-# Set working directory to function root directory
+
 WORKDIR ${FUNCTION_DIR}
 
-# Copy in the build image dependencies
-COPY --from=build-image ${FUNCTION_DIR} ${FUNCTION_DIR}
+COPY requirements/pyproject.toml /tmp/
+COPY requirements/uv.lock /tmp/
 
-ENTRYPOINT [ "/usr/local/bin/python", "-m", "awslambdaric" ]
-CMD [ "app.docs.lambda_handler" ]
+COPY --from=builder /build/requirements.txt /tmp/
+COPY --from=builder /wheels /wheels
+
+RUN mkdir -p ${FUNCTION_DIR} && \
+    pip install \
+        --no-cache-dir \
+        --no-index \
+        --find-links=/wheels \
+        --target ${FUNCTION_DIR} \
+        -r /tmp/requirements.txt && \
+    rm -rf /wheels /tmp/*
+
+COPY functions/documents/app ./app
+
+ENTRYPOINT ["python", "-m", "awslambdaric"]
+CMD ["app.docs.lambda_handler"]
