@@ -5,6 +5,7 @@ import os
 import json
 
 import boto3
+from botocore.exceptions import ClientError
 from flask import jsonify, abort, request
 
 
@@ -266,9 +267,16 @@ def get_digideps_s3_client():
     master_session = boto3.session.Session()
     sts = master_session.client("sts")
     role_arn = os.environ["DIGIDEPS_S3_ROLE_ARN"]
-    assume_role_response = sts.assume_role(
-        RoleArn=role_arn, RoleSessionName="data-deputy-reporting"
-    )
+    try:
+        assume_role_response = sts.assume_role(
+            RoleArn=role_arn,
+            RoleSessionName="data-deputy-reporting",
+        )
+    except ClientError as e:
+        logger.error(
+            f"AssumeRole failed: {e.response}",
+        )
+        raise
 
     if "Credentials" in assume_role_response:
         assumed_session = boto3.Session(
