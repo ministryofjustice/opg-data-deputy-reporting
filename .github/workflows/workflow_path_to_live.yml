@@ -98,20 +98,20 @@ jobs:
     secrets:
       ssh_private_key_allow_list_repository: ${{ secrets.SSH_PRIVATE_KEY_ALLOW_LIST_REPOSITORY }}
 
-  health_check_preproduction:
-    name: Health Check Preproduction
-    needs: ['terraform_plan_apply_preproduction']
-    uses: ./.github/workflows/_health_check.yml
-    with:
-      sirius_account_name: 'preproduction'
-      environment_prefix: 'pre.'
-      digideps_account: 454262938596
-      sirius_account: 492687888235
-      role: 'sirius-files-sync.preproduction'
+#  health_check_preproduction:
+#    name: Health Check Preproduction
+#    needs: ['terraform_plan_apply_preproduction']
+#    uses: ./.github/workflows/_health_check.yml
+#    with:
+#      sirius_account_name: 'preproduction'
+#      environment_prefix: 'pre.'
+#      digideps_account: 454262938596
+#      sirius_account: 492687888235
+#      role: 'sirius-files-sync.preproduction'
 
   terraform_plan_apply_account_production:
     name: Terraform Account Production
-    needs: ['workflow_variables', 'health_check_preproduction']
+    needs: ['workflow_variables', 'terraform_plan_apply_preproduction']
     uses: ./.github/workflows/_terraform.yml
     with:
       terraform_path: 'account'
