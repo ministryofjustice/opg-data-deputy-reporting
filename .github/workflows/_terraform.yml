@@ -51,7 +51,7 @@ jobs:
 
       - id: terraform_version
         name: get terraform version
-        uses: ministryofjustice/opg-github-actions/actions/terraform-version@9e756945a9e2b6ac5dc81473b01f8b38600e6ed6 # v4.8.6
+        uses: ministryofjustice/opg-github-actions/actions/terraform-version@2ad72748485e27f590599a7e9768b9fc0d5b8e03 # v4.8.7
         with:
           terraform_directory: infrastructure/${{ inputs.terraform_path }}
 
@@ -86,7 +86,7 @@ jobs:
 
       - name: deploy-key
         if: inputs.load_allow_list_private_key
-        uses: ministryofjustice/opg-github-actions/actions/github-deploy-key@bec642d35dd1f72cd2986722b243be50aaf4bf8c # v4.10.1
+        uses: ministryofjustice/opg-github-actions/actions/github-deploy-key@722a5f955424aaba01e9ca43d68390cd4048d6e1 # v4.10.2
         with:
           deploy_key: ${{ secrets.ssh_private_key_allow_list_repository }}
 
@@ -107,7 +107,7 @@ jobs:
       - id: terraform_workspace
         if: inputs.terraform_path == 'environment' && inputs.protect_workspace
         name: Register workspace
-        uses: ministryofjustice/opg-github-actions/actions/terraform-workspace-manager@9e756945a9e2b6ac5dc81473b01f8b38600e6ed6 # v4.8.6
+        uses: ministryofjustice/opg-github-actions/actions/terraform-workspace-manager@2ad72748485e27f590599a7e9768b9fc0d5b8e03 # v4.8.7
         with:
           aws_account_id: 288342028542
           aws_iam_role: integrations-ci
