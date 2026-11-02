@@ -26,7 +26,7 @@ jobs:
 
       - id: terraform_version
         name: get terraform version
-        uses: ministryofjustice/opg-github-actions/actions/terraform-version@9e756945a9e2b6ac5dc81473b01f8b38600e6ed6 # v4.8.6
+        uses: ministryofjustice/opg-github-actions/actions/terraform-version@12bdbe54f92af873347bc0cd6f4e7769265c1a90 # v4.10.5
         with:
           terraform_directory: infrastructure/environment
 
@@ -50,7 +50,7 @@ jobs:
           sudo chmod +x /usr/local/bin/terraform-workspace-manager
 
       - name: deploy-key
-        uses: ministryofjustice/opg-github-actions/actions/github-deploy-key@bec642d35dd1f72cd2986722b243be50aaf4bf8c # v4.10.1
+        uses: ministryofjustice/opg-github-actions/actions/github-deploy-key@12bdbe54f92af873347bc0cd6f4e7769265c1a90 # v4.10.5
         with:
           deploy_key: ${{ secrets.SSH_PRIVATE_KEY_ALLOW_LIST_REPOSITORY }}
 
