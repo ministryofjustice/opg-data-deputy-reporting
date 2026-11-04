@@ -2,6 +2,7 @@
 .terraform
 .notes
 .vs
+**/slack_notify.zip
 
 # Virtual Environments
 .venv

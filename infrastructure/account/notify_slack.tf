@@ -1,11 +1,3 @@
-data "aws_kms_key" "cloudwatch_sns" {
-  key_id = "alias/integrations-sns-${terraform.workspace}"
-}
-
-resource "aws_sns_topic" "deputy_reporting" {
-  name              = "deputy-reporting-slack-alerts"
-  kms_master_key_id = data.aws_kms_key.cloudwatch_sns.key_id
-}
 
 module "notify_slack" {
   source = "github.com/terraform-aws-modules/terraform-aws-notify-slack.git?ref=v7.5.2"
