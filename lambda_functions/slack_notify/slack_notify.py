@@ -30,7 +30,9 @@ ROUTES = {
 
 
 def get_secret_value(secret_key: str) -> str:
-    resp = secrets_client.get_secret_value(SecretId="slack-webhooks")
+    resp = secrets_client.get_secret_value(
+        SecretId="deputy_reporting_slack_webhook_url"
+    )
     return json.loads(resp["SecretString"])[secret_key]
 
 
