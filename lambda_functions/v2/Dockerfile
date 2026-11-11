@@ -2,8 +2,8 @@ ARG FUNCTION_DIR=/function
 
 FROM python:3.14.9-alpine3.24@sha256:dbeb11d16bb95c3a7e3c25c842cb9f20cbc8c18f8be0461a4a0dcc861ad386a0 AS base
 
-# Temporary workaround until Alpine ships the patched package
-RUN apk update && apk add --upgrade "zlib=1.3.2-r1"
+# TODO Remove this once alpine upgrade available as it patches a vulnerability
+RUN apk update && apk add --upgrade "zlib==1.4-r0"
 
 RUN apk add --no-cache \
     libstdc++ \
