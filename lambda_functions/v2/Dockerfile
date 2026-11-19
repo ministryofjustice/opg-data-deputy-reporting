@@ -1,6 +1,6 @@
 ARG FUNCTION_DIR=/function
 
-FROM python:3.14.9-alpine3.24@sha256:dbeb11d16bb95c3a7e3c25c842cb9f20cbc8c18f8be0461a4a0dcc861ad386a0 AS base
+FROM python:3.14.10-alpine3.24@sha256:5862d971d1f0ae26b258cefa4e893556b1d3aba81bd2ff30888704ad378bab67 AS base
 
 # TODO Remove this once alpine upgrade available as it patches a vulnerability
 RUN apk update && apk add --upgrade "zlib==1.4-r0"
