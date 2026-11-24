@@ -1,5 +1,5 @@
 # === BUILD IMAGE ===
-FROM python:3.14.10-slim@sha256:9aaa474097d094040649f2162a627c0049b408f52138d980916788d80f04802f AS builder
+FROM python:3.15.0-slim@sha256:f5b92f2a669a4c347044f29367f31983280b648250ca94dea66f98c53bc87e58 AS builder
 # Set the working directory to /app
 WORKDIR /app
 
@@ -15,7 +15,7 @@ RUN uv export --locked -o requirements.txt \
 COPY v2/ /app/integration_tests/v2/
 
 # === FINAL IMAGE ===
-FROM python:3.14.10-slim@sha256:9aaa474097d094040649f2162a627c0049b408f52138d980916788d80f04802f
+FROM python:3.15.0-slim@sha256:f5b92f2a669a4c347044f29367f31983280b648250ca94dea66f98c53bc87e58
 # Copy only the installed packages from the previous stage to the working directory
 COPY --from=builder /app /app
 ENV PYTHONPATH=/app
